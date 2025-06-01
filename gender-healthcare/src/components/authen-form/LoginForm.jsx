@@ -2,7 +2,9 @@ import { Form, Input, Checkbox, message, Modal } from "antd";
 import GradientButton from "../common/GradientButton";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
-
+import { FcGoogle } from "react-icons/fc";
+import { FaFacebook } from "react-icons/fa";
+import { FaFacebookF } from "react-icons/fa6";
 const LoginModal = ({ open, onClose }) => {
   const navigate = useNavigate();
 
@@ -83,6 +85,17 @@ const LoginModal = ({ open, onClose }) => {
               </GradientButton>
             </Form.Item>
           </Form>
+        </div>
+        <div className="auth-divider">— OR —</div>
+        <div className="social-buttons">
+          <button className="social-button google">
+            <FcGoogle style={{ marginRight: "8px", fontSize: "25px" }} />
+            Sign up with Google
+          </button>
+          <button className="social-button facebook">
+            <FaFacebook style={{ marginRight: "8px", fontSize: "25px" }} />
+            Sign up with Facebook
+          </button>
         </div>
       </div>
     </Modal>

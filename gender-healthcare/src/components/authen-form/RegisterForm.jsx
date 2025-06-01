@@ -12,7 +12,9 @@ import {
 import axios from "axios";
 import GradientButton from "../common/GradientButton";
 import "./RegisterForm.css";
-
+import { FcGoogle } from "react-icons/fc";
+import { FaFacebook } from "react-icons/fa";
+import { FaFacebookF } from "react-icons/fa6";
 const { Option } = Select;
 
 const RegisterForm = ({ open, onClose }) => {
@@ -44,6 +46,15 @@ const RegisterForm = ({ open, onClose }) => {
     }
   };
 
+  const handleNextPassword = () => {
+    form
+      .validateFields(["password", "confirmPassword"])
+      .then(() => setStep(3))
+      .catch(() => {});
+  };
+
+  const handleBack = () => setStep((prev) => prev - 1);
+
   const handleFinish = async (values) => {
     try {
       await axios.post("http://localhost:8080/api/auth/register", values);
@@ -57,8 +68,6 @@ const RegisterForm = ({ open, onClose }) => {
     }
   };
 
-  const handleBack = () => setStep(1);
-
   return (
     <Modal open={open} onCancel={onClose} footer={null} centered>
       <div className="register-box">
@@ -67,8 +76,10 @@ const RegisterForm = ({ open, onClose }) => {
           <h2>Đăng ký tài khoản</h2>
           <p className="register-subtitle">
             {step === 1
-              ? "Nhập số điện thoại để bắt đầu đăng ký."
-              : "Hoàn tất thông tin còn lại."}
+              ? "Bước 1: Nhập số điện thoại"
+              : step === 2
+              ? "Bước 2: Nhập mật khẩu"
+              : "Bước 3: Hoàn tất thông tin cá nhân"}
           </p>
         </div>
 
@@ -79,7 +90,6 @@ const RegisterForm = ({ open, onClose }) => {
             onFinish={handleFinish}
             autoComplete="off"
           >
-            {/* Bước 1: Chỉ nhập số điện thoại */}
             {step === 1 && (
               <>
                 <Form.Item
@@ -99,41 +109,37 @@ const RegisterForm = ({ open, onClose }) => {
               </>
             )}
 
-            {/* Nhập thông tin còn lại  */}
             {step === 2 && (
               <>
                 <Form.Item
-                  name="fullname"
-                  label="Họ và tên"
-                  rules={[{ required: true, message: "Vui lòng nhập họ tên!" }]}
-                >
-                  <Input placeholder="Nhập họ và tên" />
-                </Form.Item>
-
-                <Form.Item
-                  name="gender"
-                  label="Giới tính"
+                  name="password"
+                  label="Mật khẩu"
                   rules={[
-                    { required: true, message: "Vui lòng chọn giới tính!" },
+                    { required: true, message: "Vui lòng nhập mật khẩu!" },
                   ]}
                 >
-                  <Select placeholder="Chọn giới tính">
-                    <Option value="MALE">Nam</Option>
-                    <Option value="FEMALE">Nữ</Option>
-                    <Option value="OTHER">Khác</Option>
-                  </Select>
+                  <Input.Password placeholder="Nhập mật khẩu" />
                 </Form.Item>
-
                 <Form.Item
-                  name="dob"
-                  label="Ngày sinh"
+                  name="confirmPassword"
+                  label="Nhập lại mật khẩu"
+                  dependencies={["password"]}
                   rules={[
-                    { required: true, message: "Vui lòng chọn ngày sinh!" },
+                    { required: true, message: "Vui lòng xác nhận mật khẩu!" },
+                    ({ getFieldValue }) => ({
+                      validator(_, value) {
+                        if (!value || getFieldValue("password") === value) {
+                          return Promise.resolve();
+                        }
+                        return Promise.reject(
+                          new Error("Mật khẩu không khớp!")
+                        );
+                      },
+                    }),
                   ]}
                 >
-                  <DatePicker style={{ width: "100%" }} format="DD/MM/YYYY" />
+                  <Input.Password placeholder="Xác nhận lại mật khẩu" />
                 </Form.Item>
-
                 <Form.Item>
                   <div
                     style={{
@@ -143,13 +149,50 @@ const RegisterForm = ({ open, onClose }) => {
                     }}
                   >
                     <Button onClick={handleBack}>Quay lại</Button>
-                    <GradientButton htmlType="submit">Đăng ký</GradientButton>
+                    <GradientButton onClick={handleNextPassword}>
+                      Tiếp tục
+                    </GradientButton>
                   </div>
+                </Form.Item>
+              </>
+            )}
+
+            {step === 3 && (
+              <>
+                <Form.Item name="fullname" label="Họ và tên">
+                  <Input placeholder="(Tuỳ chọn) Nhập họ và tên" />
+                </Form.Item>
+
+                <Form.Item name="gender" label="Giới tính">
+                  <Select placeholder="(Tuỳ chọn) Chọn giới tính">
+                    <Option value="MALE">Nam</Option>
+                    <Option value="FEMALE">Nữ</Option>
+                    <Option value="OTHER">Khác</Option>
+                  </Select>
+                </Form.Item>
+
+                <Form.Item name="dob" label="Ngày sinh">
+                  <DatePicker
+                    style={{ width: "100%" }}
+                    format="DD/MM/YYYY"
+                    placeholder="(Tuỳ chọn) Chọn ngày sinh"
+                  />
                 </Form.Item>
               </>
             )}
           </Form>
         </Spin>
+        <div className="auth-divider">— OR —</div>
+        <div className="social-buttons">
+          <button className="social-button google">
+            <FcGoogle style={{ marginRight: "8px", fontSize: "25px" }} />
+            Sign up with Google
+          </button>
+          <button className="social-button facebook">
+            <FaFacebook style={{ marginRight: "8px", fontSize: "25px" }} />
+            Sign up with Facebook
+          </button>
+        </div>
       </div>
     </Modal>
   );
