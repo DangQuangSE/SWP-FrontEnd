@@ -2,10 +2,13 @@ import { useState } from "react";
 import { Form, Input, Button, DatePicker, Select, message, Spin } from "antd";
 import GradientButton from "../common/GradientButton";
 import axios from "axios";
+import LoginGoogle from "../../api/LoginGoogle";
+import LoginFace from "../../api/LoginFace";
+import jwtDecode from "jwt-decode";
 const { Option } = Select;
 
 const RegisterForm = () => {
-  const [step, setStep] = useState(1); // 1: nhập email, 2: nhập mật khẩu (nếu đã có), 3: tạo mật khẩu mới (nếu chưa có), 4: khai báo thông tin cá nhân
+  const [step, setStep] = useState(1);
   const [loading, setLoading] = useState(false);
   const [email, setEmail] = useState("");
   const [userExists, setUserExists] = useState(false);
@@ -25,10 +28,10 @@ const RegisterForm = () => {
       if (res.data.length > 0) {
         setUserExists(true);
         setUserId(res.data[0].id);
-        setStep(2); // Đã tồn tại, sang nhập mật khẩu
+        setStep(2);
       } else {
         setUserExists(false);
-        setStep(3); // Chưa tồn tại, sang tạo mật khẩu
+        setStep(3);
       }
     } catch (err) {
       message.error("Đã xảy ra lỗi khi kiểm tra email.");
@@ -46,7 +49,6 @@ const RegisterForm = () => {
       );
       const user = res.data[0];
       if (user) {
-        // Kiểm tra đã khai báo thông tin cá nhân chưa
         if (user.fullname && user.gender && user.dob) {
           message.success("Đăng nhập thành công!");
           // TODO: chuyển sang trang chính
@@ -79,7 +81,7 @@ const RegisterForm = () => {
       message.success(
         "Tạo tài khoản thành công! Vui lòng khai báo thông tin cá nhân."
       );
-      setStep(4); // Chuyển thẳng sang khai báo thông tin cá nhân
+      setStep(4);
     } catch (err) {
       message.error("Đăng ký thất bại!");
     } finally {
@@ -87,7 +89,7 @@ const RegisterForm = () => {
     }
   };
 
-  // Step 4: Lưu thông tin cá nhân (chỉ khai báo 1 lần)
+  // Step 4: Lưu thông tin cá nhân
   const handleFinishProfile = async (values) => {
     try {
       setLoading(true);
@@ -101,7 +103,58 @@ const RegisterForm = () => {
     }
   };
 
-  // Quay lại bước nhập email
+  // Đăng nhập bằng Facebook
+  const handleFacebookSuccess = async (res) => {
+    try {
+      setLoading(true);
+      const response = await axios.post("http://localhost:8080/api/authFace", {
+        accessToken: res.accessToken,
+      });
+      if (response.data && response.data.success) {
+        message.success("Đăng nhập Facebook thành công!");
+        window.location.href = "/";
+      } else {
+        message.error("Đăng nhập Facebook thất bại!");
+      }
+    } catch (err) {
+      message.error("Lỗi xác thực Facebook!");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Đăng nhập bằng Google
+  const handleGoogleSuccess = async (credentialResponse) => {
+    try {
+      setLoading(true);
+      const { credential } = credentialResponse;
+      const decoded = jwtDecode(credential);
+      console.log("Google User Info:", decoded);
+      console.log("Google credential (ID Token):", credential);
+
+      const res = await axios.post(
+        "http://localhost:8080/api/auth/google",
+        {
+          idToken: credential,
+        },
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      localStorage.setItem("token", res.data.token);
+      message.success("Đăng nhập Google thành công!");
+      window.location.href = "/";
+    } catch (error) {
+      console.error("Google login failed:", error);
+      message.error("Đăng nhập Google thất bại!");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const handleBack = () => setStep(1);
 
   return (
@@ -152,30 +205,8 @@ const RegisterForm = () => {
               Hoặc tiếp tục bằng
             </div>
             <div style={{ display: "flex", gap: 12, justifyContent: "center" }}>
-              <Button
-                icon={
-                  <img
-                    src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/google/google-original.svg"
-                    alt="google"
-                    style={{ width: 20 }}
-                  />
-                }
-                shape="round"
-              >
-                Google
-              </Button>
-              <Button
-                icon={
-                  <img
-                    src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/facebook/facebook-original.svg"
-                    alt="facebook"
-                    style={{ width: 20 }}
-                  />
-                }
-                shape="round"
-              >
-                Facebook
-              </Button>
+              <LoginGoogle onSuccess={handleGoogleSuccess} />
+              <LoginFace onSuccess={handleFacebookSuccess} />
             </div>
             <div style={{ fontSize: 12, color: "#888", marginTop: 20 }}>
               Bằng cách đăng ký, bạn đồng ý với{" "}
@@ -307,7 +338,7 @@ const RegisterForm = () => {
         </Spin>
       )}
 
-      {/* Step 4: Khai báo thông tin cá nhân (chỉ khai báo 1 lần) */}
+      {/* Step 4: Khai báo thông tin cá nhân */}
       {step === 4 && (
         <div>
           <h2>Khai báo thông tin cá nhân</h2>
@@ -373,7 +404,6 @@ const RegisterForm = () => {
               <Button
                 type="link"
                 onClick={() => {
-                  // Bỏ qua bước khai báo, chuyển sang trang chính hoặc đóng modal
                   message.info("Bạn đã bỏ qua khai báo thông tin cá nhân.");
                   // TODO: chuyển sang trang chính hoặc đóng modal tại đây
                 }}

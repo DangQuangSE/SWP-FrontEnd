@@ -50,7 +50,6 @@
   border-radius: var(--radius-sm);
 }
 
-
 /* ===== DROPDOWN FIXED ===== */
 .nav-item.has-dropdown {
   position: relative;
