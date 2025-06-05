@@ -4,7 +4,6 @@ import GradientButton from "../common/GradientButton";
 import axios from "axios";
 import LoginFace from "../../api/LoginFace";
 import LoginGoogle from "../../api/LoginGoogle";
-import jwtDecode from "jwt-decode";
 const { Option } = Select;
 
 const LoginForm = () => {
@@ -13,6 +12,11 @@ const LoginForm = () => {
   const [profileForm] = Form.useForm();
   const [step, setStep] = useState(1); // 1: login, 2: khai báo thông tin
   const [userId, setUserId] = useState(null);
+  // dispatch(login(response.data.data));
+  //     localStorage.setItem("token", response.data.data.token);
+  //     // dispatch gửi action lên redux store
+  //     // action này sẽ được userSlice xử lý
+  //     navigate("/dashboard");
 
   // Đăng nhập bằng email và mật khẩu
   const handleLogin = async (values) => {
@@ -58,14 +62,57 @@ const LoginForm = () => {
     }
   };
 
-  // Xử lý đăng nhập Facebook thành công
   const handleFacebookSuccess = async (res) => {
-    // ...giữ nguyên code cũ...
+    try {
+      setLoading(true);
+      // Gửi accessToken lên backend để xác thực hoặc lấy thông tin user
+      const response = await axios.post("http://localhost:8080/api/authFace", {
+        accessToken: res.accessToken,
+      });
+      if (response.data && response.data.success) {
+        message.success("Đăng nhập Facebook thành công!");
+        // TODO: Đóng modal hoặc redirect, ví dụ:
+        window.location.href = "/";
+      } else {
+        message.error("Đăng nhập Facebook thất bại!");
+      }
+    } catch (err) {
+      message.error("Lỗi xác thực Facebook!");
+    } finally {
+      setLoading(false);
+    }
   };
 
   // Xử lý đăng nhập Google thành công
   const handleGoogleSuccess = async (credentialResponse) => {
-    // ...giữ nguyên code cũ...
+    try {
+      setLoading(true);
+      const { credential } = credentialResponse;
+      // Gửi idToken lên backend để xác thực hoặc lấy thông tin user
+      const res = await axios.post(
+        "http://localhost:8080/api/auth/google",
+        {
+          idToken: credential,
+        },
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+      if (res.data && res.data.token) {
+        localStorage.setItem("token", res.data.token);
+        message.success("Đăng nhập Google thành công!");
+        // TODO: Đóng modal hoặc redirect, ví dụ:
+        window.location.href = "/";
+      } else {
+        message.error("Đăng nhập Google thất bại!");
+      }
+    } catch (error) {
+      message.error("Lỗi xác thực Google!");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (

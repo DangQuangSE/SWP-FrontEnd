@@ -11,7 +11,7 @@ const Navigation = () => {
   const location = useLocation();
   const navigationItems = [
     { label: "Home", href: "/" },
-    { label: "Services", href: "/services", dropdown: true },
+    { label: "Services", href: "/", dropdown: true },
     { label: "Blog", href: "/blog" },
     { label: "Contact", href: "/contact" },
   ];

@@ -1,3 +1,7 @@
+import { persistor, store } from "./redux/store";
+import { Provider } from "react-redux";
+import { PersistGate } from "redux-persist/integration/react";
+
 import "./App.css";
 import Header from "./components/Layout/Header/Header";
 import Hero from "./components/Sections/Hero/Hero";
@@ -10,36 +14,40 @@ import LoginPage from "./pages/Login";
 
 function App() {
   return (
-    <div className="app">
-      <Header />
-      <main className="main-content">
-        <Routes>
-          <Route
-            path="/"
-            element={
-              <>
-                <Hero />
-                <Services />
-                <Articles />
-                <Testimonials />
-              </>
-            }
-          />
-          <Route
-            path="/homepage"
-            element={
-              <>
-                <Hero />
-                <Services />
-                <Articles />
-                <Testimonials />
-              </>
-            }
-          />
-        </Routes>
-      </main>
-      <Footer />
-    </div>
+    <Provider store={store}>
+      <PersistGate loading={null} persistor={persistor}>
+        <div className="app">
+          <Header />
+          <main className="main-content">
+            <Routes>
+              <Route
+                path="/"
+                element={
+                  <>
+                    <Hero />
+                    <Services />
+                    <Articles />
+                    <Testimonials />
+                  </>
+                }
+              />
+              <Route
+                path="/homepage"
+                element={
+                  <>
+                    <Hero />
+                    <Services />
+                    <Articles />
+                    <Testimonials />
+                  </>
+                }
+              />
+            </Routes>
+          </main>
+          <Footer />
+        </div>
+      </PersistGate>
+    </Provider>
   );
 }
 
