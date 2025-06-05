@@ -21,7 +21,7 @@
 
 /* ===== LOGIN BUTTON ===== */
 .login-btn {
-  color: var(--primary-color);
+  color: var(--text-white);
   border: 1px solid transparent;
   background: transparent;
 }

@@ -2,17 +2,17 @@ import { Link, useLocation } from "react-router-dom";
 import "./Navigation.css";
 
 const serviceOptions = [
-  { label: "Tư vấn trực tuyến", href: "/services?type=tu-van" },
+  { label: "Tư vấn sức khỏe giới tính ", href: "/services?type=tu-van" },
   { label: "Xét nghiệm STIs", href: "/services?type=stis" },
-  { label: "Theo dõi chu kì kinh nguyệt", href: "/services?type=kinh-nguyet" },
+  // { label: "Theo dõi chu kì kinh nguyệt", href: "/services?type=kinh-nguyet" },
 ];
 
 const Navigation = () => {
   const location = useLocation();
   const navigationItems = [
     { label: "Home", href: "/" },
-    { label: "Services", href: "/", dropdown: true },
-    { label: "Blog", href: "/blog" },
+    { label: "Blog", href: "/" },
+    { label: "Dịch vụ", href: "/blog", dropdown: true },
     { label: "Contact", href: "/contact" },
   ];
 
