@@ -4,7 +4,7 @@ import "./Navigation.css";
 const serviceOptions = [
   { label: "Tư vấn sức khỏe giới tính ", href: "/services?type=tu-van" },
   { label: "Xét nghiệm STIs", href: "/services?type=stis" },
-  // { label: "Theo dõi chu kì kinh nguyệt", href: "/services?type=kinh-nguyet" },
+  { label: "Đăng kí khám bệnh", href: "/services?type=dangki" },
 ];
 
 const Navigation = () => {

@@ -80,22 +80,34 @@ body {
 .app {
   min-height: 100vh;
   display: flex;
-  flex-direction: column;
+  flex-direction: column; /* 🔁 Đổi từ column sang row */
+  width: 100%;
+  align-items: stretch; /* hoặc center nếu bạn muốn căn giữa theo chiều dọc */
+  gap: 32px; 
 }
+
 
 .main-content {
   flex: 1;
+  display: flex;
+  flex-direction: row; 
+  align-items: flex-start; /* Căn top nếu chiều cao khác nhau */
+  gap: 32px; /* Khoảng cách giữa các component, tuỳ chỉnh */
 }
 
 .container {
   width: 100%;
-  max-width: 1200px;
+  max-width: 1440px;
   margin: 0 auto;
-  padding: 0 var(--spacing-lg);
+  padding: 0 var(--spacing-2xl);
+  box-sizing: border-box;
 }
 
 .section {
   padding: var(--spacing-3xl) 0;
+  max-width: 1200px;
+  margin: 0 auto;
+  box-sizing: border-box;
 }
 
 .section-title {
@@ -154,111 +166,12 @@ body {
   z-index: -1;
 }
 
-.btn-secondary:hover {
-  background: var(--bg-light);
-}
-
-.btn-large {
-  padding: var(--spacing-md) var(--spacing-xl);
-  font-size: 16px;
-}
-
-.btn-small {
-  padding: var(--spacing-xs) var(--spacing-md);
-  font-size: 12px;
-}
-
-/* ===== UTILITY CLASSES ===== */
-.text-center {
-  text-align: center;
-}
-.text-left {
-  text-align: left;
-}
-.text-right {
-  text-align: right;
-}
-
-.mb-sm {
-  margin-bottom: var(--spacing-sm);
-}
-.mb-md {
-  margin-bottom: var(--spacing-md);
-}
-.mb-lg {
-  margin-bottom: var(--spacing-lg);
-}
-.mb-xl {
-  margin-bottom: var(--spacing-xl);
-}
-
-.mt-sm {
-  margin-top: var(--spacing-sm);
-}
-.mt-md {
-  margin-top: var(--spacing-md);
-}
-.mt-lg {
-  margin-top: var(--spacing-lg);
-}
-.mt-xl {
-  margin-top: var(--spacing-xl);
-}
-
-.p-sm {
-  padding: var(--spacing-sm);
-}
-.p-md {
-  padding: var(--spacing-md);
-}
-.p-lg {
-  padding: var(--spacing-lg);
-}
-.p-xl {
-  padding: var(--spacing-xl);
-}
 
 /* ===== RESPONSIVE BREAKPOINTS ===== */
-@media (max-width: 1200px) {
+@media (max-width: 1500px) {
   .container {
     max-width: 992px;
   }
 }
 
-@media (max-width: 992px) {
-  .container {
-    max-width: 768px;
-  }
 
-  .section {
-    padding: var(--spacing-2xl) 0;
-  }
-}
-
-@media (max-width: 768px) {
-  .container {
-    padding: 0 var(--spacing-md);
-  }
-
-  .section {
-    padding: var(--spacing-xl) 0;
-  }
-
-  body {
-    padding-top: 70px; /* Smaller padding for mobile */
-  }
-
-  .section-title {
-    font-size: 24px;
-  }
-}
-
-@media (max-width: 576px) {
-  .container {
-    padding: 0 var(--spacing-sm);
-  }
-
-  .section-title {
-    font-size: 20px;
-  }
-}

@@ -10,8 +10,7 @@ import Articles from "./components/Sections/Articles/Articles";
 import Testimonials from "./components/Sections/Testimonials/Testimonials";
 import Footer from "./components/Layout/Footer/Footer";
 import { Routes, Route } from "react-router-dom";
-import LoginPage from "./pages/Login";
-
+import ServiceDangKi from "./pages/ServiceDangKi";
 function App() {
   return (
     <Provider store={store}>
@@ -31,17 +30,7 @@ function App() {
                   </>
                 }
               />
-              <Route
-                path="/homepage"
-                element={
-                  <>
-                    <Hero />
-                    <Services />
-                    <Articles />
-                    <Testimonials />
-                  </>
-                }
-              />
+              <Route path="/services" element={<ServiceDangKi />} />
             </Routes>
           </main>
           <Footer />
