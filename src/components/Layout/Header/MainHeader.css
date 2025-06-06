@@ -1,0 +1,52 @@
+/* ===== MAIN HEADER STYLES ===== */
+.main-header {
+  background-color: var(--bg-white);
+  box-shadow: var(--shadow-sm);
+  padding: var(--spacing-sm) 0;
+  transition: all var(--transition-normal);
+}
+
+.main-header-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 var(--spacing-lg);
+}
+
+/* ===== HEADER SECTIONS ===== */
+.header-section {
+  display: flex;
+  align-items: center;
+}
+
+.logo-section {
+  flex: 0 0 auto;
+  margin-right: var(--spacing-xl);
+}
+
+.nav-section {
+  flex: 1;
+  justify-content: center;
+}
+
+.auth-section {
+  flex: 0 0 auto;
+  margin-left: var(--spacing-xl);
+}
+
+
+/* ===== RESPONSIVE STYLES ===== */
+@media (max-width: 768px) {
+  .nav-section,
+  .auth-section {
+    display: flex;
+  }
+
+  .logo-section {
+    flex: 1;
+    margin-right: 0;
+  }
+
+}
