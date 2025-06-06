@@ -1,0 +1,20 @@
+.gradient-button {
+  background: linear-gradient(to right, #ff5a7d, #3870ff);
+  border: none;
+  font-weight: 600;
+  color: #fff;
+  border-radius: 8px;
+  padding: 10px 20px;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  position: relative;
+  overflow: hidden;
+}
+
+.gradient-button:hover {
+  background: linear-gradient(to right, #ff7d9d, #598bff);
+  color: #fff;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 18px rgba(255, 122, 157, 0.3),
+    0 6px 24px rgba(89, 139, 255, 0.2);
+}
