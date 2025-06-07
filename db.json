@@ -1,0 +1,12 @@
+{
+  "users": [
+    {
+      "id": 1,
+      "phone": "0123456789",
+      "password": "123456",
+      "fullname": "Nguyen Van A",
+      "gender": "MALE",
+      "dob": "2000-01-01"
+    }
+  ]
+}
