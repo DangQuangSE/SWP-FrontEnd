@@ -1,0 +1,150 @@
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 16px;
+}
+.services {
+  padding: 80px 0;
+  background: #f5f7ff;
+  text-align: center;
+}
+
+.services-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 32px;
+  margin-top: 40px;
+}
+
+.service-card {
+  background: linear-gradient(to bottom right, #fcf9fa, #edf2ff);
+  border: 1px solid #e5e7eb;
+  border-radius: 16px;
+  padding: 24px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.05);
+  transition: all 0.3s ease-in-out;
+  text-align: left;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  color: #1f2937;
+}
+
+.service-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 10px 30px rgba(56, 112, 255, 0.1);
+}
+
+.service-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.service-icon {
+  font-size: 20px;
+  color: white;
+  padding: 10px;
+  border-radius: 10px;
+  width: 40px;
+  height: 40px;
+  text-align: center;
+  line-height: 20px;
+  background: linear-gradient(to right, #ff5a7d, #e43b86);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.service-icon img {
+  width: 27px;
+  height: 27px;
+  stroke: white;
+}
+.service-card h3 {
+  font-size: 16px;
+  font-weight: 700;
+  color: #1f2937;
+  margin: 0;
+}
+
+.service-card p {
+  font-size: 14px;
+  color: #4b5563;
+  margin: 4px 0 0;
+  line-height: 1.6;
+}
+
+.service-card ul {
+  list-style: none;
+  padding: 0;
+  margin: 12px 0 16px;
+}
+
+.service-card ul li {
+  font-size: 14px;
+  padding-left: 20px;
+  position: relative;
+  margin-bottom: 8px;
+  color: #1f2937;
+}
+
+.service-card ul li::before {
+  content: "\2713";
+  color: #22c55e;
+  position: absolute;
+  left: 0;
+  font-size: 14px;
+  top: 0;
+}
+
+.service-button {
+  background: linear-gradient(to right, #ff5a7d, #3870ff);
+  color: white;
+  padding: 10px 16px;
+  border: none;
+  border-radius: 6px;
+  font-weight: 500;
+  cursor: pointer;
+  font-size: 14px;
+  width: 100%;
+  text-align: center;
+  transition: background 0.3s ease;
+}
+
+.service-button:hover {
+  background: linear-gradient(to left, #3870ff, #ff5a7d);
+  filter: brightness(1.15);
+}
+.avatar {
+  width: 65%;
+  height: 65%;
+  object-fit: cover;
+  margin-bottom: 12px;
+  align-self: center;
+}
+.services .section-title {
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+  text-align: center;
+  font-size: 2rem; /* hoặc 4rem nếu muốn to hơn */
+  font-weight: 700;
+  margin-bottom: 24px;
+  background: linear-gradient(90deg, #ff5a7d, #3870ff);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  color: transparent;
+  letter-spacing: 1px;
+  width: fit-content;
+}
+.section-subtitle {
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+  text-align: center;
+  font-size: 1rem;
+  font-weight: 400;
+  margin-bottom: 16px;
+  color: var(--text-secondary);
+}

@@ -11,8 +11,11 @@ import Testimonials from "./components/Sections/Testimonials/Testimonials";
 import Footer from "./components/Layout/Footer/Footer";
 import { Routes, Route } from "react-router-dom";
 <<<<<<< Updated upstream:homepage/src/App.jsx
+<<<<<<< Updated upstream:homepage/src/App.jsx
 import ServiceDangKi from "./pages/ServiceDangKi";
 =======
+=======
+>>>>>>> Stashed changes:src/App.jsx
 import ServiceDangKi from "./components/Sections/Services/ServiceDangKi";
 import { ToastContainer } from "react-toastify";
 import StisTest from "./components/Sections/Services/StisTest";
