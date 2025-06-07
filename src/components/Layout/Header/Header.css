@@ -1,0 +1,43 @@
+/* ===== HEADER MAIN STYLES ===== */
+.header {
+  width: 100%;
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: var(--z-sticky);
+  transition: all var(--transition-normal);
+  background: var(--bg-white);
+}
+
+.header.scrolled {
+  box-shadow: var(--shadow-lg);
+  margin: 10px 20px 0 20px;
+  width: calc(100% - 40px);
+  border-radius: 50px;
+  overflow: hidden;
+}
+
+.header.scrolled .top-bar {
+  display: none;
+}
+
+.header.scrolled .sub-header {
+  display: none;
+}
+
+.header.scrolled .main-header {
+  padding: var(--spacing-xs) 0;
+}
+
+/* ===== RESPONSIVE STYLES ===== */
+@media (max-width: 768px) {
+  .header.scrolled {
+    margin: 5px 10px 0 10px;
+    width: calc(100% - 20px);
+    border-radius: 12px;
+  }
+
+  .header.scrolled .main-header {
+    padding: var(--spacing-xs) 0;
+  }
+}
