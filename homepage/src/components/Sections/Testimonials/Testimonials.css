@@ -2,6 +2,7 @@
 .doctors-section {
   background-color: var(--bg-light);
   padding: var(--spacing-3xl) 0;
+  
 }
 
 .doctors-grid {
@@ -247,4 +248,32 @@
     padding: var(--spacing-sm);
     font-size: 13px;
   }
+  
+  
+}
+.doctors-section .section-title {
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+  text-align: center;
+  font-size: 2rem; /* hoặc 4rem nếu muốn to hơn */
+  font-weight: 700;
+  margin-bottom: 24px;
+  background: linear-gradient(90deg, #ff5a7d, #3870ff);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  color: transparent;
+  letter-spacing: 1px;
+  width: fit-content;
+}
+.section-subtitle-description {
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+  text-align: center;
+  font-size: 1rem;
+  font-weight: 400;
+  margin-bottom: 25px;
+  color: var(--text-secondary);
 }

@@ -75,7 +75,14 @@ const LoginForm = () => {
       const response = await api.post("/auth/facebook", {
         accessToken: res.accessToken,
       });
+<<<<<<< Updated upstream:SWP-FE/src/components/authen-form/LoginForm.jsx
       if (response.data && response.data.success) {
+=======
+      dispatch(login(response.data.user));
+      console.log("Facebook response:", response.data);
+
+      if (response.data.user && response.data.jwt) {
+>>>>>>> Stashed changes:src/components/authen-form/LoginForm.jsx
         toast.success("Đăng nhập Facebook thành công!");
         // TODO: Đóng modal hoặc redirect, ví dụ:
         window.location.href = "/";

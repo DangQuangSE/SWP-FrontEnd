@@ -55,6 +55,10 @@ const Testimonials = () => {
     <section className="doctors-section section">
       <div className="container">
         <h2 className="section-title">ĐỘI NGŨ BÁC SĨ</h2>
+        <p className="section-subtitle-description">
+          Đội ngũ bác sĩ chuyên khoa của chúng tôi luôn sẵn sàng hỗ trợ bạn trong
+          việc chăm sóc sức khỏe giới tính một cách an toàn và hiệu quả.
+      </p>
 
         <div className="doctors-grid">
           {doctors.map((doctor) => (

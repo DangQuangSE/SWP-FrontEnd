@@ -1,7 +1,11 @@
 import axios from "axios";
 
 const api = axios.create({
+<<<<<<< Updated upstream:SWP-FE/src/configs/axios.js
   baseURL: "http://14.225.198.16:8080/api/",
+=======
+  baseURL: "http://14.225.198.16:8081/api/",
+>>>>>>> Stashed changes:src/configs/axios.js
 });
 
 api.interceptors.request.use(
