@@ -50,11 +50,10 @@ const Hero = () => {
             className={`hero-slide ${index === currentSlide ? "active" : ""}`}
             style={{ backgroundImage: `url(${slide.image})` }}
           >
-            <div className="container">
+            <div className="hero-inner">
               <div className="hero-content">
                 <h1>{slide.title}</h1>
                 <p>{slide.description}</p>
-                <button className="btn btn-hero">Get Started</button>
               </div>
             </div>
           </div>

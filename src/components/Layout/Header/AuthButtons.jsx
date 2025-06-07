@@ -2,7 +2,6 @@ import "./AuthButtons.css";
 import GradientButton from "../../common/GradientButton.jsx";
 import { useState } from "react";
 import AuthModal from "../../authen-form/AuthModal";
-
 import { useDispatch, useSelector } from "react-redux";
 import {
   UserOutlined,
@@ -19,16 +18,9 @@ const AuthButtons = () => {
   const user = useSelector((state) => state.user);
   console.log("User state:", user);
   console.log(user?.imageUrl);
-
-
-const AuthButtons = () => {
-  const [open, setOpen] = useState(false);
-
-
   const onLoginClick = () => {
     setOpen(true);
   };
-
 
   const items = [
     {
@@ -71,13 +63,6 @@ const AuthButtons = () => {
         </Dropdown>
       )}
       {/* Modal for login/signup */}
-
-  return (
-    <div className="header-buttons">
-      <GradientButton type="pink" onClick={onLoginClick}>
-        <span className="login-btn">Đăng nhập</span>
-      </GradientButton>
-
       <AuthModal open={open} onClose={() => setOpen(false)} />
     </div>
   );

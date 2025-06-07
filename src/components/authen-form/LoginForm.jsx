@@ -4,6 +4,10 @@ import GradientButton from "../common/GradientButton";
 import axios from "axios";
 import LoginFace from "../../api/LoginFace";
 import LoginGoogle from "../../api/LoginGoogle";
+import api from "../../configs/axios";
+import { useDispatch } from "react-redux";
+import { toast } from "react-toastify";
+import { login } from "../../redux/features/userSlice";
 const { Option } = Select;
 
 const LoginForm = () => {
@@ -12,6 +16,8 @@ const LoginForm = () => {
   const [profileForm] = Form.useForm();
   const [step, setStep] = useState(1); // 1: login, 2: khai báo thông tin
   const [userId, setUserId] = useState(null);
+
+  const dispatch = useDispatch();
   // dispatch(login(response.data.data));
   //     localStorage.setItem("token", response.data.data.token);
   //     // dispatch gửi action lên redux store
@@ -31,18 +37,18 @@ const LoginForm = () => {
         if (!user.fullname || !user.gender || !user.dob) {
           setUserId(user.id);
           setStep(2);
-          message.success(
+          toast.success(
             "Đăng nhập thành công! Vui lòng khai báo thông tin cá nhân."
           );
         } else {
-          message.success("Đăng nhập thành công!");
+          toast.success("Đăng nhập thành công!");
           // TODO: Đóng modal hoặc redirect
         }
       } else {
-        message.error("Sai email hoặc mật khẩu!");
+        toast.error("Sai email hoặc mật khẩu!");
       }
     } catch (err) {
-      message.error("Lỗi đăng nhập!");
+      toast.error("Lỗi đăng nhập!");
     } finally {
       setLoading(false);
     }
@@ -53,10 +59,10 @@ const LoginForm = () => {
     try {
       setLoading(true);
       await axios.patch(`http://localhost:8080/users/${userId}`, values);
-      message.success("Khai báo thông tin thành công!");
+      toast.success("Khai báo thông tin thành công!");
       // TODO: Đóng modal hoặc redirect
     } catch (err) {
-      message.error("Lưu thông tin thất bại!");
+      toast.error("Lưu thông tin thất bại!");
     } finally {
       setLoading(false);
     }
@@ -66,18 +72,22 @@ const LoginForm = () => {
     try {
       setLoading(true);
       // Gửi accessToken lên backend để xác thực hoặc lấy thông tin user
-      const response = await axios.post("http://localhost:8080/api/authFace", {
+      const response = await api.post("/auth/facebook", {
         accessToken: res.accessToken,
       });
-      if (response.data && response.data.success) {
-        message.success("Đăng nhập Facebook thành công!");
+      dispatch(login(response.data.user));
+      console.log("Facebook response:", response.data);
+
+      if (response.data.user && response.data.jwt) {
+        toast.success("Đăng nhập Facebook thành công!");
         // TODO: Đóng modal hoặc redirect, ví dụ:
         window.location.href = "/";
       } else {
-        message.error("Đăng nhập Facebook thất bại!");
+        toast.error("Đăng nhập Facebook thất bại!");
       }
     } catch (err) {
-      message.error("Lỗi xác thực Facebook!");
+      toast.error("Lỗi xác thực Facebook!");
+      console.log(err.toast);
     } finally {
       setLoading(false);
     }
@@ -85,14 +95,17 @@ const LoginForm = () => {
 
   // Xử lý đăng nhập Google thành công
   const handleGoogleSuccess = async (credentialResponse) => {
+    console.log(credentialResponse);
     try {
       setLoading(true);
+      console.log("Google login successful");
+
       const { credential } = credentialResponse;
       // Gửi idToken lên backend để xác thực hoặc lấy thông tin user
-      const res = await axios.post(
-        "http://localhost:8080/api/auth/google",
+      const res = await api.post(
+        "/auth/google",
         {
-          idToken: credential,
+          accessToken: credential,
         },
         {
           headers: {
@@ -100,16 +113,21 @@ const LoginForm = () => {
           },
         }
       );
-      if (res.data && res.data.token) {
+      console.log("Google response:", res.data.user);
+      console.log("Google response:", res.data.token);
+      dispatch(login(res.data.user));
+      if (res.data && res.data.jwt) {
         localStorage.setItem("token", res.data.token);
-        message.success("Đăng nhập Google thành công!");
-        // TODO: Đóng modal hoặc redirect, ví dụ:
         window.location.href = "/";
+
+        toast.success("Đăng nhập Google thành công!");
+        // TODO: Đóng modal hoặc redirect, ví dụ:
       } else {
-        message.error("Đăng nhập Google thất bại!");
+        toast.error("Đăng nhập Google thất bại!");
       }
     } catch (error) {
-      message.error("Lỗi xác thực Google!");
+      toast.error("Lỗi xác thực Google!");
+      console.log(error.message);
     } finally {
       setLoading(false);
     }
