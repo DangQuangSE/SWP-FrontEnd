@@ -10,8 +10,15 @@ import Articles from "./components/Sections/Articles/Articles";
 import Testimonials from "./components/Sections/Testimonials/Testimonials";
 import Footer from "./components/Layout/Footer/Footer";
 import { Routes, Route } from "react-router-dom";
+<<<<<<< Updated upstream:SWP-FE/src/App.jsx
 import ServiceDangKi from "./pages/ServiceDangKi";
 import { ToastContainer } from "react-toastify";
+=======
+import ServiceDangKi from "./components/Sections/Services/ServiceDangKi";
+import { ToastContainer } from "react-toastify";
+import StisTest from "./components/Sections/Services/StisTest";
+
+>>>>>>> Stashed changes:src/App.jsx
 function App() {
   return (
     <Provider store={store}>
@@ -33,6 +40,7 @@ function App() {
                 }
               />
               <Route path="/services" element={<ServiceDangKi />} />
+              <Route path="/appointment" element={<StisTest />} /> 
             </Routes>
           </main>
           <Footer />
