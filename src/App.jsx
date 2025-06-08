@@ -10,7 +10,7 @@ import Articles from "./components/Sections/Articles/Articles";
 import Testimonials from "./components/Sections/Testimonials/Testimonials";
 import Footer from "./components/Layout/Footer/Footer";
 import { Routes, Route } from "react-router-dom";
-import ServiceDangKi from "./components/Sections/Services/ServiceDangKi";
+import AppointmentForm from "./components/Sections/Services/AppointmentForm";
 import { ToastContainer } from "react-toastify";
 import StisTest from "./components/Sections/Services/StisTest";
 
@@ -34,8 +34,8 @@ function App() {
                   </>
                 }
               />
-              <Route path="/services" element={<ServiceDangKi />} />
-              <Route path="/appointment" element={<StisTest />} /> 
+              <Route path="/services" element={<AppointmentForm />} />
+              <Route path="/appointment" element={<StisTest />} />
             </Routes>
           </main>
           <Footer />
