@@ -3,7 +3,6 @@
 import { useState, useEffect } from "react";
 import "./Header.css";
 import MainHeader from "./MainHeader";
-import SubHeader from "./SubHeader";
 
 const Header = () => {
   const [scrolled, setScrolled] = useState(false);
@@ -20,7 +19,6 @@ const Header = () => {
   return (
     <header className={`header ${scrolled ? "scrolled" : ""}`}>
       <MainHeader />
-      <SubHeader />
     </header>
   );
 };

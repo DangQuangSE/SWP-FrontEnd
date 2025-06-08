@@ -11,9 +11,6 @@ const Logo = () => {
           className="logo-img"
           style={{ height: 40 }}
         />
-        <div className="logo-text">
-          <span className="logo-main">Gender Healthcare</span>
-        </div>
       </Link>
     </div>
   );
