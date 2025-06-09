@@ -56,15 +56,38 @@ const BookingForm = () => {
   useEffect(() => {
     if (doctor && dateRange.length === 2) {
       axios
-        .get("/api/schedules", {
+        .get("/api/view-schedule", {
           params: {
-            consultantId: doctor,
+            consultant_id: doctor,
             from: dateRange[0].format("YYYY-MM-DD"),
             to: dateRange[1].format("YYYY-MM-DD"),
           },
         })
-        .then((res) => setScheduleData(res.data))
-        .catch(console.error);
+        .then((res) => {
+          console.log("Schedule API Response:", res.data);
+          try {
+            const parsed =
+              typeof res.data === "string" ? JSON.parse(res.data) : res.data;
+
+            // Kiểm tra parsed có phải array không
+            if (Array.isArray(parsed)) {
+              setScheduleData(parsed);
+            } else {
+              console.error(
+                "❌ API không trả về mảng schedule hợp lệ!",
+                parsed
+              );
+              setScheduleData([]); // fallback
+            }
+          } catch (err) {
+            console.error("❌ Lỗi parse JSON hoặc dữ liệu sai format:", err);
+            setScheduleData([]); // fallback
+          }
+        })
+        .catch((err) => {
+          console.error("❌ Lỗi khi gọi API:", err);
+          setScheduleData([]); // fallback
+        });
     }
   }, [doctor, dateRange]);
 
