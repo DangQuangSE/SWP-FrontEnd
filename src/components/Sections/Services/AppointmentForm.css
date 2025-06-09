@@ -25,158 +25,98 @@ body {
   display: flex;
   flex-direction: column;
   align-items: center;
-
 }
 
 /* Hospital Hero Section */
-.hospital-hero {
-  width: 100%;
-  max-width: 1440px;
-  background: white;
-  padding: 0;
-  margin: 0 auto;
-}
 
-.hospital-main-image {
-  width: 100%;
-  height: 280px;
-  object-fit: cover;
-  object-position: center;
-  display: block;
+.hospital-hero {
+  display: flex;
+  justify-content: center; /* Căn giữa ngang */
+  align-items: center; /* Căn giữa dọc */
+  padding: 40px 20px;
+  background-color: #f9f9f9;
 }
 
 .hospital-profile {
-  max-width: 1440px;
-  margin: -40px auto 20px auto;
-  padding: 0 32px;
   display: flex;
   align-items: center;
-  gap: 20px;
-  position: relative;
-  z-index: 10;
+  max-width: 1000px;
+  width: 100%;
 }
 
-.hospital-logo {
-  width: 100px;
-  height: 100px;
-  border-radius: 12px;
-  background: white;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-  border: 3px solid white;
-  flex-shrink: 0;
-}
-
-.logo-content {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  text-align: center;
-}
-
-.logo-icon {
-  font-size: 24px;
-  margin-bottom: 4px;
-}
-
-.logo-text {
-  display: flex;
-  flex-direction: column;
-  line-height: 1;
-}
-
-.logo-main {
-  font-size: 10px;
-  font-weight: bold;
-  color: #1e40af;
-  letter-spacing: 0.5px;
-}
-
-.logo-sub {
-  font-size: 8px;
-  font-weight: 600;
-  color: #059669;
-  letter-spacing: 0.5px;
-}
-
-.hospital-info {
-  background: white;
-  border-radius: 12px;
-  padding: 24px;
-  flex: 1;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-  border: 1px solid #f1f5f9;
+.hospital-logo .logo-image {
+  width: 80px;
+  height: 80px;
+  object-fit: contain;
+  margin-right: 24px;
 }
 
 .hospital-info h1 {
-  font-size: 26px;
-  font-weight: 700;
-  color: #1f2937;
-  margin-bottom: 12px;
+  margin: 0;
+  font-size: 28px;
 }
 
 .hospital-address {
   display: flex;
-  align-items: flex-start;
-  gap: 8px;
-  color: #6b7280;
-  font-size: 14px;
-  margin-bottom: 12px;
-  line-height: 1.5;
-}
-
-.hospital-actions {
-  margin-top: 12px;
-}
-
-.action-link {
-  display: flex;
   align-items: center;
-  gap: 8px;
-  color: #3b82f6;
-  font-size: 14px;
-  text-decoration: none;
-  padding: 8px 0;
+  margin: 8px 0;
+  font-size: 16px;
+  color: #555;
 }
 
-.action-link:hover {
+.hospital-address .icon {
+  margin-right: 8px;
+}
+
+.hospital-actions .action-link {
+  color: #1890ff;
+  text-decoration: none;
+  font-size: 14px;
+}
+
+.hospital-actions .action-link:hover {
   text-decoration: underline;
 }
 
 /* Profile Navigation Tabs */
 .profile-nav-tabs {
-  max-width: 1440px;
-  margin: 0 auto;
-  padding: 20px 32px 0 32px;
-  border-bottom: 1px solid #e5e7eb;
-  width: 100%;
+  padding: 0 40px; /* đẩy sang phải 1 húc */
+  margin-top: 16px;
+  border-bottom: 1px solid #eee;
 }
 
 .nav-tabs {
   display: flex;
-  gap: 32px;
+  gap: 24px;
+  font-size: 16px;
+}
+
+.nav-tabs {
+  display: flex;
+  gap: 24px;
+  padding: 0;
+  margin: 0;
+  list-style: none;
+  font-size: 16px;
 }
 
 .nav-tab {
-  font-size: 14px;
-  color: #6b7280;
   cursor: pointer;
   padding: 12px 0;
+  color: #444;
+  position: relative;
+  font-weight: 500;
   border-bottom: 2px solid transparent;
   transition: all 0.2s;
-  font-weight: 500;
 }
 
 .nav-tab:hover {
-  color: #3b82f6;
+  color: #1890ff;
 }
 
 .nav-tab.active {
-  color: #3b82f6;
-  border-bottom-color: #3b82f6;
-  font-weight: 600;
+  border-bottom: 2px solid #1890ff;
+  color: #1890ff;
 }
 
 /* Main Content Layout - WIDER */
@@ -197,6 +137,21 @@ body {
   display: flex;
   flex-direction: column;
   gap: 40px;
+}
+.main-content {
+  display: flex;
+  gap: 32px;
+  align-items: flex-start;
+}
+
+.left-column {
+  flex: 3;
+}
+
+.right-column {
+  flex: 1;
+  position: sticky;
+  top: 20px;
 }
 
 /* Content Sections */
@@ -672,4 +627,22 @@ body {
   .hospital-main-image {
     height: 200px;
   }
+}
+/* Fix layout co lại khi BookingForm có select dài */
+.main-content {
+  display: flex;
+  gap: 24px;
+  flex-wrap: wrap;
+}
+
+.left-column {
+  flex: 1;
+  min-width: 0;
+}
+
+.right-column {
+  flex: 1;
+  min-width: 0;
+  max-width: 420px;
+  box-sizing: border-box;
 }
