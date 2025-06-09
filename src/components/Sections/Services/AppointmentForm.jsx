@@ -1,11 +1,9 @@
-import React from "react";
+import React, { useState } from "react";
 import "./AppointmentForm.css";
-import { useState } from "react";
+import BookingForm from "./BookingForm";
 
 const ServiceDangKi = () => {
   const [expandedFaq, setExpandedFaq] = useState(null);
-  const [selectedSpecialty, setSelectedSpecialty] = useState("");
-  const [selectedDoctor, setSelectedDoctor] = useState("");
 
   const workingHours = [
     { day: "Thứ Hai", hours: "07:30 - 11:30, 12:30 - 16:30" },
@@ -15,16 +13,6 @@ const ServiceDangKi = () => {
     { day: "Thứ Sáu", hours: "07:30 - 11:30, 12:30 - 16:30" },
     { day: "Thứ Bảy", hours: "07:30 - 11:30, 12:30 - 16:30" },
     { day: "Chủ Nhật", hours: "Đóng cửa" },
-  ];
-
-  const services = [
-    "Máy chụp mạch máu số hóa xóa nền",
-    "Phòng xét nghiệm",
-    "X-quang",
-    "Chụp cộng hưởng từ (Chụp MRI)",
-    "Hệ thống máy chạy thận nhân tạo",
-    "Chụp cắt lớp vi tính - Cone Beam CT Gendex",
-    "Máy thở",
   ];
 
   const faqItems = [
@@ -42,7 +30,7 @@ const ServiceDangKi = () => {
   return (
     <div className="hospital-page-container">
       <div className="hospital-center-wrapper">
-        {/* Hospital Hero Section */}
+        {/* Hero Section */}
         <div className="hospital-hero">
           <div className="hospital-profile">
             <div className="hospital-logo">
@@ -69,31 +57,25 @@ const ServiceDangKi = () => {
               <div className="hospital-actions">
                 <a href="#" className="action-link">
                   <span className="icon"></span>
-                  <span>
-                    Xem đánh giá chi tiết của những bệnh nhân đã từng khám chữa
-                    bệnh
-                  </span>
                 </a>
               </div>
-            </div>
-          </div>
 
-          {/* Navigation Tabs */}
-          <div className="profile-nav-tabs">
-            <div className="nav-tabs">
-              <span className="nav-tab active">Thông tin chung</span>
-              <span className="nav-tab">Dịch vụ (4)</span>
-              <span className="nav-tab">Bác sĩ (30)</span>
-              <span className="nav-tab">Đánh giá (4)</span>
+              {/* Tabs đã được di chuyển vào trong hospital-info */}
             </div>
           </div>
         </div>
-
+        <div className="profile-nav-tabs">
+          <div className="nav-tabs">
+            <span className="nav-tab active">Thông tin chung</span>
+            <span className="nav-tab">Dịch vụ (4)</span>
+            <span className="nav-tab">Bác sĩ (30)</span>
+            <span className="nav-tab">Đánh giá (4)</span>
+          </div>
+        </div>
         {/* Main Content */}
         <div className="main-content">
           {/* Left Column */}
           <div className="left-column">
-            {/* Working Hours */}
             <div className="content-section">
               <h2 className="section-title">
                 <span className="icon">⏰</span>
@@ -112,116 +94,6 @@ const ServiceDangKi = () => {
                     </span>
                   </div>
                 ))}
-              </div>
-              <div className="update-hours">
-                <button className="update-btn">Có cập cửa</button>
-              </div>
-            </div>
-
-            {/* Hospital Information */}
-            <div className="content-section">
-              <h2 className="section-title">
-                <span className="icon">ℹ️</span>
-                <span>Thông tin bệnh viện</span>
-              </h2>
-              <div className="description-text">
-                <p>
-                  Bệnh viện Quốc tế Columbia Asia Bình Dương là bệnh viện đa
-                  khoa quốc tế đầu tiên tại Bình Dương được đầu tư 100% vốn nước
-                  ngoài. Bệnh viện là thành viên thuộc Tập đoàn chăm sóc sức
-                  khỏe tư nhân Quốc tế Columbia Asia với hơn 25 năm hoạt động
-                  trong lĩnh vực y tế tại Malaysia, Indonesia và Việt nam.
-                </p>
-                <p>
-                  Bệnh viện Columbia Asia Dương là một trong những bệnh viện tư
-                  nhân hàng đầu tại Bình Dương, nhận được sự tin nhiệm từ nhiều
-                  bệnh nhân ở Bình Dương và khu vực lân cận.
-                </p>
-                <p>
-                  Kết hợp giữa quy trình chăm sóc tận tâm và công nghệ tiên
-                  tiến, bệnh nhân sẽ được tận hưởng từ dịch vụ y tế thông thường
-                  cho đến các chăm sóc sức khỏe uy tín cao cùng đội ngũ các
-                  chuyên khoa giàu kinh nghiệm và tận tâm. Bệnh viện đang trang
-                  bị đầy đủ các thiết bị hiện đại...
-                </p>
-              </div>
-            </div>
-
-            {/* Services */}
-            <div className="content-section">
-              <h2 className="section-title">
-                <span className="icon">🏥</span>
-                <span>Cơ sở vật chất</span>
-              </h2>
-              <div className="services-grid">
-                {services.map((service, index) => (
-                  <div key={index} className="service-item">
-                    <span className="bullet">•</span>
-                    {service}
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {/* Location */}
-            <div className="content-section">
-              <h2 className="section-title">
-                <span className="icon">📍</span>
-                <span>Vị trí</span>
-              </h2>
-              <div className="map-container">
-                <div className="map-placeholder">
-                  <div className="map-icon">📍</div>
-                  <p>Bản đồ Google Maps</p>
-                  <small>10°56'54.1"N 106°43'10.2"E</small>
-                </div>
-              </div>
-              <div className="location-details">
-                <strong>Bệnh viện Quốc tế Columbia Asia Bình Dương</strong>
-                <br />
-                Đường 22/12 Khu phố Hòa Lân, Phường Thuận Giao, Thành phố Thuận
-                An, Tỉnh Bình Dương
-              </div>
-            </div>
-
-            {/* Appointment Guide */}
-            <div className="content-section">
-              <h2 className="section-title">
-                <span className="icon">📋</span>
-                <span>Hướng dẫn thăm bệnh</span>
-              </h2>
-              <p>
-                Hiện tại, Bệnh viện Quốc tế Columbia Asia Bình Dương đang áp
-                dụng quy trình khám chữa bệnh như sau:
-              </p>
-              <div className="guide-box">
-                <p>
-                  <strong>Bước 1:</strong> Lấy số thứ tự - Đăng ký thông tin
-                  bệnh nhân...
-                </p>
-                <button className="see-more">Xem thêm</button>
-              </div>
-            </div>
-
-            {/* Payment Methods */}
-            <div className="content-section">
-              <h2 className="section-title">
-                <span className="icon">💳</span>
-                <span>Hình thức thanh toán</span>
-              </h2>
-              <div className="payment-options">
-                <div className="payment-item">
-                  <div className="payment-icon visa">VISA</div>
-                  <span>Visa</span>
-                </div>
-                <div className="payment-item">
-                  <div className="payment-icon card">💳</div>
-                  <span>Thẻ tín dụng khác</span>
-                </div>
-                <div className="payment-item">
-                  <div className="payment-icon cash">💵</div>
-                  <span>Tiền mặt</span>
-                </div>
               </div>
             </div>
 
@@ -257,7 +129,10 @@ const ServiceDangKi = () => {
             </div>
           </div>
 
-          {/* Right Sidebar */}
+          {/* Right Column: Booking Form */}
+          <div className="right-column">
+            <BookingForm />
+          </div>
         </div>
       </div>
     </div>
