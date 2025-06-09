@@ -1,17 +1,22 @@
 import { useState } from "react";
-import { Form, Input, Button, message, Spin, DatePicker, Select } from "antd";
+import { Form, Input, Button, Spin, DatePicker, Select } from "antd";
 import GradientButton from "../common/GradientButton";
 import axios from "axios";
 import LoginFace from "../../api/LoginFace";
 import LoginGoogle from "../../api/LoginGoogle";
+import api from "../../configs/axios";
+import { useDispatch } from "react-redux";
+import { toast } from "react-toastify";
+import { login } from "../../redux/features/userSlice";
+import { useNavigate } from "react-router-dom";
 const { Option } = Select;
 
-const LoginForm = () => {
+const LoginForm = ({ onClose }) => {
   const [loading, setLoading] = useState(false);
   const [form] = Form.useForm();
-  const [profileForm] = Form.useForm();
-  const [step, setStep] = useState(1); // 1: login, 2: khai báo thông tin
-  const [userId, setUserId] = useState(null);
+  const navigate = useNavigate();
+
+  const dispatch = useDispatch();
   // dispatch(login(response.data.data));
   //     localStorage.setItem("token", response.data.data.token);
   //     // dispatch gửi action lên redux store
@@ -22,41 +27,32 @@ const LoginForm = () => {
   const handleLogin = async (values) => {
     try {
       setLoading(true);
-      const res = await axios.get(
-        `http://localhost:8080/users?email=${values.email}&password=${values.password}`
-      );
-      const user = res.data[0];
-      if (user) {
-        // Nếu thiếu thông tin cá nhân thì chuyển sang step 2
-        if (!user.fullname || !user.gender || !user.dob) {
-          setUserId(user.id);
-          setStep(2);
-          message.success(
-            "Đăng nhập thành công! Vui lòng khai báo thông tin cá nhân."
-          );
-        } else {
-          message.success("Đăng nhập thành công!");
-          // TODO: Đóng modal hoặc redirect
-        }
-      } else {
-        message.error("Sai email hoặc mật khẩu!");
-      }
-    } catch (err) {
-      message.error("Lỗi đăng nhập!");
-    } finally {
-      setLoading(false);
-    }
-  };
+      const res = await axios.post("http://14.225.198.16:8084/api/auth/login", {
+        email: values.email,
+        password: values.password,
+      });
+      const user = res.data;
+      dispatch(login(res.data.user));
+      toast.success("Đăng nhập thành công!");
+      if (onClose) onClose();
 
-  // Lưu thông tin cá nhân
-  const handleFinishProfile = async (values) => {
-    try {
-      setLoading(true);
-      await axios.patch(`http://localhost:8080/users/${userId}`, values);
-      message.success("Khai báo thông tin thành công!");
-      // TODO: Đóng modal hoặc redirect
+      // Chuyển trang đúng theo role
+      if (user.user.role === "CUSTOMER") {
+        navigate("/");
+      } else if (user.user.role === "ADMIN") {
+        navigate("/dashboard");
+      } else if (user.user.role === "STAFF") {
+        navigate("/staff");
+      } else {
+        navigate("/error");
+      }
+      console.log("Login response:", user);
     } catch (err) {
-      message.error("Lưu thông tin thất bại!");
+      if (err.response && err.response.status === 401) {
+        toast.error("Email hoặc mật khẩu không chính xác!");
+      } else {
+        toast.error("Lỗi đăng nhập!");
+      }
     } finally {
       setLoading(false);
     }
@@ -66,18 +62,22 @@ const LoginForm = () => {
     try {
       setLoading(true);
       // Gửi accessToken lên backend để xác thực hoặc lấy thông tin user
-      const response = await axios.post("http://localhost:8080/api/authFace", {
+      const response = await api.post("/auth/facebook", {
         accessToken: res.accessToken,
       });
-      if (response.data && response.data.success) {
-        message.success("Đăng nhập Facebook thành công!");
+      dispatch(login(response.data.user));
+      console.log("Facebook response:", response.data);
+
+      if (response.data.user && response.data.jwt) {
+        toast.success("Đăng nhập Facebook thành công!");
         // TODO: Đóng modal hoặc redirect, ví dụ:
         window.location.href = "/";
       } else {
-        message.error("Đăng nhập Facebook thất bại!");
+        toast.error("Đăng nhập Facebook thất bại!");
       }
     } catch (err) {
-      message.error("Lỗi xác thực Facebook!");
+      toast.error("Lỗi xác thực Facebook!");
+      console.log(err.toast);
     } finally {
       setLoading(false);
     }
@@ -85,14 +85,17 @@ const LoginForm = () => {
 
   // Xử lý đăng nhập Google thành công
   const handleGoogleSuccess = async (credentialResponse) => {
+    console.log(credentialResponse);
     try {
       setLoading(true);
+      console.log("Google login successful");
+
       const { credential } = credentialResponse;
       // Gửi idToken lên backend để xác thực hoặc lấy thông tin user
-      const res = await axios.post(
-        "http://localhost:8080/api/auth/google",
+      const res = await api.post(
+        "/auth/google",
         {
-          idToken: credential,
+          accessToken: credential,
         },
         {
           headers: {
@@ -100,16 +103,21 @@ const LoginForm = () => {
           },
         }
       );
-      if (res.data && res.data.token) {
+      console.log("Google response:", res.data.user);
+      console.log("Google response:", res.data.token);
+      dispatch(login(res.data.user));
+      if (res.data && res.data.jwt) {
         localStorage.setItem("token", res.data.token);
-        message.success("Đăng nhập Google thành công!");
-        // TODO: Đóng modal hoặc redirect, ví dụ:
         window.location.href = "/";
+
+        toast.success("Đăng nhập Google thành công!");
+        // TODO: Đóng modal hoặc redirect, ví dụ:
       } else {
-        message.error("Đăng nhập Google thất bại!");
+        toast.error("Đăng nhập Google thất bại!");
       }
     } catch (error) {
-      message.error("Lỗi xác thực Google!");
+      toast.error("Lỗi xác thực Google!");
+      console.log(error.message);
     } finally {
       setLoading(false);
     }
@@ -117,7 +125,7 @@ const LoginForm = () => {
 
   return (
     <div style={{ padding: 24, minWidth: 340, justifyContent: "center" }}>
-      {step === 1 && (
+      {
         <Form form={form} layout="vertical" onFinish={handleLogin}>
           <h2 style={{ marginBottom: 8 }}>Đăng nhập</h2>
           <p style={{ color: "#666", marginBottom: 24 }}>
@@ -150,86 +158,8 @@ const LoginForm = () => {
             </GradientButton>
           </Form.Item>
         </Form>
-      )}
-
-      {/* Step 2: Khai báo thông tin cá nhân */}
-      {step === 2 && (
-        <Spin spinning={loading}>
-          <div>
-            <h2>Khai báo thông tin cá nhân</h2>
-            <p style={{ color: "#666", marginBottom: 24 }}>
-              Vui lòng cung cấp thông tin để hoàn tất đăng nhập.
-            </p>
-            <Form
-              form={profileForm}
-              layout="vertical"
-              onFinish={handleFinishProfile}
-              autoComplete="off"
-            >
-              <Form.Item
-                name="fullname"
-                label="Tên"
-                rules={[{ required: true, message: "Vui lòng nhập tên!" }]}
-              >
-                <Input placeholder="Nhập tên của bạn" />
-              </Form.Item>
-              <Form.Item
-                name="gender"
-                label="Giới tính"
-                rules={[
-                  { required: true, message: "Vui lòng chọn giới tính!" },
-                ]}
-              >
-                <Select placeholder="Chọn giới tính">
-                  <Option value="FEMALE">
-                    <span role="img" aria-label="Nữ">
-                      👩‍🦰
-                    </span>{" "}
-                    Nữ
-                  </Option>
-                  <Option value="MALE">
-                    <span role="img" aria-label="Nam">
-                      👨‍🦱
-                    </span>{" "}
-                    Nam
-                  </Option>
-                </Select>
-              </Form.Item>
-              <Form.Item
-                name="dob"
-                label="Ngày sinh"
-                rules={[
-                  { required: true, message: "Vui lòng nhập ngày sinh!" },
-                ]}
-              >
-                <DatePicker
-                  style={{ width: "100%" }}
-                  format="DD/MM/YYYY"
-                  placeholder="Nhập ngày sinh của bạn"
-                />
-              </Form.Item>
-              <Form.Item>
-                <GradientButton htmlType="submit" block>
-                  Lưu
-                </GradientButton>
-              </Form.Item>
-            </Form>
-            <div style={{ textAlign: "center", marginTop: 16 }}>
-              <Button
-                type="link"
-                onClick={() => {
-                  message.info("Bạn đã bỏ qua khai báo thông tin cá nhân.");
-                  // TODO: Đóng modal hoặc redirect
-                }}
-              >
-                Thiết lập sau
-              </Button>
-            </div>
-          </div>
-        </Spin>
-      )}
-
-      {step === 1 && (
+      }
+      {
         <div style={{ margin: "32px 0 0" }}>
           <div style={{ textAlign: "center", color: "#bbb", marginBottom: 16 }}>
             Hoặc tiếp tục bằng
@@ -250,7 +180,7 @@ const LoginForm = () => {
             .
           </div>
         </div>
-      )}
+      }
     </div>
   );
 };

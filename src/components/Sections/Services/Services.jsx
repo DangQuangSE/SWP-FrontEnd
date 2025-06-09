@@ -1,9 +1,14 @@
 import React from "react";
 import "./Services.css";
+import callIcon from "../../../assets/images/call-svgrepo-com.svg";
+import bloodTestIcon from "../../../assets/images/blood-test-svgrepo-com.svg";
+import menstruationIcon from "../../../assets/images/menstruation-cycle.svg";
+
+//
 const Services = () => (
   <section className="services">
     <div className="container">
-      <h2 className="section-title gradient-text">DỊCH VỤ CỦA CHÚNG TÔI</h2>
+      <h2 className="section-title">DỊCH VỤ CỦA CHÚNG TÔI</h2>
       <p className="section-subtitle">
         Các dịch vụ được thiết kế chuyên biệt để đáp ứng nhu cầu chăm sóc sức
         khỏe giới tính một cách riêng tư, an toàn và chuyên nghiệp.
@@ -12,7 +17,7 @@ const Services = () => (
         <div className="service-card">
           <div className="service-header">
             <div className="service-icon" style={{ background: "#FF5A7D" }}>
-              <img src="call-svgrepo-com.svg" alt="docter-svg" />
+              <img src={callIcon} alt="docter-svg" />
             </div>
             <h3>Tư vấn trực tuyến</h3>
           </div>
@@ -32,7 +37,7 @@ const Services = () => (
           <div className="service-header">
             <div className="service-icon" style={{ background: "#A855F7" }}>
               {" "}
-              <img src="blood-test-svgrepo-com.svg" alt="" />
+              <img src={bloodTestIcon} alt="blood-test" />
             </div>
             <h3>Xét nghiệm STIs</h3>
           </div>
@@ -51,7 +56,7 @@ const Services = () => (
         <div className="service-card">
           <div className="service-header">
             <div className="service-icon" style={{ background: "#3B82F6" }}>
-              <img src="menstruation-cycle.svg" alt="" />
+              <img src={menstruationIcon} alt="menstruation-cycle" />
             </div>
             <h3>Theo dõi chu kì kinh nguyệt</h3>
           </div>
