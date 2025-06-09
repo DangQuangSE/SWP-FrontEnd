@@ -3,7 +3,7 @@ import "./Navigation.css";
 
 const serviceOptions = [
   { label: "Tư vấn sức khỏe giới tính ", href: "/services?type=tu-van" },
-  { label: "Xét nghiệm STIs", href: "/services?type=stis" },
+  { label: "Xét nghiệm STIs", href: "/appointment" },
   { label: "Đăng kí khám bệnh", href: "/services?type=dangki" },
 ];
 
@@ -12,7 +12,7 @@ const Navigation = () => {
   const navigationItems = [
     { label: "Home", href: "/" },
     { label: "Blog", href: "/" },
-    { label: "Dịch vụ", href: "/blog", dropdown: true },
+    { label: "Dịch vụ", href: "/", dropdown: true },
     { label: "Contact", href: "/contact" },
   ];
 
