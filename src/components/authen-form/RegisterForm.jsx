@@ -1,141 +1,201 @@
 import { useState } from "react";
-import { Form, Input, Button, DatePicker, Select, message, Spin } from "antd";
+import { Form, Input, Button, message, Spin } from "antd";
 import GradientButton from "../common/GradientButton";
-import axios from "axios";
-import LoginGoogle from "../../api/LoginGoogle";
+import api from "../../configs/axios";
+import { useDispatch } from "react-redux";
+import { login } from "../../redux/features/userSlice";
+import { toast } from "react-toastify";
 import LoginFace from "../../api/LoginFace";
-import jwtDecode from "jwt-decode";
-const { Option } = Select;
+import LoginGoogle from "../../api/LoginGoogle";
 
 const RegisterForm = () => {
   const [step, setStep] = useState(1);
   const [loading, setLoading] = useState(false);
   const [email, setEmail] = useState("");
-  const [userExists, setUserExists] = useState(false);
-  const [userId, setUserId] = useState(null);
   const [form] = Form.useForm();
-  const [profileForm] = Form.useForm();
+  const [otpForm] = Form.useForm();
+  const [passwordForm] = Form.useForm();
+  const dispatch = useDispatch();
 
-  // Step 1: Check email
   const handleCheckEmail = async () => {
     try {
       const value = await form.validateFields(["email"]);
       setLoading(true);
-      const res = await axios.get(
-        `http://localhost:8080/users?email=${value.email}`
-      );
       setEmail(value.email);
-      if (res.data.length > 0) {
-        setUserExists(true);
-        setUserId(res.data[0].id);
+
+      const res = await api.post("/auth/request-OTP", { email: value.email });
+
+      // Nếu không throw thì thành công
+      if (res.data && res.data.includes("OTP đã được gửi")) {
+        message.success("OTP đã gửi tới email!");
         setStep(2);
-      } else {
-        setUserExists(false);
-        setStep(3);
       }
     } catch (err) {
-      message.error("Đã xảy ra lỗi khi kiểm tra email.");
+      const errMsg =
+        err?.response?.data && typeof err.response.data === "string"
+          ? err.response.data
+          : "";
+
+      if (errMsg.includes("Email đã tồn tại")) {
+        message.info("Email đã tồn tại, vui lòng đăng nhập.");
+      } else {
+        console.error("Lỗi backend trả về:", errMsg || err);
+        message.error("Có lỗi xảy ra!");
+      }
     } finally {
       setLoading(false);
     }
   };
 
-  // Step 2: Đăng nhập nếu đã có tài khoản
+  // Bước 2: Xác thực OTP
+  const handleVerifyOtp = async () => {
+    try {
+      const value = await otpForm.validateFields(["otp"]);
+      setLoading(true);
+      // Gửi API xác thực OTP
+      const res = await api.post("/auth/verify-Otp", {
+        email,
+        otp: value.otp,
+      });
+      // Nếu trả về chuỗi thành công
+      if (typeof res.data === "string" && res.data.toLowerCase()) {
+        message.success("Xác thực OTP thành công!");
+        setStep(3);
+      } else {
+        message.error("OTP không đúng hoặc đã hết hạn!");
+      }
+    } catch (err) {
+      // Nếu backend trả về chuỗi lỗi
+      const errMsg =
+        err?.response?.data && typeof err.response.data === "string"
+          ? err.response.data
+          : "";
+      if (errMsg.includes("OTP không hợp lệ") || errMsg.includes("hết hạn")) {
+        message.error("OTP không hợp lệ hoặc đã hết hạn!");
+      } else {
+        message.error("Có lỗi xảy ra!");
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Bước 3: Tạo mật khẩu mới
+  const handleCreateAccount = async (values) => {
+  try {
+    setLoading(true);
+
+    const res = await api.post("/auth/config-password", {
+      email,
+      password: values.password,
+      confirmPassword: values.confirm,
+    });
+
+    console.log("Response đăng ký:", res.data);
+
+    // Giả sử API chỉ trả về chuỗi thông báo thành công
+    if (
+      typeof res.data === "string" &&
+      res.data.toLowerCase().includes("thành công")
+    ) {
+      // Không có user để dispatch (vì chỉ là string "Thành công!")
+      message.success("Đăng ký thành công!");
+      window.location.href = "/";
+    } 
+    // Nếu API trả về object có user:
+    else if (
+      res.data &&
+      res.data.message &&
+      res.data.message.toLowerCase().includes("thành công") &&
+      res.data.user
+    ) {
+      dispatch(login(res.data.user));
+      message.success("Đăng ký thành công!");
+      window.location.href = "/";
+    } 
+    else {
+      message.error("Đăng ký thất bại!");
+    }
+  } catch (err) {
+    // Nếu chắc chắn chỉ lỗi mật khẩu không cần thông báo
+    if (
+      err?.response?.data &&
+      typeof err.response.data === "string" &&
+      err.response.data.includes("Mật khẩu")
+    ) {
+      console.warn("Server password validation: ", err.response.data);
+    } else {
+      const errMsg =
+        err?.response?.data && typeof err.response.data === "string"
+          ? err.response.data
+          : "Đăng ký thất bại!";
+      message.error(errMsg);
+    }
+  } finally {
+    setLoading(false);
+  }
+};
+
+
+  // Bước 4: Đăng nhập nếu đã có tài khoản
   const handleLogin = async (values) => {
     try {
       setLoading(true);
-      const res = await axios.get(
-        `http://localhost:8080/users?email=${email}&password=${values.password}`
-      );
-      const user = res.data[0];
-      if (user) {
-        if (user.fullname && user.gender && user.dob) {
-          message.success("Đăng nhập thành công!");
-          // TODO: chuyển sang trang chính
-        } else {
-          message.success(
-            "Đăng nhập thành công! Vui lòng khai báo thông tin cá nhân."
-          );
-          setUserId(user.id);
-          setStep(4);
-        }
+      const res = await api.post("/auth/login", {
+        email,
+        password: values.password,
+      });
+      if (res.data.token) {
+        dispatch(login(res.data.user));
+        message.success("Đăng nhập thành công!");
+        window.location.href = "/";
       } else {
         message.error("Sai mật khẩu hoặc tài khoản không tồn tại!");
       }
     } catch (err) {
-      message.error("Lỗi đăng nhập!");
+      message.error("Lỗi đăng nhập!", err.message);
     } finally {
       setLoading(false);
     }
   };
-
-  // Step 3: Tạo mật khẩu mới cho email chưa có tài khoản
-  const handleCreateAccount = async (values) => {
-    try {
-      setLoading(true);
-      const res = await axios.post("http://localhost:8080/users", {
-        email,
-        password: values.password,
-      });
-      setUserId(res.data.id);
-      message.success(
-        "Tạo tài khoản thành công! Vui lòng khai báo thông tin cá nhân."
-      );
-      setStep(4);
-    } catch (err) {
-      message.error("Đăng ký thất bại!");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  // Step 4: Lưu thông tin cá nhân
-  const handleFinishProfile = async (values) => {
-    try {
-      setLoading(true);
-      await axios.patch(`http://localhost:8080/users/${userId}`, values);
-      message.success("Khai báo thông tin thành công!");
-      // TODO: chuyển sang trang chính
-    } catch (err) {
-      message.error("Lưu thông tin thất bại!");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  // Đăng nhập bằng Facebook
   const handleFacebookSuccess = async (res) => {
     try {
       setLoading(true);
-      const response = await axios.post("http://localhost:8080/api/authFace", {
+      // Gửi accessToken lên backend để xác thực hoặc lấy thông tin user
+      const response = await api.post("/auth/facebook", {
         accessToken: res.accessToken,
       });
-      if (response.data && response.data.success) {
-        message.success("Đăng nhập Facebook thành công!");
+      dispatch(login(response.data.user));
+      console.log("Facebook response:", response.data);
+
+      if (response.data.user && response.data.jwt) {
+        toast.success("Đăng nhập Facebook thành công!");
+        // TODO: Đóng modal hoặc redirect, ví dụ:
         window.location.href = "/";
       } else {
-        message.error("Đăng nhập Facebook thất bại!");
+        toast.error("Đăng nhập Facebook thất bại!");
       }
     } catch (err) {
-      message.error("Lỗi xác thực Facebook!");
+      toast.error("Lỗi xác thực Facebook!");
+      console.log(err.toast);
     } finally {
       setLoading(false);
     }
   };
 
-  // Đăng nhập bằng Google
+  // Xử lý đăng nhập Google thành công
   const handleGoogleSuccess = async (credentialResponse) => {
+    console.log(credentialResponse);
     try {
       setLoading(true);
-      const { credential } = credentialResponse;
-      const decoded = jwtDecode(credential);
-      console.log("Google User Info:", decoded);
-      console.log("Google credential (ID Token):", credential);
+      console.log("Google login successful");
 
-      const res = await axios.post(
-        "http://localhost:8080/api/auth/google",
+      const { credential } = credentialResponse;
+      // Gửi idToken lên backend để xác thực hoặc lấy thông tin user
+      const res = await api.post(
+        "/auth/google",
         {
-          idToken: credential,
+          accessToken: credential,
         },
         {
           headers: {
@@ -143,39 +203,31 @@ const RegisterForm = () => {
           },
         }
       );
+      console.log("Google response:", res.data.user);
+      console.log("Google response:", res.data.token);
+      dispatch(login(res.data.user));
+      if (res.data && res.data.jwt) {
+        localStorage.setItem("token", res.data.token);
+        window.location.href = "/";
 
-      localStorage.setItem("token", res.data.token);
-      message.success("Đăng nhập Google thành công!");
-      window.location.href = "/";
+        toast.success("Đăng nhập Google thành công!");
+        // TODO: Đóng modal hoặc redirect, ví dụ:
+      } else {
+        toast.error("Đăng nhập Google thất bại!");
+      }
     } catch (error) {
-      console.error("Google login failed:", error);
-      message.error("Đăng nhập Google thất bại!");
+      toast.error("Lỗi xác thực Google!");
+      console.log(error.message);
     } finally {
       setLoading(false);
     }
   };
-
-  const handleBack = () => setStep(1);
 
   return (
     <div className="login-box">
       {/* Step 1: Nhập email */}
       {step === 1 && (
         <Spin spinning={loading}>
-          <div className="login-header" style={{ textAlign: "center" }}>
-            <img
-              src="/logo-removebg.png"
-              alt="logo"
-              className="brand-logo"
-              style={{ margin: "0 auto 12px" }}
-            />
-            <h2 style={{ marginBottom: 8, fontWeight: 700 }}>
-              Đăng ký / Đăng nhập
-            </h2>
-            <p style={{ color: "#666", marginBottom: 16 }}>
-              Nhập email để tiếp tục
-            </p>
-          </div>
           <Form form={form} layout="vertical">
             <Form.Item
               name="email"
@@ -183,61 +235,118 @@ const RegisterForm = () => {
                 { required: true, message: "Vui lòng nhập email!" },
                 { type: "email", message: "Email không hợp lệ!" },
               ]}
-              style={{ marginBottom: 16 }}
             >
               <Input size="large" placeholder="Nhập email" />
             </Form.Item>
-            <Form.Item style={{ marginBottom: 12 }}>
+            <Form.Item>
               <GradientButton
                 block
                 loading={loading}
-                style={{ fontWeight: 600, fontSize: 16, height: 44 }}
                 onClick={handleCheckEmail}
               >
                 Tiếp tục
               </GradientButton>
             </Form.Item>
+            <div style={{ margin: "32px 0 0" }}>
+              <div
+                style={{ textAlign: "center", color: "#bbb", marginBottom: 16 }}
+              >
+                Hoặc tiếp tục bằng
+              </div>
+              <div
+                style={{ display: "flex", gap: 12, justifyContent: "center" }}
+              >
+                <LoginGoogle onSuccess={handleGoogleSuccess} />
+                <LoginFace onSuccess={handleFacebookSuccess} />
+              </div>
+              <div style={{ fontSize: 12, color: "#888", marginTop: 20 }}>
+                Bằng cách đăng ký, bạn đồng ý với{" "}
+                <a href="#" style={{ color: "#3870ff" }}>
+                  Chính sách bảo mật
+                </a>{" "}
+                và{" "}
+                <a href="#" style={{ color: "#3870ff" }}>
+                  Điều khoản sử dụng
+                </a>
+                .
+              </div>
+            </div>
           </Form>
-          <div style={{ margin: "32px 0 0" }}>
-            <div
-              style={{ textAlign: "center", color: "#bbb", marginBottom: 16 }}
-            >
-              Hoặc tiếp tục bằng
-            </div>
-            <div style={{ display: "flex", gap: 12, justifyContent: "center" }}>
-              <LoginGoogle onSuccess={handleGoogleSuccess} />
-              <LoginFace onSuccess={handleFacebookSuccess} />
-            </div>
-            <div style={{ fontSize: 12, color: "#888", marginTop: 20 }}>
-              Bằng cách đăng ký, bạn đồng ý với{" "}
-              <a href="#" style={{ color: "#3870ff" }}>
-                Chính sách bảo mật
-              </a>{" "}
-              và{" "}
-              <a href="#" style={{ color: "#3870ff" }}>
-                Điều khoản sử dụng
-              </a>
-              .
-            </div>
-          </div>
         </Spin>
       )}
 
-      {/* Step 2: Nếu đã có tài khoản, nhập mật khẩu */}
-      {step === 2 && userExists && (
+      {/* Step 2: Nhập OTP */}
+      {step === 2 && (
         <Spin spinning={loading}>
-          <div className="login-header">
-            <Button
-              type="text"
-              icon={<span style={{ fontSize: 22, fontWeight: 700 }}>←</span>}
-              onClick={handleBack}
-              style={{ marginBottom: 16 }}
-            />
-            <h2 style={{ marginBottom: 8, fontWeight: 700 }}>Nhập mật khẩu</h2>
-            <p style={{ color: "#666", marginBottom: 24 }}>
-              Đăng nhập bằng mật khẩu của bạn.
-            </p>
-          </div>
+          <Form form={otpForm} layout="vertical">
+            <Form.Item
+              name="otp"
+              rules={[{ required: true, message: "Vui lòng nhập OTP!" }]}
+            >
+              <Input size="large" placeholder="Nhập mã OTP" />
+            </Form.Item>
+            <Form.Item>
+              <GradientButton block loading={loading} onClick={handleVerifyOtp}>
+                Xác nhận OTP
+              </GradientButton>
+            </Form.Item>
+          </Form>
+        </Spin>
+      )}
+
+      {/* Step 3: Tạo mật khẩu mới */}
+      {step === 3 && (
+        <Spin spinning={loading}>
+          <Form
+            form={passwordForm}
+            layout="vertical"
+            onFinish={handleCreateAccount}
+          >
+            <Form.Item
+              name="password"
+              label="Mật khẩu"
+              rules={[
+                { required: true, message: "Vui lòng nhập mật khẩu!" },
+                { min: 8, message: "Mật khẩu phải có ít nhất 8 ký tự!" },
+                {
+                  pattern: /^(?=.*[A-Za-z])(?=.*\d).{8,}$/,
+                  message:
+                    "Mật khẩu phải có ít nhất một chữ cái và một chữ số!",
+                },
+              ]}
+            >
+              <Input.Password placeholder="Nhập mật khẩu" size="large" />
+            </Form.Item>
+            <Form.Item
+              name="confirm"
+              label="Xác nhận mật khẩu"
+              dependencies={["password"]}
+              rules={[
+                { required: true, message: "Vui lòng xác nhận mật khẩu!" },
+                ({ getFieldValue }) => ({
+                  validator(_, value) {
+                    if (!value || getFieldValue("password") === value) {
+                      return Promise.resolve();
+                    }
+                    return Promise.reject("Mật khẩu không khớp!");
+                  },
+                }),
+              ]}
+            >
+              <Input.Password placeholder="Xác nhận mật khẩu" size="large" />
+            </Form.Item>
+            <Form.Item>
+              <GradientButton htmlType="submit" block loading={loading}>
+                Tạo tài khoản mới
+              </GradientButton>
+            </Form.Item>
+          </Form>
+        </Spin>
+      )}
+
+      {/* Step 4: Đăng nhập nếu đã có tài khoản */}
+      {step === 4 && (
+        <Spin spinning={loading}>
           <Form layout="vertical" onFinish={handleLogin}>
             <Form.Item
               name="password"
@@ -246,11 +355,7 @@ const RegisterForm = () => {
             >
               <Input.Password placeholder="Nhập mật khẩu" size="large" />
             </Form.Item>
-            <div style={{ display: "flex", justifyContent: "space-between" }}>
-              <span>Quên mật khẩu?</span>
-              <a href="#">Lấy lại mật khẩu</a>
-            </div>
-            <Form.Item style={{ marginTop: 16 }}>
+            <Form.Item>
               <GradientButton htmlType="submit" block loading={loading}>
                 Đăng nhập
               </GradientButton>
@@ -258,195 +363,6 @@ const RegisterForm = () => {
           </Form>
         </Spin>
       )}
-
-      {/* Step 3: Tạo mật khẩu mới cho email chưa có tài khoản */}
-      {step === 3 && !userExists && (
-        <Spin spinning={loading}>
-          <div
-            style={{
-              background: "linear-gradient(180deg,#eaf3ff 0,#fff 100%)",
-              borderRadius: 12,
-              padding: 24,
-              minWidth: 340,
-              maxWidth: 400,
-              margin: "0 auto",
-              boxShadow: "0 2px 8px #eaf3ff55",
-            }}
-          >
-            <Button
-              type="text"
-              icon={<span style={{ fontSize: 22, fontWeight: 700 }}>←</span>}
-              onClick={handleBack}
-              style={{ marginBottom: 16 }}
-            />
-            <h2 style={{ marginBottom: 8, fontWeight: 700 }}>Tạo mật khẩu</h2>
-            <p style={{ color: "#666", marginBottom: 24 }}>
-              Tạo mật khẩu để đăng nhập và hoàn tất đăng ký tài khoản tại{" "}
-              <b>Website</b>
-            </p>
-            <Form layout="vertical" onFinish={handleCreateAccount}>
-              <Form.Item
-                name="password"
-                label="Mật khẩu"
-                rules={[
-                  { required: true, message: "Vui lòng nhập mật khẩu!" },
-                  { min: 8, message: "Mật khẩu phải có ít nhất 8 ký tự!" },
-                  {
-                    pattern: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/,
-                    message:
-                      "Mật khẩu cần ít nhất 1 chữ hoa, 1 chữ thường, 1 số!",
-                  },
-                ]}
-              >
-                <Input.Password placeholder="Nhập mật khẩu" size="large" />
-              </Form.Item>
-              <div style={{ color: "#888", fontSize: 13, marginBottom: 8 }}>
-                <div>
-                  <span style={{ color: "#52c41a", marginRight: 4 }}>✔</span>
-                  Có ít nhất 8 kí tự
-                </div>
-                <div>
-                  <span style={{ color: "#52c41a", marginRight: 4 }}>✔</span>
-                  Có ít nhất 1 chữ viết hoa, 1 chữ viết thường, 1 chữ số
-                </div>
-              </div>
-              <Form.Item
-                name="confirm"
-                label="Xác nhận mật khẩu"
-                dependencies={["password"]}
-                rules={[
-                  { required: true, message: "Vui lòng xác nhận mật khẩu!" },
-                  ({ getFieldValue }) => ({
-                    validator(_, value) {
-                      if (!value || getFieldValue("password") === value) {
-                        return Promise.resolve();
-                      }
-                      return Promise.reject("Mật khẩu không khớp!");
-                    },
-                  }),
-                ]}
-              >
-                <Input.Password placeholder="Xác nhận mật khẩu" size="large" />
-              </Form.Item>
-              <Form.Item style={{ marginTop: 16 }}>
-                <GradientButton htmlType="submit" block loading={loading}>
-                  Tạo tài khoản mới
-                </GradientButton>
-              </Form.Item>
-            </Form>
-          </div>
-        </Spin>
-      )}
-
-      {/* Step 4: Khai báo thông tin cá nhân */}
-      {step === 4 && (
-        <div>
-          <h2>Khai báo thông tin cá nhân</h2>
-          <p style={{ color: "#666", marginBottom: 24 }}>
-            Vui lòng cung cấp thông tin để hoàn tất đăng nhập.
-          </p>
-          <Spin spinning={loading}>
-            <Form
-              form={profileForm}
-              layout="vertical"
-              onFinish={handleFinishProfile}
-              autoComplete="off"
-            >
-              <Form.Item
-                name="fullname"
-                label="Tên"
-                rules={[{ required: true, message: "Vui lòng nhập tên!" }]}
-              >
-                <Input placeholder="Nhập tên của bạn" />
-              </Form.Item>
-              <Form.Item
-                name="gender"
-                label="Giới tính"
-                rules={[
-                  { required: true, message: "Vui lòng chọn giới tính!" },
-                ]}
-              >
-                <Select placeholder="Chọn giới tính">
-                  <Option value="FEMALE">
-                    <span role="img" aria-label="Nữ">
-                      👩‍🦰
-                    </span>{" "}
-                    Nữ
-                  </Option>
-                  <Option value="MALE">
-                    <span role="img" aria-label="Nam">
-                      👨‍🦱
-                    </span>{" "}
-                    Nam
-                  </Option>
-                </Select>
-              </Form.Item>
-              <Form.Item
-                name="dob"
-                label="Ngày sinh"
-                rules={[
-                  { required: true, message: "Vui lòng nhập ngày sinh!" },
-                ]}
-              >
-                <DatePicker
-                  style={{ width: "100%" }}
-                  format="DD/MM/YYYY"
-                  placeholder="Nhập ngày sinh của bạn"
-                />
-              </Form.Item>
-              <Form.Item>
-                <GradientButton htmlType="submit" block>
-                  Lưu
-                </GradientButton>
-              </Form.Item>
-            </Form>
-            <div style={{ textAlign: "center", marginTop: 16 }}>
-              <Button
-                type="link"
-                onClick={() => {
-                  message.info("Bạn đã bỏ qua khai báo thông tin cá nhân.");
-                  // TODO: chuyển sang trang chính hoặc đóng modal tại đây
-                }}
-              >
-                Thiết lập sau
-              </Button>
-            </div>
-          </Spin>
-        </div>
-      )}
-      {/* Debug chuyển step */}
-      <div style={{ marginTop: 32, textAlign: "center" }}>
-        <Button
-          onClick={() => {
-            setUserExists(false);
-            setStep(1);
-          }}
-          style={{ margin: 4 }}
-        >
-          Step 1
-        </Button>
-        <Button
-          onClick={() => {
-            setUserExists(true);
-            setStep(2);
-          }}
-          style={{ margin: 4 }}
-        >
-          Step 2
-        </Button>
-        <Button
-          onClick={() => {
-            setUserExists(false);
-            setStep(3);
-          }}
-          style={{ margin: 4 }}
-        >
-          Step 3
-        </Button>
-        <Button onClick={() => setStep(4)} style={{ margin: 4 }}>
-          Step 4
-        </Button>
-      </div>
     </div>
   );
 };
