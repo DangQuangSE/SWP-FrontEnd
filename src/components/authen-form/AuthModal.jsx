@@ -127,6 +127,7 @@ const AuthModal = ({ open, onClose }) => {
                         setRegisterPhone(phone);
                         setActiveTab("register");
                       }}
+                      onClose={onClose} // truyền prop onClose vào LoginForm
                     />
                   </div>
                 ),
@@ -140,7 +141,7 @@ const AuthModal = ({ open, onClose }) => {
                 ),
                 children: (
                   <div style={{ paddingTop: 16 }}>
-                    <RegisterForm phone={registerPhone} />
+                    <RegisterForm phone={registerPhone} onClose={onClose} /> {/* truyền prop onClose vào RegisterForm nếu muốn */}
                   </div>
                 ),
               },
