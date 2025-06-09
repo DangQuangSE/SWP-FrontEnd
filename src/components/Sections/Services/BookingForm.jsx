@@ -55,38 +55,53 @@ const BookingForm = () => {
 
   useEffect(() => {
     if (doctor && dateRange.length === 2) {
+      const from = dateRange[0].format("YYYY-MM-DD");
+      const to = dateRange[1].format("YYYY-MM-DD");
+
+      console.log(" Đang gọi API với:");
+      console.log(" consultant_id:", doctor);
+      console.log(" from:", from);
+      console.log(" to:", to);
+
       axios
-        .get("/api/view-schedule", {
+        .get("http://14.225.198.16:8084/api/view-schedule", {
           params: {
             consultant_id: doctor,
-            from: dateRange[0].format("YYYY-MM-DD"),
-            to: dateRange[1].format("YYYY-MM-DD"),
+            from,
+            to,
           },
         })
         .then((res) => {
-          console.log("Schedule API Response:", res.data);
-          try {
-            const parsed =
-              typeof res.data === "string" ? JSON.parse(res.data) : res.data;
+          console.log("📦 Raw API response:", res);
 
-            // Kiểm tra parsed có phải array không
+          const raw = res.data;
+          if (typeof raw === "string" && raw.startsWith("<!DOCTYPE html")) {
+            console.error(
+              " API trả về HTML (không phải JSON) → sai URL hoặc backend chưa chạy."
+            );
+            setScheduleData([]);
+            return;
+          }
+
+          try {
+            const parsed = typeof raw === "string" ? JSON.parse(raw) : raw;
+            console.log(" Parsed JSON:", parsed);
+
             if (Array.isArray(parsed)) {
+              console.log(` Có ${parsed.length} lịch làm việc.`);
               setScheduleData(parsed);
             } else {
-              console.error(
-                "❌ API không trả về mảng schedule hợp lệ!",
-                parsed
-              );
-              setScheduleData([]); // fallback
+              console.warn(" API trả về không phải mảng:", parsed);
+              setScheduleData([]);
             }
           } catch (err) {
-            console.error("❌ Lỗi parse JSON hoặc dữ liệu sai format:", err);
-            setScheduleData([]); // fallback
+            console.error(" Lỗi parse JSON từ phản hồi API:", err);
+            setScheduleData([]);
           }
         })
         .catch((err) => {
-          console.error("❌ Lỗi khi gọi API:", err);
-          setScheduleData([]); // fallback
+          console.error(" Lỗi khi gọi API:", err);
+          setScheduleData([]);
         });
     }
   }, [doctor, dateRange]);
@@ -96,23 +111,27 @@ const BookingForm = () => {
       date: s.workDate,
       day: dayjs(s.workDate).format("dd"),
       dayNum: dayjs(s.workDate).format("D/M"),
-      available: s.available,
+      available: s.timeSlotDTOs && s.timeSlotDTOs.length > 0,
     }));
   }, [scheduleData]);
 
   const getTimeSlotsForDay = (date) => {
     const entry = scheduleData.find((s) => s.workDate === date);
-    if (!entry || !entry.available) return [];
+    if (!entry || !entry.timeSlotDTOs || entry.timeSlotDTOs.length === 0)
+      return [];
 
     const slots = [];
-    let current = dayjs(`${entry.workDate}T${entry.startTime}`);
-    const end = dayjs(`${entry.workDate}T${entry.endTime}`);
 
-    while (current.isBefore(end)) {
-      const next = current.add(30, "minute");
-      slots.push(`${current.format("HH:mm")} - ${next.format("HH:mm")}`);
-      current = next;
-    }
+    entry.timeSlotDTOs.forEach(({ startTime, endTime }) => {
+      let current = dayjs(`${entry.workDate}T${startTime}`);
+      const end = dayjs(`${entry.workDate}T${endTime}`);
+
+      while (current.isBefore(end)) {
+        const next = current.add(30, "minute");
+        slots.push(`${current.format("HH:mm")} - ${next.format("HH:mm")}`);
+        current = next;
+      }
+    });
 
     return slots;
   };
@@ -248,7 +267,7 @@ const BookingForm = () => {
           >
             {(() => {
               const slots = getTimeSlotsForDay(selectedDay);
-              const parts = { morning: [], afternoon: [], evening: [] };
+              const parts = { morningS: [], afternoon: [], evening: [] };
 
               slots.forEach((slot) => {
                 const hour = parseInt(slot.split(":"));
