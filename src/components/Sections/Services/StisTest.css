@@ -691,4 +691,7 @@
   .medro-modal-body {
     padding: 20px;
   }
+  .medro-medical-image {
+    width: 100%;
+  }
 }
