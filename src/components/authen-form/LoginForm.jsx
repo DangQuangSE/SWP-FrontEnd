@@ -150,7 +150,7 @@ const LoginForm = ({ onClose }) => {
           </Form.Item>
           <div style={{ display: "flex", justifyContent: "space-between" }}>
             <span>Quên mật khẩu?</span>
-            <a href="#">Lấy lại mật khẩu</a>
+            <a href="/forgot-password">Lấy lại mật khẩu</a>
           </div>
           <Form.Item style={{ marginTop: 16 }}>
             <GradientButton htmlType="submit" block loading={loading}>

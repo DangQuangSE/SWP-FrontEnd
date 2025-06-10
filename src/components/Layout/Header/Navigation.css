@@ -65,10 +65,33 @@
   border-radius: 12px;
   background: linear-gradient(to bottom, #ffffff 0%, #c6f2ff 100%);
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
-  animation: fadeIn 0.2s ease-out;
+  animation: fadeSlideIn 0.4s ease;
   overflow: hidden;
   z-index: 100;
+  transform-origin: top center;
 }
+
+@keyframes fadeSlideIn {
+  0% {
+    opacity: 0;
+    transform: translateY(-10px) scale(0.95);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* Optional: Add a hover effect for items inside dropdown */
+.dropdown-menu li {
+  transition: background 0.2s, color 0.2s;
+}
+
+.dropdown-menu li:hover {
+  background: rgba(0, 180, 216, 0.2);
+  color: #0077b6;
+}
+
 
 .nav-item.has-dropdown:hover .dropdown-menu {
   display: block;

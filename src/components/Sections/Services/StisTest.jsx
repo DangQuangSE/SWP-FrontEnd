@@ -109,13 +109,15 @@ const StisTest = () => {
             </ul>
             <div className="medro-contact-info">
               <span className="medro-contact-text">Liên hệ chuyên gia để tư vấn thêm</span>
-              <span className="medro-phone">📞 19002115</span>
-              <span className="medro-or-text">hoặc</span>
               <button className="medro-chat-btn">Chat ngay</button>
             </div>
           </div>
           <div className="medro-hero-image">
-            <div className="medro-medical-illustration">🏥👩‍⚕️🔬</div>
+            <img
+              src="https://medpro.vn/_next/image?url=https%3A%2F%2Fcdn.medpro.vn%2Fprod-partner%2F7b36c2a1-513f-43e0-b35f-1e3ade5e72ac-dat-lich-xet-nghiem.webp&w=1920&q=75"
+              alt="Medical Illustration"
+              className="medro-hero-image"
+            />
           </div>
         </div>
       </div>
@@ -260,7 +262,11 @@ const StisTest = () => {
                   </ul>
 
                   <div className="medro-medical-image">
-                    <div className="medro-image-placeholder">🏥👩‍⚕️🔬📊</div>
+                    <img
+                      src="https://cdn.medpro.vn/prod-partner/61c4746f-8384-41de-a65b-242165f3657a-xaa(c)t_nghiaaam_viaaam_gan.png"
+                      alt="Medical Illustration"
+                      className="medro-medical-image"
+                    />
                   </div>
                 </div>
 

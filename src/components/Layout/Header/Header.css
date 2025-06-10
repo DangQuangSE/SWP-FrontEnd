@@ -10,11 +10,12 @@
 }
 
 .header.scrolled {
-  box-shadow: var(--shadow-lg);
+  background: var(--bg-white);
   margin: 10px 20px 0 20px;
   width: calc(100% - 40px);
   border-radius: 50px;
   overflow: hidden;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.12); /* Thêm dòng này để nổi bật bo góc */
 }
 
 .header.scrolled .top-bar {
@@ -37,7 +38,16 @@
     border-radius: 12px;
   }
 
-  .header.scrolled .main-header {
-    padding: var(--spacing-xs) 0;
-  }
+  /* Khi header.scrolled bị ẩn .main-header, hover vào header sẽ hiện lại */
+.header.scrolled .main-header {
+  opacity: 0.7;
+  pointer-events: none;
+  transition: opacity 0.2s;
 }
+
+.header.scrolled:hover .main-header {
+  opacity: 1;
+  pointer-events: auto;
+}
+}
+
