@@ -14,7 +14,7 @@ import AppointmentForm from "./components/Sections/Services/AppointmentForm";
 import { ToastContainer } from "react-toastify";
 import StisTest from "./components/Sections/Services/StisTest";
 import ForgotPasswordOTP from "./components/authen-form/ForgotPassword";
-
+import AllBlog from "./components/Sections/Articles/pages/allBlog";
 
 function App() {
   return (
@@ -39,6 +39,7 @@ function App() {
               <Route path="/services" element={<AppointmentForm />} />
               <Route path="/appointment" element={<StisTest />} />
               <Route path="/forgot-password" element={<ForgotPasswordOTP />} />
+              <Route path="/blog" element={<AllBlog />} />
             </Routes>
           </main>
           <Footer />
