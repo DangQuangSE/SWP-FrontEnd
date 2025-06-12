@@ -1,0 +1,93 @@
+.doctor-card {
+  background-color: white;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.doctor-card-image-wrapper {
+  height: 220px;
+  overflow: hidden;
+}
+
+.doctor-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.doctor-card-content {
+  padding: 16px;
+  flex-grow: 1;
+}
+
+.doctor-name {
+  font-size: 1.2rem;
+  font-weight: bold;
+  margin-bottom: 8px;
+}
+
+.doctor-rating {
+  display: flex;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.star-icon {
+  font-size: 1rem;
+  margin-right: 2px;
+}
+
+.star-icon.filled {
+  color: #ffc107;
+}
+
+.star-icon.empty {
+  color: #ccc;
+}
+
+.rating-text {
+  margin-left: 8px;
+  font-size: 0.9rem;
+  color: #666;
+}
+
+.doctor-details {
+  font-size: 0.95rem;
+  color: #444;
+}
+
+.doctor-detail-item {
+  margin-bottom: 6px;
+  display: flex;
+  align-items: center;
+}
+
+.detail-icon {
+  margin-right: 6px;
+  color: #007bff;
+}
+
+.doctor-card-action {
+  padding: 16px;
+  text-align: center;
+  border-top: 1px solid #eee;
+}
+
+.btn-register {
+  background-color: #007bff;
+  color: white;
+  border: none;
+  padding: 10px 16px;
+  border-radius: 6px;
+  font-size: 0.95rem;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+}
+
+.btn-register:hover {
+  background-color: #0056b3;
+}
