@@ -3,7 +3,7 @@ import DoctorCard from "./DoctorCard";
 import doctorsData from "./Data/Doctors";
 import "./DoctorList.css";
 
-const ITEMS_PER_PAGE = 8;
+const ITEMS_PER_PAGE = 9;
 
 const DoctorList = () => {
   const [currentPage, setCurrentPage] = useState(1);
