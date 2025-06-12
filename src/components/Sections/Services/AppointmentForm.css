@@ -121,16 +121,14 @@ body {
 
 /* Main Content Layout - WIDER */
 .main-content {
-  max-width: 1800px;
-  margin: 0 auto;
-  display: grid;
-  grid-template-columns: 1fr 600px;
+  display: flex;
   gap: 40px;
+  max-width: 1200px;
+  margin: 0 auto;
   padding: 40px 32px;
   width: 100%;
   box-sizing: border-box;
-  justify-content: center;
-  align-items: start;
+  align-items: flex-start;
 }
 
 .left-column {
@@ -138,14 +136,12 @@ body {
   flex-direction: column;
   gap: 40px;
 }
-.main-content {
-  display: flex;
-  gap: 32px;
-  align-items: flex-start;
-}
 
 .left-column {
-  flex: 3;
+  flex: 2;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
 }
 
 .right-column {
@@ -156,8 +152,10 @@ body {
 
 /* Content Sections */
 .content-section {
-  padding: 0;
-  margin: 0;
+  background: white;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
 }
 
 .section-title {
@@ -172,6 +170,15 @@ body {
 
 .icon {
   display: inline-block;
+}
+.about-text {
+  line-height: 1.6;
+  color: #444;
+  font-size: 15px;
+}
+.about-text ul {
+  margin-left: 20px;
+  list-style: disc;
 }
 
 /* Working Hours */
@@ -629,11 +636,6 @@ body {
   }
 }
 /* Fix layout co lại khi BookingForm có select dài */
-.main-content {
-  display: flex;
-  gap: 24px;
-  flex-wrap: wrap;
-}
 
 .left-column {
   flex: 1;

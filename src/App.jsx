@@ -15,7 +15,6 @@ import { ToastContainer } from "react-toastify";
 import StisTest from "./components/Sections/Services/StisTest";
 import ForgotPasswordOTP from "./components/authen-form/ForgotPassword";
 import AllBlog from "./components/Sections/Articles/pages/allBlog";
-
 function App() {
   return (
     <Provider store={store}>
@@ -33,6 +32,11 @@ function App() {
                     <Services />
                     <Articles />
                     <Testimonials />
+                    <div style={{ height: "2000px", background: "#f0f0f0" }}>
+                      <h2 style={{ paddingTop: "100px", textAlign: "center" }}>
+                        Cuộn xuống để kiểm tra Header scroll
+                      </h2>
+                    </div>
                   </>
                 }
               />
