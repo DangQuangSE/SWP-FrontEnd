@@ -262,3 +262,10 @@ body {
     font-size: 20px;
   }
 }
+html,
+body {
+  width: 100%;
+  min-height: 100vh;
+  overflow-x: hidden;
+  overflow-y: auto !important; /* 👈 Fix cực kỳ quan trọng */
+}

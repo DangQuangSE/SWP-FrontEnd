@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import "./Header.css";
 import MainHeader from "./MainHeader";
 
@@ -9,7 +9,8 @@ const Header = () => {
 
   useEffect(() => {
     const handleScroll = () => {
-      setScrolled(window.scrollY > 20);
+      const y = window.scrollY;
+      setScrolled(y > 20);
     };
 
     window.addEventListener("scroll", handleScroll);

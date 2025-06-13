@@ -15,13 +15,12 @@ const ServiceDangKi = () => {
     { day: "Thứ Bảy", hours: "07:30 - 11:30, 12:30 - 16:30" },
     { day: "Chủ Nhật", hours: "Đóng cửa" },
   ];
-
   const faqItems = [
-    "Bệnh viện Columbia Asia Bình Dương nằm ở đâu?",
-    "Thời gian làm việc của Bệnh viện Columbia Asia Bình Dương?",
-    "Bệnh viện Columbia Asia Bình Dương có số đường bảo hiểm y tế không?",
-    "Bệnh viện Columbia Asia Bình Dương có dịch vụ nội soi tiêu hóa không?",
-    "Bệnh viện Columbia Asia Bình Dương có dịch vụ cấp cứu không?",
+    "S-HeathyCare nằm ở đâu?",
+    "Thời gian làm việc của S-HeathyCare?",
+    "S-HeathyCare có hỗ trợ bảo hiểm y tế không?",
+    "S-HeathyCare có dịch vụ nội soi tiêu hóa không?",
+    "S-HeathyCare có dịch vụ cấp cứu không?",
   ];
 
   const toggleFaq = (index) => {
@@ -84,6 +83,79 @@ const ServiceDangKi = () => {
         <div className="main-content">
           {/* Left Column */}
           <div className="left-column">
+            <div className="content-section">
+              <h2 className="section-title">
+                <span className="icon">🏥</span>
+                <span>Giới thiệu chung</span>
+              </h2>
+              <div className="about-text">
+                <p>
+                  <strong>SheathyCare</strong> là cơ sở chăm sóc sức khỏe tiên
+                  phong trong việc kết hợp giữa chuyên môn y tế, công nghệ hiện
+                  đại và dịch vụ thân thiện với người dùng, hướng đến việc chăm
+                  sóc toàn diện sức khỏe giới tính và sinh sản cho cộng đồng.
+                </p>
+
+                <p>
+                  Chúng tôi cung cấp một hệ sinh thái y tế thông minh, cho phép
+                  người dùng dễ dàng:
+                </p>
+                <ul>
+                  <li>Theo dõi chu kỳ sinh sản</li>
+                  <li>Đặt lịch tư vấn với chuyên gia</li>
+                  <li>
+                    Thực hiện xét nghiệm các bệnh lây truyền qua đường tình dục
+                    (STIs)
+                  </li>
+                  <li>Nhận lời khuyên y tế cá nhân hóa</li>
+                  <li>Quản lý hồ sơ sức khỏe riêng tư, bảo mật</li>
+                </ul>
+
+                <p>
+                  <strong>Điểm nổi bật tại SheathyCare:</strong>
+                </p>
+                <ul>
+                  <li>
+                    <strong>Đội ngũ chuyên gia hàng đầu:</strong> gồm các bác sĩ
+                    chuyên khoa Sản – Phụ khoa, Nam khoa, Da liễu, Thận – Tiết
+                    niệu… giàu kinh nghiệm và tận tâm.
+                  </li>
+                  <li>
+                    <strong>Công nghệ tiên tiến, tiện lợi:</strong> chẩn đoán
+                    hình ảnh hiện đại, kết quả trả online, nhắc nhở chu kỳ sinh
+                    sản.
+                  </li>
+                  <li>
+                    <strong>Dịch vụ chuyên biệt:</strong> tư vấn sức khỏe giới
+                    tính, xét nghiệm & điều trị STIs, gói khám sức khỏe định kỳ.
+                  </li>
+                </ul>
+
+                <p>
+                  <strong>Chuyên khoa hỗ trợ:</strong> Sản – Phụ khoa, Nam khoa,
+                  Nội – Ngoại tổng quát, Da liễu, Thận – Tiết niệu, Cơ – Xương –
+                  Khớp, Nội thần kinh, Tai – Mũi – Họng.
+                </p>
+
+                <p>
+                  <strong>Cơ sở vật chất – Trang thiết bị:</strong> phòng xét
+                  nghiệm hiện đại, máy siêu âm màu, MRI, CT Scan, phòng tư vấn
+                  riêng tư, bảo mật.
+                </p>
+
+                <p>
+                  <strong>Tích hợp trong phần mềm SheathyCare:</strong>
+                </p>
+                <ul>
+                  <li>Giao diện trực quan, dễ sử dụng</li>
+                  <li>Tư vấn viên quản lý lịch hẹn & hồ sơ người dùng</li>
+                  <li>Người dùng đặt lịch, nhận nhắc nhở tự động</li>
+                  <li>Tích hợp AI hỗ trợ đánh giá nguy cơ STIs</li>
+                  <li>Phản hồi – đánh giá minh bạch sau mỗi dịch vụ</li>
+                </ul>
+              </div>
+            </div>
+
             <div className="content-section">
               <h2 className="section-title">
                 <span className="icon">⏰</span>

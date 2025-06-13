@@ -14,8 +14,11 @@ import AppointmentForm from "./components/Sections/Services/AppointmentForm";
 import { ToastContainer } from "react-toastify";
 import StisTest from "./components/Sections/Services/StisTest";
 import ForgotPasswordOTP from "./components/authen-form/ForgotPassword";
-import DoctorList from "./components/Sections/Services/DoctorList/DoctorList";
-
+import AllBlog from "./components/Sections/Articles/pages/allBlog";
+import BlogDetail from "./components/Sections/Articles/pages/BlogDetail";
+import Medicalnew from "./components/Sections/Articles/pages/Medicalnew";
+import Servicevnew from "./components/Sections/Articles/pages/Servicenew";
+import Generalnew from "./components/Sections/Articles/pages/Generalnew";
 function App() {
   console.log("App component rendered");
   return (
@@ -34,6 +37,11 @@ function App() {
                     <Services />
                     <Articles />
                     <Testimonials />
+                    <div style={{ height: "2000px", background: "#f0f0f0" }}>
+                      <h2 style={{ paddingTop: "100px", textAlign: "center" }}>
+                        Cuộn xuống để kiểm tra Header scroll
+                      </h2>
+                    </div>
                   </>
                 }
               />
@@ -49,6 +57,11 @@ function App() {
               />
               <Route path="/appointment" element={<StisTest />} />
               <Route path="/forgot-password" element={<ForgotPasswordOTP />} />
+              <Route path="/blog" element={<AllBlog />} />
+              <Route path="/blog/:id" element={<BlogDetail />} />
+              <Route path="/tin-y-te" element={<Medicalnew />} />
+              <Route path="/tin-dich-vu" element={<Servicevnew />} />
+              <Route path="/y-hoc-thuong-thuc" element={<Generalnew />} />
             </Routes>
           </main>
           <Footer />

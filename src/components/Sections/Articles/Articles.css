@@ -221,4 +221,34 @@
   .featured-content p {
     font-size: 14px;
   }
+  
 }
+.see-all-button-blog {
+  text-align: center;
+  margin-top: var(--spacing-xl);
+}
+
+.view-all-link-blog {
+  display: inline-block;
+  padding: 12px 32px;
+  font-size: 16px;
+  font-weight: 600;
+  color: #fff;
+  background: linear-gradient(90deg, #ff416c, #3870ff);
+  border-radius: 24px;
+  text-decoration: none;
+  transition: opacity 0.3s ease;
+}
+
+.view-all-link-blog:hover {
+  opacity: 0.9;
+}
+.articles a {
+  text-decoration: none;
+}
+.article-author span,
+.article-date {
+  color: #00bcd4; /* Màu xanh bạn muốn */
+  font-weight: 500;
+}
+
