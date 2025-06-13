@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import "./AppointmentForm.css";
 import BookingForm from "./BookingForm";
+import { Link } from "react-router-dom";
 
 const ServiceDangKi = () => {
   const [expandedFaq, setExpandedFaq] = useState(null);
@@ -67,7 +68,14 @@ const ServiceDangKi = () => {
           <div className="nav-tabs">
             <span className="nav-tab active">Thông tin chung</span>
             <span className="nav-tab">Dịch vụ (4)</span>
-            <span className="nav-tab">Bác sĩ (30)</span>
+            <Link
+              to="./DoctorList"
+              className={`nav-tab ${
+                location.pathname === "/doctors" ? "active" : ""
+              }`}
+            >
+              Bác sĩ (30)
+            </Link>
             <span className="nav-tab">Đánh giá (4)</span>
           </div>
         </div>
