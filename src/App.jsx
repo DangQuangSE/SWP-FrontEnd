@@ -15,9 +15,12 @@ import { ToastContainer } from "react-toastify";
 import StisTest from "./components/Sections/Services/StisTest";
 import ForgotPasswordOTP from "./components/authen-form/ForgotPassword";
 import AllBlog from "./components/Sections/Articles/pages/allBlog";
-import CycleTracker from "./components/Sections/Services/CycleTracker/CycleTracker";
-
+import BlogDetail from "./components/Sections/Articles/pages/BlogDetail";
+import Medicalnew from "./components/Sections/Articles/pages/Medicalnew";
+import Servicevnew from "./components/Sections/Articles/pages/Servicenew";
+import Generalnew from "./components/Sections/Articles/pages/Generalnew";
 function App() {
+  console.log("App component rendered");
   return (
     <Provider store={store}>
       <PersistGate loading={null} persistor={persistor}>
@@ -38,10 +41,22 @@ function App() {
                 }
               />
               <Route path="/services" element={<AppointmentForm />} />
-              <Route path="/CycleTracker" element={<CycleTracker/>}/>
+              <Route
+                path="/services/DoctorList"
+                element={
+                  <>
+                    {console.log("Rendering DoctorList route")}
+                    <DoctorList />
+                  </>
+                }
+              />
               <Route path="/appointment" element={<StisTest />} />
               <Route path="/forgot-password" element={<ForgotPasswordOTP />} />
               <Route path="/blog" element={<AllBlog />} />
+              <Route path="/blog/:id" element={<BlogDetail />} />
+              <Route path="/tin-y-te" element={<Medicalnew />} />
+              <Route path="/tin-dich-vu" element={<Servicevnew />} />
+              <Route path="/y-hoc-thuong-thuc" element={<Generalnew />} />
             </Routes>
           </main>
           <Footer />

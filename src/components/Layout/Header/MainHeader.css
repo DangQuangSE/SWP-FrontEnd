@@ -1,7 +1,6 @@
 /* ===== MAIN HEADER STYLES ===== */
 .main-header {
   background-color: var(--bg-white);
-  box-shadow: var(--shadow-sm);
   padding: var(--spacing-sm) 0;
   transition: all var(--transition-normal);
 }
@@ -36,7 +35,6 @@
   margin-left: var(--spacing-xl);
 }
 
-
 /* ===== RESPONSIVE STYLES ===== */
 @media (max-width: 768px) {
   .nav-section,
@@ -48,5 +46,4 @@
     flex: 1;
     margin-right: 0;
   }
-
 }

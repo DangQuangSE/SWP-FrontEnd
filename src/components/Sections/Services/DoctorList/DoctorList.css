@@ -1,0 +1,46 @@
+.doctor-list-page {
+  padding: 40px 20px;
+  max-width: 1200px;
+  margin: auto;
+}
+
+.page-title {
+  font-size: 2rem;
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+.doctors-grid-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 24px;
+}
+
+.doctor-pagination-controls {
+  display: flex;
+  justify-content: center;
+  margin-top: 32px;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.doctor-page-number,
+.doctor-page-nav-button {
+  background: #f0f0f0;
+  border: 1px solid #ccc;
+  padding: 6px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 1rem;
+}
+
+.doctor-page-number.active {
+  background: #007bff;
+  color: white;
+  border-color: #007bff;
+}
+
+.doctor-page-nav-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
