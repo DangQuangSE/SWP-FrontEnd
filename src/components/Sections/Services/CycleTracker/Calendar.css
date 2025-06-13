@@ -1,0 +1,128 @@
+.calendar-container {
+  background: white;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 1.5rem;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+
+.calendar-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+.calendar-header span {
+  font-size: 1.25rem;
+  font-weight: 600;
+  text-transform: capitalize;
+}
+
+.calendar-header button {
+  background: #f1f5f9;
+  border: 1px solid #cbd5e1;
+  border-radius: 50%;
+  width: 36px;
+  height: 36px;
+  font-size: 1.2rem;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.calendar-header button:hover {
+  background: #e2e8f0;
+}
+
+.days-of-week, .calendar-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  text-align: center;
+}
+
+.days-of-week div {
+  padding: 0.5rem 0;
+  font-weight: 600;
+  color: #64748b;
+  font-size: 0.875rem;
+}
+
+.day-cell {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 50px;
+  border-top: 1px solid #f1f5f9;
+}
+
+.day-cell span {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  transition: background-color 0.2s, color 0.2s;
+}
+
+.day-cell.disabled {
+  color: #cbd5e1;
+}
+
+.day-cell.today span {
+  border: 2px solid #3b82f6;
+}
+
+.day-cell.period-day span {
+  background-color: #fca5a5;
+  color: #b91c1c;
+}
+
+.day-cell.predicted-day span {
+  background-color: #f0cece;
+  color: #ef4444;
+}
+
+.day-cell.ovulation-day span {
+  background-color: #a5b4fc; 
+  color: #4338ca;
+  font-weight: bold;
+}
+.day-cell {
+  background-color: transparent;
+  border: none;
+  cursor: pointer;
+  position: relative; 
+  padding: 0;
+  border-top: 1px solid #f1f5f9;
+  font-family: inherit;
+  font-size: 1rem;
+}
+.day-cell:not(.disabled):hover span {
+  background-color: #f1f5f9;
+}
+
+/* Style cho chấm báo hiệu có triệu chứng */
+.symptom-dot {
+  position: absolute;
+  bottom: 8px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 5px;
+  height: 5px;
+  background-color: #3b82f6;
+  border-radius: 50%;
+}
+
+/* Style cho chú thích mới */
+.legend-dot {
+  display: inline-block;
+  width: 5px;
+  height: 5px;
+  background-color: #3b82f6;
+  border-radius: 50%;
+  margin-right: 10px;
+  align-self: center; /* Căn giữa theo chiều dọc */
+  vertical-align: middle;
+  margin-left: 7.5px; /* Căn giữa trong không gian 20px */
+}
