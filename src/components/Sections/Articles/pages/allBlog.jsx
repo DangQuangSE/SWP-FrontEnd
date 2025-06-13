@@ -9,7 +9,7 @@ const AllBlog = () => {
   const [currentServiceSlide, setCurrentServiceSlide] = useState(0);
 
   const featuredArticle = {
-    id: 1,
+    id: 0,
     title: "Top 5 cơ sở chăm sóc sức khỏe giới tính uy tín tại TPHCM",
     excerpt:
       "Khám sức khỏe giới tính định kỳ là yếu tố quan trọng giúp phòng ngừa bệnh lây truyền qua đường tình dục và bảo vệ khả năng sinh sản. Dưới đây là 5 địa chỉ uy tín tại TPHCM.",
@@ -22,38 +22,51 @@ const AllBlog = () => {
 
   const sidebarArticles = [
     {
-      id: 2,
-      title:
-        "Điều gì xảy ra khi bạn quên hạ trinh sau khi sinh và tháng hậu sản chấp dứt?",
-      category: "Tin y tế",
-      date: "02/06/2025",
-      image:
-        "https://i.pinimg.com/736x/41/37/30/413730c203226a65b5a72ec505b2399d.jpg",
-    },
-    {
-      id: 3,
-      title: "Phương pháp mang thai an toàn và khỏe mạnh",
-      category: "Tin y tế",
-      date: "29/05/2025",
-      image:
-        "https://i.pinimg.com/736x/b9/6a/9e/b96a9ec59995fbc5d0967ac34861d383.jpg",
-    },
-    {
-      id: 4,
-      title: "Các biện pháp tránh thai hiện đại và hiệu quả",
-      category: "Tin y tế",
-      date: "29/05/2025",
-      image:
-        "https://i.pinimg.com/736x/ca/9b/04/ca9b048a774ec168de6a4ff488c5ac2f.jpg",
-    },
-    {
-      id: 5,
-      title: "Những điều cần biết về sức khỏe sinh sản nam giới",
-      category: "Tin y tế",
-      date: "28/05/2025",
-      image:
-        "https://i.pinimg.com/736x/08/89/51/088951e1a9cbf9ab9b12ebd7be30f0f9.jpg",
-    },
+        id: 1,
+        title: 'Điều gì xảy ra khi bạn quên hạ trinh sau khi sinh và tháng hậu sản chấp dứt',
+        excerpt: 'Nhiều phụ nữ lo lắng về việc quên hạ trinh sau khi sinh...',
+        image: 'https://i.pinimg.com/736x/41/37/30/413730c203226a65b5a72ec505b2399d.jpg',
+        category: 'Tin Y tế',
+        author: { name: 'Dr. Trần Thanh', avatar: '/placeholder.svg' },
+        date: '15/05/2023',
+        featured: true
+      },
+      {
+        id: 2,
+        title: 'Bệnh viêm nhiễm phụ khoa: nguyên nhân và cách phòng tránh',
+        excerpt: 'Viêm nhiễm phụ khoa là một trong những vấn đề phổ biến...',
+        image: 'https://i.pinimg.com/736x/4b/5b/6f/4b5b6f26df0b61b28266ebf2605eae93.jpg',
+        category: 'Tin Y tế',
+        author: { name: 'Dr. Nguyễn Minh', avatar: '/placeholder.svg' },
+        date: '20/04/2023'
+      },
+      {
+        id: 3,
+        title: 'Những điều cần biết về sức khỏe sinh sản nam giới',
+        excerpt: 'Sức khỏe sinh sản nam giới là vấn đề quan trọng...',
+        image: 'https://i.pinimg.com/736x/08/89/51/088951e1a9cbf9ab9b12ebd7be30f0f9.jpg',
+        category: 'Tin Y tế',
+        author: { name: 'Dr. Lê Hùng', avatar: '/placeholder.svg' },
+        date: '05/03/2023'
+      },
+      {
+        id: 4,
+        title: 'Phương pháp mang thai an toàn và khỏe mạnh',
+        excerpt: 'Mang thai là giai đoạn quan trọng trong cuộc đời...',
+        image: 'https://i.pinimg.com/736x/b9/6a/9e/b96a9ec59995fbc5d0967ac34861d383.jpg',
+        category: 'Tin Y tế',
+        author: { name: 'Dr. Phạm Thảo', avatar: '/placeholder.svg' },
+        date: '10/02/2023'
+      },
+      {
+        id: 5,
+        title: 'Các biện pháp tránh thai hiện đại và hiệu quả',
+        excerpt: 'Tránh thai là một phần quan trọng trong kế hoạch...',
+        image: 'https://i.pinimg.com/736x/ca/9b/04/ca9b048a774ec168de6a4ff488c5ac2f.jpg',
+        category: 'Tin Y tế',
+        author: { name: 'Dr. Hoàng Anh', avatar: '/placeholder.svg' },
+        date: '25/01/2023'
+      }
   ];
 
   const bottomFeaturedCards = [
@@ -135,6 +148,7 @@ const AllBlog = () => {
   ];
 
   const medicalKnowledgeArticles = [
+    
     {
       id: 18,
       title: "Bao cao su: cách sử dụng đúng và hiệu quả",
@@ -198,8 +212,8 @@ const AllBlog = () => {
               <span className="medpro-all-blog-logo-text">TIN TỨC Y KHOA</span>
             </Link>
             <nav className="medpro-all-blog-main-nav">
-              <Link to="/tin-dich-vu">Tin Y tế </Link>
-              <Link to="/tin-y-te">Tin dịch vụ</Link>
+              <Link to="/tin-y-te">Tin Y tế </Link>
+              <Link to="/tin-dich-vu">Tin dịch vụ</Link>
               <Link to="/y-hoc-thuong-thuc">Y học thường thức</Link>
             </nav>
           </div>

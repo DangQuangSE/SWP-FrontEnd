@@ -15,6 +15,10 @@ import { ToastContainer } from "react-toastify";
 import StisTest from "./components/Sections/Services/StisTest";
 import ForgotPasswordOTP from "./components/authen-form/ForgotPassword";
 import AllBlog from "./components/Sections/Articles/pages/allBlog";
+import BlogDetail from "./components/Sections/Articles/pages/BlogDetail";
+import Medicalnew from "./components/Sections/Articles/pages/Medicalnew";
+import Servicevnew from "./components/Sections/Articles/pages/Servicenew";
+import Generalnew from "./components/Sections/Articles/pages/Generalnew";
 
 function App() {
   return (
@@ -40,6 +44,10 @@ function App() {
               <Route path="/appointment" element={<StisTest />} />
               <Route path="/forgot-password" element={<ForgotPasswordOTP />} />
               <Route path="/blog" element={<AllBlog />} />
+              <Route path="/blog/:id" element={<BlogDetail />} />
+              <Route path="/tin-y-te" element={<Medicalnew />} />
+              <Route path="/tin-dich-vu" element={<Servicevnew />} />
+              <Route path="/y-hoc-thuong-thuc" element={<Generalnew />} />
             </Routes>
           </main>
           <Footer />
