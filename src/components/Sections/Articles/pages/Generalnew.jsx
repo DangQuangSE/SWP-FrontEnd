@@ -3,6 +3,7 @@
 import { Link } from "react-router-dom";
 import { useState } from "react";
 import "./Generalnew.css";
+import Breadcrumb from "../../../Breadcrumb/Breadcrumb";
 
 const Generalnew = () => {
   const [currentPage, setCurrentPage] = useState(1);
@@ -254,6 +255,13 @@ const Generalnew = () => {
           </div>
         </div>
       </header>
+      <Breadcrumb
+        items={[
+          { label: "Trang chủ", to: "/" },
+          { label: "Tin tức", to: "/blog" },
+          { label: "Y học thường thức", to: "/y-hoc-thuong-thuc" },
+        ]}
+      />
 
       <main className="generalnew-main">
         <div className="generalnew-container">
@@ -384,7 +392,7 @@ const Generalnew = () => {
                         <span className="generalnew-service-date">
                           {article.date}
                         </span>
-                        <Link to="#" className="generalnew-service-link">
+                        <Link to={`/blog/${article.id}`} className="generalnew-service-link">
                           Xem tiếp →
                         </Link>
                       </div>
