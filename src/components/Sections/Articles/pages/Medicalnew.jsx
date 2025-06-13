@@ -3,6 +3,7 @@
 import { Link } from "react-router-dom";
 import { useState } from "react";
 import "./Medicalnew.css";
+import Breadcrumb from "../../../Breadcrumb/Breadcrumb";
 
 const MedicalNew = () => {
   const [currentPage, setCurrentPage] = useState(1);
@@ -251,6 +252,13 @@ const MedicalNew = () => {
           </div>
         </div>
       </header>
+      <Breadcrumb
+        items={[
+          { label: "Trang chủ", to: "/" },
+          { label: "Tin tức", to: "/blog" },
+          { label: "Tin Y tế", to: "/tin-y-te" },
+        ]}
+      />
 
       <main className="medicalnew-main">
         <div className="medicalnew-container">
@@ -280,7 +288,7 @@ const MedicalNew = () => {
                       {featuredArticle.date} - {featuredArticle.author}
                     </span>
                   </div>
-                  <Link to="#" className="medicalnew-read-more-link">
+                  <Link to={`/blog/${featuredArticle.id}`} className="medicalnew-read-more-link">
                     Xem tiếp →
                   </Link>
                 </div>

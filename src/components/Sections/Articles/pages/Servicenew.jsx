@@ -3,6 +3,7 @@
 import { Link } from "react-router-dom";
 import { useState } from "react";
 import "./Servicenew.css";
+import Breadcrumb from "../../../Breadcrumb/Breadcrumb";
 
 const Servicenew = () => {
   const [currentPage, setCurrentPage] = useState(1);
@@ -255,6 +256,13 @@ const Servicenew = () => {
           </div>
         </div>
       </header>
+      <Breadcrumb
+        items={[
+          { label: "Trang chủ", to: "/" },
+          { label: "Tin tức", to: "/blog" },
+          { label: "Tin Dịch vụ", to: "/tin-dich-vu" },
+        ]}
+      />
 
       <main className="servicevnew-main">
         <div className="servicevnew-container">
