@@ -4,6 +4,8 @@ import { Link } from "react-router-dom";
 import { useState } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import "./allBlog.css";
+import Breadcrumb from "../../../Breadcrumb/Breadcrumb";
+
 
 const AllBlog = () => {
   const [currentServiceSlide, setCurrentServiceSlide] = useState(0);
@@ -219,6 +221,12 @@ const AllBlog = () => {
           </div>
         </div>
       </header>
+      <Breadcrumb
+        items={[
+          { label: "Trang chủ", to: "/" },
+          { label: "Tin tức", to: "/blog" },
+        ]}
+      />
 
       <main className="medpro-all-blog-main">
         <div className="medpro-all-blog-container">

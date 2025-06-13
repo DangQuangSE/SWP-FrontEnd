@@ -1,11 +1,8 @@
 /* ===== MAIN HEADER STYLES ===== */
 .main-header {
   background-color: var(--bg-white);
-  box-shadow: none; /* ✳️ bỏ shadow ở đây nếu không cần */
   padding: var(--spacing-sm) 0;
   transition: all var(--transition-normal);
-  border-radius: inherit; /* ✅ kế thừa border-radius từ .header */
-  overflow: hidden; /* ✅ đảm bảo nội dung bên trong không tràn */
 }
 
 .main-header-container {

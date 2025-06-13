@@ -37,11 +37,6 @@ function App() {
                     <Services />
                     <Articles />
                     <Testimonials />
-                    <div style={{ height: "2000px", background: "#f0f0f0" }}>
-                      <h2 style={{ paddingTop: "100px", textAlign: "center" }}>
-                        Cuộn xuống để kiểm tra Header scroll
-                      </h2>
-                    </div>
                   </>
                 }
               />
