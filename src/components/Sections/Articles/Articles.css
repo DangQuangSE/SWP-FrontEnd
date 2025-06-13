@@ -243,4 +243,12 @@
 .view-all-link-blog:hover {
   opacity: 0.9;
 }
+.articles a {
+  text-decoration: none;
+}
+.article-author span,
+.article-date {
+  color: #00bcd4; /* Màu xanh bạn muốn */
+  font-weight: 500;
+}
 

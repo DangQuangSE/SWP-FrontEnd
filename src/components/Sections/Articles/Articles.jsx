@@ -57,6 +57,7 @@ const Articles = () => {
       }
     ];
     setArticles(sampleArticles);
+  localStorage.setItem('allArticles', JSON.stringify(sampleArticles)); // 👈 Lưu vào localStorage để dùng ở BlogDetail
   }, []);
 
   const featuredArticle = articles.find(article => article.featured);
@@ -71,12 +72,10 @@ const Articles = () => {
   return (
     <section className="articles section">
       <div className="container">
-        {/* ✂️ Đã xóa Tabs lọc */}
-
         <div className="blog-layout">
           {/* Featured Article */}
           {featuredArticle && (
-            <div className="featured-article">
+            <Link to={`/blog/${featuredArticle.id}`} className="featured-article">
               <div className="featured-image">
                 <img src={featuredArticle.image} alt={featuredArticle.title} />
               </div>
@@ -91,13 +90,13 @@ const Articles = () => {
                   <div className="article-date">{featuredArticle.date}</div>
                 </div>
               </div>
-            </div>
+            </Link>
           )}
 
           {/* Sidebar Articles */}
           <div className="sidebar-articles">
             {currentSidebarArticles.map(article => (
-              <div key={article.id} className="sidebar-article">
+              <Link to={`/blog/${article.id}`} key={article.id} className="sidebar-article">
                 <div className="sidebar-article-image">
                   <img src={article.image} alt={article.title} />
                 </div>
@@ -111,7 +110,7 @@ const Articles = () => {
                     <div className="article-date">{article.date}</div>
                   </div>
                 </div>
-              </div>
+              </Link>
             ))}
 
             {/* Pagination */}
@@ -127,7 +126,6 @@ const Articles = () => {
               </div>
             )}
 
-            {/* 👇 Nút Xem tất cả bài viết */}
             <div className="see-all-button-blog">
               <Link to="/blog" className="view-all-link-blog">Xem tất cả bài viết</Link>
             </div>
