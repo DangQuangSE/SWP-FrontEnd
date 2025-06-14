@@ -1,6 +1,6 @@
 /* ===== DOCTORS SECTION STYLES ===== */
 .doctors-section {
-  background-color: var(--bg-light);
+  background-color:#e8f4fd;
   padding: var(--spacing-3xl) 0;
   
 }
@@ -259,7 +259,7 @@
   font-size: 2rem; /* hoặc 4rem nếu muốn to hơn */
   font-weight: 700;
   margin-bottom: 24px;
-  background: linear-gradient(90deg, #ff5a7d, #3870ff);
+  background: black;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;

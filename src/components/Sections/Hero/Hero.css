@@ -241,4 +241,15 @@
     margin-left: 200px;
   }
 }
+.hero-fadeout {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -1px;
+  height: 48px; /* hoặc chiều cao bạn muốn */
+  background: linear-gradient(to bottom, rgba(255,255,255,0) 0%, #f6f8ff 100%);
+  z-index: 10;
+  pointer-events: none;
+}
+
 

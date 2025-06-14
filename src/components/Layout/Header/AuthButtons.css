@@ -10,7 +10,7 @@
   align-items: center;
   justify-content: center;
   text-decoration: none;
-  font-weight: 600;
+  font-weight: 500;
   font-size: 14px;
   padding: var(--spacing-xs) var(--spacing-lg);
   border-radius: var(--radius-md);
@@ -21,9 +21,11 @@
 
 /* ===== LOGIN BUTTON ===== */
 .login-btn {
-  color: var(--text-white);
+  color: #00b5f1;
   border: 1px solid transparent;
-  background: transparent;
+  font-size: 14px;
+  justify-content: center;
+
 }
 
 .login-btn:hover {
