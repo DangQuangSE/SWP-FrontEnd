@@ -14,6 +14,15 @@ body {
 }
 
 /* Main container - ensure full width */
+
+.container-layout {
+  width: 100%;
+  max-width: 1200px;
+  padding: 0 24px;
+  margin: 0 auto;
+  box-sizing: border-box;
+  border: solid red;
+}
 .hospital-page-container {
   width: 100%;
   min-height: 100vh;
@@ -25,22 +34,23 @@ body {
   flex-direction: column;
   align-items: center;
 }
-
 /* Hospital Hero Section */
 
 .hospital-hero {
+  width: 100%;
+  padding: 40px 0;
   display: flex;
-  justify-content: center; /* Căn giữa ngang */
-  align-items: center; /* Căn giữa dọc */
-  padding: 40px 20px;
+  justify-content: center;
+  align-items: center;
   background-color: #f9f9f9;
 }
 
 .hospital-profile {
   display: flex;
   align-items: center;
-  max-width: 1000px;
   width: 100%;
+  max-width: 1000px;
+  gap: 24px;
 }
 
 .hospital-logo .logo-image {
@@ -78,8 +88,54 @@ body {
 }
 
 /* Profile Navigation Tabs */
+/* Tabs */
 .profile-nav-tabs {
-  padding: 0 40px; /* đẩy sang phải 1 húc */
+  width: 100%;
+  margin-top: 16px;
+  border-bottom: 1px solid #eee;
+}
+.hospital-page-container {
+  width: 100%;
+  min-height: 100vh;
+  background: white;
+  margin: 0 auto;
+  padding: 0;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* Wrapper cho mọi phần chính */
+.container-layout {
+  width: 100%;
+  max-width: 1200px;
+  padding: 0 24px;
+  margin: 0 auto;
+  box-sizing: border-box;
+}
+
+/* Hospital Hero Section */
+.hospital-hero {
+  width: 100%;
+  padding: 40px 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: #f9f9f9;
+}
+
+.hospital-profile {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  max-width: 1000px;
+  gap: 24px;
+}
+
+/* Tabs */
+.profile-nav-tabs {
+  width: 100%;
   margin-top: 16px;
   border-bottom: 1px solid #eee;
 }
@@ -88,22 +144,58 @@ body {
   display: flex;
   gap: 24px;
   font-size: 16px;
-}
-
-.nav-tabs {
-  display: flex;
-  gap: 24px;
-  padding: 0;
-  margin: 0;
   list-style: none;
-  font-size: 16px;
 }
 
 .nav-tab {
   cursor: pointer;
   padding: 12px 0;
   color: #444;
-  position: relative;
+  font-weight: 500;
+  border-bottom: 2px solid transparent;
+  transition: all 0.2s;
+}
+
+.nav-tab:hover {
+  color: #1890ff;
+}
+
+.nav-tab.active {
+  border-bottom: 2px solid #1890ff;
+  color: #1890ff;
+}
+
+/* Main Content */
+.main-content {
+  display: flex;
+  gap: 40px;
+  width: 100%;
+  padding: 40px 0;
+  box-sizing: border-box;
+  align-items: flex-start;
+}
+
+.left-column {
+  flex: 2;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.right-column {
+  flex: 1;
+  max-width: 420px;
+  min-width: 320px;
+  box-sizing: border-box;
+  position: sticky;
+  top: 20px;
+}
+
+.nav-tab {
+  cursor: pointer;
+  padding: 12px 0;
+  color: #444;
   font-weight: 500;
   border-bottom: 2px solid transparent;
   transition: all 0.2s;
@@ -124,20 +216,15 @@ body {
   gap: 40px;
   max-width: 1200px;
   margin: 0 auto;
-  padding: 40px 32px;
+  padding: 40px 0;
   width: 100%;
   box-sizing: border-box;
   align-items: flex-start;
 }
 
 .left-column {
-  display: flex;
-  flex-direction: column;
-  gap: 40px;
-}
-
-.left-column {
   flex: 2;
+  min-width: 0;
   display: flex;
   flex-direction: column;
   gap: 24px;
@@ -145,6 +232,9 @@ body {
 
 .right-column {
   flex: 1;
+  max-width: 420px;
+  min-width: 320px;
+  box-sizing: border-box;
   position: sticky;
   top: 20px;
 }
@@ -635,15 +725,3 @@ body {
   }
 }
 /* Fix layout co lại khi BookingForm có select dài */
-
-.left-column {
-  flex: 1;
-  min-width: 0;
-}
-
-.right-column {
-  flex: 1;
-  min-width: 0;
-  max-width: 420px;
-  box-sizing: border-box;
-}
