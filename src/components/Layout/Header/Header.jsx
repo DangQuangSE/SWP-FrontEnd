@@ -1,24 +1,27 @@
-"use client";
-
-import { useEffect, useState } from "react";
-import "./Header.css";
+import React, { useEffect, useRef } from "react";
 import MainHeader from "./MainHeader";
+import "./Header.css";
 
 const Header = () => {
-  const [scrolled, setScrolled] = useState(false);
+  const headerRef = useRef(null);
 
   useEffect(() => {
     const handleScroll = () => {
-      const y = window.scrollY;
-      setScrolled(y > 20);
-    };
+      if (!headerRef.current) return;
+      if (window.scrollY > 20) {
+        headerRef.current.classList.add("scrolled");
+      } else {
+        console.log("first");
 
+        headerRef.current.classList.remove("scrolled");
+      }
+    };
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
   return (
-    <header className={`header ${scrolled ? "scrolled" : ""}`}>
+    <header ref={headerRef} className="header">
       <MainHeader />
     </header>
   );

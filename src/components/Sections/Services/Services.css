@@ -5,7 +5,7 @@
 }
 .services {
   padding: 80px 0;
-  background: #f5f7ff;
+  background: #e8f4fd;
   text-align: center;
 }
 
@@ -17,7 +17,7 @@
 }
 
 .service-card {
-  background: linear-gradient(to bottom right, #fcf9fa, #edf2ff);
+  background: #fff;
   border: 1px solid #e5e7eb;
   border-radius: 16px;
   padding: 24px;
@@ -31,8 +31,9 @@
 }
 
 .service-card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 10px 30px rgba(56, 112, 255, 0.1);
+   box-shadow: 0 16px 32px rgba(0, 0, 0, 0.12);
+  transform: translateY(-6px) scale(1.015);
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .service-header {
@@ -50,7 +51,7 @@
   height: 40px;
   text-align: center;
   line-height: 20px;
-  background: linear-gradient(to right, #ff5a7d, #e43b86);
+  background: #00b5f1;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -98,7 +99,7 @@
 }
 
 .service-button {
-  background: linear-gradient(to right, #ff5a7d, #3870ff);
+  background: #00b5f1;
   color: white;
   padding: 10px 16px;
   border: none;
@@ -130,7 +131,7 @@
   font-size: 2rem; /* hoặc 4rem nếu muốn to hơn */
   font-weight: 700;
   margin-bottom: 24px;
-  background: linear-gradient(90deg, #ff5a7d, #3870ff);
+  background: black;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;

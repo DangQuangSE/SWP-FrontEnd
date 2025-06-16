@@ -20,11 +20,22 @@ import Medicalnew from "./components/Sections/Articles/pages/Medicalnew";
 import Servicevnew from "./components/Sections/Articles/pages/Servicenew";
 import Generalnew from "./components/Sections/Articles/pages/Generalnew";
 import CycleTracker from "./components/Sections/Services/CycleTracker/CycleTracker";
+import DoctorList from "./components/Sections/Services/DoctorList/DoctorList";
+import Loading from "./components/Loading/Loading";
+import { useEffect, useState } from "react
+
 function App() {
+  const [rehydrated, setRehydrated] = useState(false);
+
+  useEffect(() => {
+    setTimeout(() => setRehydrated(true), 5000); // 2 giây
+  }, []);
+
+  if (!rehydrated) return <Loading />;
   console.log("App component rendered");
   return (
     <Provider store={store}>
-      <PersistGate loading={null} persistor={persistor}>
+      <PersistGate loading={<Loading />} persistor={persistor}>
         <div className="app">
           <ToastContainer />
           <Header />

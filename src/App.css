@@ -9,13 +9,13 @@
 /* ===== CSS VARIABLES - NEW COLOR SCHEME ===== */
 :root {
   /* Primary Colors - Blend of #ff5a7d and #3870ff */
-  --primary-color: #8965eb;
-  --secondary-color: #6b4ce6;
-  --accent-color: #ff5a7d;
-  --accent-blue: #3870ff;
+ --primary-blue: #06b6d4;
+  --primary-blue-dark: #009fd9;
+  --background: #fff;
+  --text: #222;
 
   /* Gradients */
-  --gradient-primary: linear-gradient(135deg, #ff5a7d, #3870ff);
+  --gradient-primary: #00b5f1;
   --gradient-secondary: linear-gradient(135deg, #3870ff, #ff5a7d);
   --gradient-accent: linear-gradient(135deg, #ff5a7d, #8965eb);
   --gradient-blue: linear-gradient(135deg, #3870ff, #6b4ce6);
@@ -27,7 +27,7 @@
   --text-white: #fff;
 
   /* Background Colors */
-  --bg-white: #fff;
+  --bg-white: #E8f4fd;
   --bg-light: #f8f9ff;
   --bg-gray: #f5f6fa;
   --bg-gradient: linear-gradient(135deg, #ff5a7d10, #3870ff10);
@@ -70,10 +70,9 @@
 
 /* ===== BASE STYLES ===== */
 body {
-  background: var(--bg-white);
+  background: #E8f4fd;
   color: var(--text-primary);
   line-height: 1.6;
-  padding-top: 100px; /* Reduced from 120px for smaller navbar */
 }
 
 /* ===== LAYOUT COMPONENTS ===== */
@@ -82,6 +81,7 @@ body {
   display: flex;
   flex-direction: column;
 }
+
 
 .main-content {
   flex: 1;
@@ -131,6 +131,10 @@ body {
   box-shadow: var(--shadow-lg);
 }
 
+.main-content-app {
+  min-height: 2000px;
+  padding-top: 100px;
+}
 .btn-secondary {
   background: var(--bg-white);
   color: var(--primary-color);
@@ -244,9 +248,7 @@ body {
     padding: var(--spacing-xl) 0;
   }
 
-  body {
-    padding-top: 70px; /* Smaller padding for mobile */
-  }
+
 
   .section-title {
     font-size: 24px;
@@ -266,6 +268,6 @@ html,
 body {
   width: 100%;
   min-height: 100vh;
-  overflow-x: hidden;
-  overflow-y: auto !important; /* 👈 Fix cực kỳ quan trọng */
+
 }
+

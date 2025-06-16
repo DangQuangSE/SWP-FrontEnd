@@ -43,6 +43,7 @@ const Hero = () => {
 
   return (
     <section className="hero">
+      <div className="hero-fadeout"></div>
       <div className="hero-slider">
         {slides.map((slide, index) => (
           <div
