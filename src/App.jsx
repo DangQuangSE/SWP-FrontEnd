@@ -22,16 +22,17 @@ import Generalnew from "./components/Sections/Articles/pages/Generalnew";
 import DoctorList from "./components/Sections/Services/DoctorList/DoctorList";
 import Loading from "./components/Loading/Loading";
 import { useEffect, useState } from "react";
+import UserProfile from "./components/features/userprofile"; // Đường dẫn đúng với ảnh bạn gửi
 
 function App() {
   const [rehydrated, setRehydrated] = useState(false);
 
   useEffect(() => {
-    setTimeout(() => setRehydrated(true), 5000); // 2 giây
+    setTimeout(() => setRehydrated(true), 5000); // delay 5s
   }, []);
 
   if (!rehydrated) return <Loading />;
-  console.log("App component rendered");
+
   return (
     <Provider store={store}>
       <PersistGate loading={<Loading />} persistor={persistor}>
@@ -52,15 +53,7 @@ function App() {
                 }
               />
               <Route path="/services" element={<AppointmentForm />} />
-              <Route
-                path="/services/DoctorList"
-                element={
-                  <>
-                    {console.log("Rendering DoctorList route")}
-                    <DoctorList />
-                  </>
-                }
-              />
+              <Route path="/services/DoctorList" element={<DoctorList />} />
               <Route path="/appointment" element={<StisTest />} />
               <Route path="/forgot-password" element={<ForgotPasswordOTP />} />
               <Route path="/blog" element={<AllBlog />} />
@@ -68,6 +61,7 @@ function App() {
               <Route path="/tin-y-te" element={<Medicalnew />} />
               <Route path="/tin-dich-vu" element={<Servicevnew />} />
               <Route path="/y-hoc-thuong-thuc" element={<Generalnew />} />
+              <Route path="/user/profile" element={<UserProfile />} />
             </Routes>
           </main>
           <Footer />
