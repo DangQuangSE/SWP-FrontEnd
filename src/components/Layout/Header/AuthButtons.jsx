@@ -11,6 +11,7 @@ import {
 
 import { Avatar, Dropdown } from "antd";
 import { logout } from "../../../redux/features/userSlice.js";
+import { useNavigate } from "react-router-dom";
 
 const AuthButtons = () => {
   const [open, setOpen] = useState(false);
@@ -21,24 +22,30 @@ const AuthButtons = () => {
   const onLoginClick = () => {
     setOpen(true);
   };
+  const navigate = useNavigate();
 
   const items = [
     {
       key: "1",
       label: "Thông tin cá nhân",
       icon: <UserOutlined />,
+      onClick: () => {
+        navigate("/profile");
+      }
     },
     {
       key: "2",
       label: "Cài đặt",
       icon: <SettingOutlined />,
+      onClick: () => {
+        navigate("/settings");
+      }
     },
     {
       key: "3",
       label: "Đăng xuất",
       icon: <LogoutOutlined />,
       onClick: () => {
-        // Dispatch logout action or handle logout logic here
         dispatch(logout());
       },
     },

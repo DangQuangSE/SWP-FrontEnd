@@ -27,7 +27,7 @@ const LoginForm = ({ onClose }) => {
   const handleLogin = async (values) => {
     try {
       setLoading(true);
-      const res = await axios.post("http://14.225.198.16:8084/api/auth/login", {
+      const res = await axios.post("http://14.225.198.16:8085/api/auth/login", {
         email: values.email,
         password: values.password,
       });
@@ -65,11 +65,12 @@ const LoginForm = ({ onClose }) => {
       const response = await api.post("/auth/facebook", {
         accessToken: res.accessToken,
       });
-      dispatch(login(response.data.user));
+      
       console.log("Facebook response:", response.data);
 
       if (response.data.user && response.data.jwt) {
         toast.success("Đăng nhập Facebook thành công!");
+        dispatch(login(response.data.user));
         // TODO: Đóng modal hoặc redirect, ví dụ:
         window.location.href = "/";
       } else {

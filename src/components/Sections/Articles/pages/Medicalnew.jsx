@@ -78,7 +78,7 @@ const MedicalNew = () => {
 
   const bottomFeaturedCards = [
     {
-      id: 9,
+      id: 6,
       title: "Sức khỏe tình dục",
       subtitle: "Khám sức khỏe tình dục ở đâu uy tín tại TPHCM?",
       image:
@@ -86,7 +86,7 @@ const MedicalNew = () => {
       category: "Tin thường thức ",
     },
     {
-      id: 10,
+      id: 7,
       title: "Bệnh lây đường tình dục",
       subtitle: "Xét nghiệm và điều trị các bệnh xã hội an toàn, hiệu quả",
       image:
@@ -94,7 +94,7 @@ const MedicalNew = () => {
       category: "Tin thường thức ",
     },
     {
-      id: 11,
+      id: 8,
       title: "Khám phụ khoa",
       subtitle: "Khám phụ khoa định kỳ có quan trọng không?",
       image:
@@ -105,7 +105,7 @@ const MedicalNew = () => {
 
   const serviceArticles = [
     {
-      id: 6,
+      id: 9,
       title: "Tầm soát ung thư sinh dục - Phát hiện sớm để điều trị kịp thời",
       category: "Tin y tế",
       date: "08/06/2024",
@@ -113,7 +113,7 @@ const MedicalNew = () => {
         "https://i.pinimg.com/736x/38/36/d9/3836d9090a259143ece1fca9e9ad1406.jpg",
     },
     {
-      id: 7,
+      id: 10,
       title: "Sức khỏe tình dục an toàn - Tư vấn và khám định kỳ",
       category: "Tin y tế",
       date: "06/06/2024",
@@ -121,7 +121,7 @@ const MedicalNew = () => {
         "https://i.pinimg.com/736x/05/9b/ac/059bac199052a4c974ef82690d8e4021.jpg",
     },
     {
-      id: 8,
+      id: 11,
       title: "Phòng ngừa các bệnh lây truyền qua đường tình dục",
       category: "Tin y tế",
       date: "05/06/2024",
@@ -129,7 +129,7 @@ const MedicalNew = () => {
         "https://i.pinimg.com/736x/5a/04/28/5a04287a9574b72eff9cf090e85fe714.jpg",
     },
     {
-      id: 9,
+      id: 12,
       title: "Sức khỏe sinh sản và mãn kinh - Những điều cần biết",
       category: "Tin y tế",
       date: "04/06/2024",
@@ -137,7 +137,7 @@ const MedicalNew = () => {
         "https://i.pinimg.com/736x/67/aa/fa/67aafad7e6dab629c1ba438f483cc6db.jpg",
     },
     {
-      id: 10,
+      id: 13,
       title: "Tư vấn sức khỏe giới tính cho thanh thiếu niên",
       category: "Tin y tế",
       date: "03/06/2024",
@@ -145,7 +145,7 @@ const MedicalNew = () => {
         "https://i.pinimg.com/736x/54/d6/76/54d6769b3ce68365503b419457cbb2e3.jpg",
     },
     {
-      id: 11,
+      id: 14,
       title: "Kế hoạch hóa gia đình - Các phương pháp tránh thai hiện đại",
       category: "Tin y tế",
       date: "02/06/2024",
@@ -153,7 +153,7 @@ const MedicalNew = () => {
         "https://i.pinimg.com/736x/ac/d8/d2/acd8d2eb1f0fdb9010691d094d8d440b.jpg",
     },
     {
-      id: 12,
+      id: 15,
       title: "Chăm sóc sức khỏe sau sinh - Phục hồi toàn diện",
       category: "Tin y tế",
       date: "01/06/2024",
@@ -161,7 +161,7 @@ const MedicalNew = () => {
         "https://i.pinimg.com/736x/d8/45/e7/d845e7e8f96d7c8cae953d7a3821e6a0.jpg",
     },
     {
-      id: 13,
+      id: 16,
       title: "Vô sinh hiếm muộn - Nguyên nhân và giải pháp điều trị",
       category: "Tin y tế",
       date: "31/05/2024",
@@ -169,7 +169,7 @@ const MedicalNew = () => {
         "https://i.pinimg.com/736x/e5/6c/b3/e56cb3e8bd4f7c8e54bb5fd68502cae4.jpg",
     },
     {
-      id: 14,
+      id: 17,
       title: "Viêm nhiễm phụ khoa - Cách phòng ngừa hiệu quả",
       category: "Tin y tế",
       date: "30/05/2024",
@@ -177,7 +177,7 @@ const MedicalNew = () => {
         "https://i.pinimg.com/736x/b2/a1/d6/b2a1d67f1eb5c5a6c05be24936a3130c.jpg",
     },
     {
-      id: 15,
+      id: 18,
       title: "Rối loạn nội tiết tố - Dấu hiệu và cách khắc phục",
       category: "Tin y tế",
       date: "29/05/2024",
@@ -185,7 +185,7 @@ const MedicalNew = () => {
         "https://i.pinimg.com/736x/f9/23/a5/f923a5e8b3c715d34b9c16a05a8b8a08.jpg",
     },
     {
-      id: 16,
+      id: 19,
       title: "U xơ tử cung - Chẩn đoán sớm và điều trị hiệu quả",
       category: "Tin y tế",
       date: "28/05/2024",
@@ -193,7 +193,7 @@ const MedicalNew = () => {
         "https://i.pinimg.com/736x/d3/b7/c4/d3b7c4e0dfd91bc7f851d7a2e23c50b8.jpg",
     },
     {
-      id: 17,
+      id: 20,
       title: "Rối loạn cương dương - Phá vỡ rào cản tâm lý",
       category: "Tin y tế",
       date: "27/05/2024",
@@ -201,7 +201,7 @@ const MedicalNew = () => {
         "https://i.pinimg.com/736x/7a/52/fd/7a52fd6c10b86c4aca91b86013220156.jpg",
     },
     {
-      id: 18,
+      id: 21,
       title: "Sức khỏe sinh sản nam giới - Những vấn đề thường gặp",
       category: "Tin y tế",
       date: "26/05/2024",
@@ -209,7 +209,7 @@ const MedicalNew = () => {
         "https://i.pinimg.com/736x/21/1f/5c/211f5c05e7c93a439fe98126e06bed90.jpg",
     },
     {
-      id: 19,
+      id: 22,
       title: "Lão hóa sinh dục - Giải pháp duy trì chất lượng sống",
       category: "Tin y tế",
       date: "25/05/2024",
@@ -217,7 +217,7 @@ const MedicalNew = () => {
         "https://i.pinimg.com/736x/c8/ef/a2/c8efa2d6e5ba71a1d1b438c4d58e6d9a.jpg",
     },
     {
-      id: 20,
+      id: 23,
       title: "Hội chứng tiền kinh nguyệt - Cách nhận biết và điều trị",
       category: "Tin y tế",
       date: "24/05/2024",
@@ -288,7 +288,9 @@ const MedicalNew = () => {
                       {featuredArticle.date} - {featuredArticle.author}
                     </span>
                   </div>
-                  <Link to={`/blog/${featuredArticle.id}`} className="medicalnew-read-more-link">
+                  <Link to={`/blog/${featuredArticle.id}`}
+                    className="medicalnew-read-more-link"
+                  >
                     Xem tiếp →
                   </Link>
                 </div>
@@ -314,7 +316,7 @@ const MedicalNew = () => {
                         <p className="medicalnew-card-description">
                           {card.description}
                         </p>
-                        <Link to="#" className="medicalnew-card-link">
+                        <Link to={`/blog/${card.id}`} className="medicalnew-card-link">
                           Xem tiếp →
                         </Link>
                       </div>
@@ -328,10 +330,7 @@ const MedicalNew = () => {
             <aside className="medicalnew-sidebar">
               <div className="medicalnew-sidebar-content">
                 {sidebarArticles.map((article) => (
-                  <article
-                    key={article.id}
-                    className="medicalnew-sidebar-article"
-                  >
+                  <Link to={`/blog/${article.id}`} key={article.id} className="medicalnew-sidebar-article">
                     <div className="medicalnew-sidebar-image">
                       <img
                         src={article.image || "/placeholder.svg"}
@@ -352,7 +351,7 @@ const MedicalNew = () => {
                         {article.date}
                       </span>
                     </div>
-                  </article>
+                  </Link>
                 ))}
               </div>
             </aside>
@@ -387,7 +386,7 @@ const MedicalNew = () => {
                         <span className="medicalnew-service-date">
                           {article.date}
                         </span>
-                        <Link to="#" className="medicalnew-service-link">
+                        <Link to={`/blog/${article.id}`} className="generalnew-service-link">
                           Xem tiếp →
                         </Link>
                       </div>

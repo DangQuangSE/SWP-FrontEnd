@@ -50,7 +50,7 @@ const Services = () => (
             <li>Bảo mật tuyệt đối</li>
             <li>Lập kế hoạch điều trị</li>
           </ul>
-          <button className="service-button">Learn More</button>
+          <button className="service-button">Tìm hiểu thêm</button>
         </div>
 
         <div className="service-card">

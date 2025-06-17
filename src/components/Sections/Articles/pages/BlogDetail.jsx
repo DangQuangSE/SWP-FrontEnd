@@ -1,45 +1,83 @@
-import React from 'react';
-import { useParams } from 'react-router-dom';
+import React from "react";
+import { useParams, Link } from "react-router-dom";
+import ReactMarkdown from "react-markdown";
+import { sampleArticles } from "./SampleArticles/SampleArticles";
+import RelatedArticlesSection from "../components/RelatedArticlesSection";
+import "./BlogDetail.css";
 
 const BlogDetail = () => {
   const { id } = useParams();
-
-  // ❗ Tạm thời dùng dữ liệu mẫu giống bên Articles.jsx
-  const sampleArticles = [
-    {
-      id: 1,
-      title: 'Điều gì xảy ra khi bạn quên hạ trinh sau khi sinh và tháng hậu sản chấp dứt',
-      content: 'Đây là nội dung chi tiết của bài viết về hạ trinh...',
-      image: 'https://i.pinimg.com/736x/41/37/30/413730c203226a65b5a72ec505b2399d.jpg',
-      author: { name: 'Dr. Trần Thanh', avatar: '/placeholder.svg' },
-      date: '15/05/2023',
-    },
-    {
-      id: 2,
-      title: 'Bệnh viêm nhiễm phụ khoa: nguyên nhân và cách phòng tránh',
-      content: 'Nội dung chi tiết bài viết viêm nhiễm phụ khoa...',
-      image: 'https://i.pinimg.com/736x/4b/5b/6f/4b5b6f26df0b61b28266ebf2605eae93.jpg',
-      author: { name: 'Dr. Nguyễn Minh', avatar: '/placeholder.svg' },
-      date: '20/04/2023',
-    },
-    // thêm các bài khác nếu cần
-  ];
-
   const article = sampleArticles.find((item) => item.id.toString() === id);
 
+  // Filter out the current article from related articles
+  const relatedArticles = sampleArticles.filter(
+    (item) => item.id.toString() !== id
+  );
+
   if (!article) {
-    return <p>Bài viết không tồn tại.</p>;
+    return (
+      <div className="blog-detail-page-wrapper">
+        <div className="top-header-container">
+          <div className="breadcrumbs">  
+          </div>
+        </div>
+        <div className="slogan-section">
+          <h1 className="slogan-title">TRUNG TÂM NỘI SOI TIÊU HÓA DOCTOR CHECK</h1>
+          <p className="slogan-text">
+            "Vì một Việt Nam nói không với ung thư dạ dày & đại tràng"
+          </p>
+        </div>
+        <div className="blog-detail-container">
+          <div className="text-center">
+            <h2 className="text-xl font-semibold text-gray-500 mb-4">Bài viết không tồn tại.</h2>
+            <Link to="/blog" className="back-button">
+              Quay lại danh sách bài viết
+            </Link>
+          </div>
+        </div>
+      </div>
+    );
   }
 
   return (
-    <div className="blog-detail">
-      <img src={article.image} alt={article.title} />
-      <h1>{article.title}</h1>
-      <div className="article-meta">
-        <img src={article.author.avatar} alt={article.author.name} />
-        <span>{article.author.name}</span> | <span>{article.date}</span>
+    <div className="blog-detail-page-wrapper">
+      <div className="slogan-section">
+        <h1 className="slogan-title">CHĂM SÓC SỨC KHỎE GIỚI TÍNH SHEALTHCARE</h1>
+        <p className="slogan-text">
+          "Vì sức khỏe của bạn là ưu tiên hàng đầu của chúng tôi"
+        </p>
       </div>
-      <p>{article.content}</p>
+      <div className="blog-detail-container">
+        <article>
+          <header className="blog-header">
+            <img
+              src={article.image}
+              alt={article.title}
+              className="blog-image"
+            />
+            <h1 className="blog-title">{article.title}</h1>
+            <div className="blog-meta">
+              {article.author.avatar && (
+                <img
+                  src={article.author.avatar}
+                  alt={article.author.name}
+                  className="author-avatar"
+                />
+              )}
+              <span className="font-medium">{article.author.name}</span>
+              <span className="mx-2">•</span>
+              <span>
+                {article.date}
+              </span>
+            </div>
+          </header>
+
+          <div className="blog-content">
+            <ReactMarkdown>{article.content}</ReactMarkdown>
+          </div>
+        </article>
+      </div>
+      <RelatedArticlesSection articles={relatedArticles} />
     </div>
   );
 };

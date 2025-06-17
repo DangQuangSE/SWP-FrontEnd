@@ -22,15 +22,16 @@ import Generalnew from "./components/Sections/Articles/pages/Generalnew";
 import DoctorList from "./components/Sections/Services/DoctorList/DoctorList";
 import Loading from "./components/Loading/Loading";
 import { useEffect, useState } from "react";
+import Staff from "./Role/Staff";
 
 function App() {
   const [rehydrated, setRehydrated] = useState(false);
 
   useEffect(() => {
-    setTimeout(() => setRehydrated(true), 5000); // 2 giây
+    setTimeout(() => setRehydrated(true), 1000); // 2 giây
   }, []);
 
-  if (!rehydrated) return <Loading />;
+  if (!rehydrated) ;
   console.log("App component rendered");
   return (
     <Provider store={store}>
@@ -68,6 +69,7 @@ function App() {
               <Route path="/tin-y-te" element={<Medicalnew />} />
               <Route path="/tin-dich-vu" element={<Servicevnew />} />
               <Route path="/y-hoc-thuong-thuc" element={<Generalnew />} />
+              <Route path="/staff" element={<Staff />} />
             </Routes>
           </main>
           <Footer />

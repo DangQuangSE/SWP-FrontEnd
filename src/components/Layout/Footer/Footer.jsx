@@ -18,43 +18,38 @@ const Footer = () => {
 
           <div className="footer-links">
             <div className="footer-column">
-              <h3>Quick Links</h3>
+              <h3>Tin tức</h3>
               <ul>
                 <li>
-                  <Link to="/">Home</Link>
+                  <Link to="/tin-y-te">Tin Y tế </Link>
                 </li>
                 <li>
-                  <Link to="/services">Services</Link>
+                  <Link to="/tin-dich-vu">Tin Dịch vụ</Link>
                 </li>
                 <li>
-                  <Link to="/about">About Us</Link>
-                </li>
-                <li>
-                  <Link to="/contact">Contact</Link>
+                  <Link to="/y-hoc-thuong-thuc">Y học thường thức</Link>
                 </li>
               </ul>
             </div>
 
             <div className="footer-column">
-              <h3>Services</h3>
+              <h3>Dịch vụ</h3>
               <ul>
                 <li>
-                  <a href="/services/consultation">Consultation</a>
+                  <Link to="/services?type=tu-van">Tư vấn sức khỏe</Link>
                 </li>
                 <li>
-                  <a href="/services/testing">Testing</a>
+                  <Link to="/appointment">Xét nghiệm STIs</Link>
                 </li>
                 <li>
-                  <a href="/services/treatment">Treatment</a>
+                  <Link to="/services?type=dangki">Đăng kí khám </Link>
                 </li>
-                <li>
-                  <a href="/services/education">Education</a>
-                </li>
+              
               </ul>
             </div>
 
             <div className="footer-column">
-              <h3>Contact Us</h3>
+              <h3>Liên hệ</h3>
               <ul className="contact-info">
                 <li>
                   <span className="icon">📍</span>
