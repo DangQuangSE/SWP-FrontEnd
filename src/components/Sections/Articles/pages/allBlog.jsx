@@ -73,7 +73,7 @@ const AllBlog = () => {
 
   const bottomFeaturedCards = [
     {
-      id: 9,
+      id: 6,
       title: "Sức khỏe tình dục",
       subtitle: "Khám sức khỏe tình dục ở đâu uy tín tại TPHCM?",
       image:
@@ -81,7 +81,7 @@ const AllBlog = () => {
       category: "Tin thường thức ",
     },
     {
-      id: 10,
+      id: 7,
       title: "Bệnh lây đường tình dục",
       subtitle: "Xét nghiệm và điều trị các bệnh xã hội an toàn, hiệu quả",
       image:
@@ -89,7 +89,7 @@ const AllBlog = () => {
       category: "Tin thường thức ",
     },
     {
-      id: 11,
+      id: 8,
       title: "Khám phụ khoa",
       subtitle: "Khám phụ khoa định kỳ có quan trọng không?",
       image:
@@ -100,7 +100,7 @@ const AllBlog = () => {
 
   const serviceArticles = [
     {
-      id: 12,
+    id: 33,
       title: "Phòng khám sức khỏe sinh sản - Hồng Phúc",
       category: "Tin dịch vụ",
       date: "08/06/2024",
@@ -108,7 +108,7 @@ const AllBlog = () => {
         "https://i.pinimg.com/736x/38/36/d9/3836d9090a259143ece1fca9e9ad1406.jpg",
     },
     {
-      id: 13,
+      id: 34,
       title: "Trung tâm hỗ trợ sinh sản IVF TPHCM",
       category: "Tin dịch vụ",
       date: "06/06/2024",
@@ -116,7 +116,7 @@ const AllBlog = () => {
         "https://i.pinimg.com/736x/05/9b/ac/059bac199052a4c974ef82690d8e4021.jpg",
     },
     {
-      id: 14,
+      id: 35,
       title: "Xét nghiệm HPV và tầm soát ung thư cổ tử cung",
       category: "Tin dịch vụ",
       date: "05/06/2024",
@@ -124,7 +124,7 @@ const AllBlog = () => {
         "https://i.pinimg.com/736x/5a/04/28/5a04287a9574b72eff9cf090e85fe714.jpg",
     },
     {
-      id: 15,
+      id: 36,
       title: "Tư vấn sức khỏe tiền hôn nhân ",
       category: "Tin dịch vụ",
       date: "04/06/2024",
@@ -132,7 +132,7 @@ const AllBlog = () => {
         "https://i.pinimg.com/736x/67/aa/fa/67aafad7e6dab629c1ba438f483cc6db.jpg",
     },
     {
-      id: 16,
+      id: 37,
       title: "Địa chỉ phá thai an toàn & tư vấn tâm lý",
       category: "Tin dịch vụ",
       date: "03/06/2024",
@@ -140,7 +140,7 @@ const AllBlog = () => {
         "https://i.pinimg.com/736x/54/d6/76/54d6769b3ce68365503b419457cbb2e3.jpg",
     },
     {
-      id: 17,
+      id: 38,
       title: "Khám nam khoa – Phòng khám quốc tế Sài Gòn",
       category: "Tin dịch vụ",
       date: "02/06/2024",
@@ -150,10 +150,9 @@ const AllBlog = () => {
   ];
 
   const medicalKnowledgeArticles = [
-    
     {
       id: 18,
-      title: "Bao cao su: cách sử dụng đúng và hiệu quả",
+      title: "Các biện pháp tránh thai hiện đại",
       excerpt:
         "Sử dụng bao cao su đúng cách để tránh mang thai ngoài ý muốn và phòng ngừa bệnh lây truyền qua đường tình dục.",
       category: "Tin thường thức",
@@ -256,7 +255,7 @@ const AllBlog = () => {
                       {featuredArticle.date} - {featuredArticle.author}
                     </span>
                   </div>
-                  <Link to="#" className="medpro-all-blog-read-more-link">
+                  <Link to={`/blog/${featuredArticle.id}`} className="medpro-all-blog-read-more-link">
                     Xem tiếp →
                   </Link>
                 </div>
@@ -287,7 +286,7 @@ const AllBlog = () => {
                         <p className="medpro-all-blog-card-description">
                           {card.description}
                         </p>
-                        <Link to="#" className="medpro-all-blog-card-link">
+                        <Link to={`/blog/${card.id}`} className="medpro-all-blog-card-link">
                           Xem tiếp →
                         </Link>
                       </div>
@@ -301,10 +300,7 @@ const AllBlog = () => {
             <aside className="medpro-all-blog-sidebar">
               <div className="medpro-all-blog-sidebar-content">
                 {sidebarArticles.map((article) => (
-                  <article
-                    key={article.id}
-                    className="medpro-all-blog-sidebar-article"
-                  >
+                  <Link to={`/blog/${article.id}`} key={article.id} className="medpro-all-blog-sidebar-article">
                     <div className="medpro-all-blog-sidebar-image">
                       <img
                         src={article.image || "/placeholder.svg"}
@@ -325,7 +321,7 @@ const AllBlog = () => {
                         {article.date}
                       </span>
                     </div>
-                  </article>
+                  </Link>
                 ))}
               </div>
             </aside>
@@ -373,7 +369,7 @@ const AllBlog = () => {
                           <span className="medpro-all-blog-service-date">
                             {article.date}
                           </span>
-                          <Link to="#" className="medpro-all-blog-service-link">
+                          <Link to={`/blog/${article.id}`} className="medpro-all-blog-service-link">
                             Xem tiếp →
                           </Link>
                         </div>
@@ -388,7 +384,7 @@ const AllBlog = () => {
                 </button>
               </div>
               <div className="medpro-all-blog-view-all-section">
-                <Link to="#" className="medpro-all-blog-view-all-btn">
+                <Link to="/tin-dich-vu" className="medpro-all-blog-view-all-btn">
                   Xem tất cả →
                 </Link>
               </div>
@@ -403,7 +399,7 @@ const AllBlog = () => {
                 {/* Featured Medical Knowledge Article */}
                 <article className="medpro-all-blog-knowledge-featured">
                   <div className="medpro-all-blog-knowledge-featured-image">
-                    <img
+                    <img                      
                       src="https://i.pinimg.com/736x/01/d2/d9/01d2d9871c0218efff371def8f020418.jpg"
                       alt="Các biện pháp tránh thai hiện đại"
                       width={400}
@@ -422,7 +418,7 @@ const AllBlog = () => {
                         Bài viết sẽ giúp bạn hiểu rõ ưu và nhược điểm của từng
                         phương pháp để bảo vệ sức khỏe sinh sản.
                       </p>
-                      <Link to="#" className="medpro-all-blog-knowledge-link">
+                      <Link to={`/blog/${featuredArticle.id}`} className="medpro-all-blog-knowledge-link">
                         Xem tiếp →
                       </Link>
                     </div>
@@ -455,7 +451,7 @@ const AllBlog = () => {
                 </div>
               </div>
               <div className="medpro-all-blog-view-all-section">
-                <Link to="#" className="medpro-all-blog-view-all-btn">
+                <Link to="/y-hoc-thuong-thuc" className="medpro-all-blog-view-all-btn">
                   Xem tất cả →
                 </Link>
               </div>

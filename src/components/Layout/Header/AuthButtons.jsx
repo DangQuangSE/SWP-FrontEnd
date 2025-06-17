@@ -22,7 +22,6 @@ const AuthButtons = () => {
   const onLoginClick = () => {
     setOpen(true);
   };
-
   const items = [
     {
       key: "1",
