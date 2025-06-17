@@ -1,7 +1,7 @@
 import { persistor, store } from "./redux/store";
 import { Provider } from "react-redux";
 import { PersistGate } from "redux-persist/integration/react";
-
+import DoctorList from "./components/Sections/Services/DoctorList/DoctorList";
 import "./App.css";
 import Header from "./components/Layout/Header/Header";
 import Hero from "./components/Sections/Hero/Hero";
@@ -19,10 +19,10 @@ import BlogDetail from "./components/Sections/Articles/pages/BlogDetail";
 import Medicalnew from "./components/Sections/Articles/pages/Medicalnew";
 import Servicevnew from "./components/Sections/Articles/pages/Servicenew";
 import Generalnew from "./components/Sections/Articles/pages/Generalnew";
+import CycleTracker from "./components/Sections/Services/CycleTracker/CycleTracker";
 import DoctorList from "./components/Sections/Services/DoctorList/DoctorList";
 import Loading from "./components/Loading/Loading";
-import { useEffect, useState } from "react";
-import Staff from "./Role/Staff";
+import { useEffect, useState } from "react
 
 function App() {
   const [rehydrated, setRehydrated] = useState(false);
@@ -53,6 +53,7 @@ function App() {
                 }
               />
               <Route path="/services" element={<AppointmentForm />} />
+              <Route path="/CycleTracker" element={<CycleTracker/>}/>
               <Route
                 path="/services/DoctorList"
                 element={
