@@ -28,9 +28,7 @@ import Servicevnew from "./components/Sections/Articles/pages/Servicenew";
 import Generalnew from "./components/Sections/Articles/pages/Generalnew";
 import UserProfile from "./components/features/userprofile";
 import Loading from "./components/Loading/Loading";
-
-// ⚠️ Nếu bạn có Staff.jsx thì mới giữ lại dòng này:
-import Staff from "./components/features/staff"; // THÊM nếu có Staff.jsx
+import Staff from "./Role/Staff";
 
 function App() {
   const [rehydrated, setRehydrated] = useState(false);
@@ -72,7 +70,6 @@ function App() {
               <Route path="/y-hoc-thuong-thuc" element={<Generalnew />} />
               <Route path="/user/profile" element={<UserProfile />} />
               <Route path="/staff" element={<Staff />} />{" "}
-              {/* chỉ nếu bạn có Staff */}
             </Routes>
           </main>
           <Footer />
