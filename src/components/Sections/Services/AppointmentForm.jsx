@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import "./AppointmentForm.css";
 import BookingForm from "./BookingForm";
 import { Link, useLocation } from "react-router-dom";
-import ServiceList from "../.././Sections/Services/ServicesCart/ServiceList";
+import ServiceList from "../../Sections/Services/ServicesCart/ServiceList";
 
 const AppointmentForm = () => {
   const location = useLocation();
@@ -34,9 +34,9 @@ const AppointmentForm = () => {
   return (
     <div className="hospital-page-container">
       <div className="hospital-center-wrapper">
-        {/* Hero Section */}
         <div className="container-layout">
           <div className="hospital-hero">
+            {/* hero section */}
             <div className="hospital-profile">
               <div className="hospital-logo">
                 <div className="logo-content">
@@ -68,7 +68,6 @@ const AppointmentForm = () => {
             </div>
           </div>
 
-          {/* Tabs */}
           <div className="profile-nav-tabs">
             <div className="nav-tabs">
               <span
@@ -97,13 +96,11 @@ const AppointmentForm = () => {
             </div>
           </div>
 
-          {/* Main Content */}
           <div className="main-content">
-            {/* Left Column - điều kiện theo tab */}
             <div className="left-column">
               {activeTab === "intro" && (
                 <>
-                  {/* === THÔNG TIN CHUNG === */}
+                  {/* content-section: Thông tin chung, Giờ làm việc, FAQ */}
                   <div className="content-section">
                     <h2 className="section-title">
                       <span className="icon">🏥</span>
@@ -277,22 +274,17 @@ const AppointmentForm = () => {
                   </div>
                 </>
               )}
-
               {activeTab === "services" && (
-                <>
-                  {/* === DỊCH VỤ === */}
-                  <div className="content-section">
-                    <h2 className="section-title">
-                      <span className="icon">🩺</span>
-                      <span>Danh sách dịch vụ</span>
-                    </h2>
-                    <ServiceList /> {/* hoặc <ComboServiceList /> */}
-                  </div>
-                </>
+                <div className="content-section">
+                  <h2 className="section-title">
+                    <span className="icon">🦥</span>
+                    <span>Danh sách dịch vụ</span>
+                  </h2>
+                  <ServiceList />
+                </div>
               )}
             </div>
 
-            {/* Right Column: Booking Form */}
             <div className="right-column">
               <BookingForm />
             </div>

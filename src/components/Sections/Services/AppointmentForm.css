@@ -13,16 +13,6 @@ body {
   background-color: #f8f9fa;
 }
 
-/* Main container - ensure full width */
-
-.container-layout {
-  width: 100%;
-  max-width: 1200px;
-  padding: 0 24px;
-  margin: 0 auto;
-  box-sizing: border-box;
-  border: solid red;
-}
 .hospital-page-container {
   width: 100%;
   min-height: 100vh;
@@ -34,7 +24,14 @@ body {
   flex-direction: column;
   align-items: center;
 }
-/* Hospital Hero Section */
+
+.container-layout {
+  width: 100%;
+  max-width: 1200px;
+  padding: 0 24px;
+  margin: 0 auto;
+  box-sizing: border-box;
+}
 
 .hospital-hero {
   width: 100%;
@@ -87,53 +84,6 @@ body {
   text-decoration: underline;
 }
 
-/* Profile Navigation Tabs */
-/* Tabs */
-.profile-nav-tabs {
-  width: 100%;
-  margin-top: 16px;
-  border-bottom: 1px solid #eee;
-}
-.hospital-page-container {
-  width: 100%;
-  min-height: 100vh;
-  background: white;
-  margin: 0 auto;
-  padding: 0;
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
-
-/* Wrapper cho mọi phần chính */
-.container-layout {
-  width: 100%;
-  max-width: 1200px;
-  padding: 0 24px;
-  margin: 0 auto;
-  box-sizing: border-box;
-}
-
-/* Hospital Hero Section */
-.hospital-hero {
-  width: 100%;
-  padding: 40px 0;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  background-color: #f9f9f9;
-}
-
-.hospital-profile {
-  display: flex;
-  align-items: center;
-  width: 100%;
-  max-width: 1000px;
-  gap: 24px;
-}
-
-/* Tabs */
 .profile-nav-tabs {
   width: 100%;
   margin-top: 16px;
@@ -145,6 +95,7 @@ body {
   gap: 24px;
   font-size: 16px;
   list-style: none;
+  flex-wrap: wrap;
 }
 
 .nav-tab {
@@ -165,81 +116,39 @@ body {
   color: #1890ff;
 }
 
-/* Main Content */
 .main-content {
   display: flex;
+  flex-direction: row;
+  justify-content: space-between;
   gap: 40px;
   width: 100%;
-  padding: 40px 0;
-  box-sizing: border-box;
-  align-items: flex-start;
-}
-
-.left-column {
-  flex: 2;
-  min-width: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 24px;
-}
-
-.right-column {
-  flex: 1;
-  max-width: 420px;
-  min-width: 320px;
-  box-sizing: border-box;
-  position: sticky;
-  top: 20px;
-}
-
-.nav-tab {
-  cursor: pointer;
-  padding: 12px 0;
-  color: #444;
-  font-weight: 500;
-  border-bottom: 2px solid transparent;
-  transition: all 0.2s;
-}
-
-.nav-tab:hover {
-  color: #1890ff;
-}
-
-.nav-tab.active {
-  border-bottom: 2px solid #1890ff;
-  color: #1890ff;
-}
-
-/* Main Content Layout - WIDER */
-.main-content {
-  display: flex;
-  gap: 40px;
   max-width: 1200px;
   margin: 0 auto;
-  padding: 40px 0;
-  width: 100%;
+  padding: 40px 24px;
   box-sizing: border-box;
   align-items: flex-start;
+  min-height: 700px;
 }
 
 .left-column {
   flex: 2;
-  min-width: 0;
   display: flex;
   flex-direction: column;
   gap: 24px;
+  min-width: 0;
+  padding: 20px 0;
 }
 
 .right-column {
   flex: 1;
-  max-width: 420px;
+  max-width: 400px;
   min-width: 320px;
+  padding-left: 20px;
   box-sizing: border-box;
   position: sticky;
   top: 20px;
 }
 
-/* Content Sections */
 .content-section {
   background: white;
   padding: 20px;
@@ -260,17 +169,18 @@ body {
 .icon {
   display: inline-block;
 }
+
 .about-text {
   line-height: 1.6;
   color: #444;
   font-size: 15px;
 }
+
 .about-text ul {
   margin-left: 20px;
   list-style: disc;
 }
 
-/* Working Hours */
 .hours-table {
   display: flex;
   flex-direction: column;
@@ -303,156 +213,6 @@ body {
   color: #dc2626;
 }
 
-.update-hours {
-  text-align: center;
-  margin-top: 16px;
-}
-
-.update-btn {
-  background: none;
-  border: none;
-  color: #10b981;
-  font-size: 14px;
-  cursor: pointer;
-  text-decoration: underline;
-}
-
-/* Hospital Description */
-.description-text {
-  color: #4b5563;
-  font-size: 14px;
-  line-height: 1.7;
-}
-
-.description-text p {
-  margin-bottom: 16px;
-}
-
-.description-text p:last-child {
-  margin-bottom: 0;
-}
-
-/* Services */
-.services-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-  gap: 12px;
-}
-
-.service-item {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 14px;
-  color: #4b5563;
-}
-
-.bullet {
-  color: #3b82f6;
-  font-weight: bold;
-}
-
-/* Location */
-.map-container {
-  margin-bottom: 16px;
-}
-
-.map-placeholder {
-  height: 200px;
-  background: #f3f4f6;
-  border-radius: 8px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  color: #6b7280;
-}
-
-.map-icon {
-  font-size: 32px;
-  margin-bottom: 8px;
-}
-
-.location-details {
-  font-size: 14px;
-  color: #4b5563;
-  line-height: 1.6;
-}
-
-/* Appointment Guide */
-.guide-box {
-  background: #eff6ff;
-  padding: 16px;
-  border-radius: 8px;
-  margin-top: 16px;
-}
-
-.guide-box p {
-  font-size: 14px;
-  color: #4b5563;
-  margin-bottom: 12px;
-}
-
-.see-more {
-  background: none;
-  border: none;
-  color: #3b82f6;
-  font-size: 14px;
-  cursor: pointer;
-  text-decoration: underline;
-}
-
-/* Payment Methods */
-.payment-options {
-  display: flex;
-  gap: 16px;
-  flex-wrap: wrap;
-}
-
-.payment-item {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding: 16px;
-  border: 1px solid #e5e7eb;
-  border-radius: 8px;
-  min-width: 80px;
-}
-
-.payment-icon {
-  width: 48px;
-  height: 32px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 4px;
-  margin-bottom: 8px;
-  font-size: 12px;
-  font-weight: bold;
-}
-
-.payment-icon.visa {
-  background: #1a365d;
-  color: white;
-}
-
-.payment-icon.card {
-  background: #dbeafe;
-  font-size: 16px;
-}
-
-.payment-icon.cash {
-  background: #dcfce7;
-  font-size: 16px;
-}
-
-.payment-item span {
-  font-size: 12px;
-  color: #6b7280;
-  text-align: center;
-}
-
-/* FAQ */
 .faq-list {
   display: flex;
   flex-direction: column;
@@ -497,231 +257,49 @@ body {
   color: #6b7280;
 }
 
-/* Right Sidebar */
-.right-sidebar {
-  position: sticky;
-  top: 24px;
-  height: fit-content;
-}
-
-.booking-section {
-  background: white;
-  border-radius: 12px;
-  padding: 24px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-}
-
-.booking-section h3 {
-  font-size: 18px;
-  font-weight: 600;
-  color: #1f2937;
-  margin-bottom: 8px;
-}
-
-.booking-subtitle {
-  font-size: 14px;
-  color: #6b7280;
-  margin-bottom: 16px;
-  line-height: 1.5;
-}
-
-.booking-tabs {
-  display: flex;
-  gap: 8px;
-  margin-bottom: 20px;
-}
-
-.tab-btn {
-  padding: 8px 12px;
-  border: 1px solid #e5e7eb;
-  background: white;
-  border-radius: 6px;
-  font-size: 14px;
-  cursor: pointer;
-  transition: all 0.2s;
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-
-.tab-btn.active {
-  background: #3b82f6;
-  color: white;
-  border-color: #3b82f6;
-}
-
-.tab-btn:hover:not(.active) {
-  background: #f3f4f6;
-}
-
-/* Booking Form */
-.booking-form {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-}
-
-.form-group {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-
-.form-group label {
-  font-size: 14px;
-  font-weight: 500;
-  color: #374151;
-}
-
-.hospital-selected {
-  padding: 12px;
-  background: #f3f4f6;
-  border-radius: 6px;
-  font-size: 14px;
-  color: #4b5563;
-}
-
-.select-wrapper {
-  position: relative;
-}
-
-.select-icon {
-  position: absolute;
-  right: 12px;
-  top: 50%;
-  transform: translateY(-50%);
-  pointer-events: none;
-  font-size: 10px;
-  color: #6b7280;
-}
-
-.form-select {
+.service-list-wrapper {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+  gap: 24px;
   width: 100%;
-  padding: 12px;
-  border: 1px solid #d1d5db;
-  border-radius: 6px;
-  font-size: 14px;
-  background: white;
-  cursor: pointer;
-  appearance: none;
 }
 
-.form-select:focus {
-  outline: none;
-  border-color: #3b82f6;
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
-}
-
-.radio-group {
+.service-card {
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  padding: 20px;
+  background-color: #fff;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
   display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.radio-group input[type="radio"] {
-  accent-color: #3b82f6;
-}
-
-.radio-group label {
-  font-size: 14px;
-  color: #374151;
-  cursor: pointer;
-}
-
-.book-btn {
-  background: #3b82f6;
-  color: white;
-  border: none;
-  padding: 12px 24px;
-  border-radius: 6px;
-  font-size: 14px;
-  font-weight: 500;
-  cursor: pointer;
-  transition: background-color 0.2s;
-  margin-top: 8px;
-}
-
-.book-btn:hover {
-  background: #2563eb;
-}
-
-/* Responsive Design */
-@media (max-width: 1500px) {
-  .main-content,
-  .hospital-hero,
-  .hospital-profile,
-  .profile-nav-tabs {
-    max-width: 98vw;
-  }
-  .main-content {
-    grid-template-columns: 1fr 400px;
-    gap: 30px;
-    padding: 30px 16px;
-  }
-  .hospital-profile,
-  .profile-nav-tabs {
-    padding-left: 16px;
-    padding-right: 16px;
-  }
+  flex-direction: column;
+  gap: 12px;
 }
 
 @media (max-width: 1024px) {
   .main-content {
-    padding: 20px 8px;
-    grid-template-columns: 1fr;
+    flex-direction: column;
+    padding: 24px 16px;
   }
-  .hospital-profile,
-  .profile-nav-tabs {
-    padding-left: 8px;
-    padding-right: 8px;
+
+  .right-column {
+    position: static;
+    max-width: 100%;
+    min-width: 100%;
+    padding-left: 0;
   }
 }
 
 @media (max-width: 768px) {
-  .main-content {
-    grid-template-columns: 1fr;
-    gap: 20px;
-  }
-
   .hospital-profile {
     flex-direction: column;
     align-items: flex-start;
-    gap: 12px;
-  }
-
-  .hospital-info h1 {
-    font-size: 20px;
-  }
-
-  .services-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .payment-options {
-    flex-wrap: wrap;
-  }
-
-  .booking-tabs {
-    flex-direction: column;
   }
 
   .nav-tabs {
     flex-wrap: wrap;
-    gap: 12px;
+  }
+
+  .service-list-wrapper {
+    grid-template-columns: 1fr;
   }
 }
-
-@media (max-width: 480px) {
-  .hospital-info {
-    padding: 16px;
-  }
-
-  .booking-section {
-    padding: 16px;
-  }
-
-  .hospital-main-image {
-    height: 200px;
-  }
-}
-/* Fix layout co lại khi BookingForm có select dài */
