@@ -11,7 +11,7 @@ const Servicenew = () => {
 
   // Featured dịch vụ
   const featuredArticle = {
-    id: 0,
+    id: 24,
     title: "Top 5 dịch vụ y tế chất lượng cao tại TPHCM",
     excerpt:
       "Khám sức khỏe tổng quát, xét nghiệm chuyên sâu, tư vấn dinh dưỡng và nhiều dịch vụ khác giúp bạn chăm sóc sức khỏe toàn diện. Dưới đây là 5 dịch vụ nổi bật tại TPHCM.",
@@ -25,7 +25,7 @@ const Servicenew = () => {
   // Sidebar dịch vụ
   const sidebarArticles = [
     {
-      id: 1,
+      id: 25,
       title: "Khám sức khỏe tổng quát cho doanh nghiệp",
       excerpt: "Dịch vụ khám sức khỏe định kỳ cho nhân viên doanh nghiệp...",
       image:
@@ -36,7 +36,7 @@ const Servicenew = () => {
       featured: true,
     },
     {
-      id: 2,
+      id: 26,
       title: "Xét nghiệm máu tại nhà",
       excerpt: "Nhanh chóng, tiện lợi, đảm bảo kết quả chính xác...",
       image:
@@ -46,7 +46,7 @@ const Servicenew = () => {
       date: "28/05/2025",
     },
     {
-      id: 3,
+      id: 27,
       title: "Tư vấn dinh dưỡng cá nhân",
       excerpt: "Chuyên gia tư vấn chế độ ăn phù hợp từng đối tượng...",
       image:
@@ -56,7 +56,7 @@ const Servicenew = () => {
       date: "20/05/2025",
     },
     {
-      id: 4,
+      id: 28,
       title: "Khám chuyên khoa tim mạch",
       excerpt:
         "Phát hiện sớm các bệnh lý về tim mạch với trang thiết bị hiện đại...",
@@ -67,7 +67,7 @@ const Servicenew = () => {
       date: "15/05/2025",
     },
     {
-      id: 5,
+      id: 29,
       title: "Khám nhi tại nhà",
       excerpt: "Dịch vụ bác sĩ nhi khoa đến tận nhà thăm khám cho bé...",
       image:
@@ -81,7 +81,7 @@ const Servicenew = () => {
   // Dịch vụ nổi bật phía dưới
   const bottomFeaturedCards = [
     {
-      id: 9,
+      id: 30,
       title: "Khám sức khỏe tổng quát",
       subtitle: "Kiểm tra sức khỏe toàn diện, phát hiện sớm bệnh lý",
       image:
@@ -89,7 +89,7 @@ const Servicenew = () => {
       category: "Dịch vụ nổi bật",
     },
     {
-      id: 10,
+      id: 31,
       title: "Xét nghiệm tại nhà",
       subtitle: "Tiện lợi, nhanh chóng, an toàn cho mọi gia đình",
       image:
@@ -97,7 +97,7 @@ const Servicenew = () => {
       category: "Dịch vụ nổi bật",
     },
     {
-      id: 11,
+      id:  32,
       title: "Tư vấn sức khỏe online",
       subtitle: "Kết nối bác sĩ mọi lúc, mọi nơi",
       image:
@@ -109,55 +109,55 @@ const Servicenew = () => {
   // Danh sách bài viết dịch vụ (phân trang)
   const serviceArticles = [
     {
-      id: 6,
-      title: "Khám sức khỏe tổng quát doanh nghiệp",
-      category: "Dịch vụ",
-      date: "10/06/2025",
+      id: 33,
+      title: "Phòng khám sức khỏe sinh sản - Hồng Phúc",
+      category: "Tin dịch vụ",
+      date: "08/06/2024",
       image:
         "https://i.pinimg.com/736x/38/36/d9/3836d9090a259143ece1fca9e9ad1406.jpg",
     },
     {
-      id: 7,
-      title: "Xét nghiệm máu tận nơi",
-      category: "Dịch vụ",
-      date: "09/06/2025",
+      id: 34,
+      title: "Trung tâm hỗ trợ sinh sản IVF TPHCM",
+      category: "Tin dịch vụ",
+      date: "06/06/2024",
       image:
         "https://i.pinimg.com/736x/05/9b/ac/059bac199052a4c974ef82690d8e4021.jpg",
     },
     {
-      id: 8,
-      title: "Tư vấn dinh dưỡng cá nhân hóa",
-      category: "Dịch vụ",
-      date: "08/06/2025",
+      id: 35,
+      title: "Xét nghiệm HPV và tầm soát ung thư cổ tử cung",
+      category: "Tin dịch vụ",
+      date: "05/06/2024",
       image:
         "https://i.pinimg.com/736x/5a/04/28/5a04287a9574b72eff9cf090e85fe714.jpg",
     },
     {
-      id: 9,
-      title: "Khám chuyên khoa tim mạch",
-      category: "Dịch vụ",
-      date: "07/06/2025",
+      id: 36,
+      title: "Tư vấn sức khỏe tiền hôn nhân ",
+      category: "Tin dịch vụ",
+      date: "04/06/2024",
       image:
         "https://i.pinimg.com/736x/67/aa/fa/67aafad7e6dab629c1ba438f483cc6db.jpg",
     },
     {
-      id: 10,
-      title: "Khám nhi tại nhà",
-      category: "Dịch vụ",
-      date: "06/06/2025",
+      id: 37,
+      title: "Địa chỉ phá thai an toàn & tư vấn tâm lý",
+      category: "Tin dịch vụ",
+      date: "03/06/2024",
       image:
         "https://i.pinimg.com/736x/54/d6/76/54d6769b3ce68365503b419457cbb2e3.jpg",
     },
     {
-      id: 11,
-      title: "Khám phụ khoa chuyên sâu",
-      category: "Dịch vụ",
-      date: "05/06/2025",
+      id: 38,
+      title: "Khám nam khoa – Phòng khám quốc tế Sài Gòn",
+      category: "Tin dịch vụ",
+      date: "02/06/2024",
       image:
         "https://i.pinimg.com/736x/ac/d8/d2/acd8d2eb1f0fdb9010691d094d8d440b.jpg",
     },
     {
-      id: 12,
+      id: 39,
       title: "Khám sức khỏe tiền hôn nhân",
       category: "Dịch vụ",
       date: "04/06/2025",
@@ -165,7 +165,7 @@ const Servicenew = () => {
         "https://i.pinimg.com/736x/d8/45/e7/d845e7e8f96d7c8cae953d7a3821e6a0.jpg",
     },
     {
-      id: 13,
+      id: 40,
       title: "Tư vấn sức khỏe online",
       category: "Dịch vụ",
       date: "03/06/2025",
@@ -173,7 +173,7 @@ const Servicenew = () => {
         "https://i.pinimg.com/736x/e5/6c/b3/e56cb3e8bd4f7c8e54bb5fd68502cae4.jpg",
     },
     {
-      id: 14,
+      id: 41,
       title: "Khám nội tổng quát",
       category: "Dịch vụ",
       date: "02/06/2025",
@@ -181,7 +181,7 @@ const Servicenew = () => {
         "https://i.pinimg.com/736x/b2/a1/d6/b2a1d67f1eb5c5a6c05be24936a3130c.jpg",
     },
     {
-      id: 15,
+      id: 42,
       title: "Khám mắt chuyên sâu",
       category: "Dịch vụ",
       date: "01/06/2025",
@@ -189,7 +189,7 @@ const Servicenew = () => {
         "https://i.pinimg.com/736x/f9/23/a5/f923a5e8b3c715d34b9c16a05a8b8a08.jpg",
     },
     {
-      id: 16,
+      id: 43,
       title: "Khám tai mũi họng",
       category: "Dịch vụ",
       date: "31/05/2025",
@@ -197,7 +197,7 @@ const Servicenew = () => {
         "https://i.pinimg.com/736x/d3/b7/c4/d3b7c4e0dfd91bc7f851d7a2e23c50b8.jpg",
     },
     {
-      id: 17,
+      id: 44,
       title: "Khám da liễu",
       category: "Dịch vụ",
       date: "30/05/2025",
@@ -205,7 +205,7 @@ const Servicenew = () => {
         "https://i.pinimg.com/736x/7a/52/fd/7a52fd6c10b86c4aca91b86013220156.jpg",
     },
     {
-      id: 18,
+      id: 45,
       title: "Khám xương khớp",
       category: "Dịch vụ",
       date: "29/05/2025",
@@ -213,7 +213,7 @@ const Servicenew = () => {
         "https://i.pinimg.com/736x/21/1f/5c/211f5c05e7c93a439fe98126e06bed90.jpg",
     },
     {
-      id: 19,
+      id: 46,
       title: "Khám tiêu hóa",
       category: "Dịch vụ",
       date: "28/05/2025",
@@ -221,7 +221,7 @@ const Servicenew = () => {
         "https://i.pinimg.com/736x/c8/ef/a2/c8efa2d6e5ba71a1d1b438c4d58e6d9a.jpg",
     },
     {
-      id: 20,
+      id: 47,
       title: "Khám thần kinh",
       category: "Dịch vụ",
       date: "27/05/2025",
@@ -292,7 +292,7 @@ const Servicenew = () => {
                       {featuredArticle.date} - {featuredArticle.author}
                     </span>
                   </div>
-                  <Link to="#" className="servicevnew-read-more-link">
+                  <Link to={`/blog/${featuredArticle.id}`} className="servicevnew-read-more-link">
                     Xem tiếp →
                   </Link>
                 </div>
@@ -320,7 +320,7 @@ const Servicenew = () => {
                         <p className="servicevnew-card-description">
                           {card.description}
                         </p>
-                        <Link to="#" className="servicevnew-card-link">
+                        <Link to={`/blog/${card.id}`} className="generalnew-service-link">
                           Xem tiếp →
                         </Link>
                       </div>
@@ -334,10 +334,7 @@ const Servicenew = () => {
             <aside className="servicevnew-sidebar">
               <div className="servicevnew-sidebar-content">
                 {sidebarArticles.map((article) => (
-                  <article
-                    key={article.id}
-                    className="servicevnew-sidebar-article"
-                  >
+                  <Link to={`/blog/${article.id}`} key={article.id} className="servicevnew-sidebar-article">
                     <div className="servicevnew-sidebar-image">
                       <img
                         src={article.image || "/placeholder.svg"}
@@ -358,7 +355,7 @@ const Servicenew = () => {
                         {article.date}
                       </span>
                     </div>
-                  </article>
+                  </Link>
                 ))}
               </div>
             </aside>
@@ -393,7 +390,7 @@ const Servicenew = () => {
                         <span className="servicevnew-service-date">
                           {article.date}
                         </span>
-                        <Link to="#" className="servicevnew-service-link">
+                        <Link to={`/blog/${article.id}`} className="servicevnew-service-link">
                           Xem tiếp →
                         </Link>
                       </div>

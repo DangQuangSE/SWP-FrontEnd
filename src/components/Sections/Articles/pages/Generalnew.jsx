@@ -11,7 +11,7 @@ const Generalnew = () => {
 
   // Featured bài viết Y học thường thức
   const featuredArticle = {
-    id: 0,
+    id: 48,
     title: "5 thói quen giúp nâng cao sức khỏe mỗi ngày",
     excerpt:
       "Duy trì thói quen tốt như uống đủ nước, ngủ đủ giấc, vận động hợp lý, ăn nhiều rau xanh và kiểm soát stress giúp bạn sống khỏe mạnh hơn. Cùng khám phá chi tiết từng thói quen!",
@@ -25,7 +25,7 @@ const Generalnew = () => {
   // Sidebar bài viết Y học thường thức
   const sidebarArticles = [
     {
-      id: 1,
+      id: 49,
       title: "Cách nhận biết dấu hiệu thiếu nước ở cơ thể",
       excerpt: "Thiếu nước ảnh hưởng đến sức khỏe như thế nào?",
       image:
@@ -36,7 +36,7 @@ const Generalnew = () => {
       featured: true,
     },
     {
-      id: 2,
+      id: 50,
       title: "Ăn sáng đúng cách để khởi đầu ngày mới",
       excerpt: "Bữa sáng quan trọng ra sao với sức khỏe?",
       image:
@@ -46,7 +46,7 @@ const Generalnew = () => {
       date: "08/06/2025",
     },
     {
-      id: 3,
+      id: 51,
       title: "Tác dụng của việc đi bộ mỗi ngày",
       excerpt: "Đi bộ giúp cải thiện tim mạch, giảm stress...",
       image:
@@ -56,7 +56,7 @@ const Generalnew = () => {
       date: "05/06/2025",
     },
     {
-      id: 4,
+      id: 52,
       title: "Ngủ đủ giấc và lợi ích cho sức khỏe",
       excerpt: "Thiếu ngủ gây ra những hậu quả gì?",
       image:
@@ -66,7 +66,7 @@ const Generalnew = () => {
       date: "02/06/2025",
     },
     {
-      id: 5,
+      id: 53,
       title: "Cách kiểm soát căng thẳng hiệu quả",
       excerpt: "Stress kéo dài ảnh hưởng thế nào đến cơ thể?",
       image:
@@ -80,7 +80,7 @@ const Generalnew = () => {
   // Bài viết nổi bật phía dưới
   const bottomFeaturedCards = [
     {
-      id: 9,
+      id: 54,
       title: "Uống nước đúng cách",
       subtitle: "Lợi ích và thời điểm tốt nhất để uống nước",
       image:
@@ -88,7 +88,7 @@ const Generalnew = () => {
       category: "Thói quen tốt",
     },
     {
-      id: 10,
+      id: 55,
       title: "Tập thể dục tại nhà",
       subtitle: "Các bài tập đơn giản giúp nâng cao sức khỏe",
       image:
@@ -96,7 +96,7 @@ const Generalnew = () => {
       category: "Thói quen tốt",
     },
     {
-      id: 11,
+      id: 56,
       title: "Ăn nhiều rau xanh",
       subtitle: "Tại sao nên bổ sung rau xanh mỗi ngày?",
       image:
@@ -108,39 +108,44 @@ const Generalnew = () => {
   // Danh sách bài viết (phân trang)
   const serviceArticles = [
     {
-      id: 6,
-      title: "Tác hại của việc lười vận động",
-      category: "Y học thường thức",
-      date: "11/06/2025",
+      id: 57,
+      title: "Các biện pháp tránh thai hiện đại",
+      excerpt:
+        "Sử dụng bao cao su đúng cách để tránh mang thai ngoài ý muốn và phòng ngừa bệnh lây truyền qua đường tình dục.",
+      category: "Tin thường thức",
       image:
-        "https://i.pinimg.com/736x/99/aa/bb/99aabbccddeeff001122334455667788.jpg",
+        "https://i.pinimg.com/736x/bc/de/f1/bcdef1234567890abcdef1234567890a.jpg",
+      featured: true,
     },
     {
-      id: 7,
-      title: "Cách phòng tránh cảm cúm mùa hè",
-      category: "Y học thường thức",
-      date: "10/06/2025",
+      id: 58,
+      title: "Chu kỳ kinh nguyệt và dấu hiệu bất thường",
+      excerpt:
+        "Hiểu đúng về chu kỳ kinh nguyệt giúp phụ nữ chủ động chăm sóc sức khỏe sinh sản.",
+      category: "Tin thường thức",
       image:
         "https://i.pinimg.com/736x/aa/bb/cc/aabbccddeeff00112233445566778899.jpg",
     },
     {
-      id: 8,
-      title: "Vai trò của vitamin D với sức khỏe",
-      category: "Y học thường thức",
-      date: "09/06/2025",
-      image:
-        "https://i.pinimg.com/736x/bb/cc/dd/bbccddeeff00112233445566778899aa.jpg",
-    },
-    {
-      id: 9,
-      title: "Bí quyết giữ tinh thần lạc quan",
-      category: "Y học thường thức",
-      date: "08/06/2025",
+      id: 59,
+      title: "Ung thư cổ tử cung: cách phòng và tầm soát sớm",
+      excerpt:
+        "Phụ nữ nên tầm soát ung thư cổ tử cung định kỳ, đặc biệt từ sau 25 tuổi.",
+      category: "Tin thường thức",
       image:
         "https://i.pinimg.com/736x/cc/dd/ee/ccddeeff00112233445566778899aabb.jpg",
     },
     {
-      id: 10,
+      id: 60,
+      title: "Xuất tinh sớm ở nam giới: nguyên nhân và điều trị",
+      excerpt:
+        "Tình trạng xuất tinh sớm ảnh hưởng đến tâm lý và chất lượng tình dục. Điều trị sớm giúp cải thiện đời sống hôn nhân.",
+      category: "Tin thường thức",
+      image:
+        "https://i.pinimg.com/736x/dd/ee/ff/ddeeff11223344556677889900aabbcc.jpg",
+    },
+    {
+      id: 61,
       title: "Ăn uống lành mạnh cho người bận rộn",
       category: "Y học thường thức",
       date: "07/06/2025",
@@ -148,7 +153,7 @@ const Generalnew = () => {
         "https://i.pinimg.com/736x/dd/ee/ff/ddeeff00112233445566778899aabbcc.jpg",
     },
     {
-      id: 11,
+      id: 62,
       title: "Cách bảo vệ mắt khi dùng thiết bị điện tử",
       category: "Y học thường thức",
       date: "06/06/2025",
@@ -156,7 +161,7 @@ const Generalnew = () => {
         "https://i.pinimg.com/736x/ee/ff/00/eeff00112233445566778899aabbccdd.jpg",
     },
     {
-      id: 12,
+      id:  63,
       title: "Tại sao cần kiểm tra sức khỏe định kỳ?",
       category: "Y học thường thức",
       date: "05/06/2025",
@@ -164,7 +169,7 @@ const Generalnew = () => {
         "https://i.pinimg.com/736x/ff/00/11/ff00112233445566778899aabbccddeeff.jpg",
     },
     {
-      id: 13,
+      id: 64,
       title: "Cách phòng tránh bệnh truyền nhiễm",
       category: "Y học thường thức",
       date: "04/06/2025",
@@ -172,7 +177,7 @@ const Generalnew = () => {
         "https://i.pinimg.com/736x/00/11/22/00112233445566778899aabbccddeeff.jpg",
     },
     {
-      id: 14,
+      id: 65,
       title: "Tác dụng của việc thiền mỗi ngày",
       category: "Y học thường thức",
       date: "03/06/2025",
@@ -180,7 +185,7 @@ const Generalnew = () => {
         "https://i.pinimg.com/736x/11/22/33/112233445566778899aabbccddeeff00.jpg",
     },
     {
-      id: 15,
+      id: 66,
       title: "Cách phòng tránh bệnh về đường tiêu hóa",
       category: "Y học thường thức",
       date: "02/06/2025",
@@ -188,7 +193,7 @@ const Generalnew = () => {
         "https://i.pinimg.com/736x/22/33/44/2233445566778899aabbccddeeff0011.jpg",
     },
     {
-      id: 16,
+      id: 67,
       title: "Tầm quan trọng của việc rửa tay đúng cách",
       category: "Y học thường thức",
       date: "01/06/2025",
@@ -196,7 +201,7 @@ const Generalnew = () => {
         "https://i.pinimg.com/736x/33/44/55/33445566778899aabbccddeeff001122.jpg",
     },
     {
-      id: 17,
+      id: 68,
       title: "Cách phòng tránh bệnh sốt xuất huyết",
       category: "Y học thường thức",
       date: "31/05/2025",
@@ -204,7 +209,7 @@ const Generalnew = () => {
         "https://i.pinimg.com/736x/44/55/66/445566778899aabbccddeeff00112233.jpg",
     },
     {
-      id: 18,
+      id: 69,
       title: "Làm thế nào để ngủ ngon hơn?",
       category: "Y học thường thức",
       date: "30/05/2025",
@@ -212,7 +217,7 @@ const Generalnew = () => {
         "https://i.pinimg.com/736x/55/66/77/5566778899aabbccddeeff0011223344.jpg",
     },
     {
-      id: 19,
+      id: 70,
       title: "Cách phòng tránh bệnh về da mùa hè",
       category: "Y học thường thức",
       date: "29/05/2025",
@@ -220,7 +225,7 @@ const Generalnew = () => {
         "https://i.pinimg.com/736x/66/77/88/66778899aabbccddeeff001122334455.jpg",
     },
     {
-      id: 20,
+      id: 71,
       title: "Tác hại của việc ăn mặn quá nhiều",
       category: "Y học thường thức",
       date: "28/05/2025",
@@ -291,7 +296,7 @@ const Generalnew = () => {
                       {featuredArticle.date} - {featuredArticle.author}
                     </span>
                   </div>
-                  <Link to="#" className="generalnew-read-more-link">
+                  <Link to={`/blog/${featuredArticle.id}`} className="generalnew-read-more-link">
                     Xem tiếp →
                   </Link>
                 </div>
@@ -319,7 +324,7 @@ const Generalnew = () => {
                         <p className="generalnew-card-description">
                           {card.description}
                         </p>
-                        <Link to="#" className="generalnew-card-link">
+                        <Link to={`/blog/${card.id}`} className="generalnew-card-link">
                           Xem tiếp →
                         </Link>
                       </div>
@@ -333,10 +338,7 @@ const Generalnew = () => {
             <aside className="generalnew-sidebar">
               <div className="generalnew-sidebar-content">
                 {sidebarArticles.map((article) => (
-                  <article
-                    key={article.id}
-                    className="generalnew-sidebar-article"
-                  >
+                  <Link to={`/blog/${article.id}`} key={article.id} className="generalnew-sidebar-article">
                     <div className="generalnew-sidebar-image">
                       <img
                         src={article.image || "/placeholder.svg"}
@@ -357,7 +359,7 @@ const Generalnew = () => {
                         {article.date}
                       </span>
                     </div>
-                  </article>
+                  </Link>
                 ))}
               </div>
             </aside>
