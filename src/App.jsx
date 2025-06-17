@@ -20,9 +20,8 @@ import Medicalnew from "./components/Sections/Articles/pages/Medicalnew";
 import Servicevnew from "./components/Sections/Articles/pages/Servicenew";
 import Generalnew from "./components/Sections/Articles/pages/Generalnew";
 import CycleTracker from "./components/Sections/Services/CycleTracker/CycleTracker";
-import DoctorList from "./components/Sections/Services/DoctorList/DoctorList";
 import Loading from "./components/Loading/Loading";
-import { useEffect, useState } from "react
+import { useEffect, useState } from "react"
 
 function App() {
   const [rehydrated, setRehydrated] = useState(false);
