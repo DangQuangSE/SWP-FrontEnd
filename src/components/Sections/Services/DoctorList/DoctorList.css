@@ -1,46 +1,96 @@
-.doctor-list-page {
-  padding: 40px 20px;
-  max-width: 1200px;
-  margin: auto;
+.doctor-list-container {
+  max-width: 800px;
+  margin: 0 auto; 
+  display: flex;
+  flex-direction: column;
+  gap: 20px; 
+}
+.doctor-card {
+  display: flex; 
+  align-items: center; 
+  background-color: #ffffff;
+  border-radius: 12px;
+  border: 1px solid #e9e9e9;
+  padding: 20px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  transition: box-shadow 0.2s ease;
+}
+.doctor-card:hover {
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.1);
+}
+.doctor-image {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%; 
+  object-fit: cover; 
+  margin-right: 24px;
+  flex-shrink: 0; 
+}
+.doctor-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column; 
+  height: 100%;
 }
 
-.page-title {
-  font-size: 2rem;
-  text-align: center;
-  margin-bottom: 30px;
+.doctor-name {
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin: 0 0 4px 0;
+  color: #222;
 }
 
-.doctors-grid-container {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-  gap: 24px;
+.doctor-specialty {
+  font-size: 1rem;
+  color: #007bff;
+  font-weight: 500;
+  margin-bottom: 12px;
 }
 
-.doctor-pagination-controls {
+.doctor-experience, .doctor-workplace {
+  font-size: 0.9rem;
+  color: #666;
+  margin: 2px 0;
+}
+
+.book-appointment-btn {
+  background-color: #007bff;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 500;
+  margin-top: 16px; 
+  align-self: flex-start; 
+  transition: background-color 0.2s;
+}
+.book-appointment-btn:hover {
+  background-color: #0056b3;
+}
+.pagination {
   display: flex;
   justify-content: center;
+  align-items: center;
   margin-top: 32px;
+  padding-bottom: 16px;
   gap: 8px;
-  flex-wrap: wrap;
 }
-
-.doctor-page-number,
-.doctor-page-nav-button {
-  background: #f0f0f0;
-  border: 1px solid #ccc;
-  padding: 6px 12px;
-  border-radius: 4px;
+.pagination button {
+  background-color: #fff;
+  border: 1px solid #ddd;
+  color: #007bff;
+  padding: 8px 16px;
+  text-decoration: none;
   cursor: pointer;
-  font-size: 1rem;
+  border-radius: 4px;
+  transition: background-color 0.2s, color 0.2s;
 }
-
-.doctor-page-number.active {
-  background: #007bff;
+.pagination button.active {
+  background-color: #007bff;
   color: white;
   border-color: #007bff;
 }
-
-.doctor-page-nav-button:disabled {
-  cursor: not-allowed;
-  opacity: 0.5;
+.pagination button:not(.active):hover {
+  background-color: #f2f2f2;
 }

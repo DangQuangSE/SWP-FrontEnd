@@ -59,7 +59,6 @@ function App() {
                 }
               />
               <Route path="/services" element={<AppointmentForm />} />
-              <Route path="/services/DoctorList" element={<DoctorList />} />
               <Route path="/CycleTracker" element={<CycleTracker />} />
               <Route path="/appointment" element={<StisTest />} />
               <Route path="/forgot-password" element={<ForgotPasswordOTP />} />

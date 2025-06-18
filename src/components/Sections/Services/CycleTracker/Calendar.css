@@ -1,11 +1,33 @@
-.calendar-container {
-  background: white;
-  border: 1px solid #e2e8f0;
-  border-radius: 8px;
-  padding: 1.5rem;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+/* Calendar.css - PHIÊN BẢN NÂNG CẤP */
+
+/* 
+  --- CÀI ĐẶT CHUNG & BIẾN MÀU SẮC --- 
+  Sử dụng biến giúp dễ dàng thay đổi toàn bộ giao diện sau này.
+*/
+:root {
+  --font-family-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --color-primary: #4f46e5;      /* Màu chính (Hôm nay, Triệu chứng) */
+  --color-primary-light: #e0e7ff; /* Nền của ngày rụng trứng */
+  --color-danger: #dc2626;       /* Màu cho ngày kinh */
+  --color-danger-light: #fee2e2;  /* Nền của ngày kinh */
+  --color-text-dark: #1f2937;     /* Chữ chính */
+  --color-text-light: #6b7280;    /* Chữ phụ, ngày trong tuần */
+  --color-border: #e5e7eb;        /* Đường viền */
+  --color-bg-hover: #f3f4f6;       /* Nền khi di chuột */
 }
 
+.calendar-container {
+  font-family: var(--font-family-sans);
+  background: white;
+  border: 1px solid var(--color-border);
+  border-radius: 1rem; /* Bo góc nhiều hơn cho mềm mại */
+  padding: 1.5rem;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.07), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  max-width: 450px; /* Giới hạn chiều rộng để trông đẹp hơn */
+  margin: 2rem auto; /* Căn giữa toàn bộ lịch */
+}
+
+/* --- HEADER --- */
 .calendar-header {
   display: flex;
   justify-content: space-between;
@@ -14,115 +36,146 @@
 }
 
 .calendar-header span {
-  font-size: 1.25rem;
+  font-size: 1.125rem; /* 18px */
   font-weight: 600;
+  color: var(--color-text-dark);
   text-transform: capitalize;
 }
 
 .calendar-header button {
-  background: #f1f5f9;
-  border: 1px solid #cbd5e1;
+  background: transparent;
+  border: none;
   border-radius: 50%;
-  width: 36px;
-  height: 36px;
-  font-size: 1.2rem;
+  width: 40px;
+  height: 40px;
   cursor: pointer;
-  transition: background-color 0.2s;
-}
-
-.calendar-header button:hover {
-  background: #e2e8f0;
-}
-
-.days-of-week, .calendar-grid {
-  display: grid;
-  grid-template-columns: repeat(7, 1fr);
-  text-align: center;
-}
-
-.days-of-week div {
-  padding: 0.5rem 0;
-  font-weight: 600;
-  color: #64748b;
-  font-size: 0.875rem;
-}
-
-.day-cell {
   display: flex;
   justify-content: center;
   align-items: center;
-  height: 50px;
-  border-top: 1px solid #f1f5f9;
-}
-
-.day-cell span {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  width: 36px;
-  height: 36px;
-  border-radius: 50%;
+  color: var(--color-text-light);
   transition: background-color 0.2s, color 0.2s;
 }
 
-.day-cell.disabled {
-  color: #cbd5e1;
+.calendar-header button:hover {
+  background-color: var(--color-bg-hover);
+  color: var(--color-text-dark);
 }
 
-.day-cell.today span {
-  border: 2px solid #3b82f6;
+/* Thêm icon mũi tên cho nút */
+.calendar-header button:first-of-type::before {
+  content: '‹';
+  font-size: 1.5rem;
+}
+.calendar-header button:last-of-type::before {
+  content: '›';
+  font-size: 1.5rem;
 }
 
-.day-cell.period-day span {
-  background-color: #fca5a5;
-  color: #b91c1c;
+/* --- LƯỚI LỊCH & NGÀY TRONG TUẦN --- */
+.days-of-week, .calendar-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
 }
 
-.day-cell.predicted-day span {
-  background-color: #f0cece;
-  color: #ef4444;
+.days-of-week div {
+  padding-bottom: 0.75rem;
+  font-weight: 500;
+  color: var(--color-text-light);
+  font-size: 0.875rem; /* 14px */
+  text-align: center;
 }
 
-.day-cell.ovulation-day span {
-  background-color: #a5b4fc; 
-  color: #4338ca;
-  font-weight: bold;
+.calendar-grid {
+  gap: 4px; /* Tạo khoảng trống nhỏ giữa các ô */
 }
+
 .day-cell {
-  background-color: transparent;
+  position: relative;
   border: none;
-  cursor: pointer;
-  position: relative; 
-  padding: 0;
-  border-top: 1px solid #f1f5f9;
+  background-color: transparent;
   font-family: inherit;
-  font-size: 1rem;
-}
-.day-cell:not(.disabled):hover span {
-  background-color: #f1f5f9;
+  font-size: 0.875rem; /* 14px */
+  padding: 0;
+  cursor: pointer;
+  height: 52px;
+  border-radius: 50%;
+  transition: background-color 0.2s;
 }
 
-/* Style cho chấm báo hiệu có triệu chứng */
+.day-cell:not(.disabled):hover {
+  background-color: var(--color-bg-hover);
+}
+
+.day-cell.disabled {
+  color: #d1d5db;
+  cursor: default;
+}
+
+.day-cell.disabled:hover {
+  background-color: transparent;
+}
+
+
+/* --- CÁC TRẠNG THÁI CỦA Ô NGÀY (Phần quan trọng nhất) --- */
+.day-cell.today {
+  border: 2px solid var(--color-primary);
+  font-weight: 700;
+  color: var(--color-primary);
+}
+
+/* Ngày có kinh thực tế */
+.day-cell.period-day {
+  background-color: var(--color-danger-light);
+  color: var(--color-danger);
+  font-weight: 600;
+}
+
+/* Ngày rụng trứng */
+.day-cell.ovulation-day {
+  background-color: var(--color-primary-light);
+  color: var(--color-primary);
+  font-weight: 700;
+  /* Thêm viền để nổi bật hơn */
+  border: 2px solid var(--color-primary);
+}
+
+/* 
+  Ngày kinh dự đoán: Dùng nền sọc để phân biệt rõ ràng 
+  Đây là một cải tiến lớn về UX (Trải nghiệm người dùng)
+*/
+.day-cell.predicted-day {
+  background-image: repeating-linear-gradient(
+    -45deg,
+    transparent,
+    transparent 5px,
+    #fdecec 5px,
+    #fdecec 10px
+  );
+  color: var(--color-danger);
+}
+
+/* --- INDICATORS: Chấm & Nhãn --- */
 .symptom-dot {
   position: absolute;
-  bottom: 8px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 5px;
-  height: 5px;
-  background-color: #3b82f6;
+  top: 6px; /* Đẩy lên trên */
+  right: 6px; /* Đẩy qua phải */
+  width: 6px;
+  height: 6px;
+  background-color: var(--color-primary);
   border-radius: 50%;
+  border: 1px solid white; /* Thêm viền trắng để nổi bật trên nền màu */
 }
 
-/* Style cho chú thích mới */
-.legend-dot {
-  display: inline-block;
-  width: 5px;
-  height: 5px;
-  background-color: #3b82f6;
-  border-radius: 50%;
-  margin-right: 10px;
-  align-self: center; /* Căn giữa theo chiều dọc */
-  vertical-align: middle;
-  margin-left: 7.5px; /* Căn giữa trong không gian 20px */
+.period-label {
+  position: absolute;
+  bottom: 4px;
+  left: 0;
+  right: 0;
+  font-size: 0.65rem; /* 10.4px */
+  font-weight: 500;
+  text-align: center;
+  pointer-events: none;
+  /* Màu chữ của label sẽ giống màu chữ của ô */
+  color: inherit;
+  opacity: 0.8;
 }
