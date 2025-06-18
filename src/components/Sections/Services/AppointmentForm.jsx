@@ -1,11 +1,11 @@
 import React, { useState } from "react";
 import "./AppointmentForm.css";
 import BookingForm from "./BookingForm";
-import { Link, useLocation } from "react-router-dom";
+import { Link } from "react-router-dom";
 import ServiceList from "../../Sections/Services/ServicesCart/ServiceList";
+import DoctorList from "./DoctorList/DoctorList";
 
 const AppointmentForm = () => {
-  const location = useLocation();
   const [activeTab, setActiveTab] = useState("intro");
   const [expandedFaq, setExpandedFaq] = useState(null);
 
@@ -84,14 +84,12 @@ const AppointmentForm = () => {
               >
                 Dịch vụ (4)
               </span>
-              <Link
-                to="./DoctorList"
-                className={`nav-tab ${
-                  location.pathname === "/doctors" ? "active" : ""
-                }`}
+              <span
+                className={`nav-tab ${activeTab === "doctors" ? "active" : ""}`}
+                onClick={() => setActiveTab("doctors")}
               >
                 Bác sĩ (30)
-              </Link>
+              </span>
               <span className="nav-tab">Đánh giá (4)</span>
             </div>
           </div>
@@ -281,6 +279,15 @@ const AppointmentForm = () => {
                     <span>Danh sách dịch vụ</span>
                   </h2>
                   <ServiceList />
+                </div>
+              )}
+              {activeTab === "doctors" && (
+                <div className="content-section">
+                  <h2 className="section-title">
+                    <span className="icon">👨‍⚕️</span>
+                    <span>Danh sách bác sĩ</span>
+                  </h2>
+                  <DoctorList />
                 </div>
               )}
             </div>
