@@ -1,0 +1,53 @@
+/* Consultant.css - Basic styling for the Consultant Dashboard */
+.consultant-layout {
+  min-height: 100vh;
+}
+
+.consultant-header {
+  background-color: #001529; /* Dark background for header */
+  color: white;
+  padding: 0 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.consultant-content {
+  padding: 24px;
+  margin: 0;
+  background-color: #f0f2f5; /* Light background for content area */
+}
+
+.consultant-content .ant-tabs-nav {
+  margin-bottom: 24px;
+}
+
+.consultant-content .ant-card {
+  margin-bottom: 24px;
+}
+
+/* Ant Design overrides for consistent styling with the Staff dashboard */
+.ant-layout-header {
+  padding: 0 20px;
+}
+
+.ant-layout-sider {
+  background: #fff;
+}
+
+.ant-layout-content {
+  margin: 24px 16px;
+  padding: 24px;
+  min-height: 280px;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .consultant-content {
+    padding: 16px;
+  }
+
+  .ant-card {
+    margin-bottom: 12px;
+  }
+} 

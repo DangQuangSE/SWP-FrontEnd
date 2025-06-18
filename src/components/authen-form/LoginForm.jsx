@@ -43,6 +43,8 @@ const LoginForm = ({ onClose }) => {
         navigate("/dashboard");
       } else if (user.user.role === "STAFF") {
         navigate("/staff");
+      } else if (user.user.role === "CONSULTANT") {
+        navigate("/consultant");
       } else {
         navigate("/error");
       }

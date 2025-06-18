@@ -20,9 +20,14 @@ import Medicalnew from "./components/Sections/Articles/pages/Medicalnew";
 import Servicevnew from "./components/Sections/Articles/pages/Servicenew";
 import Generalnew from "./components/Sections/Articles/pages/Generalnew";
 import CycleTracker from "./components/Sections/Services/CycleTracker/CycleTracker";
-import DoctorList from "./components/Sections/Services/DoctorList/DoctorList";
+import Doctor from "./components/Sections/Services/DoctorList/DoctorList";
 import Loading from "./components/Loading/Loading";
-import { useEffect, useState } from "react
+import { useEffect, useState } from "react";
+import Staff from "./Role/Staff";
+import Consultant from "./Role/Consultant";
+import Admin from "./Role/Admin";
+import Profile from './pages/Profile';
+import Settings from './pages/Settings';
 
 function App() {
   const [rehydrated, setRehydrated] = useState(false);
@@ -58,8 +63,8 @@ function App() {
                 path="/services/DoctorList"
                 element={
                   <>
-                    {console.log("Rendering DoctorList route")}
-                    <DoctorList />
+                    {console.log("Rendering Doctor route")}
+                    <Doctor />
                   </>
                 }
               />
@@ -71,6 +76,10 @@ function App() {
               <Route path="/tin-dich-vu" element={<Servicevnew />} />
               <Route path="/y-hoc-thuong-thuc" element={<Generalnew />} />
               <Route path="/staff" element={<Staff />} />
+              <Route path="/consultant" element={<Consultant />} />
+              <Route path="/admin" element={<Admin />} />
+              <Route path="/profile" element={<Profile />} />
+              <Route path="/settings" element={<Settings />} />
             </Routes>
           </main>
           <Footer />

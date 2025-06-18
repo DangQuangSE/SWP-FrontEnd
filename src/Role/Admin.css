@@ -1,0 +1,73 @@
+.ant-layout-header {
+  padding: 0 20px;
+}
+
+.ant-layout-sider {
+  background: #fff;
+}
+
+.ant-layout-content {
+  margin: 24px 16px;
+  padding: 24px;
+  min-height: 280px;
+}
+
+/* Card styles */
+.ant-card {
+  margin-bottom: 16px;
+}
+
+.ant-card-head {
+  border-bottom: 1px solid #f0f0f0;
+}
+
+/* Table styles */
+.ant-table-wrapper {
+  background: white;
+  border-radius: 8px;
+}
+
+/* List styles */
+.ant-list-item {
+  padding: 16px;
+}
+
+/* Tag styles */
+.ant-tag {
+  margin-right: 8px;
+}
+
+/* Button styles */
+.ant-btn {
+  margin-right: 8px;
+}
+
+/* Form styles */
+.ant-form-item {
+  margin-bottom: 16px;
+}
+
+/* Modal styles */
+.ant-modal-content {
+  border-radius: 8px;
+}
+
+/* Tabs styles */
+.ant-tabs-nav {
+  margin-bottom: 16px;
+}
+
+.ant-tabs-tab {
+  padding: 12px 16px;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .ant-card {
+    margin-bottom: 12px;
+  }
+  
+  .ant-list-item {
+    padding: 12px;
+  }
+} 

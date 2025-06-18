@@ -77,20 +77,18 @@
   }
 }
 
-.staff-layout {
-  min-height: 100vh;
+.ant-layout-header {
+  padding: 0 20px;
 }
 
-.staff-header {
-  background: #001529;
-  padding: 0 24px;
-  display: flex;
-  align-items: center;
+.ant-layout-sider {
+  background: #fff;
 }
 
-.staff-content {
+.ant-layout-content {
+  margin: 24px 16px;
   padding: 24px;
-  background: #f0f2f5;
+  min-height: 280px;
 }
 
 /* Card styles */
@@ -144,10 +142,6 @@
 
 /* Responsive adjustments */
 @media (max-width: 768px) {
-  .staff-content {
-    padding: 16px;
-  }
-  
   .ant-card {
     margin-bottom: 12px;
   }

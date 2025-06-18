@@ -1,0 +1,59 @@
+.profile-page__container {
+  max-width: 800px;
+  margin: 2rem auto;
+  padding: 0 1rem;
+}
+
+.profile-page__card {
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.profile-page__header {
+  text-align: center;
+  margin-bottom: 2rem;
+  padding: 2rem 0;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.profile-page__header-title {
+  margin-top: 1rem;
+  color: #333;
+  font-size: 1.5rem;
+}
+
+.profile-page__avatar-upload {
+  text-align: center;
+  padding: 2rem 0;
+}
+
+.profile-page__upload-hint {
+  margin-top: 1rem;
+  color: #666;
+  font-size: 0.9rem;
+}
+
+.profile-page__tabs .ant-tabs-nav {
+  margin-bottom: 2rem;
+}
+
+.profile-page__form-label .ant-form-item-label {
+  font-weight: 500;
+}
+
+.profile-page__input-affix .ant-input-affix-wrapper {
+  border-radius: 6px;
+}
+
+.profile-page__btn .ant-btn {
+  border-radius: 6px;
+  height: 40px;
+}
+
+.profile-page__upload .ant-upload {
+  width: 100%;
+}
+
+.profile-page__upload .ant-upload .ant-btn {
+  width: 200px;
+} 
