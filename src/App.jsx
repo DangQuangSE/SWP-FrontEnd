@@ -29,6 +29,7 @@ import Generalnew from "./components/Sections/Articles/pages/Generalnew";
 import UserProfile from "./components/features/userprofile";
 import Loading from "./components/Loading/Loading";
 import Staff from "./Role/Staff";
+import BookingForm from "./components/Sections/Services/BookingForm";
 
 function App() {
   const [rehydrated, setRehydrated] = useState(false);
@@ -70,6 +71,7 @@ function App() {
               <Route path="/y-hoc-thuong-thuc" element={<Generalnew />} />
               <Route path="/user/profile" element={<UserProfile />} />
               <Route path="/staff" element={<Staff />} />{" "}
+              <Route path="/booking" element={<BookingForm />} />
             </Routes>
           </main>
           <Footer />

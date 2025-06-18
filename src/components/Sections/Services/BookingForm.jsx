@@ -1,12 +1,15 @@
+// BookingForm.jsx
 import React, { useEffect, useMemo, useState } from "react";
 import {
   Card,
-  Select,
   Button,
   Typography,
   Tabs,
   DatePicker,
   ConfigProvider,
+  Input,
+  message,
+  Space,
 } from "antd";
 import {
   EnvironmentOutlined,
@@ -14,60 +17,50 @@ import {
   RightOutlined,
 } from "@ant-design/icons";
 import dayjs from "dayjs";
+import "dayjs/locale/vi";
+import locale from "antd/es/date-picker/locale/vi_VN";
 import axios from "axios";
+import { useSearchParams } from "react-router-dom";
 import "./BookingForm.css";
 import GradientButton from "../../common/GradientButton";
 
 const { Title, Text } = Typography;
 const { TabPane } = Tabs;
-const { RangePicker } = DatePicker;
+const { TextArea } = Input;
 
 const BookingForm = () => {
-  const [services, setServices] = useState([]);
-  const [selectedService, setSelectedService] = useState();
-  const [dateRange, setDateRange] = useState([
-    dayjs().startOf("day"),
-    dayjs().add(30, "day"),
-  ]);
+  const [searchParams] = useSearchParams();
+  const defaultServiceId = searchParams.get("service_id");
+
+  const [serviceDetail, setServiceDetail] = useState(null);
+  const [dateRange, setDateRange] = useState([dayjs(), dayjs().add(30, "day")]);
   const [scheduleData, setScheduleData] = useState([]);
   const [selectedDay, setSelectedDay] = useState();
   const [selectedTime, setSelectedTime] = useState();
   const [activeTab, setActiveTab] = useState("morning");
+  const [note, setNote] = useState("");
 
   useEffect(() => {
-    axios
-      .get("/api/service")
-      .then((res) => {
-        const activeServices = res.data.filter((s) => s.isActive);
-        setServices(activeServices);
-      })
-      .catch((err) => console.error("Lỗi khi lấy danh sách dịch vụ:", err));
-  }, []);
-
-  useEffect(() => {
-    if (selectedService && dateRange.length === 2) {
+    if (defaultServiceId) {
       const from = dateRange[0].format("YYYY-MM-DD");
       const to = dateRange[1].format("YYYY-MM-DD");
 
       axios
-        .get("/api/slot-free-service", {
-          params: { service_id: selectedService, from, to },
+        .get("/api/schedules/slot-free-service", {
+          params: { service_id: defaultServiceId, from, to },
         })
         .then((res) => {
-          console.log("\ud83d\udce6 Raw scheduleData response:", res.data);
           const parsed =
             typeof res.data === "string" ? JSON.parse(res.data) : res.data;
-          const schedules = Array.isArray(parsed.scheduleResponses)
-            ? parsed.scheduleResponses
-            : [];
-          setScheduleData(schedules);
+          setServiceDetail(parsed.serviceDTO);
+          setScheduleData(parsed.scheduleResponses || []);
         })
         .catch((err) => {
           console.error("Lỗi khi gọi slot-free-service:", err);
           setScheduleData([]);
         });
     }
-  }, [selectedService, dateRange]);
+  }, [defaultServiceId, dateRange]);
 
   const displayDays = useMemo(() => {
     if (!Array.isArray(scheduleData)) return [];
@@ -89,7 +82,7 @@ const BookingForm = () => {
       const end = dayjs(`${entry.workDate}T${endTime}`);
       while (current.isBefore(end)) {
         const next = current.add(30, "minute");
-        slots.push(`${current.format("HH:mm")} - ${next.format("HH:mm")}`);
+        slots.push(`${current.format("HH:mm")}`);
         current = next;
       }
     });
@@ -97,32 +90,40 @@ const BookingForm = () => {
   };
 
   const handleBooking = () => {
-    if (!selectedService || !selectedDay || !selectedTime) {
-      alert("Vui lòng chọn đủ thông tin!");
+    if (!defaultServiceId || !selectedDay || !selectedTime) {
+      message.warning("Vui lòng chọn đủ thông tin!");
       return;
     }
 
-    const [startTime, endTime] = selectedTime.split(" - ");
+    const [hourStr, minuteStr] = selectedTime.split(":");
+    const hour = parseInt(hourStr, 10);
+    const minute = parseInt(minuteStr, 10);
+
     const payload = {
-      service_id: selectedService,
+      service_id: parseInt(defaultServiceId, 10),
       preferredDate: selectedDay,
-      slot: { startTime, endTime },
-      note: "",
+      slot: {
+        hour,
+        minute,
+        second: 0,
+        nano: 0,
+      },
+      note,
     };
 
     axios
       .post("/api/booking/medicalService", payload)
-      .then(() => alert("\u0110ặt lịch thành công!"))
+      .then(() => message.success("Đặt lịch thành công!"))
       .catch((err) => {
-        console.error("\u0110ặt lịch thất bại:", err);
-        alert("\u0110ặt lịch thất bại!");
+        console.error("Đặt lịch thất bại:", err);
+        message.error("Đặt lịch thất bại!");
       });
   };
 
   return (
     <Card className="appointment-card">
       <div className="appointment-header">
-        <Title level={3}>\u0110ặt lịch hẹn</Title>
+        <Title level={3}>Đặt lịch hẹn</Title>
         <div className="location-info">
           <EnvironmentOutlined className="location-icon" />
           <Text className="location-text">
@@ -131,52 +132,49 @@ const BookingForm = () => {
         </div>
       </div>
 
+      {serviceDetail && (
+        <div className="service-info-section">
+          <Title level={4}>{serviceDetail.name}</Title>
+          <Text>{serviceDetail.description}</Text>
+          <p>
+            Giá: {serviceDetail.price?.toLocaleString()} đ – Thời lượng:{" "}
+            {serviceDetail.duration} phút
+          </p>
+        </div>
+      )}
+
       <div className="form-section">
-        <Text strong>Chọn dịch vụ</Text>
-        <Select
-          className="full-width-select"
-          style={{ width: "100%" }}
-          placeholder="Chọn dịch vụ"
-          value={selectedService}
-          onChange={(value) => {
-            setSelectedService(value);
-            setScheduleData([]);
-            setSelectedDay(undefined);
-            setSelectedTime(undefined);
-          }}
-          size="large"
-        >
-          {services.map((s) => (
-            <Select.Option key={s.id} value={s.id}>
-              {s.name} – {s.price?.toLocaleString()} đ
-            </Select.Option>
-          ))}
-        </Select>
+        <Text strong style={{ marginTop: 16, display: "block" }}>
+          Ghi chú (nếu có)
+        </Text>
+        <TextArea
+          rows={2}
+          placeholder="Mô tả triệu chứng, yêu cầu đặc biệt..."
+          value={note}
+          onChange={(e) => setNote(e.target.value)}
+        />
 
         <Text strong style={{ marginTop: 16, display: "block" }}>
           Khoảng thời gian (tối đa 1 tháng)
         </Text>
-        <ConfigProvider>
-          <RangePicker
-            value={dateRange}
-            onChange={(dates) => {
-              if (!dates || dates.length !== 2) return;
-              const [start, end] = dates;
+        <ConfigProvider locale={locale}>
+          <DatePicker
+            picker="date"
+            value={dateRange[0]}
+            onChange={(date) => {
               const today = dayjs().startOf("day");
               const max = today.add(30, "day");
-              if (start.isBefore(today) || end.isAfter(max)) {
-                alert("Chỉ được chọn trong 1 tháng!");
+              if (!date || date.isBefore(today) || date.isAfter(max)) {
+                message.warning("Chỉ được chọn trong 1 tháng!");
                 return;
               }
-              setDateRange(dates);
+              const newRange = [date.startOf("day"), date.add(30, "day")];
+              setDateRange(newRange);
             }}
-            disabledDate={(current) => {
-              const today = dayjs().startOf("day");
-              return current < today || current > today.add(30, "day");
-            }}
-            format="DD [thg] MM, YYYY"
+            format="DD [thg] M, YYYY"
             size="large"
             className="date-range-picker"
+            allowClear={false}
           />
         </ConfigProvider>
       </div>
