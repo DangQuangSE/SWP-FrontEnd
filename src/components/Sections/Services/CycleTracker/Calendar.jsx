@@ -1,5 +1,3 @@
-// Calendar.jsx
-
 import React, { useState } from "react";
 import {
   format,
@@ -54,9 +52,6 @@ const Calendar = ({ predictions, logs, onDayClick }) => {
           const hasSymptoms = logs[dateKey]?.symptoms?.length > 0;
 
           if (predictions) {
-            // === THAY ĐỔI LOGIC TẠI ĐÂY ===
-            // Chỉ cần kiểm tra xem ngày này có trong danh sách periodDays mà CycleTracker gửi xuống không.
-            // Sử dụng optional chaining (?.) để tránh lỗi khi predictions hoặc periodDays chưa tồn tại.
             if (predictions?.periodDays?.some((pd) => isSameDay(day, pd))) {
               cellClass += " period-day";
             }

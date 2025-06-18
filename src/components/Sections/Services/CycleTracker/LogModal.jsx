@@ -1,5 +1,3 @@
-// LogModal.jsx - PHIÊN BẢN HOÀN CHỈNH
-
 import React, { useState, useEffect } from 'react';
 import { format } from 'date-fns';
 import { vi } from 'date-fns/locale';
@@ -14,16 +12,11 @@ const LogModal = ({ date, existingLog, onSave, onClose, periodDayNumber }) => {
 
   // THAY ĐỔI 2: Cập nhật logic khởi tạo state
   // `isPeriodStart` sẽ được check nếu cha (CycleTracker) nói rằng đây là một ngày kinh (`periodDayNumber > 0`)
-  // HOẶC nếu nó đã được lưu là ngày bắt đầu từ trước (`existingLog?.isPeriodStart`).
+  // HOẶC nếu nó đã được lưu là ngày bắt đầu từ trước.
   const [isPeriodStart, setIsPeriodStart] = useState(
     !!(existingLog?.isPeriodStart || periodDayNumber)
   );
-  
-  // Khởi tạo state cho triệu chứng một cách ngắn gọn
   const [selectedSymptoms, setSelectedSymptoms] = useState(existingLog?.symptoms || []);
-
-  // `useEffect` không còn cần thiết nữa vì chúng ta đã khởi tạo state ở trên.
-
   if (!date) return null;
 
   const handleSymptomChange = (symptom) => {
@@ -35,15 +28,12 @@ const LogModal = ({ date, existingLog, onSave, onClose, periodDayNumber }) => {
   };
 
   const handleSave = () => {
-    // Chúng ta chỉ lưu isPeriodStart = true nếu đây là lần đầu người dùng đánh dấu.
-    // Nếu đây đã là ngày kinh thứ 2, 3... thì không cần lưu lại isPeriodStart.
     const shouldMarkAsStart = isPeriodStart && !periodDayNumber;
     onSave(date, { isPeriodStart: shouldMarkAsStart, symptoms: selectedSymptoms });
     onClose();
   };
 
   // THAY ĐỔI 3: Logic hiển thị số ngày kinh
-  // Nếu cha gửi xuống `periodDayNumber`, hãy dùng nó.
   // Nếu không (người dùng vừa tick mới), mặc định hiển thị là 1.
   const displayPeriodDay = periodDayNumber || 1;
 

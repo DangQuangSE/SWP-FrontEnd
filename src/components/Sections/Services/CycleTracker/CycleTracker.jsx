@@ -83,17 +83,14 @@ const CycleTracker = () => {
   // === HÀM XỬ LÝ CLICK QUAN TRỌNG ===
   const handleDayClick = (day) => {
     let periodDayNumber = null;
-    // Luôn kiểm tra trong state 'predictions' đã được tính toán
     if (predictions && predictions.periodDayNumbers) {
       const dateKey = format(day, 'yyyy-MM-dd');
-      // Nếu tìm thấy, lấy số thứ tự. Nếu không, nó sẽ là null.
       periodDayNumber = predictions.periodDayNumbers[dateKey] || null;
     }
 
     setModalInfo({ 
       isOpen: true, 
       date: day,
-      // Gửi giá trị đã tính được (có thể là số hoặc null)
       periodDayNumber: periodDayNumber 
     });
   };
@@ -105,8 +102,6 @@ const CycleTracker = () => {
     setUserData(prevData => {
       const newLogs = { ...prevData.logs, [dateKey]: logData };
       let newPeriodHistory = [...prevData.periodHistory];
-
-      // Chỉ thêm vào history nếu isPeriodStart là true
       if (logData.isPeriodStart) {
         if (!newPeriodHistory.some(d => isSameDay(d, date))) {
           newPeriodHistory.push(date);
@@ -126,8 +121,6 @@ const CycleTracker = () => {
   
   const renderNotifications = () => {
     if (!predictions) return null;
-
-    // THÊM MỚI: Thông báo sắp đến ngày rụng trứng
     if (isSameDay(today, predictions.ovulationNotificationDay)) {
       return (
         <div className="notification-item info">
@@ -158,7 +151,6 @@ const CycleTracker = () => {
       {modalInfo.isOpen && (
         <LogModal
           date={modalInfo.date}
-          // === VÀ TRUYỀN PROPS XUỐNG ĐÂY ===
           periodDayNumber={modalInfo.periodDayNumber} 
           existingLog={userData.logs[format(modalInfo.date, 'yyyy-MM-dd')]}
           onSave={handleSaveLog}

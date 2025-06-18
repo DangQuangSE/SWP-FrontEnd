@@ -1,9 +1,3 @@
-/* Calendar.css - PHIÊN BẢN NÂNG CẤP */
-
-/* 
-  --- CÀI ĐẶT CHUNG & BIẾN MÀU SẮC --- 
-  Sử dụng biến giúp dễ dàng thay đổi toàn bộ giao diện sau này.
-*/
 :root {
   --font-family-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
   --color-primary: #4f46e5;      /* Màu chính (Hôm nay, Triệu chứng) */
@@ -20,14 +14,12 @@
   font-family: var(--font-family-sans);
   background: white;
   border: 1px solid var(--color-border);
-  border-radius: 1rem; /* Bo góc nhiều hơn cho mềm mại */
+  border-radius: 1rem; 
   padding: 1.5rem;
   box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.07), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-  max-width: 450px; /* Giới hạn chiều rộng để trông đẹp hơn */
-  margin: 2rem auto; /* Căn giữa toàn bộ lịch */
+  max-width: 500px; 
+  margin: 2rem auto; 
 }
-
-/* --- HEADER --- */
 .calendar-header {
   display: flex;
   justify-content: space-between;
@@ -36,7 +28,7 @@
 }
 
 .calendar-header span {
-  font-size: 1.125rem; /* 18px */
+  font-size: 1.125rem; 
   font-weight: 600;
   color: var(--color-text-dark);
   text-transform: capitalize;
@@ -60,8 +52,6 @@
   background-color: var(--color-bg-hover);
   color: var(--color-text-dark);
 }
-
-/* Thêm icon mũi tên cho nút */
 .calendar-header button:first-of-type::before {
   content: '‹';
   font-size: 1.5rem;
@@ -70,8 +60,6 @@
   content: '›';
   font-size: 1.5rem;
 }
-
-/* --- LƯỚI LỊCH & NGÀY TRONG TUẦN --- */
 .days-of-week, .calendar-grid {
   display: grid;
   grid-template-columns: repeat(7, 1fr);
@@ -81,12 +69,12 @@
   padding-bottom: 0.75rem;
   font-weight: 500;
   color: var(--color-text-light);
-  font-size: 0.875rem; /* 14px */
+  font-size: 0.875rem; 
   text-align: center;
 }
 
 .calendar-grid {
-  gap: 4px; /* Tạo khoảng trống nhỏ giữa các ô */
+  gap: 4px; 
 }
 
 .day-cell {
@@ -94,7 +82,7 @@
   border: none;
   background-color: transparent;
   font-family: inherit;
-  font-size: 0.875rem; /* 14px */
+  font-size: 0.875rem; 
   padding: 0;
   cursor: pointer;
   height: 52px;
@@ -114,35 +102,22 @@
 .day-cell.disabled:hover {
   background-color: transparent;
 }
-
-
-/* --- CÁC TRẠNG THÁI CỦA Ô NGÀY (Phần quan trọng nhất) --- */
 .day-cell.today {
   border: 2px solid var(--color-primary);
   font-weight: 700;
   color: var(--color-primary);
 }
-
-/* Ngày có kinh thực tế */
 .day-cell.period-day {
   background-color: var(--color-danger-light);
   color: var(--color-danger);
   font-weight: 600;
 }
-
-/* Ngày rụng trứng */
 .day-cell.ovulation-day {
   background-color: var(--color-primary-light);
   color: var(--color-primary);
   font-weight: 700;
-  /* Thêm viền để nổi bật hơn */
   border: 2px solid var(--color-primary);
 }
-
-/* 
-  Ngày kinh dự đoán: Dùng nền sọc để phân biệt rõ ràng 
-  Đây là một cải tiến lớn về UX (Trải nghiệm người dùng)
-*/
 .day-cell.predicted-day {
   background-image: repeating-linear-gradient(
     -45deg,
@@ -153,17 +128,15 @@
   );
   color: var(--color-danger);
 }
-
-/* --- INDICATORS: Chấm & Nhãn --- */
 .symptom-dot {
   position: absolute;
-  top: 6px; /* Đẩy lên trên */
-  right: 6px; /* Đẩy qua phải */
+  top: 6px;
+  right: 6px; 
   width: 6px;
   height: 6px;
   background-color: var(--color-primary);
   border-radius: 50%;
-  border: 1px solid white; /* Thêm viền trắng để nổi bật trên nền màu */
+  border: 1px solid white; 
 }
 
 .period-label {
@@ -171,11 +144,10 @@
   bottom: 4px;
   left: 0;
   right: 0;
-  font-size: 0.65rem; /* 10.4px */
+  font-size: 0.65rem; 
   font-weight: 500;
   text-align: center;
   pointer-events: none;
-  /* Màu chữ của label sẽ giống màu chữ của ô */
   color: inherit;
   opacity: 0.8;
 }
