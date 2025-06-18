@@ -2,64 +2,60 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import "./ServiceList.css";
 
-const mockService = {
-  id: 999,
-  name: "Gói khám Tầm soát Ung thư Vú 01",
-  description:
-    "Kiểm tra sức khỏe tầm soát ung thư vú với các xét nghiệm chuyên sâu",
-  discountPercent: 0.1,
-  subServices: [
-    { id: 101, name: "Siêu âm vú", price: 300000 },
-    { id: 102, name: "Xét nghiệm CA 15-3", price: 600000 },
-  ],
-};
-
 const ServiceList = () => {
   const [services, setServices] = useState([]);
 
   useEffect(() => {
     axios
-      .get("/api/service/comboService")
+      .get("/api/service")
       .then((res) => {
-        console.log("Dữ liệu combo service:", res.data);
-        if (Array.isArray(res.data) && res.data.length > 0) {
-          setServices(res.data);
-        } else {
-          setServices([mockService]); // fallback mock
-        }
+        setServices(res.data);
       })
       .catch((err) => {
-        console.error("Lỗi khi tải combo service:", err);
-        setServices([mockService]); // fallback nếu lỗi API
+        console.error("Lỗi khi tải service:", err);
+        setServices([]);
       });
   }, []);
 
   return (
     <div className="service-list-wrapper">
-      {services.map((combo) => {
-        const total = combo.subServices?.reduce(
-          (sum, s) => sum + (s.price || 0),
-          0
-        );
-        const discount = combo.discountPercent || 0;
-        const finalPrice = total * (1 - discount);
+      {services.map((service) => {
+        const isCombo = service.isCombo === true;
+        const discount = service.discountPercent || 0;
+        let totalPrice = service.price || 0;
+
+        if (isCombo && Array.isArray(service.subServices)) {
+          totalPrice = service.subServices.reduce(
+            (sum, s) => sum + (s.price || 0),
+            0
+          );
+        }
+
+        const finalPrice = totalPrice * (1 - discount);
 
         return (
-          <div key={combo.id} className="service-card">
-            <h3>{combo.name}</h3>
-            <p>{combo.description}</p>
+          <div key={service.id} className="service-card">
+            <h3>{service.name}</h3>
+            <p>{service.description}</p>
 
-            <ul>
-              {combo.subServices?.map((s) => (
-                <li key={s.id}>
-                  {s.name} – {s.price?.toLocaleString()} đ
-                </li>
-              ))}
-            </ul>
+            {isCombo && (
+              <>
+                <p>
+                  <strong>Combo gồm:</strong>
+                </p>
+                <ul>
+                  {service.subServices?.map((s) => (
+                    <li key={s.id}>
+                      {s.name} – {s.price?.toLocaleString()} đ
+                    </li>
+                  ))}
+                </ul>
+              </>
+            )}
 
             <p>
               <strong>Giá sau giảm:</strong>{" "}
-              <span style={{ color: "green", fontWeight: 600 }}>
+              <span className="price-highlight">
                 {finalPrice?.toLocaleString()} đ
               </span>
             </p>

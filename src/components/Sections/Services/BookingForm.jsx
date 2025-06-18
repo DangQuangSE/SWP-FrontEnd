@@ -22,181 +22,133 @@ const { Title, Text } = Typography;
 const { TabPane } = Tabs;
 const { RangePicker } = DatePicker;
 
-const specialties = [
-  { id: 1, name: "Sản - Phụ khoa" },
-  { id: 2, name: "Nam khoa" },
-  { id: 3, name: "Da liễu" },
-  { id: 4, name: "Nội tiết" },
-  { id: 5, name: "Tư vấn giới tính & sinh sản" },
-  { id: 6, name: "Xét nghiệm STIs" },
-  { id: 7, name: "Tiết niệu" },
-  { id: 8, name: "Tâm lý học lâm sàng" },
-];
-
-const doctors = {
-  1: [
-    { id: 1, name: "BS. Nguyễn Văn A" },
-    { id: 2, name: "BS. Trần Thị B" },
-  ],
-  2: [
-    { id: 3, name: "BS. Lê Văn C" },
-    { id: 4, name: "BS. Phạm Thị D" },
-  ],
-};
-
 const BookingForm = () => {
+  const [services, setServices] = useState([]);
+  const [selectedService, setSelectedService] = useState();
   const [dateRange, setDateRange] = useState([
     dayjs().startOf("day"),
     dayjs().add(30, "day"),
   ]);
-  const [specialty, setSpecialty] = useState();
-  const [doctor, setDoctor] = useState();
   const [scheduleData, setScheduleData] = useState([]);
   const [selectedDay, setSelectedDay] = useState();
   const [selectedTime, setSelectedTime] = useState();
   const [activeTab, setActiveTab] = useState("morning");
 
   useEffect(() => {
-    if (doctor && dateRange.length === 2) {
+    axios
+      .get("/api/service")
+      .then((res) => {
+        const activeServices = res.data.filter((s) => s.isActive);
+        setServices(activeServices);
+      })
+      .catch((err) => console.error("Lỗi khi lấy danh sách dịch vụ:", err));
+  }, []);
+
+  useEffect(() => {
+    if (selectedService && dateRange.length === 2) {
       const from = dateRange[0].format("YYYY-MM-DD");
       const to = dateRange[1].format("YYYY-MM-DD");
 
-      console.log(" Đang gọi API với:");
-      console.log(" consultant_id:", doctor);
-      console.log(" from:", from);
-      console.log(" to:", to);
-
       axios
-        .get("http://14.225.198.16:8085/api/view-schedule", {
-          params: {
-            consultant_id: doctor,
-            from,
-            to,
-          },
+        .get("/api/slot-free-service", {
+          params: { service_id: selectedService, from, to },
         })
         .then((res) => {
-          console.log("📦 Raw API response:", res);
-
-          const raw = res.data;
-          if (typeof raw === "string" && raw.startsWith("<!DOCTYPE html")) {
-            console.error(
-              " API trả về HTML (không phải JSON) → sai URL hoặc backend chưa chạy."
-            );
-            setScheduleData([]);
-            return;
-          }
-
-          try {
-            const parsed = typeof raw === "string" ? JSON.parse(raw) : raw;
-            console.log(" Parsed JSON:", parsed);
-
-            if (Array.isArray(parsed)) {
-              console.log(` Có ${parsed.length} lịch làm việc.`);
-              setScheduleData(parsed);
-            } else {
-              console.warn(" API trả về không phải mảng:", parsed);
-              setScheduleData([]);
-            }
-          } catch (err) {
-            console.error(" Lỗi parse JSON từ phản hồi API:", err);
-            setScheduleData([]);
-          }
+          console.log("\ud83d\udce6 Raw scheduleData response:", res.data);
+          const parsed =
+            typeof res.data === "string" ? JSON.parse(res.data) : res.data;
+          const schedules = Array.isArray(parsed.scheduleResponses)
+            ? parsed.scheduleResponses
+            : [];
+          setScheduleData(schedules);
         })
         .catch((err) => {
-          console.error(" Lỗi khi gọi API:", err);
+          console.error("Lỗi khi gọi slot-free-service:", err);
           setScheduleData([]);
         });
     }
-  }, [doctor, dateRange]);
+  }, [selectedService, dateRange]);
 
   const displayDays = useMemo(() => {
+    if (!Array.isArray(scheduleData)) return [];
     return scheduleData.map((s) => ({
       date: s.workDate,
       day: dayjs(s.workDate).format("dd"),
       dayNum: dayjs(s.workDate).format("D/M"),
-      available: s.timeSlotDTOs && s.timeSlotDTOs.length > 0,
+      available: s.timeSlotDTOs?.length > 0,
     }));
   }, [scheduleData]);
 
   const getTimeSlotsForDay = (date) => {
     const entry = scheduleData.find((s) => s.workDate === date);
-    if (!entry || !entry.timeSlotDTOs || entry.timeSlotDTOs.length === 0)
-      return [];
+    if (!entry || !entry.timeSlotDTOs) return [];
 
     const slots = [];
-
     entry.timeSlotDTOs.forEach(({ startTime, endTime }) => {
       let current = dayjs(`${entry.workDate}T${startTime}`);
       const end = dayjs(`${entry.workDate}T${endTime}`);
-
       while (current.isBefore(end)) {
         const next = current.add(30, "minute");
         slots.push(`${current.format("HH:mm")} - ${next.format("HH:mm")}`);
         current = next;
       }
     });
-
     return slots;
   };
 
-  const getDoctorsBySpecialty = (id) => (id ? doctors[id] || [] : []);
+  const handleBooking = () => {
+    if (!selectedService || !selectedDay || !selectedTime) {
+      alert("Vui lòng chọn đủ thông tin!");
+      return;
+    }
+
+    const [startTime, endTime] = selectedTime.split(" - ");
+    const payload = {
+      service_id: selectedService,
+      preferredDate: selectedDay,
+      slot: { startTime, endTime },
+      note: "",
+    };
+
+    axios
+      .post("/api/booking/medicalService", payload)
+      .then(() => alert("\u0110ặt lịch thành công!"))
+      .catch((err) => {
+        console.error("\u0110ặt lịch thất bại:", err);
+        alert("\u0110ặt lịch thất bại!");
+      });
+  };
 
   return (
     <Card className="appointment-card">
       <div className="appointment-header">
-        <Title level={3}>Đặt lịch hẹn</Title>
+        <Title level={3}>\u0110ặt lịch hẹn</Title>
         <div className="location-info">
           <EnvironmentOutlined className="location-icon" />
           <Text className="location-text">
-            Đồng 22/12, TP Thuận An, Tỉnh Bình Dương
+            Đồng 22/12, TP Thuận An, Bình Dương
           </Text>
         </div>
       </div>
 
       <div className="form-section">
-        <Text strong>Chuyên khoa</Text>
-        <div style={{ width: "100%" }}>
-          <div className="select-container">
-            <Select
-              className="full-width-select"
-              style={{ width: "100%" }}
-              placeholder="Chọn chuyên khoa"
-              value={specialty}
-              onChange={(value) => {
-                setSpecialty(value);
-                setDoctor(undefined);
-                setScheduleData([]);
-              }}
-              size="large"
-            >
-              {specialties.map((s) => (
-                <Select.Option key={s.id} value={s.id}>
-                  {s.name}
-                </Select.Option>
-              ))}
-            </Select>
-          </div>
-        </div>
-
-        <Text strong style={{ marginTop: 16, display: "block" }}>
-          Bác sĩ
-        </Text>
+        <Text strong>Chọn dịch vụ</Text>
         <Select
-          placeholder={
-            specialty ? "Chọn bác sĩ" : "Vui lòng chọn chuyên khoa trước"
-          }
           className="full-width-select"
-          disabled={!specialty}
-          value={doctor}
-          onChange={(id) => {
-            setDoctor(id);
+          style={{ width: "100%" }}
+          placeholder="Chọn dịch vụ"
+          value={selectedService}
+          onChange={(value) => {
+            setSelectedService(value);
+            setScheduleData([]);
             setSelectedDay(undefined);
+            setSelectedTime(undefined);
           }}
           size="large"
         >
-          {getDoctorsBySpecialty(specialty).map((doc) => (
-            <Select.Option key={doc.id} value={doc.id}>
-              {doc.name}
+          {services.map((s) => (
+            <Select.Option key={s.id} value={s.id}>
+              {s.name} – {s.price?.toLocaleString()} đ
             </Select.Option>
           ))}
         </Select>
@@ -204,15 +156,7 @@ const BookingForm = () => {
         <Text strong style={{ marginTop: 16, display: "block" }}>
           Khoảng thời gian (tối đa 1 tháng)
         </Text>
-        <ConfigProvider
-          theme={{
-            components: {
-              DatePicker: {
-                panelWidth: 300,
-              },
-            },
-          }}
-        >
+        <ConfigProvider>
           <RangePicker
             value={dateRange}
             onChange={(dates) => {
@@ -221,7 +165,7 @@ const BookingForm = () => {
               const today = dayjs().startOf("day");
               const max = today.add(30, "day");
               if (start.isBefore(today) || end.isAfter(max)) {
-                alert("Chỉ được chọn trong 1 tháng kể từ hôm nay!");
+                alert("Chỉ được chọn trong 1 tháng!");
                 return;
               }
               setDateRange(dates);
@@ -233,11 +177,6 @@ const BookingForm = () => {
             format="DD [thg] MM, YYYY"
             size="large"
             className="date-range-picker"
-            showTime={false}
-            showToday={false}
-            mode={["date", "date"]}
-            panelRender={(panel) => <div style={{ width: 320 }}>{panel}</div>}
-            picker="date"
           />
         </ConfigProvider>
       </div>
@@ -270,15 +209,13 @@ const BookingForm = () => {
           >
             {(() => {
               const slots = getTimeSlotsForDay(selectedDay);
-              const parts = { morningS: [], afternoon: [], evening: [] };
-
+              const parts = { morning: [], afternoon: [], evening: [] };
               slots.forEach((slot) => {
                 const hour = parseInt(slot.split(":"));
                 if (hour < 12) parts.morning.push(slot);
                 else if (hour < 18) parts.afternoon.push(slot);
                 else parts.evening.push(slot);
               });
-
               return Object.entries(parts).map(([key, list]) => (
                 <TabPane tab={key.toUpperCase()} key={key}>
                   <div className="time-slots-grid">
@@ -301,12 +238,7 @@ const BookingForm = () => {
         )}
       </div>
 
-      <GradientButton
-        type="primary"
-        block
-        size="large"
-        onClick={() => alert("Đặt lịch thành công!")}
-      >
+      <GradientButton type="primary" block size="large" onClick={handleBooking}>
         TIẾP TỤC ĐẶT LỊCH
       </GradientButton>
     </Card>
