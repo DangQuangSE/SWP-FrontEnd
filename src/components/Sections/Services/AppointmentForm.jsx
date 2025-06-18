@@ -280,7 +280,7 @@ const AppointmentForm = () => {
               {activeTab === "services" && (
                 <div className="content-section">
                   <h2 className="section-title">
-                    <span className="icon">🦥</span>
+                    <span className="icon"></span>
                     <span>Danh sách dịch vụ</span>
                   </h2>
                   <ServiceList />
@@ -304,10 +304,6 @@ const AppointmentForm = () => {
                   <FeedbackList />
                 </div>
               )}
-            </div>
-
-            <div className="right-column">
-              <BookingForm />
             </div>
           </div>
         </div>

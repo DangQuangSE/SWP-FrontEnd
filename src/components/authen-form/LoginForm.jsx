@@ -27,7 +27,7 @@ const LoginForm = ({ onClose }) => {
   const handleLogin = async (values) => {
     try {
       setLoading(true);
-      const res = await axios.post("http://14.225.198.16:8085/api/auth/login", {
+      const res = await axios.post("/api/auth/login", {
         email: values.email,
         password: values.password,
       });
@@ -43,6 +43,8 @@ const LoginForm = ({ onClose }) => {
         navigate("/dashboard");
       } else if (user.user.role === "STAFF") {
         navigate("/staff");
+      } else if (user.user.role === "CONSULTANT") {
+        navigate("/consultant");
       } else {
         navigate("/error");
       }
@@ -65,7 +67,7 @@ const LoginForm = ({ onClose }) => {
       const response = await api.post("/auth/facebook", {
         accessToken: res.accessToken,
       });
-      
+
       console.log("Facebook response:", response.data);
 
       if (response.data.user && response.data.jwt) {
