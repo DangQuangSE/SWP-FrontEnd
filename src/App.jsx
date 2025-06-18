@@ -32,9 +32,9 @@ import Loading from "./components/Loading/Loading";
 import Staff from "./Role/Staff";
 import Consultant from "./Role/Consultant";
 import Admin from "./Role/Admin";
-import Profile from './pages/Profile';
-import Settings from './pages/Settings';
-
+import Profile from "./pages/Profile";
+import Settings from "./pages/Settings";
+import UserProfile from "./components/features/userprofile";
 import BookingForm from "./components/Sections/Services/BookingForm";
 import ServiceDetail from "./components/Sections/Services/ServiceDetail/ServiceDetail";
 function App() {
@@ -66,8 +66,7 @@ function App() {
                 }
               />
               <Route path="/services" element={<AppointmentForm />} />
-
-              <Route path="/CycleTracker" element={<CycleTracker/>}/>
+              <Route path="/CycleTracker" element={<CycleTracker />} />
               <Route
                 path="/services/DoctorList"
                 element={
@@ -77,9 +76,7 @@ function App() {
                   </>
                 }
               />
-
               <Route path="/CycleTracking" element={<CycleTracking />} />
-
               <Route path="/appointment" element={<StisTest />} />
               <Route path="/forgot-password" element={<ForgotPasswordOTP />} />
               <Route path="/blog" element={<AllBlog />} />
