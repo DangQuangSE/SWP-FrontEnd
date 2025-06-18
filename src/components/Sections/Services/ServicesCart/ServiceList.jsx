@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import { useNavigate } from "react-router-dom"; // ✅ Thêm để điều hướng
+import { useNavigate } from "react-router-dom";
 import "./ServiceList.css";
 
 const ServiceList = () => {
@@ -84,7 +84,7 @@ const ServiceList = () => {
             {/* ✅ Nút chuyển qua trang booking */}
             <button
               className="booking-button"
-              onClick={() => navigate(`/booking?service_id=${service.id}`)}
+              onClick={() => navigate(`/service-detail/${service.id}`)}
             >
               Đặt Lịch Hẹn
             </button>

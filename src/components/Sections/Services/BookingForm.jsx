@@ -1,4 +1,3 @@
-// BookingForm.jsx
 import React, { useEffect, useMemo, useState } from "react";
 import {
   Card,
@@ -9,7 +8,6 @@ import {
   ConfigProvider,
   Input,
   message,
-  Space,
 } from "antd";
 import {
   EnvironmentOutlined,
@@ -28,11 +26,17 @@ const { Title, Text } = Typography;
 const { TabPane } = Tabs;
 const { TextArea } = Input;
 
-const BookingForm = () => {
-  const [searchParams] = useSearchParams();
-  const defaultServiceId = searchParams.get("service_id");
+const TAB_LABELS = {
+  morning: "Buổi sáng",
+  afternoon: "Buổi chiều",
+  evening: "Buổi tối",
+};
 
-  const [serviceDetail, setServiceDetail] = useState(null);
+const BookingForm = ({ serviceIdProp, serviceDetail: detailProp }) => {
+  const [searchParams] = useSearchParams();
+  const defaultServiceId = serviceIdProp || searchParams.get("service_id");
+
+  const [serviceDetail, setServiceDetail] = useState(detailProp || null);
   const [dateRange, setDateRange] = useState([dayjs(), dayjs().add(30, "day")]);
   const [scheduleData, setScheduleData] = useState([]);
   const [selectedDay, setSelectedDay] = useState();
@@ -60,7 +64,7 @@ const BookingForm = () => {
           setScheduleData([]);
         });
     }
-  }, [defaultServiceId, dateRange]);
+  }, [defaultServiceId, dateRange, detailProp]);
 
   const displayDays = useMemo(() => {
     if (!Array.isArray(scheduleData)) return [];
@@ -171,7 +175,11 @@ const BookingForm = () => {
               const newRange = [date.startOf("day"), date.add(30, "day")];
               setDateRange(newRange);
             }}
-            format="DD [thg] M, YYYY"
+            format={() =>
+              `Từ ${dateRange[0].format(
+                "DD/MM/YYYY"
+              )} đến ${dateRange[1].format("DD/MM/YYYY")}`
+            }
             size="large"
             className="date-range-picker"
             allowClear={false}
@@ -215,7 +223,7 @@ const BookingForm = () => {
                 else parts.evening.push(slot);
               });
               return Object.entries(parts).map(([key, list]) => (
-                <TabPane tab={key.toUpperCase()} key={key}>
+                <TabPane tab={TAB_LABELS[key] || key} key={key}>
                   <div className="time-slots-grid">
                     {list.map((slot) => (
                       <Button

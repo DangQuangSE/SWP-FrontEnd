@@ -1,36 +1,26 @@
-/* Dạng mặc định: grid */
-.service-list-wrapper {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-  gap: 24px;
-}
-
-/* Dạng danh sách dọc */
-.service-list-wrapper.vertical {
+.service-list-wrapper.vertical .service-card {
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: stretch;
+  min-height: 180px;
+  padding: 20px;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  background: #fff;
   gap: 16px;
 }
 
-.service-card {
-  padding: 16px 24px;
-  border: 1px solid #e5e7eb;
-  border-radius: 10px;
-  background: #fff;
+.service-info {
+  flex: 1;
   display: flex;
+  flex-direction: column;
   justify-content: space-between;
-  align-items: center;
 }
 
 .service-card h3 {
-  margin: 0 0 4px;
+  margin: 0 0 6px;
   font-size: 16px;
-}
-
-.service-info {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
 }
 
 .service-card .desc {
@@ -39,14 +29,10 @@
 }
 
 .service-card .price {
-  margin-top: 4px;
   font-size: 14px;
   color: #111;
-}
-
-.price-highlight {
-  color: #10b981;
-  font-weight: 600;
+  font-weight: 500;
+  margin-top: 6px;
 }
 
 .booking-button {
@@ -57,8 +43,7 @@
   border-radius: 6px;
   font-size: 14px;
   cursor: pointer;
-}
-
-.booking-button:hover {
-  background: #1677cc;
+  height: fit-content;
+  align-self: flex-end;
+  margin-top: auto;
 }

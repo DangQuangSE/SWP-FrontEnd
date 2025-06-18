@@ -30,7 +30,7 @@ import UserProfile from "./components/features/userprofile";
 import Loading from "./components/Loading/Loading";
 import Staff from "./Role/Staff";
 import BookingForm from "./components/Sections/Services/BookingForm";
-
+import ServiceDetail from "./components/Sections/Services/ServiceDetail/ServiceDetail";
 function App() {
   const [rehydrated, setRehydrated] = useState(false);
 
@@ -72,6 +72,7 @@ function App() {
               <Route path="/user/profile" element={<UserProfile />} />
               <Route path="/staff" element={<Staff />} />{" "}
               <Route path="/booking" element={<BookingForm />} />
+              <Route path="/service-detail/:id" element={<ServiceDetail />} />
             </Routes>
           </main>
           <Footer />
