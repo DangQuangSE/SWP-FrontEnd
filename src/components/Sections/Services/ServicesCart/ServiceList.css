@@ -1,28 +1,38 @@
-.service-list-wrapper {
+.service-list-wrapper.vertical .service-card {
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: stretch;
+  min-height: 180px;
+  padding: 20px;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  background: #fff;
   gap: 16px;
-  width: 100%;
 }
 
-.service-card {
-  padding: 16px;
-  border: 1px solid #e5e7eb;
-  border-radius: 8px;
-  background: #fff;
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+.service-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
 }
 
 .service-card h3 {
+  margin: 0 0 6px;
   font-size: 16px;
-  margin-bottom: 8px;
-  color: #1f2937;
+}
+
+.service-card .desc {
+  font-size: 14px;
+  color: #555;
 }
 
 .service-card .price {
-  font-weight: 600;
-  color: #10b981;
-  margin-bottom: 12px;
+  font-size: 14px;
+  color: #111;
+  font-weight: 500;
+  margin-top: 6px;
 }
 
 .booking-button {
@@ -31,10 +41,9 @@
   padding: 8px 16px;
   border: none;
   border-radius: 6px;
-  cursor: pointer;
   font-size: 14px;
-}
-
-.booking-button:hover {
-  background: #1677cc;
+  cursor: pointer;
+  height: fit-content;
+  align-self: flex-end;
+  margin-top: auto;
 }

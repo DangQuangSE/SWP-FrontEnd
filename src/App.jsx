@@ -35,6 +35,8 @@ import Admin from "./Role/Admin";
 import Profile from './pages/Profile';
 import Settings from './pages/Settings';
 
+import BookingForm from "./components/Sections/Services/BookingForm";
+import ServiceDetail from "./components/Sections/Services/ServiceDetail/ServiceDetail";
 function App() {
   const [rehydrated, setRehydrated] = useState(false);
 
@@ -90,6 +92,10 @@ function App() {
               <Route path="/admin" element={<Admin />} />
               <Route path="/profile" element={<Profile />} />
               <Route path="/settings" element={<Settings />} />
+              <Route path="/user/profile" element={<UserProfile />} />
+              <Route path="/staff" element={<Staff />} />{" "}
+              <Route path="/booking" element={<BookingForm />} />
+              <Route path="/service-detail/:id" element={<ServiceDetail />} />
             </Routes>
           </main>
           <Footer />

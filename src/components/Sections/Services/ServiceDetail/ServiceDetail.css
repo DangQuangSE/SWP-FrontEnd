@@ -1,0 +1,61 @@
+.service-detail-container {
+  display: flex;
+  gap: 24px;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding: 24px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.service-detail-left {
+  flex: 1.5;
+}
+
+.service-detail-right {
+  flex: 1;
+  max-width: 460px;
+}
+
+.service-title {
+  font-size: 22px;
+  font-weight: bold;
+  margin-bottom: 8px;
+}
+
+.service-price {
+  color: #1abc9c;
+  font-size: 18px;
+  font-weight: 500;
+  margin-bottom: 16px;
+}
+
+.service-description,
+.service-preparation,
+.service-detail-list {
+  margin-bottom: 24px;
+}
+
+.service-description p,
+.service-preparation li,
+.service-detail-list li {
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.service-preparation ul,
+.service-detail-list ul {
+  padding-left: 20px;
+}
+
+@media (max-width: 768px) {
+  .service-detail-container {
+    flex-direction: column;
+    padding: 16px;
+  }
+
+  .service-detail-right {
+    max-width: 100%;
+    width: 100%;
+  }
+}
