@@ -23,11 +23,14 @@ const { TabPane } = Tabs;
 const { RangePicker } = DatePicker;
 
 const specialties = [
-  { id: 1, name: "Nội khoa" },
-  { id: 2, name: "Ngoại khoa" },
-  { id: 3, name: "Nhi khoa" },
-  { id: 4, name: "Da liễu" },
-  { id: 5, name: "Mắt" },
+  { id: 1, name: "Sản - Phụ khoa" },
+  { id: 2, name: "Nam khoa" },
+  { id: 3, name: "Da liễu" },
+  { id: 4, name: "Nội tiết" },
+  { id: 5, name: "Tư vấn giới tính & sinh sản" },
+  { id: 6, name: "Xét nghiệm STIs" },
+  { id: 7, name: "Tiết niệu" },
+  { id: 8, name: "Tâm lý học lâm sàng" },
 ];
 
 const doctors = {
@@ -64,7 +67,7 @@ const BookingForm = () => {
       console.log(" to:", to);
 
       axios
-        .get("http://14.225.198.16:8084/api/view-schedule", {
+        .get("http://14.225.198.16:8085/api/view-schedule", {
           params: {
             consultant_id: doctor,
             from,

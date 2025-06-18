@@ -11,35 +11,29 @@ import {
 
 import { Avatar, Dropdown } from "antd";
 import { logout } from "../../../redux/features/userSlice.js";
-import { useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom"; // ✅ THÊM
 
 const AuthButtons = () => {
   const [open, setOpen] = useState(false);
   const dispatch = useDispatch();
+  const navigate = useNavigate(); // ✅ THÊM
   const user = useSelector((state) => state.user);
-  console.log("User state:", user);
-  console.log(user?.imageUrl);
+
   const onLoginClick = () => {
     setOpen(true);
   };
-  const navigate = useNavigate();
-
   const items = [
     {
       key: "1",
       label: "Thông tin cá nhân",
       icon: <UserOutlined />,
-      onClick: () => {
-        navigate("/profile");
-      }
+      onClick: () => navigate("/user/profile"), // ✅ THÊM điều hướng
     },
     {
       key: "2",
       label: "Cài đặt",
       icon: <SettingOutlined />,
-      onClick: () => {
-        navigate("/settings");
-      }
+      onClick: () => navigate("/user/profile"), // ✅ Gợi ý thêm nếu có
     },
     {
       key: "3",
@@ -61,6 +55,7 @@ const AuthButtons = () => {
         <Dropdown menu={{ items }} trigger={["click"]}>
           <div
             style={{ display: "flex", alignItems: "center", cursor: "pointer" }}
+            onClick={() => navigate("/user/profile")} // ✅ Điều hướng khi click avatar
           >
             <Avatar src={user?.imageUrl} />
             <span style={{ marginLeft: "8px" }}>

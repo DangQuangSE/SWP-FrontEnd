@@ -1,0 +1,450 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+    "Helvetica Neue", Arial, sans-serif;
+  background-color: #f5f5f5;
+}
+
+.up-medical-layout {
+  display: flex;
+  min-height: 100vh;
+  background-color: #ffffff;
+}
+
+.up-sidebar {
+  width: 280px;
+  background-color: #ffffff;
+  border-right: 1px solid #e8e8e8;
+  flex-shrink: 0;
+}
+
+.up-user-profile {
+  padding: 24px 20px;
+  border-bottom: 1px solid #f0f0f0;
+  position: relative;
+}
+
+.up-user-avatar {
+  margin-bottom: 12px;
+}
+
+.up-user-avatar img {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.up-user-info {
+  margin-bottom: 8px;
+}
+
+.up-user-name {
+  font-size: 16px;
+  font-weight: 600;
+  color: #262626;
+  margin-bottom: 4px;
+}
+
+.up-user-handle {
+  font-size: 14px;
+  color: #8c8c8c;
+  margin: 0;
+}
+
+.up-member-badge {
+  position: absolute;
+  top: 24px;
+  right: 20px;
+  background-color: #00b9f2;
+  border-radius: 12px;
+  padding: 4px 8px;
+}
+
+.up-member-text {
+  color: white;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.up-sidebar-menu {
+  padding: 8px 0;
+}
+
+.up-menu-item {
+  height: 48px;
+  padding: 0 20px;
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  position: relative;
+}
+
+.up-menu-item:hover {
+  background-color: #f5f5f5;
+}
+
+.up-menu-item-selected {
+  background-color: #edf6ff !important;
+  border-right: 3px solid #00b9f2;
+}
+
+.up-menu-item-selected .up-menu-label {
+  color: #00b9f2;
+  font-weight: 500;
+}
+
+.up-menu-icon {
+  font-size: 16px;
+  margin-right: 12px;
+  color: #595959;
+  width: 16px;
+  text-align: center;
+}
+
+.up-menu-label {
+  flex: 1;
+  font-size: 14px;
+  color: #262626;
+}
+
+.up-submenu-arrow {
+  font-size: 10px;
+  color: #8c8c8c;
+  margin-left: auto;
+}
+
+.up-heart-icon {
+  color: #ff4d4f !important;
+}
+
+.up-saved-icon {
+  color: #00b9f2 !important;
+}
+
+.up-calendar-icon {
+  color: #00b9f2 !important;
+}
+
+.up-team-icon {
+  color: #722ed1 !important;
+}
+
+.up-help-icon {
+  color: #fa8c16 !important;
+}
+
+.up-logout-icon {
+  color: #00b9f2 !important;
+}
+
+.up-main-layout {
+  flex: 1;
+  background-color: #ffffff;
+  display: flex;
+  justify-content: center;
+  padding: 0 16px;
+}
+
+.up-main-content {
+  width: 100%;
+  max-width: 1000px;
+  padding: 24px;
+  margin: 0 auto;
+}
+
+.up-content-header {
+  margin-bottom: 24px;
+}
+
+.up-page-title {
+  font-size: 24px;
+  font-weight: 600;
+  color: #262626;
+  margin: 0;
+}
+
+.up-booking-tabs {
+  background-color: #ffffff;
+}
+
+.up-tabs-nav {
+  display: flex;
+  border-bottom: 1px solid #f0f0f0;
+  margin-bottom: 32px;
+}
+
+.up-tab-button {
+  background: none;
+  border: none;
+  font-size: 14px;
+  color: #8c8c8c;
+  padding: 12px 0;
+  margin-right: 32px;
+  cursor: pointer;
+  position: relative;
+  transition: color 0.2s ease;
+}
+
+.up-tab-button:hover {
+  color: #00b9f2;
+}
+
+.up-tab-active {
+  color: #00b9f2 !important;
+  font-weight: 500;
+}
+
+.up-tab-active::after {
+  content: "";
+  position: absolute;
+  bottom: -1px;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background-color: #00b9f2;
+}
+
+.up-tab-content {
+  min-height: 400px;
+}
+
+.up-empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 80px 20px;
+  text-align: center;
+}
+
+.up-empty-title {
+  font-size: 18px;
+  font-weight: 600;
+  color: #262626;
+  margin-bottom: 8px;
+}
+
+.up-empty-description {
+  font-size: 14px;
+  color: #8c8c8c;
+  margin-bottom: 24px;
+  max-width: 400px;
+}
+
+.up-find-hospital-btn {
+  background-color: #00b9f2;
+  border: 1px solid #00b9f2;
+  border-radius: 6px;
+  height: 40px;
+  padding: 0 24px;
+  font-size: 14px;
+  font-weight: 500;
+  color: white;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.up-find-hospital-btn:hover {
+  background-color: #016a8a;
+  border-color: #016a8a;
+}
+
+.up-find-hospital-btn:active {
+  transform: translateY(1px);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .up-sidebar {
+    width: 240px;
+  }
+
+  .up-main-content {
+    padding: 20px;
+  }
+
+  .up-tabs-nav {
+    overflow-x: auto;
+    white-space: nowrap;
+  }
+
+  .up-tab-button {
+    margin-right: 16px;
+    font-size: 13px;
+    flex-shrink: 0;
+  }
+}
+
+@media (max-width: 576px) {
+  .up-medical-layout {
+    flex-direction: column;
+  }
+
+  .up-sidebar {
+    width: 100%;
+    border-right: none;
+    border-bottom: 1px solid #e8e8e8;
+  }
+
+  .up-user-profile {
+    padding: 16px;
+  }
+
+  .up-main-content {
+    padding: 16px;
+  }
+
+  .up-page-title {
+    font-size: 20px;
+  }
+
+  .up-empty-state {
+    padding: 40px 20px;
+  }
+
+  .up-sidebar-menu {
+    display: flex;
+    overflow-x: auto;
+    padding: 8px;
+  }
+
+  .up-menu-item {
+    flex-shrink: 0;
+    min-width: 120px;
+    text-align: center;
+    flex-direction: column;
+    height: 60px;
+    margin-right: 8px;
+    border-radius: 8px;
+  }
+
+  .up-menu-item-selected {
+    border-right: none;
+    border-bottom: 3px solid #00b9f2;
+  }
+
+  .up-menu-icon {
+    margin-right: 0;
+    margin-bottom: 4px;
+  }
+
+  .up-menu-label {
+    font-size: 12px;
+  }
+
+  .up-submenu-arrow {
+    display: none;
+  }
+}
+.up-profile-card {
+  max-width: 720px; /* tăng từ 600px lên */
+  margin: 0 auto;
+  background: #fff;
+  border-radius: 16px;
+  padding: 40px 32px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+  text-align: center;
+}
+
+.up-profile-header {
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  margin-bottom: 32px;
+}
+
+.up-profile-avatar {
+  width: 120px;
+  height: 120px;
+  object-fit: cover;
+  border-radius: 50%;
+  margin-bottom: 18px;
+}
+
+.up-profile-header h2 {
+  font-size: 26px;
+  font-weight: 600;
+  margin-bottom: 6px;
+  color: #222;
+}
+
+.up-profile-header p {
+  font-size: 16px;
+  color: #888;
+}
+
+.up-profile-table {
+  width: 100%;
+  margin-top: 16px;
+  border-collapse: collapse;
+}
+
+.up-profile-table td {
+  text-align: left;
+  padding: 14px 0;
+  border-bottom: 1px solid #f0f0f0;
+  color: #333;
+  font-size: 16px;
+}
+
+.up-profile-table td:first-child {
+  font-weight: 600;
+  color: #555;
+  width: 180px;
+}
+
+.up-profile-edit {
+  margin-top: 32px;
+}
+
+.up-find-hospital-btn {
+  background-color: #00b9f2;
+  border: 1px solid #00b9f2;
+  border-radius: 8px;
+  height: 44px;
+  padding: 0 28px;
+  font-size: 15px;
+  font-weight: 600;
+  color: white;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.up-find-hospital-btn:hover {
+  background-color: #0aa2d4;
+  border-color: #0aa2d4;
+}
+
+.up-cancel-btn {
+  margin-left: 16px;
+  background: #f0f0f0;
+  color: #333;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  height: 44px;
+  padding: 0 28px;
+  font-size: 15px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.up-cancel-btn:hover {
+  background-color: #e0e0e0;
+}
+
+.up-profile-table input,
+.up-profile-table select {
+  width: 100%;
+  padding: 8px 12px;
+  border-radius: 8px;
+  border: 1px solid #ddd;
+  font-size: 15px;
+  outline: none;
+}

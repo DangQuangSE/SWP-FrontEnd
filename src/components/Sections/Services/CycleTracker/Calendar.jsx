@@ -15,18 +15,13 @@ import { vi } from "date-fns/locale";
 import "./Calendar.css";
 
 const Calendar = ({ predictions, logs, onDayClick }) => {
-  // Nhận thêm props
   const [currentMonth, setCurrentMonth] = useState(new Date());
 
   const renderHeader = () => (
     <div className="calendar-header">
-      <button
-        onClick={() => setCurrentMonth(subMonths(currentMonth, 1))}
-      ></button>
+      <button onClick={() => setCurrentMonth(subMonths(currentMonth, 1))}></button>
       <span>{format(currentMonth, "MMMM yyyy", { locale: vi })}</span>
-      <button
-        onClick={() => setCurrentMonth(addMonths(currentMonth, 1))}
-      ></button>
+      <button onClick={() => setCurrentMonth(addMonths(currentMonth, 1))}></button>
     </div>
   );
 
@@ -34,9 +29,7 @@ const Calendar = ({ predictions, logs, onDayClick }) => {
     const days = ["CN", "T2", "T3", "T4", "T5", "T6", "T7"];
     return (
       <div className="days-of-week">
-        {days.map((day) => (
-          <div key={day}>{day}</div>
-        ))}
+        {days.map((day) => (<div key={day}>{day}</div>))}
       </div>
     );
   };
@@ -56,41 +49,26 @@ const Calendar = ({ predictions, logs, onDayClick }) => {
           if (!isSameMonth(day, monthStart)) cellClass += " disabled";
           if (isSameDay(day, new Date())) cellClass += " today";
 
-          // Kiểm tra xem ngày có log triệu chứng không
-          const hasSymptoms =
-            logs[dateKey] &&
-            logs[dateKey].symptoms &&
-            logs[dateKey].symptoms.length > 0;
+          const hasSymptoms = logs[dateKey]?.symptoms?.length > 0;
 
           if (predictions) {
-            // Ngày có kinh thực tế
-            if (
-              logs[dateKey]?.isPeriodStart ||
-              (predictions.periodDays &&
-                predictions.periodDays.some((pd) => isSameDay(day, pd)))
-            ) {
+            if (predictions?.periodDays?.some((pd) => isSameDay(day, pd))) {
               cellClass += " period-day";
             }
+
             // Ngày rụng trứng
-            if (isSameDay(day, predictions.ovulationDay))
+            if (isSameDay(day, predictions.ovulationDay)) {
               cellClass += " ovulation-day";
+            }
             // Ngày kinh dự đoán
-            if (
-              day >= predictions.nextPeriodStart &&
-              day <= predictions.nextPeriodEnd
-            ) {
+            if (day >= predictions.nextPeriodStart && day <= predictions.nextPeriodEnd) {
               cellClass += " predicted-day";
             }
           }
 
           return (
-            <button
-              key={day.toString()}
-              className={cellClass}
-              onClick={() => onDayClick(day)}
-            >
+            <button key={day.toString()} className={cellClass} onClick={() => onDayClick(day)}>
               <span>{format(day, "d")}</span>
-              {/* Thêm chấm nếu có triệu chứng */}
               {hasSymptoms && <div className="symptom-dot"></div>}
             </button>
           );

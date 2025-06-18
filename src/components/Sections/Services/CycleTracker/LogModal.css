@@ -21,8 +21,8 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background-color: rgba(17, 24, 39, 0.6); /* Màu nền tối hơn, tinh tế hơn */
-  backdrop-filter: blur(4px); /* Hiệu ứng làm mờ nền phía sau */
+  background-color: rgba(17, 24, 39, 0.6); 
+  backdrop-filter: blur(4px); 
   display: flex;
   justify-content: center;
   align-items: center;
@@ -32,7 +32,7 @@
 
 .modal-content {
   background: white;
-  padding: 2rem 2.5rem; /* Tăng padding ngang */
+  padding: 2rem 2.5rem;
   border-radius: 16px;
   max-width: 550px;
   width: 90%;
@@ -72,7 +72,7 @@
   margin-bottom: 2rem;
   font-size: 1.5rem;
   font-weight: 600;
-  color: #1f2937; /* Màu chữ chính, không dùng màu hồng */
+  color: #1f2937; 
   text-align: center;
   border-bottom: 1px solid #e5e7eb;
   padding-bottom: 1rem;
@@ -88,10 +88,6 @@
   color: #4b5563;
   margin-bottom: 1rem;
 }
-
-/* --- INTERACTIVE ELEMENTS --- */
-
-/* Khung cho lựa chọn "Ngày bắt đầu" */
 .period-start-option {
   background: #f9fafb;
   border: 1px solid #e5e7eb;
@@ -117,13 +113,11 @@
   width: 18px;
   height: 18px;
   margin-right: 12px;
-  accent-color: #ef4444; /* Màu của dấu check */
+  accent-color: #ef4444; 
 }
-
-/* Lưới các triệu chứng */
 .symptoms-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); /* Responsive */
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); 
   gap: 12px;
 }
 
@@ -147,9 +141,8 @@
 }
 
 .symptom-label input {
-  display: none; /* Ẩn checkbox mặc định */
+  display: none; 
 }
-/* Tạo checkbox giả để có thể style */
 .symptom-label span::before {
   content: '';
   display: inline-block;
@@ -202,4 +195,20 @@
 }
 .button-secondary:hover {
   border-color: #9ca3af;
+}
+.period-day-info-card {
+  background-color: #fee2e2; 
+  color: #b91c1c;           
+  border-radius: 8px;
+  padding: 12px 16px;
+  margin: 1rem 0; 
+  font-weight: 500;
+  text-align: center;
+  border: 1px solid #fca5a5;
+  animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: translateY(0); }
 }

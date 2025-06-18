@@ -4,29 +4,19 @@ import { vi } from 'date-fns/locale';
 import './LogModal.css';
 
 const SYMPTOM_OPTIONS = [
-  "Đau bụng",
-  "Mệt mỏi",
-  "Đau đầu",
-  "Nổi mụn",
-  "Tâm trạng thay đổi",
-  "Căng ngực",
+  "Đau bụng", "Mệt mỏi", "Đau đầu", "Nổi mụn", "Tâm trạng thay đổi", "Căng ngực",
 ];
 
-const LogModal = ({ date, existingLog, onSave, onClose }) => {
-  const [isPeriodStart, setIsPeriodStart] = useState(false);
-  const [selectedSymptoms, setSelectedSymptoms] = useState([]);
+// THAY ĐỔI 1: Nhận thêm prop `periodDayNumber` từ component cha
+const LogModal = ({ date, existingLog, onSave, onClose, periodDayNumber }) => {
 
-  // Load dữ liệu đã có của ngày này khi modal mở ra
-  useEffect(() => {
-    if (existingLog) {
-      setIsPeriodStart(existingLog.isPeriodStart || false);
-      setSelectedSymptoms(existingLog.symptoms || []);
-    } else {
-      setIsPeriodStart(false);
-      setSelectedSymptoms([]);
-    }
-  }, [existingLog]);
-
+  // THAY ĐỔI 2: Cập nhật logic khởi tạo state
+  // `isPeriodStart` sẽ được check nếu cha (CycleTracker) nói rằng đây là một ngày kinh (`periodDayNumber > 0`)
+  // HOẶC nếu nó đã được lưu là ngày bắt đầu từ trước.
+  const [isPeriodStart, setIsPeriodStart] = useState(
+    !!(existingLog?.isPeriodStart || periodDayNumber)
+  );
+  const [selectedSymptoms, setSelectedSymptoms] = useState(existingLog?.symptoms || []);
   if (!date) return null;
 
   const handleSymptomChange = (symptom) => {
@@ -38,31 +28,44 @@ const LogModal = ({ date, existingLog, onSave, onClose }) => {
   };
 
   const handleSave = () => {
-    onSave(date, { isPeriodStart, symptoms: selectedSymptoms });
+    const shouldMarkAsStart = isPeriodStart && !periodDayNumber;
+    onSave(date, { isPeriodStart: shouldMarkAsStart, symptoms: selectedSymptoms });
     onClose();
   };
+
+  // THAY ĐỔI 3: Logic hiển thị số ngày kinh
+  // Nếu không (người dùng vừa tick mới), mặc định hiển thị là 1.
+  const displayPeriodDay = periodDayNumber || 1;
 
   return (
     <div className="modal-overlay" onClick={onClose}>
       <div className="modal-content" onClick={e => e.stopPropagation()}>
-        {/* THÊM NÚT ĐÓNG (X) Ở ĐÂY */}
         <button className="modal-close-button" onClick={onClose}>×</button>
         
         <h2>
           Ghi chú cho ngày: {format(date, 'dd MMMM, yyyy', { locale: vi })}
         </h2>
-
-        {/* Bọc lựa chọn ngày bắt đầu trong một div để tạo kiểu tốt hơn */}
+    
         <div className="modal-section period-start-option">
           <label className="period-start-label">
             <input
               type="checkbox"
               checked={isPeriodStart}
               onChange={e => setIsPeriodStart(e.target.checked)}
+              // THAY ĐỔI 4: Vô hiệu hóa checkbox nếu đây là ngày 2, 3...
+              // Người dùng không thể đánh dấu ngày thứ 3 là "ngày bắt đầu".
+              disabled={periodDayNumber > 1}
             />
             Đánh dấu là ngày bắt đầu kỳ kinh
           </label>
         </div>
+    
+        {/* THAY ĐỔI 5: Thêm card thông báo "Ngày hành kinh X" */}
+        {isPeriodStart && (
+          <div className="period-day-info-card">
+            🩸 Ngày hành kinh {displayPeriodDay}
+          </div>
+        )}
 
         <div className="modal-section">
           <h4>Triệu chứng hôm nay:</h4>
