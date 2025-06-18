@@ -1,0 +1,79 @@
+/* src/.../DoctorList/DoctorDetail.css */
+
+.doctor-detail-container {
+  padding: 1rem;
+}
+
+.back-button {
+  background: none;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  padding: 8px 16px;
+  font-size: 1rem;
+  cursor: pointer;
+  margin-bottom: 24px;
+  transition: background-color 0.2s;
+}
+.back-button:hover {
+  background-color: #f0f0f0;
+}
+
+.doctor-detail-header {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  margin-bottom: 24px;
+}
+
+.doctor-detail-image {
+  width: 150px;
+  height: 150px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.doctor-detail-title h1 {
+  margin: 0 0 8px 0;
+  font-size: 1.8rem;
+}
+
+.doctor-detail-specialty {
+  margin: 0;
+  font-size: 1.1rem;
+  color: #007bff;
+}
+
+.doctor-detail-section {
+  margin-bottom: 24px;
+}
+
+.doctor-detail-section h2 {
+  border-bottom: 2px solid #eee;
+  padding-bottom: 8px;
+  margin-bottom: 16px;
+}
+
+.doctor-reviews-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* Tái sử dụng style của feedback-card nếu có */
+.feedback-card {
+  background-color: #f9fafb;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 16px;
+}
+.feedback-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+.feedback-author {
+  font-weight: 600;
+}
+.star-rating .star { color: #d1d5db; }
+.star-rating .star.filled { color: #facc15; }
