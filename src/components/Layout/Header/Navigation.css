@@ -56,7 +56,10 @@
 }
 
 .dropdown-menu {
-  display: none;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(10px);
+  transition: opacity 0.3s ease-out, transform 0.3s ease-out, visibility 0.3s ease-out;
   position: absolute;
   left: 0;
   top: 100%;
@@ -71,8 +74,6 @@
   transform-origin: top center;
 }
 
-
-
 /* Optional: Add a hover effect for items inside dropdown */
 .dropdown-menu li {
   transition: background 0.2s, color 0.2s;
@@ -83,9 +84,10 @@
   color: #0077b6;
 }
 
-
 .nav-item.has-dropdown:hover .dropdown-menu {
-  display: block;
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
 }
 
 .dropdown-link {

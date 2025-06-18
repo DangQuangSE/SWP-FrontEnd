@@ -26,9 +26,15 @@ import BlogDetail from "./components/Sections/Articles/pages/BlogDetail";
 import Medicalnew from "./components/Sections/Articles/pages/Medicalnew";
 import Servicevnew from "./components/Sections/Articles/pages/Servicenew";
 import Generalnew from "./components/Sections/Articles/pages/Generalnew";
-import UserProfile from "./components/features/userprofile";
+import CycleTracking from "./components/Sections/Services/CycleTracker/CycleTracker";
+import Doctor from "./components/Sections/Services/DoctorList/DoctorList";
 import Loading from "./components/Loading/Loading";
 import Staff from "./Role/Staff";
+import Consultant from "./Role/Consultant";
+import Admin from "./Role/Admin";
+import Profile from './pages/Profile';
+import Settings from './pages/Settings';
+
 import BookingForm from "./components/Sections/Services/BookingForm";
 import ServiceDetail from "./components/Sections/Services/ServiceDetail/ServiceDetail";
 function App() {
@@ -60,7 +66,20 @@ function App() {
                 }
               />
               <Route path="/services" element={<AppointmentForm />} />
-              <Route path="/CycleTracker" element={<CycleTracker />} />
+
+              <Route path="/CycleTracker" element={<CycleTracker/>}/>
+              <Route
+                path="/services/DoctorList"
+                element={
+                  <>
+                    {console.log("Rendering Doctor route")}
+                    <Doctor />
+                  </>
+                }
+              />
+
+              <Route path="/CycleTracking" element={<CycleTracking />} />
+
               <Route path="/appointment" element={<StisTest />} />
               <Route path="/forgot-password" element={<ForgotPasswordOTP />} />
               <Route path="/blog" element={<AllBlog />} />
@@ -68,6 +87,11 @@ function App() {
               <Route path="/tin-y-te" element={<Medicalnew />} />
               <Route path="/tin-dich-vu" element={<Servicevnew />} />
               <Route path="/y-hoc-thuong-thuc" element={<Generalnew />} />
+              <Route path="/staff" element={<Staff />} />
+              <Route path="/consultant" element={<Consultant />} />
+              <Route path="/admin" element={<Admin />} />
+              <Route path="/profile" element={<Profile />} />
+              <Route path="/settings" element={<Settings />} />
               <Route path="/user/profile" element={<UserProfile />} />
               <Route path="/staff" element={<Staff />} />{" "}
               <Route path="/booking" element={<BookingForm />} />

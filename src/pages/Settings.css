@@ -1,0 +1,64 @@
+.settings-page__container {
+  max-width: 800px;
+  margin: 2rem auto;
+  padding: 0 1rem;
+}
+
+.settings-page__card {
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.settings-page__title {
+  text-align: center;
+  margin-bottom: 2rem;
+  color: #333;
+  font-size: 1.8rem;
+}
+
+.settings-page__section {
+  margin-bottom: 1.5rem;
+}
+
+.settings-page__section-title {
+  color: #333;
+  font-size: 1.2rem;
+  margin-bottom: 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.settings-page__section-title .anticon {
+  color: #1890ff;
+}
+
+.settings-page__form-label .ant-form-item-label {
+  font-weight: 500;
+}
+
+.settings-page__select .ant-select {
+  width: 100%;
+}
+
+.settings-page__switch .ant-switch {
+  min-width: 44px;
+}
+
+.settings-page__divider .ant-divider {
+  margin: 2rem 0;
+}
+
+.settings-page__btn .ant-btn {
+  height: 40px;
+  border-radius: 6px;
+  font-weight: 500;
+}
+
+.settings-page__select-selector .ant-select-selector {
+  border-radius: 6px !important;
+}
+
+.settings-page__form-item .ant-form-item {
+  margin-bottom: 1.5rem;
+} 
