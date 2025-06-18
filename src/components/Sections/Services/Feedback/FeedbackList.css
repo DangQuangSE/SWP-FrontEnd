@@ -1,0 +1,50 @@
+/* src/.../AppointmentForm/FeedbackList/FeedbackList.css */
+
+.feedback-list-container {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.feedback-card {
+  background-color: #f9fafb;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 16px;
+}
+
+.feedback-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.feedback-author {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #1f2937;
+  margin: 0;
+}
+
+.star-rating .star {
+  color: #d1d5db; /* Màu sao rỗng */
+  font-size: 1.2rem;
+}
+
+.star-rating .star.filled {
+  color: #facc15; /* Màu sao được tô */
+}
+
+.feedback-date {
+  font-size: 0.8rem;
+  color: #6b7280;
+  margin: 0 0 12px 0;
+}
+
+.feedback-comment {
+  font-size: 0.95rem;
+  color: #374151;
+  line-height: 1.6;
+  margin: 0;
+}
