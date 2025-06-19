@@ -40,7 +40,7 @@ const LogModal = ({ date, existingLog, onSave, onClose, periodDayNumber }) => {
   return (
     <div className="modal-overlay" onClick={onClose}>
       <div className="modal-content" onClick={e => e.stopPropagation()}>
-        <button className="modal-close-button" onClick={onClose}>×</button>
+        <button className="modal-close-button" onClick={onClose} aria-label="Đóng">×</button>
         
         <h2>
           Ghi chú cho ngày: {format(date, 'dd MMMM, yyyy', { locale: vi })}
@@ -52,9 +52,8 @@ const LogModal = ({ date, existingLog, onSave, onClose, periodDayNumber }) => {
               type="checkbox"
               checked={isPeriodStart}
               onChange={e => setIsPeriodStart(e.target.checked)}
-              // THAY ĐỔI 4: Vô hiệu hóa checkbox nếu đây là ngày 2, 3...
-              // Người dùng không thể đánh dấu ngày thứ 3 là "ngày bắt đầu".
               disabled={periodDayNumber > 1}
+              aria-label="Đánh dấu là ngày bắt đầu kỳ kinh"
             />
             Đánh dấu là ngày bắt đầu kỳ kinh
           </label>
@@ -77,6 +76,7 @@ const LogModal = ({ date, existingLog, onSave, onClose, periodDayNumber }) => {
                   value={symptom}
                   checked={selectedSymptoms.includes(symptom)}
                   onChange={() => handleSymptomChange(symptom)}
+                  aria-label={symptom}
                 />
                 <span>{symptom}</span>
               </label>
@@ -85,8 +85,8 @@ const LogModal = ({ date, existingLog, onSave, onClose, periodDayNumber }) => {
         </div>
 
         <div className="modal-actions">
-          <button className="button-secondary" onClick={onClose}>Hủy</button>
-          <button className="button-primary" onClick={handleSave}>Lưu thay đổi</button>
+          <button className="button-secondary" onClick={onClose} tabIndex={0}>Hủy</button>
+          <button className="button-primary" onClick={handleSave} tabIndex={0}>Lưu thay đổi</button>
         </div>
       </div>
     </div>
