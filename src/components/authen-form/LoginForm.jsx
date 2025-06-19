@@ -94,33 +94,34 @@ const LoginForm = ({ onClose }) => {
       console.log("Google login successful");
 
       const { credential } = credentialResponse;
-      // Gửi idToken lên backend để xác thực hoặc lấy thông tin user
+
       const res = await api.post(
         "/auth/google",
-        {
-          accessToken: credential,
-        },
+        { accessToken: credential },
         {
           headers: {
             "Content-Type": "application/json",
           },
         }
       );
-      console.log("Google response:", res.data.user);
-      console.log("Google response:", res.data.token);
-      dispatch(login(res.data.user));
-      if (res.data && res.data.jwt) {
-        localStorage.setItem("token", res.data.token);
-        window.location.href = "/";
 
+      console.log("🧾 FULL response từ backend:", res.data);
+
+      const { user, jwt: token } = res.data; // ✅ sửa ở đây
+      console.log("Google response user:", user);
+      console.log("Google response token:", token);
+
+      if (token) {
+        localStorage.setItem("token", token);
+        dispatch(login(user));
         toast.success("Đăng nhập Google thành công!");
-        // TODO: Đóng modal hoặc redirect, ví dụ:
+        window.location.href = "/";
       } else {
-        toast.error("Đăng nhập Google thất bại!");
+        toast.error("Đăng nhập Google thất bại! Không có token.");
       }
     } catch (error) {
       toast.error("Lỗi xác thực Google!");
-      console.log(error.message);
+      console.error("Google login error:", error);
     } finally {
       setLoading(false);
     }

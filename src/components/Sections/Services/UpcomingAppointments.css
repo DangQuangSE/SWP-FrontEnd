@@ -1,0 +1,39 @@
+.up-appointments-wrapper {
+  overflow-x: auto;
+  margin-top: 24px;
+}
+
+.up-appointments-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: white;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.up-appointments-table th,
+.up-appointments-table td {
+  padding: 12px 16px;
+  text-align: left;
+  border-bottom: 1px solid #f0f0f0;
+  font-size: 14px;
+}
+
+.up-appointments-table th {
+  background-color: #f9fafb;
+  font-weight: 600;
+  color: #374151;
+}
+
+.up-status {
+  font-weight: 500;
+}
+
+.up-status.đã-xác-nhận {
+  color: green;
+}
+
+.up-status.chờ-xác-nhận {
+  color: orange;
+}
