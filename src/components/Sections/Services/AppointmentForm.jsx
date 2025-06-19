@@ -101,6 +101,26 @@ const AppointmentForm = () => {
                   {/* content-section: Thông tin chung, Giờ làm việc, FAQ */}
                   <div className="content-section">
                     <h2 className="section-title">
+                      <span className="icon">⏰</span>
+                      <span>Giờ làm việc</span>
+                    </h2>
+                    <div className="hours-table">
+                      {workingHours.map((item, index) => (
+                        <div key={index} className="hours-row">
+                          <span className="day">{item.day}</span>
+                          <span
+                            className={`hours ${
+                              item.hours === "Đóng cửa" ? "closed" : ""
+                            }`}
+                          >
+                            {item.hours}
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                  <div className="content-section">
+                    <h2 className="section-title">
                       <span className="icon">🏥</span>
                       <span>Giới thiệu chung</span>
                     </h2>
@@ -217,27 +237,6 @@ const AppointmentForm = () => {
                         </li>
                         <li>Phản hồi – đánh giá minh bạch sau mỗi dịch vụ</li>
                       </ul>
-                    </div>
-                  </div>
-
-                  <div className="content-section">
-                    <h2 className="section-title">
-                      <span className="icon">⏰</span>
-                      <span>Giờ làm việc</span>
-                    </h2>
-                    <div className="hours-table">
-                      {workingHours.map((item, index) => (
-                        <div key={index} className="hours-row">
-                          <span className="day">{item.day}</span>
-                          <span
-                            className={`hours ${
-                              item.hours === "Đóng cửa" ? "closed" : ""
-                            }`}
-                          >
-                            {item.hours}
-                          </span>
-                        </div>
-                      ))}
                     </div>
                   </div>
 

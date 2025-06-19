@@ -1,11 +1,12 @@
 import { useState } from "react";
 import { useSelector } from "react-redux";
+import UpcomingAppointments from "../Sections/Services/UpcomingAppointments";
 import "./userprofile.css";
 
 export default function UserProfile() {
   const user = useSelector((state) => state.user);
   const [selectedMenuItem, setSelectedMenuItem] = useState("1");
-  const [activeTab, setActiveTab] = useState("3");
+  const [activeTab, setActiveTab] = useState("1");
   const [isEditing, setIsEditing] = useState(false);
 
   const [form, setForm] = useState({
@@ -14,6 +15,23 @@ export default function UserProfile() {
     gender: user?.gender || "",
     phone: user?.phone || "",
   });
+
+  const upcomingAppointments = [
+    {
+      date: "2025-06-21",
+      time: "09:00",
+      service: "Tư vấn sức khỏe sinh sản",
+      consultant: "BS. Nguyễn Văn A",
+      status: "Chờ xác nhận",
+    },
+    {
+      date: "2025-06-22",
+      time: "14:00",
+      service: "Xét nghiệm STIs",
+      consultant: "BS. Trần Thị B",
+      status: "Đã xác nhận",
+    },
+  ];
 
   const menuItems = [
     { key: "1", icon: "👤", label: "Xem hồ sơ của tôi" },
@@ -32,7 +50,7 @@ export default function UserProfile() {
   ];
 
   const tabs = [
-    { key: "1", label: "Lịch hẹn sắp đến (0)" },
+    { key: "1", label: "Lịch hẹn sắp đến" },
     { key: "2", label: "Hoàn thành (0)" },
     { key: "3", label: "Lịch sử đặt chỗ" },
     { key: "4", label: "Gói khám sức khỏe (0)" },
@@ -164,40 +182,16 @@ export default function UserProfile() {
     </div>
   );
 
-  const renderEmptyState = (title, description, showButton = false) => (
-    <div className="up-empty-state">
-      <h3 className="up-empty-title">{title}</h3>
-      <p className="up-empty-description">{description}</p>
-      {showButton && (
-        <button className="up-find-hospital-btn">Đăng kí khám bệnh</button>
-      )}
-    </div>
-  );
-
   const renderTabContent = () => {
     switch (activeTab) {
       case "1":
-        return renderEmptyState(
-          "Không có lịch hẹn sắp đến",
-          "Đặt lịch với chuyên gia gần bạn",
-          true
-        );
+        return <UpcomingAppointments appointments={upcomingAppointments} />;
       case "2":
-        return renderEmptyState(
-          "Không có lịch hẹn đã hoàn thành",
-          "Các cuộc hẹn đã hoàn thành sẽ xuất hiện ở đây"
-        );
+        return <p>Không có lịch hẹn đã hoàn thành</p>;
       case "3":
-        return renderEmptyState(
-          "Không có lịch hẹn sắp đến",
-          "Đặt lịch với chuyên gia gần bạn",
-          true
-        );
+        return <p>Lịch sử đặt chỗ sẽ hiển thị ở đây</p>;
       case "4":
-        return renderEmptyState(
-          "Không có gói khám sức khỏe",
-          "Các gói khám sức khỏe sẽ xuất hiện ở đây"
-        );
+        return <p>Không có gói khám sức khỏe</p>;
       default:
         return null;
     }
