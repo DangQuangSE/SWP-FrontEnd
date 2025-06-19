@@ -21,8 +21,8 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background-color: rgba(17, 24, 39, 0.6); 
-  backdrop-filter: blur(4px); 
+  background-color: rgba(17, 24, 39, 0.6);
+  backdrop-filter: blur(4px);
   display: flex;
   justify-content: center;
   align-items: center;
@@ -31,51 +31,55 @@
 }
 
 .modal-content {
-  background: white;
-  padding: 2rem 2.5rem;
-  border-radius: 16px;
-  max-width: 550px;
-  width: 90%;
-  box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1), 0 10px 10px -5px rgba(0,0,0,0.04);
+  background: #fff;
+  padding: 2.5rem 2.5rem 2rem 2.5rem;
+  border-radius: 2rem;
+  max-width: 480px;
+  width: 95vw;
+  box-shadow: 0 16px 40px -8px rgba(79,70,229,0.13), 0 4px 16px -4px rgba(0,0,0,0.06);
   animation: scaleIn 0.3s ease-out forwards;
   position: relative;
   font-family: 'Inter', 'Segoe UI', sans-serif;
+  border: 1.5px solid #e0e7ef;
 }
 
 /* Nút đóng (X) ở góc */
 .modal-close-button {
   position: absolute;
-  top: 1rem;
-  right: 1rem;
+  top: 1.2rem;
+  right: 1.2rem;
   background: #f3f4f6;
   border: none;
   border-radius: 50%;
-  width: 32px;
-  height: 32px;
+  width: 36px;
+  height: 36px;
   display: flex;
   justify-content: center;
   align-items: center;
-  font-size: 1.5rem;
+  font-size: 1.7rem;
   line-height: 1;
   color: #6b7280;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all 0.2s;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.07);
 }
 .modal-close-button:hover {
-  background: #e5e7eb;
-  transform: rotate(90deg);
+  background: #e0e7ef;
+  color: #ef4444;
+  transform: rotate(90deg) scale(1.08);
 }
 
 /* --- HEADER & SECTIONS --- */
 .modal-content h2 {
   margin-top: 0;
   margin-bottom: 2rem;
-  font-size: 1.5rem;
-  font-weight: 600;
-  color: #1f2937; 
+  font-size: 1.6rem;
+  font-weight: 700;
+  color: #1f2937;
   text-align: center;
-  border-bottom: 1px solid #e5e7eb;
-  padding-bottom: 1rem;
+  border-bottom: 1.5px solid #e5e7eb;
+  padding-bottom: 1.2rem;
+  letter-spacing: 0.2px;
 }
 
 .modal-section {
@@ -83,17 +87,17 @@
 }
 
 .modal-section h4 {
-  font-size: 1rem;
-  font-weight: 500;
+  font-size: 1.08rem;
+  font-weight: 600;
   color: #4b5563;
   margin-bottom: 1rem;
 }
 .period-start-option {
   background: #f9fafb;
-  border: 1px solid #e5e7eb;
-  border-radius: 12px;
-  padding: 1rem;
-  transition: all 0.2s ease;
+  border: 1.5px solid #e5e7eb;
+  border-radius: 14px;
+  padding: 1.1rem 1rem;
+  transition: all 0.2s;
 }
 .period-start-option:has(input:checked) {
   border-color: #fca5a5;
@@ -103,41 +107,54 @@
 .period-start-label {
   display: flex;
   align-items: center;
-  font-size: 1rem;
-  font-weight: 500;
+  font-size: 1.08rem;
+  font-weight: 600;
   color: #374151;
   cursor: pointer;
 }
 
 .period-start-label input {
-  width: 18px;
-  height: 18px;
-  margin-right: 12px;
-  accent-color: #ef4444; 
+  width: 20px;
+  height: 20px;
+  margin-right: 14px;
+  accent-color: #ef4444;
+  border-radius: 6px;
+  border: 2px solid #e5e7eb;
+  transition: border 0.2s;
+}
+.period-start-label input:focus {
+  outline: 2px solid #4f46e5;
 }
 .symptoms-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); 
-  gap: 12px;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 14px;
 }
 
 .symptom-label {
   display: flex;
   align-items: center;
   border: 2px solid #e5e7eb;
-  padding: 10px 14px;
-  border-radius: 8px;
+  padding: 12px 16px;
+  border-radius: 10px;
   cursor: pointer;
-  transition: all 0.2s ease-out;
+  background: #f8fafc;
+  font-size: 1.05rem;
+  font-weight: 500;
+  color: #374151;
+  transition: all 0.2s;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.03);
 }
 .symptom-label:hover {
-  border-color: #d1d5db;
+  border-color: #a5b4fc;
+  background: #e0e7ff;
+  color: #4f46e5;
 }
 .symptom-label:has(input:checked) {
   border-color: #3b82f6;
   background-color: #eff6ff;
   color: #1e40af;
-  font-weight: 500;
+  font-weight: 600;
 }
 
 .symptom-label input {
@@ -146,12 +163,13 @@
 .symptom-label span::before {
   content: '';
   display: inline-block;
-  width: 16px;
-  height: 16px;
+  width: 18px;
+  height: 18px;
   border: 2px solid #9ca3af;
-  border-radius: 4px;
-  margin-right: 12px;
-  transition: all 0.2s ease;
+  border-radius: 5px;
+  margin-right: 14px;
+  transition: all 0.2s;
+  background: #fff;
 }
 .symptom-label:has(input:checked) span::before {
   background-color: #3b82f6;
@@ -166,49 +184,59 @@
   gap: 1rem;
   margin-top: 2rem;
   padding-top: 1.5rem;
-  border-top: 1px solid #e5e7eb;
+  border-top: 1.5px solid #e5e7eb;
 }
 
 .button-primary, .button-secondary {
-  padding: 12px 24px;
+  padding: 13px 28px;
   border: none;
-  border-radius: 8px;
-  font-size: 1rem;
-  font-weight: 600;
+  border-radius: 10px;
+  font-size: 1.08rem;
+  font-weight: 700;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all 0.2s;
+  box-shadow: 0 2px 8px rgba(79,70,229,0.07);
 }
 
 .button-primary {
-  background-color: #3B82F6;
+  background-color: #4f46e5;
   color: white;
+  border: 1.5px solid #4f46e5;
 }
 .button-secondary {
   background-color: white;
   color: #374151;
-  border: 1px solid #d1d5db;
+  border: 1.5px solid #d1d5db;
 }
 
 .button-primary:hover, .button-secondary:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  transform: translateY(-2px) scale(1.04);
+  box-shadow: 0 4px 16px rgba(79,70,229,0.13);
 }
 .button-secondary:hover {
-  border-color: #9ca3af;
+  border-color: #a5b4fc;
+  color: #4f46e5;
 }
 .period-day-info-card {
-  background-color: #fee2e2; 
-  color: #b91c1c;           
-  border-radius: 8px;
-  padding: 12px 16px;
-  margin: 1rem 0; 
-  font-weight: 500;
+  background-color: #fee2e2;
+  color: #b91c1c;
+  border-radius: 10px;
+  padding: 14px 18px;
+  margin: 1rem 0;
+  font-weight: 600;
   text-align: center;
-  border: 1px solid #fca5a5;
+  border: 1.5px solid #fca5a5;
   animation: fadeIn 0.3s ease;
+  font-size: 1.08rem;
 }
 
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(-10px); }
-  to { opacity: 1; transform: translateY(0); }
+@media (max-width: 600px) {
+  .modal-content {
+    padding: 1.2rem 0.2rem 1.2rem 0.2rem;
+    max-width: 99vw;
+  }
+  .symptoms-grid {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
 }

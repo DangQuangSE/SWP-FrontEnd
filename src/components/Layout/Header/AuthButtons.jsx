@@ -33,7 +33,7 @@ const AuthButtons = () => {
       key: "2",
       label: "Cài đặt",
       icon: <SettingOutlined />,
-      onClick: () => navigate("/user/profile"), // ✅ Gợi ý thêm nếu có
+      onClick: () => navigate("/settings"), // ✅ Gợi ý thêm nếu có
     },
     {
       key: "3",

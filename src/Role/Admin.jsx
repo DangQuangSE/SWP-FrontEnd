@@ -33,14 +33,17 @@ import {
 } from "@ant-design/icons";
 import api from "../configs/axios";
 import { useEffect } from "react";
-// src/utils/supabaseClient.js
+
 import { supabase } from "../utils/supabaseClient";
+import { Upload } from "antd";
+import { UploadOutlined } from "@ant-design/icons";
 
 const { Header, Content, Sider } = Layout;
 const { Title } = Typography;
 const { Option } = Select;
 
 function Admin() {
+  const [imageUrl, setImageUrl] = useState("");
   const [blogForm] = Form.useForm();
   const [articles, setArticles] = useState([]);
   const [editingArticle, setEditingArticle] = useState(null);
@@ -64,15 +67,14 @@ function Admin() {
   }));
 
   // Lấy danh sách bài viết
-  // Lấy danh sách bài viết
-const fetchArticles = async () => {
-  const { data, error } = await supabase
-    .from("articles")
-    .select("*")
-    .order("create-at", { ascending: false }); // sửa lại tên cột
-  if (error) throw error;
-  return data;
-};
+  const fetchArticles = async () => {
+    const { data, error } = await supabase
+      .from("articles")
+      .select("*")
+      .order("create-at", { ascending: false }); // sửa lại tên cột
+    if (error) throw error;
+    return data;
+  };
   useEffect(() => {
     const getArticles = async () => {
       const data = await fetchArticles();
@@ -555,6 +557,26 @@ const fetchArticles = async () => {
     setArticles(data);
   };
 
+  // Hàm upload ảnh lên Supabase Storage
+const handleUpload = async (file) => {
+  if (!(file instanceof File)) {
+    message.error("File không hợp lệ!");
+    return;
+  }
+  const filePath = `articles/${Date.now()}_${file.name.replace(/\s/g, "_")}`;
+  const {data, error } = await supabase.storage
+    .from("image")
+    .upload(filePath, file, { upsert: true });
+  if (error) {
+    console.error("Upload error:", error);
+    message.error("Upload failed: " + error.message);
+    return;
+  }
+  const { data: urlData } = supabase.storage.from("image").getPublicUrl(filePath);
+  setImageUrl(urlData.publicUrl);
+  blogForm.setFieldsValue({ image_url: urlData.publicUrl });
+};
+
   const handleRoomModalOk = () => {
     form.validateFields().then((values) => {
       console.log("Room Form values:", values);
@@ -827,6 +849,25 @@ const fetchArticles = async () => {
           <Form.Item name="content" label="Content">
             <Input.TextArea rows={8} />
           </Form.Item>
+          {/* Tách riêng Form.Item cho ảnh và status */}
+          <Form.Item label="Ảnh minh họa" name="image_url">
+            <Upload
+              customRequest={({ file, onSuccess }) => {
+                handleUpload(file).then(() => onSuccess("ok"));
+              }}
+              showUploadList={false}
+              accept="image/*"
+            >
+              <Button icon={<UploadOutlined />}>Upload Image</Button>
+            </Upload>
+            {imageUrl && (
+              <img
+                src={imageUrl}
+                alt="preview"
+                style={{ width: 120, marginTop: 8 }}
+              />
+            )}
+          </Form.Item>
           <Form.Item
             name="status"
             label="Status"
@@ -843,7 +884,7 @@ const fetchArticles = async () => {
       {/* Room Modal */}
       <Modal
         title="Manage Medical Room"
-        visible={isRoomModalVisible}
+        open={isRoomModalVisible}
         onOk={handleRoomModalOk}
         onCancel={() => setIsRoomModalVisible(false)}
       >
