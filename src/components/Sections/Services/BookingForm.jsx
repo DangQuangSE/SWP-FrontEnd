@@ -99,28 +99,72 @@ const BookingForm = ({ serviceIdProp, serviceDetail: detailProp }) => {
       return;
     }
 
-    const [hourStr, minuteStr] = selectedTime.split(":");
-    const hour = parseInt(hourStr, 10);
-    const minute = parseInt(minuteStr, 10);
+    // const [hourStr, minuteStr] = selectedTime.split(":");
+    // const hour = parseInt(hourStr, 10);
+    // const minute = parseInt(minuteStr, 10);
 
     const payload = {
       service_id: parseInt(defaultServiceId, 10),
-      preferredDate: selectedDay,
-      slot: {
-        hour,
-        minute,
-        second: 0,
-        nano: 0,
-      },
+      preferredDate: selectedDay, // "YYYY-MM-DD"
+      slot: selectedTime, // "HH:mm", ví dụ: "08:00"
       note,
     };
 
+    const token = localStorage.getItem("token");
+
+    if (!token) {
+      message.error("Bạn chưa đăng nhập!");
+      return;
+    }
+
+    // axios
+    //   .post("/api/booking/medicalService", payload, {
+    //     headers: {
+    //       Authorization: `Bearer ${token}`,
+    //       "Content-Type": "application/json",
+
+    //     },
+    //   })
+    //   .then(() => message.success("Đặt lịch thành công!"))
+    //   .catch((err) => {
+    //     console.error("Đặt lịch thất bại:", err);
+
+    //     const detailMsg =
+    //       err?.response?.data?.message ||
+    //       "Không thể đặt lịch. Vui lòng thử lại.";
+    //     message.error(`Đặt lịch thất bại: ${detailMsg}`);
+    //   });
+    console.log(" Token gửi đi:", token);
+    console.log(" Payload gửi đi:", payload);
+
     axios
-      .post("/api/booking/medicalService", payload)
-      .then(() => message.success("Đặt lịch thành công!"))
+      .post("/api/booking/medicalService", payload, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      })
+      .then((res) => {
+        console.log(" Phản hồi thành công:", res.data);
+        message.success("Đặt lịch thành công!");
+        setSelectedTime(null);
+        setNote("");
+      })
       .catch((err) => {
         console.error("Đặt lịch thất bại:", err);
-        message.error("Đặt lịch thất bại!");
+
+        if (err?.response) {
+          console.error(" Status:", err.response.status);
+          console.error(" Response data:", err.response.data);
+          console.error(" Response headers:", err.response.headers);
+        } else {
+          console.error("⚠️ Không nhận được phản hồi từ server");
+        }
+
+        const detailMsg =
+          err?.response?.data?.message ||
+          "Không thể đặt lịch. Vui lòng thử lại.";
+        message.error(`Đặt lịch thất bại: ${detailMsg}`);
       });
   };
 

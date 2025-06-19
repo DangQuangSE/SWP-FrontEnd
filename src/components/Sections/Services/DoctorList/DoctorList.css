@@ -1,9 +1,7 @@
 .doctor-list-container {
-  max-width: 800px;
-  margin: 0 auto; 
-  display: flex;
-  flex-direction: column;
-  gap: 20px; 
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
 }
 .doctor-card {
   display: flex; 
@@ -72,25 +70,46 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  margin-top: 32px;
-  padding-bottom: 16px;
-  gap: 8px;
+  gap: 10px; /* Tăng khoảng cách giữa các nút một chút */
+  margin-top: 30px;
 }
+
+/* Kiểu chung cho tất cả các nút (bao gồm cả nút mũi tên và nút số) */
 .pagination button {
-  background-color: #fff;
-  border: 1px solid #ddd;
-  color: #007bff;
-  padding: 8px 16px;
-  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 42px;  /* Đặt kích thước cố định để các nút vuông vắn */
+  height: 42px;
+  border: 1px solid #e0e7ff; /* Viền xanh nhạt, mỏng */
+  background-color: #ffffff;
+  color: #007bff; /* Màu chữ xanh cho nút thường */
+  font-size: 1rem;
+  font-weight: bold;
+  border-radius: 12px; /* Bo góc mềm mại hơn */
   cursor: pointer;
-  border-radius: 4px;
-  transition: background-color 0.2s, color 0.2s;
+  transition: all 0.2s ease;
 }
+
+/* Hiệu ứng khi di chuột vào nút chưa active */
+.pagination button:not(.active):not(:disabled):hover {
+  background-color: #f0f8ff; /* Nền xanh rất nhạt khi hover */
+  border-color: #b3d7ff;
+}
+
+/* Kiểu cho nút đang được chọn (active) */
 .pagination button.active {
   background-color: #007bff;
-  color: white;
+  color: #ffffff;
   border-color: #007bff;
+  box-shadow: 0 5px 15px rgba(0, 123, 255, 0.3); /* Đổ bóng nhẹ */
+  transform: translateY(-2px); /* Hơi nâng nút lên một chút */
 }
-.pagination button:not(.active):hover {
-  background-color: #f2f2f2;
+
+/* Kiểu cho nút bị vô hiệu hóa (disabled) */
+.pagination button:disabled {
+  background-color: #f8f9fa;
+  color: #ced4da;
+  border-color: #e9ecef;
+  cursor: not-allowed;
 }

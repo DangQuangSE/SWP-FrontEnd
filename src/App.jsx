@@ -34,7 +34,7 @@ import Consultant from "./Role/Consultant";
 import Admin from "./Role/Admin";
 import Profile from "./pages/Profile";
 import Settings from "./pages/Settings";
-import UserProfile from "./components/features/userprofile";
+import UserProfile from "./components/userprofile/userprofile";
 import BookingForm from "./components/Sections/Services/BookingForm";
 import ServiceDetail from "./components/Sections/Services/ServiceDetail/ServiceDetail";
 function App() {
