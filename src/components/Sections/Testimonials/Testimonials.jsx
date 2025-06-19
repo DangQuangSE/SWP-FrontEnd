@@ -1,6 +1,7 @@
-"use client"
+"use client";
 
-import "./Testimonials.css"
+import "./Testimonials.css";
+import doctor1 from "../../../assets/images/doctor1.jpg";
 
 const Testimonials = () => {
   const doctors = [
@@ -37,34 +38,37 @@ const Testimonials = () => {
       avatar: "/placeholder.svg?height=120&width=120",
       isSpecialist: true,
     },
-  ]
+  ];
 
   const renderStars = (rating) => {
     return (
       <div className="rating-stars">
         {[...Array(5)].map((_, i) => (
-          <span key={i} className={`star ${i < Math.floor(rating) ? "filled" : ""}`}>
+          <span
+            key={i}
+            className={`star ${i < Math.floor(rating) ? "filled" : ""}`}
+          >
             ★
           </span>
         ))}
       </div>
-    )
-  }
+    );
+  };
 
   return (
     <section className="doctors-section section">
       <div className="container">
         <h2 className="section-title">ĐỘI NGŨ BÁC SĨ</h2>
         <p className="section-subtitle-description">
-          Đội ngũ bác sĩ chuyên khoa của chúng tôi luôn sẵn sàng hỗ trợ bạn trong
-          việc chăm sóc sức khỏe giới tính một cách an toàn và hiệu quả.
-      </p>
+          Đội ngũ bác sĩ chuyên khoa của chúng tôi luôn sẵn sàng hỗ trợ bạn
+          trong việc chăm sóc sức khỏe giới tính một cách an toàn và hiệu quả.
+        </p>
 
         <div className="doctors-grid">
           {doctors.map((doctor) => (
             <div key={doctor.id} className="doctor-card">
               <div className="doctor-avatar">
-                <img src={doctor.avatar || "/placeholder.svg"} alt={doctor.name} />
+                <img src={doctor1} alt="Doctor" />
               </div>
 
               <div className="doctor-stats">
@@ -108,7 +112,7 @@ const Testimonials = () => {
         </div>
       </div>
     </section>
-  )
-}
+  );
+};
 
-export default Testimonials
+export default Testimonials;

@@ -44,6 +44,7 @@ function App() {
     setTimeout(() => setRehydrated(true), 1000); // delay 1s
   }, []);
 
+  if (!rehydrated) return <Loading />;
 
   return (
     <Provider store={store}>
