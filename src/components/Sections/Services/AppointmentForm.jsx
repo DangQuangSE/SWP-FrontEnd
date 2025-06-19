@@ -4,7 +4,7 @@ import BookingForm from "./BookingForm";
 import { Link } from "react-router-dom";
 import ServiceList from "../../Sections/Services/ServicesCart/ServiceList";
 import DoctorList from "./DoctorList/DoctorList";
-
+import FeedbackList from "./FeedBack/FeedbackList";
 const AppointmentForm = () => {
   const [activeTab, setActiveTab] = useState("intro");
   const [expandedFaq, setExpandedFaq] = useState(null);
@@ -90,7 +90,12 @@ const AppointmentForm = () => {
               >
                 Bác sĩ (30)
               </span>
-              <span className="nav-tab">Đánh giá (4)</span>
+              <span
+                className={`nav-tab ${activeTab === "reviews" ? "active" : ""}`}
+                onClick={() => setActiveTab("reviews")}
+              >
+                Đánh giá (4)
+              </span>
             </div>
           </div>
 
@@ -287,6 +292,15 @@ const AppointmentForm = () => {
                     <span>Danh sách bác sĩ</span>
                   </h2>
                   <DoctorList />
+                </div>
+              )}
+               {activeTab === "reviews" && (
+                <div className="content-section">
+                  <h2 className="section-title">
+                    <span className="icon">💬</span>
+                    <span>Đánh giá từ khách hàng</span>
+                  </h2>
+                  <FeedbackList />
                 </div>
               )}
             </div>
