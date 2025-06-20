@@ -18,7 +18,7 @@ import dayjs from "dayjs";
 import "dayjs/locale/vi";
 import locale from "antd/es/date-picker/locale/vi_VN";
 import axios from "axios";
-import { useSearchParams } from "react-router-dom";
+import { useSearchParams, useNavigate } from "react-router-dom";
 import "./BookingForm.css";
 import GradientButton from "../../common/GradientButton";
 
@@ -34,6 +34,7 @@ const TAB_LABELS = {
 
 const BookingForm = ({ serviceIdProp, serviceDetail: detailProp }) => {
   const [searchParams] = useSearchParams();
+  const navigate = useNavigate();
   const defaultServiceId = serviceIdProp || searchParams.get("service_id");
 
   const [serviceDetail, setServiceDetail] = useState(detailProp || null);
@@ -68,12 +69,19 @@ const BookingForm = ({ serviceIdProp, serviceDetail: detailProp }) => {
 
   const displayDays = useMemo(() => {
     if (!Array.isArray(scheduleData)) return [];
-    return scheduleData.map((s) => ({
-      date: s.workDate,
-      day: dayjs(s.workDate).format("dd"),
-      dayNum: dayjs(s.workDate).format("D/M"),
-      available: s.timeSlotDTOs?.length > 0,
-    }));
+    return scheduleData.map((s) => {
+      const totalSlots = s.timeSlotDTOs?.reduce(
+        (acc, slot) => acc + (slot.availableBooking || 0),
+        0
+      );
+      return {
+        date: s.workDate,
+        day: dayjs(s.workDate).format("dd"),
+        dayNum: dayjs(s.workDate).format("D/M"),
+        available: s.timeSlotDTOs?.length > 0,
+        totalSlots,
+      };
+    });
   }, [scheduleData]);
 
   const getTimeSlotsForDay = (date) => {
@@ -85,9 +93,8 @@ const BookingForm = ({ serviceIdProp, serviceDetail: detailProp }) => {
       let current = dayjs(`${entry.workDate}T${startTime}`);
       const end = dayjs(`${entry.workDate}T${endTime}`);
       while (current.isBefore(end)) {
-        const next = current.add(30, "minute");
-        slots.push(`${current.format("HH:mm")}`);
-        current = next;
+        slots.push(current.format("HH:mm"));
+        current = current.add(30, "minute");
       }
     });
     return slots;
@@ -99,73 +106,22 @@ const BookingForm = ({ serviceIdProp, serviceDetail: detailProp }) => {
       return;
     }
 
-    // const [hourStr, minuteStr] = selectedTime.split(":");
-    // const hour = parseInt(hourStr, 10);
-    // const minute = parseInt(minuteStr, 10);
-
-    const payload = {
-      service_id: parseInt(defaultServiceId, 10),
-      preferredDate: selectedDay, // "YYYY-MM-DD"
-      slot: selectedTime, // "HH:mm", ví dụ: "08:00"
-      note,
-    };
-
-    const token = localStorage.getItem("token");
-
-    if (!token) {
-      message.error("Bạn chưa đăng nhập!");
+    if (!serviceDetail) {
+      message.error("Thiếu thông tin dịch vụ!");
       return;
     }
 
-    // axios
-    //   .post("/api/booking/medicalService", payload, {
-    //     headers: {
-    //       Authorization: `Bearer ${token}`,
-    //       "Content-Type": "application/json",
+    const bookingPreviewData = {
+      serviceId: defaultServiceId,
+      serviceName: serviceDetail.name,
+      price: serviceDetail.price,
+      duration: serviceDetail.duration,
+      preferredDate: selectedDay,
+      slot: selectedTime,
+      note,
+    };
 
-    //     },
-    //   })
-    //   .then(() => message.success("Đặt lịch thành công!"))
-    //   .catch((err) => {
-    //     console.error("Đặt lịch thất bại:", err);
-
-    //     const detailMsg =
-    //       err?.response?.data?.message ||
-    //       "Không thể đặt lịch. Vui lòng thử lại.";
-    //     message.error(`Đặt lịch thất bại: ${detailMsg}`);
-    //   });
-    console.log(" Token gửi đi:", token);
-    console.log(" Payload gửi đi:", payload);
-
-    axios
-      .post("/api/booking/medicalService", payload, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-      })
-      .then((res) => {
-        console.log(" Phản hồi thành công:", res.data);
-        message.success("Đặt lịch thành công!");
-        setSelectedTime(null);
-        setNote("");
-      })
-      .catch((err) => {
-        console.error("Đặt lịch thất bại:", err);
-
-        if (err?.response) {
-          console.error(" Status:", err.response.status);
-          console.error(" Response data:", err.response.data);
-          console.error(" Response headers:", err.response.headers);
-        } else {
-          console.error("⚠️ Không nhận được phản hồi từ server");
-        }
-
-        const detailMsg =
-          err?.response?.data?.message ||
-          "Không thể đặt lịch. Vui lòng thử lại.";
-        message.error(`Đặt lịch thất bại: ${detailMsg}`);
-      });
+    navigate("/booking-confirmation", { state: bookingPreviewData });
   };
 
   return (
@@ -175,7 +131,8 @@ const BookingForm = ({ serviceIdProp, serviceDetail: detailProp }) => {
         <div className="location-info">
           <EnvironmentOutlined className="location-icon" />
           <Text className="location-text">
-            Đồng 22/12, TP Thuận An, Bình Dương
+            {serviceDetail?.location ||
+              "Địa chỉ sẽ hiển thị tại trang xác nhận"}
           </Text>
         </div>
       </div>
@@ -245,6 +202,9 @@ const BookingForm = ({ serviceIdProp, serviceDetail: detailProp }) => {
               >
                 <div>{d.day}</div>
                 <div>{d.dayNum}</div>
+                {d.available && (
+                  <div className="slot-count">{d.totalSlots} chỗ trống</div>
+                )}
               </div>
             ))}
           </div>
@@ -261,7 +221,7 @@ const BookingForm = ({ serviceIdProp, serviceDetail: detailProp }) => {
               const slots = getTimeSlotsForDay(selectedDay);
               const parts = { morning: [], afternoon: [], evening: [] };
               slots.forEach((slot) => {
-                const hour = parseInt(slot.split(":"));
+                const hour = parseInt(slot.split(":")[0], 10);
                 if (hour < 12) parts.morning.push(slot);
                 else if (hour < 18) parts.afternoon.push(slot);
                 else parts.evening.push(slot);
