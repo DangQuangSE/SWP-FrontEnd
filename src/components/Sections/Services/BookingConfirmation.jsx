@@ -3,7 +3,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { message, Avatar } from "antd";
 import "./BookingConfirmation.css";
 import { useEffect, useState } from "react";
-import axios from "axios"; // ✅ Thêm dòng này
+import axios from "axios";
 
 const BookingConfirmation = () => {
   const { state: booking } = useLocation();
@@ -11,17 +11,17 @@ const BookingConfirmation = () => {
 
   const user = JSON.parse(localStorage.getItem("user")) || {};
   const token = localStorage.getItem("token");
-  //   const token =
-  //     localStorage.getItem("token") ||
-  //     "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJuZ3V5ZW5xdW9jYW4xMDEwQGdtYWlsLmNvbSIsImlkIjoxLCJmdWxsbmFtZSI6IlF1b2MgQW4iLCJyb2xlIjoiQ1VTVE9NRVIiLCJpYXQiOjE3NTAzNTM4ODgsImV4cCI6MTc1MDQ0MDI4OH0.kXNoq9P3q5cRTuq2NgDCxGEKu-j-6TnpNJmem6tX3Po";
   const [paymentMethod, setPaymentMethod] = useState("momo");
+  const fullBooking = {
+    ...booking,
+    price: booking.price,
+    serviceName: booking.serviceName,
+  };
 
   useEffect(() => {
     if (!token) {
       message.error("Bạn chưa đăng nhập. Đang chuyển về trang đăng nhập...");
-      setTimeout(() => {
-        navigate("/login");
-      }, 1500);
+      setTimeout(() => navigate("/login"), 1500);
     }
   }, [token, navigate]);
 
@@ -45,15 +45,19 @@ const BookingConfirmation = () => {
 
   const handleConfirmBooking = async () => {
     const payload = {
-      service_id: Number.parseInt(booking.serviceId, 10),
+      service_id: Number(booking.serviceId),
       preferredDate: booking.preferredDate,
       slot: booking.slot,
+      slot_id: booking.slotId,
       note: booking.note,
       paymentMethod,
-      slot_id: booking.slotId, // Thêm slot_id nếu cần thiết
     };
-    console.log("🧪 Token dùng để gửi:", token);
+
+    console.log("🔐 Token dùng để gửi:", token);
+    console.log("📤 Payload gửi:", payload);
+
     try {
+      // 1. Gửi request tạo booking
       const res = await axios.post("/api/booking/medicalService", payload, {
         headers: {
           Authorization: `Bearer ${token}`,
@@ -61,10 +65,30 @@ const BookingConfirmation = () => {
         },
       });
 
+      const appointmentId = res.data.appointmentId;
+      console.log("📦 Kết quả trả về từ backend:", res.data);
+
+      // 2. Lưu thông tin đầy đủ để dùng ở trang thanh toán
+      localStorage.setItem(
+        "pendingBooking",
+        JSON.stringify({
+          appointmentId,
+          paymentMethod,
+          amount: fullBooking.price,
+          serviceName: fullBooking.serviceName,
+        })
+      );
+      console.log("Lưu localStorage với:", {
+        appointmentId,
+        paymentMethod,
+        amount: fullBooking.price,
+        serviceName: fullBooking.serviceName,
+      });
+
+      // 3. Chuyển sang trang thanh toán (Payment.jsx xử lý tiếp)
       message.success("Đặt lịch thành công!");
-      navigate("/payment", { state: { bookingId: res.data.id } });
+      navigate("/payment", { state: { bookingId: appointmentId } });
     } catch (error) {
-      //  Xử lý mọi trường hợp backend trả lỗi dạng JSON hoặc plain text
       const errorMessage =
         error.response?.data?.message ||
         (typeof error.response?.data === "string"
@@ -74,7 +98,6 @@ const BookingConfirmation = () => {
     }
   };
 
-  // ⬇phần còn lại giữ nguyên
   return (
     <div className="booking-confirmation-container">
       <div className="booking-notification">
@@ -87,10 +110,8 @@ const BookingConfirmation = () => {
       </div>
 
       <div className="booking-main-content">
-        {/* Left: Thông tin người dùng */}
         <div className="booking-card">
           <h2 className="booking-card-title">Người sử dụng dịch vụ</h2>
-
           <div className="booking-user-profile">
             <Avatar
               size={48}
@@ -104,21 +125,18 @@ const BookingConfirmation = () => {
               <p>{user.email || "Không có email"}</p>
             </div>
           </div>
-
           <div className="booking-info-item">
             <span className="booking-info-label">Giới tính:</span>
             <span className="booking-info-value">
               {user.gender || "Chưa cung cấp"}
             </span>
           </div>
-
           <div className="booking-info-item">
             <span className="booking-info-label">Ngày sinh:</span>
             <span className="booking-info-value">
               {user.dob || "Chưa cung cấp"}
             </span>
           </div>
-
           <div className="booking-info-item">
             <span className="booking-info-label">Số điện thoại:</span>
             <span className="booking-info-value">
@@ -139,34 +157,28 @@ const BookingConfirmation = () => {
           </div>
         </div>
 
-        {/* Right: Thông tin lịch hẹn */}
         <div className="booking-card">
           <h2 className="booking-card-title">Lịch hẹn của bạn</h2>
-
           <div className="booking-info-item">
             <span className="booking-info-label">Dịch vụ:</span>
             <span className="booking-info-value booking-service-name">
               {booking.serviceName}
             </span>
           </div>
-
           <div className="booking-info-item">
             <span className="booking-info-label">Thời lượng:</span>
             <span className="booking-info-value">{booking.duration} phút</span>
           </div>
-
           <div className="booking-info-item">
             <span className="booking-info-label">Giá:</span>
             <span className="booking-info-value booking-price">
               {booking.price?.toLocaleString()} đ
             </span>
           </div>
-
           <div className="booking-info-item">
             <span className="booking-info-label">Ngày hẹn:</span>
             <span className="booking-info-value">{booking.preferredDate}</span>
           </div>
-
           <div className="booking-info-item">
             <span className="booking-info-label">Khung giờ:</span>
             <span className="booking-info-value">{booking.slot}</span>
@@ -174,10 +186,8 @@ const BookingConfirmation = () => {
         </div>
       </div>
 
-      {/* Payment Method Section */}
       <div className="booking-card booking-payment-section">
         <h2 className="booking-payment-title">Phương thức thanh toán</h2>
-
         <div
           className={`booking-payment-method ${
             paymentMethod === "momo" ? "selected" : ""
@@ -228,6 +238,7 @@ const BookingConfirmation = () => {
           </div>
         </div>
       </div>
+
       <div className="booking-confirm-section">
         <button
           className="booking-confirm-button"

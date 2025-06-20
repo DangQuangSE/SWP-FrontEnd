@@ -1,73 +1,80 @@
 import { useEffect, useState } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom"; // hoặc thêm useLocation nếu cần
 import { Result, Button, Spin, message } from "antd";
 import axios from "axios";
 
 const Payment = () => {
-  const location = useLocation();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
-  const [bookingSuccess, setBookingSuccess] = useState(false);
 
   const token = localStorage.getItem("token");
   const booking = JSON.parse(localStorage.getItem("pendingBooking"));
 
-  const query = new URLSearchParams(location.search);
-  const resultCode = query.get("resultCode");
-  const transactionCode = query.get("transId");
-
   useEffect(() => {
-    const confirmBooking = async () => {
-      if (!booking || !token || resultCode !== "0") {
-        message.error("Thanh toán thất bại hoặc thiếu thông tin");
+    const createPayment = async () => {
+      if (
+        !booking ||
+        !booking.appointmentId ||
+        !booking.amount ||
+        !booking.serviceName ||
+        !booking.paymentMethod
+      ) {
+        message.error("Thiếu thông tin thanh toán hoặc lịch hẹn.");
         setLoading(false);
         return;
       }
 
       try {
         const payload = {
-          ...booking,
-          transactionCode,
+          appointmentId: booking.appointmentId,
+          amount: booking.amount,
+          serviceName: booking.serviceName,
         };
 
-        const res = await axios.post("/api/booking/medicalService", payload, {
+        console.log("📤 Gửi tới /api/payment/momo/create:", payload);
+
+        const res = await axios.get("/api/payment/momo/create", {
           headers: {
             Authorization: `Bearer ${token}`,
           },
+          params: {
+            appointmentId: booking.appointmentId,
+            amount: booking.amount,
+            serviceName: booking.serviceName,
+          },
         });
 
-        setBookingSuccess(true);
-        localStorage.removeItem("pendingBooking");
+        const payUrl = res.data.payUrl || res.data.paymentUrl;
+
+        if (!payUrl) {
+          throw new Error("Không nhận được liên kết thanh toán.");
+        }
+        window.location.href = payUrl; // Chuyển hướng sang trang thanh toán
       } catch (err) {
-        message.error("Lưu lịch hẹn thất bại sau khi thanh toán");
-      } finally {
+        console.error("Lỗi khi tạo thanh toán:", err);
+        const msg =
+          err.response?.data?.message ||
+          "Không thể khởi tạo thanh toán, vui lòng thử lại.";
+        message.error(msg);
         setLoading(false);
       }
     };
 
-    confirmBooking();
-  }, [booking, token, resultCode, transactionCode]);
+    createPayment();
+  }, []);
 
   if (loading) {
-    return <Spin tip="Đang xử lý thanh toán và lưu lịch..." fullscreen />;
+    return <Spin tip="Đang tạo thanh toán..." fullscreen />;
   }
 
   return (
     <Result
-      status={bookingSuccess ? "success" : "error"}
-      title={
-        bookingSuccess
-          ? "Đặt lịch thành công!"
-          : "Thanh toán thành công nhưng gặp lỗi khi lưu lịch"
-      }
-      subTitle={
-        bookingSuccess
-          ? "Bạn có thể kiểm tra lịch hẹn của mình trong trang tài khoản."
-          : "Vui lòng liên hệ hỗ trợ nếu gặp lỗi này nhiều lần."
-      }
+      status="info"
+      title="Đang chuyển đến cổng thanh toán..."
+      subTitle="Vui lòng đợi trong giây lát."
       extra={[
-        <Button type="primary" key="home" onClick={() => navigate("/")}>
-          Về trang chủ
+        <Button key="home" onClick={() => navigate("/")}>
+          Trở về trang chủ
         </Button>,
       ]}
     />
