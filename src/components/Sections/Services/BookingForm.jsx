@@ -15,12 +15,15 @@ import {
   RightOutlined,
 } from "@ant-design/icons";
 import dayjs from "dayjs";
+import isSameOrBefore from "dayjs/plugin/isSameOrBefore";
 import "dayjs/locale/vi";
 import locale from "antd/es/date-picker/locale/vi_VN";
 import axios from "axios";
 import { useSearchParams, useNavigate } from "react-router-dom";
 import "./BookingForm.css";
 import GradientButton from "../../common/GradientButton";
+
+dayjs.extend(isSameOrBefore);
 
 const { Title, Text } = Typography;
 const { TabPane } = Tabs;
@@ -42,6 +45,7 @@ const BookingForm = ({ serviceIdProp, serviceDetail: detailProp }) => {
   const [scheduleData, setScheduleData] = useState([]);
   const [selectedDay, setSelectedDay] = useState();
   const [selectedTime, setSelectedTime] = useState();
+  const [selectedSlotId, setSelectedSlotId] = useState(null);
   const [activeTab, setActiveTab] = useState("morning");
   const [note, setNote] = useState("");
 
@@ -57,6 +61,7 @@ const BookingForm = ({ serviceIdProp, serviceDetail: detailProp }) => {
         .then((res) => {
           const parsed =
             typeof res.data === "string" ? JSON.parse(res.data) : res.data;
+          console.log("Response nè đm:", parsed);
           setServiceDetail(parsed.serviceDTO);
           setScheduleData(parsed.scheduleResponses || []);
         })
@@ -70,15 +75,12 @@ const BookingForm = ({ serviceIdProp, serviceDetail: detailProp }) => {
   const displayDays = useMemo(() => {
     if (!Array.isArray(scheduleData)) return [];
     return scheduleData.map((s) => {
-      const totalSlots = s.timeSlotDTOs?.reduce(
-        (acc, slot) => acc + (slot.availableBooking || 0),
-        0
-      );
+      const totalSlots = s.slots?.length || 0;
       return {
         date: s.workDate,
         day: dayjs(s.workDate).format("dd"),
         dayNum: dayjs(s.workDate).format("D/M"),
-        available: s.timeSlotDTOs?.length > 0,
+        available: totalSlots > 0,
         totalSlots,
       };
     });
@@ -86,28 +88,31 @@ const BookingForm = ({ serviceIdProp, serviceDetail: detailProp }) => {
 
   const getTimeSlotsForDay = (date) => {
     const entry = scheduleData.find((s) => s.workDate === date);
-    if (!entry || !entry.timeSlotDTOs) return [];
+    if (!entry || !entry.slots) return [];
 
     const slots = [];
-    entry.timeSlotDTOs.forEach(({ startTime, endTime }) => {
-      let current = dayjs(`${entry.workDate}T${startTime}`);
-      const end = dayjs(`${entry.workDate}T${endTime}`);
-      while (current.isBefore(end)) {
-        slots.push(current.format("HH:mm"));
-        current = current.add(30, "minute");
+
+    entry.slots.forEach(({ startTime, endTime, slotId, availableBooking }) => {
+      if (availableBooking > 0 && startTime && endTime) {
+        let current = dayjs(`${date}T${startTime}`);
+        const end = dayjs(`${date}T${endTime}`);
+
+        while (current.isBefore(end)) {
+          slots.push({
+            time: current.format("HH:mm"),
+            slotId, // bạn có thể thay đổi logic nếu mỗi khung giờ cần id riêng
+          });
+          current = current.add(30, "minute");
+        }
       }
     });
+
     return slots;
   };
 
   const handleBooking = () => {
-    if (!defaultServiceId || !selectedDay || !selectedTime) {
+    if (!defaultServiceId || !selectedDay || !selectedTime || !selectedSlotId) {
       message.warning("Vui lòng chọn đủ thông tin!");
-      return;
-    }
-
-    if (!serviceDetail) {
-      message.error("Thiếu thông tin dịch vụ!");
       return;
     }
 
@@ -118,6 +123,7 @@ const BookingForm = ({ serviceIdProp, serviceDetail: detailProp }) => {
       duration: serviceDetail.duration,
       preferredDate: selectedDay,
       slot: selectedTime,
+      slotId: selectedSlotId,
       note,
     };
 
@@ -173,8 +179,7 @@ const BookingForm = ({ serviceIdProp, serviceDetail: detailProp }) => {
                 message.warning("Chỉ được chọn trong 1 tháng!");
                 return;
               }
-              const newRange = [date.startOf("day"), date.add(30, "day")];
-              setDateRange(newRange);
+              setDateRange([date.startOf("day"), date.add(30, "day")]);
             }}
             format={() =>
               `Từ ${dateRange[0].format(
@@ -221,7 +226,7 @@ const BookingForm = ({ serviceIdProp, serviceDetail: detailProp }) => {
               const slots = getTimeSlotsForDay(selectedDay);
               const parts = { morning: [], afternoon: [], evening: [] };
               slots.forEach((slot) => {
-                const hour = parseInt(slot.split(":")[0], 10);
+                const hour = parseInt(slot.time.split(":"[0]), 10);
                 if (hour < 12) parts.morning.push(slot);
                 else if (hour < 18) parts.afternoon.push(slot);
                 else parts.evening.push(slot);
@@ -231,13 +236,16 @@ const BookingForm = ({ serviceIdProp, serviceDetail: detailProp }) => {
                   <div className="time-slots-grid">
                     {list.map((slot) => (
                       <Button
-                        key={slot}
+                        key={`${slot.slotId}-${slot.time}`}
                         className={`time-slot ${
-                          selectedTime === slot ? "selected" : ""
+                          selectedTime === slot.time ? "selected" : ""
                         }`}
-                        onClick={() => setSelectedTime(slot)}
+                        onClick={() => {
+                          setSelectedTime(slot.time);
+                          setSelectedSlotId(slot.slotId);
+                        }}
                       >
-                        {slot}
+                        {slot.time}
                       </Button>
                     ))}
                   </div>
