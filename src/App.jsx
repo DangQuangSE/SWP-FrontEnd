@@ -32,13 +32,15 @@ import Loading from "./components/Loading/Loading";
 import Staff from "./Role/Staff";
 import Consultant from "./Role/Consultant";
 import Admin from "./Role/Admin";
-import Profile from "./pages/Profile";
 import Settings from "./pages/Settings";
 import UserProfile from "./components/userprofile/userprofile";
 import BookingForm from "./components/Sections/Services/BookingForm";
 import ServiceDetail from "./components/Sections/Services/ServiceDetail/ServiceDetail";
+import Noti from "./components/NotificationCenter/Noti";
+
 function App() {
   const [rehydrated, setRehydrated] = useState(false);
+  
 
   useEffect(() => {
     setTimeout(() => setRehydrated(true), 1000); // delay 1s
@@ -46,12 +48,16 @@ function App() {
 
   if (!rehydrated) return <Loading />;
 
+
+ 
+  
+
   return (
     <Provider store={store}>
       <PersistGate loading={<Loading />} persistor={persistor}>
         <div className="app">
           <ToastContainer />
-          <Header />
+          <Header />          
           <main className="main-content-app">
             <Routes>
               <Route
@@ -87,7 +93,6 @@ function App() {
               <Route path="/staff" element={<Staff />} />
               <Route path="/consultant" element={<Consultant />} />
               <Route path="/admin" element={<Admin />} />
-              <Route path="/profile" element={<Profile />} />
               <Route path="/settings" element={<Settings />} />
               <Route path="/user/profile" element={<UserProfile />} />
               <Route path="/staff" element={<Staff />} />{" "}
