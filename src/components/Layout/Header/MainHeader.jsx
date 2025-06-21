@@ -4,7 +4,13 @@ import Logo from "../../UI/Logo/Logo";
 import Navigation from "./Navigation";
 import AuthButtons from "./AuthButtons";
 
+
 const MainHeader = () => {
+
+
+
+// Ví dụ notifications demo, bạn có thể truyền props hoặc lấy từ redux, context...
+
   return (
     <div className="main-header">
       <div className="container main-header-container">

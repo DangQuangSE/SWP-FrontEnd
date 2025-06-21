@@ -1,9 +1,8 @@
 import axios from "axios";
 
 const api = axios.create({
-  baseURL: "/api/",
+  baseURL: "http://localhost:8085/api", 
 });
-
 api.interceptors.request.use(
   function (config) {
     // Do something before request is sent

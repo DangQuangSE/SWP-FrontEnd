@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { Form, Input, Button, Spin, DatePicker, Select } from "antd";
 import GradientButton from "../common/GradientButton";
-import axios from "axios";
 import LoginFace from "../../api/LoginFace";
 import LoginGoogle from "../../api/LoginGoogle";
 import api from "../../configs/axios";
@@ -27,7 +26,7 @@ const LoginForm = ({ onClose }) => {
   const handleLogin = async (values) => {
     try {
       setLoading(true);
-      const res = await axios.post("/api/auth/login", {
+      const res = await api.post("/auth/login", {
         email: values.email,
         password: values.password,
       });
