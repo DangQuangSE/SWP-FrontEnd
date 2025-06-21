@@ -55,8 +55,8 @@ const AppointmentForm = () => {
                 <div className="hospital-address">
                   <span className="icon">📍</span>
                   <span>
-                    Đường 22/12 Khu phố Hòa Lân, Phường Thuận Giao, Thành phố
-                    Thuận An, Tỉnh Bình Dương
+                    Lô E2a-7, Đường D1 Khu Công nghệ cao, P. Long Thạnh Mỹ, TP.
+                    Thủ Đức, TP. Hồ Chí Minh
                   </span>
                 </div>
                 <div className="hospital-actions">
@@ -294,7 +294,7 @@ const AppointmentForm = () => {
                   <DoctorList />
                 </div>
               )}
-               {activeTab === "reviews" && (
+              {activeTab === "reviews" && (
                 <div className="content-section">
                   <h2 className="section-title">
                     <span className="icon">💬</span>

@@ -186,3 +186,16 @@
   color: #52c41a;
   margin-top: 2px;
 }
+.booking-price {
+  text-align: start;
+  font-size: 20px;
+  margin: 8px 0 8px;
+}
+.booking-price span {
+  font-weight: 600;
+}
+.price-highlight {
+  color: #38a169; /* màu xanh như ảnh */
+  font-size: 22px;
+  margin-left: 4px;
+}

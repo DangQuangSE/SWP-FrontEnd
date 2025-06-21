@@ -48,7 +48,7 @@ const AuthButtons = () => {
   return (
     <div className="header-buttons">
       {user == null ? (
-        <GradientButton type="pink" onClick={onLoginClick}>
+        <GradientButton onClick={onLoginClick}>
           <span className="login-btn">Đăng nhập</span>
         </GradientButton>
       ) : (

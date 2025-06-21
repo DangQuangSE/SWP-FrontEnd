@@ -138,7 +138,7 @@ const BookingForm = ({ serviceIdProp, serviceDetail: detailProp }) => {
           <EnvironmentOutlined className="location-icon" />
           <Text className="location-text">
             {serviceDetail?.location ||
-              "Địa chỉ sẽ hiển thị tại trang xác nhận"}
+              "Lô E2a-7, Đường D1 Khu Công nghệ cao, P. Long Thạnh Mỹ, TP. Thủ Đức, TP. Hồ Chí Minh"}
           </Text>
         </div>
       </div>
@@ -255,6 +255,14 @@ const BookingForm = ({ serviceIdProp, serviceDetail: detailProp }) => {
           </Tabs>
         )}
       </div>
+      {serviceDetail?.price && (
+        <div className="booking-price">
+          <span>Giá:</span>{" "}
+          <span className="price-highlight">
+            {serviceDetail.price.toLocaleString()} đ
+          </span>
+        </div>
+      )}
 
       <GradientButton type="primary" block size="large" onClick={handleBooking}>
         TIẾP TỤC ĐẶT LỊCH
