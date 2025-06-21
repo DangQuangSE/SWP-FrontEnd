@@ -118,10 +118,10 @@
   flex: 1;
 }
 
-.booking-price {
+.booking-price-confirmation {
   font-size: 18px;
   font-weight: 600;
-  color: #dc3545;
+  color: #38a169; /* màu xanh như ảnh */
 }
 
 .booking-service-name {

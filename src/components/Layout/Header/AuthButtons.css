@@ -21,16 +21,9 @@
 
 /* ===== LOGIN BUTTON ===== */
 .login-btn {
-  color: #00b5f1;
-  border: 1px solid transparent;
   font-size: 14px;
+  display: flex;
   justify-content: center;
-
-}
-
-.login-btn:hover {
-  background-color: var(--bg-light);
-  border-color: var(--border-color);
 }
 
 /* ===== REGISTER BUTTON ===== */

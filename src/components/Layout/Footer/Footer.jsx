@@ -44,7 +44,6 @@ const Footer = () => {
                 <li>
                   <Link to="/services?type=dangki">Đăng kí khám </Link>
                 </li>
-              
               </ul>
             </div>
 
@@ -53,11 +52,13 @@ const Footer = () => {
               <ul className="contact-info">
                 <li>
                   <span className="icon">📍</span>
-                  <span>123 Healthcare St., City</span>
+                  <span>
+                    Lô E2a-7, Đường D1 Khu Công nghệ cao, P. Long Thạnh Mỹ, TP.
+                    Thủ Đức, TP. Hồ Chí Minh
+                  </span>
                 </li>
                 <li>
-                  <span className="icon">📞</span>
-                  <span>+84 123 456 789</span>
+                  <span className="icon">📞</span>s<span>+84 123 456 789</span>
                 </li>
                 <li>
                   <span className="icon">✉️</span>
