@@ -19,7 +19,6 @@ const ServiceList = () => {
       });
   }, []);
 
-  // Phân loại dịch vụ
   const consultingServices = services.filter(
     (s) => s.type === "CONSULTING" && !s.isCombo
   );
@@ -28,7 +27,6 @@ const ServiceList = () => {
   );
   const comboServices = services.filter((s) => s.isCombo === true);
 
-  // Hàm render chung có thêm layout: grid | vertical
   const renderServiceList = (list, layout = "grid") => (
     <div
       className={`service-list-wrapper ${
@@ -38,16 +36,20 @@ const ServiceList = () => {
       {list.map((service) => {
         const isCombo = service.isCombo === true;
         const discount = service.discountPercent || 0;
-        let totalPrice = service.price || 0;
+        const basePrice = service.price || 0;
+
+        let originalPrice = basePrice;
+        let finalPrice = basePrice;
 
         if (isCombo && Array.isArray(service.subServices)) {
-          totalPrice = service.subServices.reduce(
+          originalPrice = service.subServices.reduce(
             (sum, s) => sum + (s.price || 0),
             0
           );
+          finalPrice = basePrice; // đã được backend giảm giá sẵn
+        } else {
+          finalPrice = basePrice * (1 - discount / 100);
         }
-
-        const finalPrice = totalPrice * (1 - discount);
 
         return (
           <div
@@ -60,9 +62,9 @@ const ServiceList = () => {
 
               {isCombo && (
                 <>
-                  <p>
+                  {/* <p>
                     <strong>Combo gồm:</strong>
-                  </p>
+                  </p> */}
                   <ul>
                     {service.subServices?.map((s) => (
                       <li key={s.id}>
@@ -73,15 +75,22 @@ const ServiceList = () => {
                 </>
               )}
 
-              <p className="price">
-                <strong>Giá sau giảm:</strong>{" "}
-                <span className="price-highlight">
-                  {finalPrice?.toLocaleString()} đ
-                </span>
-              </p>
+              <div className="price-block">
+                <p>
+                  <strong>Giá gốc:</strong>{" "}
+                  <span className="original-price">
+                    {originalPrice.toLocaleString()} đ
+                  </span>
+                </p>
+                <p>
+                  <strong>Giá sau giảm:</strong>{" "}
+                  <span className="price-highlight">
+                    {finalPrice.toLocaleString()} đ
+                  </span>
+                </p>
+              </div>
             </div>
 
-            {/*  Nút chuyển qua trang booking */}
             <button
               className="booking-button"
               onClick={() => navigate(`/service-detail/${service.id}`)}
@@ -96,7 +105,7 @@ const ServiceList = () => {
 
   return (
     <>
-      {/* Dịch vụ tư vấn - dạng grid */}
+      {/* Dịch vụ tư vấn */}
       {consultingServices.length > 0 && (
         <div className="service-subsection">
           <h3 className="section-title">🧑‍⚕️ Dịch vụ tư vấn</h3>
@@ -104,7 +113,7 @@ const ServiceList = () => {
         </div>
       )}
 
-      {/* Dịch vụ xét nghiệm - dạng danh sách dọc */}
+      {/* Dịch vụ xét nghiệm */}
       {testingServices.length > 0 && (
         <div className="service-subsection">
           <h3 className="section-title">🧪 Dịch vụ xét nghiệm</h3>
@@ -112,7 +121,7 @@ const ServiceList = () => {
         </div>
       )}
 
-      {/* Combo dịch vụ - dạng grid */}
+      {/* Combo dịch vụ */}
       {comboServices.length > 0 && (
         <div className="service-subsection">
           <h3 className="section-title">📦 Combo dịch vụ</h3>

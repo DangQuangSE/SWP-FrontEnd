@@ -18,6 +18,7 @@ const ServiceDetail = () => {
       .then((res) => {
         setService(res.data);
         setLoading(false);
+        console.log("Chi tiết dịch vụ:", res.data);
       })
       .catch((err) => {
         console.error("Lỗi khi lấy chi tiết dịch vụ:", err);
