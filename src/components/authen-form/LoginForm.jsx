@@ -104,14 +104,15 @@ const LoginForm = ({ onClose }) => {
         }
       );
 
-      console.log("🧾 FULL response từ backend:", res.data);
+      console.log(" FULL response từ backend:", res.data);
 
-      const { user, jwt: token } = res.data; // ✅ sửa ở đây
+      const { user, jwt: token } = res.data;
       console.log("Google response user:", user);
       console.log("Google response token:", token);
 
       if (token) {
         localStorage.setItem("token", token);
+        localStorage.setItem("user", JSON.stringify(user));
         dispatch(login(user));
         toast.success("Đăng nhập Google thành công!");
         window.location.href = "/";

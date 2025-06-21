@@ -5,7 +5,7 @@ import "./ServiceList.css";
 
 const ServiceList = () => {
   const [services, setServices] = useState([]);
-  const navigate = useNavigate(); // ✅ Khởi tạo navigate
+  const navigate = useNavigate();
 
   useEffect(() => {
     axios
@@ -81,7 +81,7 @@ const ServiceList = () => {
               </p>
             </div>
 
-            {/* ✅ Nút chuyển qua trang booking */}
+            {/*  Nút chuyển qua trang booking */}
             <button
               className="booking-button"
               onClick={() => navigate(`/service-detail/${service.id}`)}

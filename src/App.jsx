@@ -36,8 +36,11 @@ import Settings from "./pages/Settings";
 import UserProfile from "./components/userprofile/userprofile";
 import BookingForm from "./components/Sections/Services/BookingForm";
 import ServiceDetail from "./components/Sections/Services/ServiceDetail/ServiceDetail";
+
 import Noti from "./components/NotificationCenter/Noti";
 
+import BookingConfirmation from "./components/Sections/Services/BookingConfirmation";
+import Payment from "./components/Sections/Payment/payment";
 function App() {
   const [rehydrated, setRehydrated] = useState(false);
   
@@ -98,6 +101,11 @@ function App() {
               <Route path="/staff" element={<Staff />} />{" "}
               <Route path="/booking" element={<BookingForm />} />
               <Route path="/service-detail/:id" element={<ServiceDetail />} />
+              <Route
+                path="/booking-confirmation"
+                element={<BookingConfirmation />}
+              />
+              <Route path="/payment" element={<Payment />} />
             </Routes>
           </main>
           <Footer />
