@@ -47,3 +47,12 @@
   align-self: flex-end;
   margin-top: auto;
 }
+.original-price {
+  text-decoration: line-through;
+  color: #888;
+  margin-right: 8px;
+}
+
+.price-block {
+  margin-top: 10px;
+}
