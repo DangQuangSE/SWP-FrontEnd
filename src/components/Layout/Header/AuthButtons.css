@@ -20,11 +20,6 @@
 }
 
 /* ===== LOGIN BUTTON ===== */
-.login-btn {
-  font-size: 14px;
-  display: flex;
-  justify-content: center;
-}
 
 /* ===== REGISTER BUTTON ===== */
 .register-btn {
