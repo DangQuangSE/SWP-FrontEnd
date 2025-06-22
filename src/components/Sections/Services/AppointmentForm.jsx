@@ -82,19 +82,19 @@ const AppointmentForm = () => {
                 }`}
                 onClick={() => setActiveTab("services")}
               >
-                Dịch vụ (4)
+                Dịch vụ
               </span>
               <span
                 className={`nav-tab ${activeTab === "doctors" ? "active" : ""}`}
                 onClick={() => setActiveTab("doctors")}
               >
-                Bác sĩ (30)
+                Bác sĩ
               </span>
               <span
                 className={`nav-tab ${activeTab === "reviews" ? "active" : ""}`}
                 onClick={() => setActiveTab("reviews")}
               >
-                Đánh giá (4)
+                Đánh giá
               </span>
             </div>
           </div>
@@ -278,17 +278,12 @@ const AppointmentForm = () => {
               )}
               {activeTab === "services" && (
                 <div className="content-section">
-                  <h2 className="section-title">
-                    <span className="icon"></span>
-                    <span>Danh sách dịch vụ</span>
-                  </h2>
                   <ServiceList />
                 </div>
               )}
               {activeTab === "doctors" && (
                 <div className="content-section">
                   <h2 className="section-title">
-                    <span className="icon">👨‍⚕️</span>
                     <span>Danh sách bác sĩ</span>
                   </h2>
                   <DoctorList />
@@ -297,7 +292,6 @@ const AppointmentForm = () => {
               {activeTab === "reviews" && (
                 <div className="content-section">
                   <h2 className="section-title">
-                    <span className="icon">💬</span>
                     <span>Đánh giá từ khách hàng</span>
                   </h2>
                   <FeedbackList />

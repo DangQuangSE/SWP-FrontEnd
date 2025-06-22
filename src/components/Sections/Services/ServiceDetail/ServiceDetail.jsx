@@ -31,7 +31,7 @@ const ServiceDetail = () => {
 
   return (
     <div className="service-detail-container">
-      <div className="service-info">
+      <div className="service-info-detail">
         <h2>{service.name}</h2>
         <p className="price">
           ₫ {service.price?.toLocaleString()} {service.unit || "đ"}
