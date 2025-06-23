@@ -2,6 +2,8 @@ import { useState, useEffect } from "react";
 import { Modal, Tabs } from "antd";
 import LoginForm from "./LoginForm";
 import RegisterForm from "./RegisterForm";
+import "./AuthModal.css";
+import GradientButton from "../common/GradientButton";
 
 // Modal xác nhận thoát
 const ConfirmExitModal = ({ open, onCancel, onOk }) => (
@@ -12,59 +14,26 @@ const ConfirmExitModal = ({ open, onCancel, onOk }) => (
     centered
     closable={false}
     width={380}
-    styles={{ body: { textAlign: "center", padding: 32 } }}
+    className="exit-confirm-modal"
   >
-    <div>
-      <div
-        style={{
-          background: "#eaf3ff",
-          borderRadius: "50%",
-          width: 80,
-          height: 80,
-          margin: "0 auto 16px",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-        }}
-      >
-        <img src="/exit-icon.png" alt="exit" style={{ width: 40 }} />
+    <div className="exit-content">
+      <div className="exit-icon-container">
+        <img src="/exit-icon.png" alt="exit" className="exit-icon" />
       </div>
-      <h2 style={{ fontWeight: 700, marginBottom: 8 }}>
-        Bạn có chắc muốn thoát?
-      </h2>
-      <div style={{ color: "#555", marginBottom: 24 }}>
+      <h2 className="exit-title">Bạn có chắc muốn thoát?</h2>
+      <div className="exit-subtitle">
         Bạn chưa hoàn tất thiết lập tài khoản. Bạn có thực sự muốn thoát?
       </div>
-      <button
-        style={{
-          background: "#1890ff",
-          color: "#fff",
-          border: "none",
-          borderRadius: 8,
-          padding: "10px 32px",
-          fontWeight: 600,
-          fontSize: 16,
-          marginBottom: 12,
-          cursor: "pointer",
-          width: "100%",
-        }}
-        onClick={onCancel}
-      >
-        Hủy bỏ
-      </button>
-      <button
-        style={{
-          background: "none",
-          border: "none",
-          color: "#888",
-          fontSize: 16,
-          cursor: "pointer",
-          width: "100%",
-        }}
-        onClick={onOk}
-      >
-        Thoát
-      </button>
+      <div className="exit-buttons">
+        <GradientButton className="btn-full" onClick={onCancel}>
+          <span className="exit">Hủy bỏ</span>
+        </GradientButton>
+      </div>
+      <div className="exit-buttons">
+        <GradientButton className="btn-full" onClick={onOk}>
+          <span className="exit">Thoát</span>
+        </GradientButton>
+      </div>
     </div>
   </Modal>
 );
@@ -96,18 +65,11 @@ const AuthModal = ({ open, onClose }) => {
         footer={null}
         width={440}
         centered
-        closeIcon={<span style={{ fontSize: 24 }}>&times;</span>}
-        styles={{
-          body: {
-            padding: 0,
-            background: "#f5f7fa",
-            borderRadius: 12,
-            boxShadow: "0 10px 40px rgba(0,0,0,0.1)",
-          },
-        }}
+        className="auth-modal"
+        closeIcon={<span className="close-icon">&times;</span>}
         maskClosable
       >
-        <div style={{ padding: 24 }}>
+        <div className="auth-modal-body">
           <Tabs
             activeKey={activeTab}
             onChange={setActiveTab}
@@ -115,33 +77,25 @@ const AuthModal = ({ open, onClose }) => {
             items={[
               {
                 key: "login",
-                label: (
-                  <span style={{ fontWeight: 600, fontSize: 16 }}>
-                    Đăng nhập
-                  </span>
-                ),
+                label: <span className="auth-tab-label">Đăng nhập</span>,
                 children: (
-                  <div style={{ paddingTop: 16 }}>
+                  <div className="auth-tab-content">
                     <LoginForm
                       onRequireRegister={(phone) => {
                         setRegisterPhone(phone);
                         setActiveTab("register");
                       }}
-                      onClose={onClose} // truyền prop onClose vào LoginForm
+                      onClose={onClose}
                     />
                   </div>
                 ),
               },
               {
                 key: "register",
-                label: (
-                  <span style={{ fontWeight: 600, fontSize: 16 }}>
-                    Tạo tài khoản
-                  </span>
-                ),
+                label: <span className="auth-tab-label">Tạo tài khoản</span>,
                 children: (
-                  <div style={{ paddingTop: 16 }}>
-                    <RegisterForm phone={registerPhone} onClose={onClose} /> {/* truyền prop onClose vào RegisterForm nếu muốn */}
+                  <div className="auth-tab-content">
+                    <RegisterForm phone={registerPhone} onClose={onClose} />
                   </div>
                 ),
               },
