@@ -45,6 +45,7 @@ const BookingConfirmation = () => {
 
   const handleConfirmBooking = async () => {
     const payload = {
+      // userId: user.id,
       service_id: Number(booking.serviceId),
       preferredDate: booking.preferredDate,
       slot: booking.slot,

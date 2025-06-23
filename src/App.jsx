@@ -33,17 +33,17 @@ import Staff from "./Role/Staff";
 import Consultant from "./Role/Consultant";
 import Admin from "./Role/Admin";
 import Settings from "./pages/Settings";
-import UserProfile from "./components/userprofile/userprofile";
+import UserProfile from "./pages/UserProfile/userprofile";
 import BookingForm from "./components/Sections/Services/BookingForm";
 import ServiceDetail from "./components/Sections/Services/ServiceDetail/ServiceDetail";
-
+import Booking from "./pages/UserProfile/Booking/Booking";
+import UserProfileLayout from "./pages/UserProfile/userprofile";
 import Noti from "./components/NotificationCenter/Noti";
 
 import BookingConfirmation from "./components/Sections/Services/BookingConfirmation";
 import Payment from "./components/Sections/Payment/payment";
 function App() {
   const [rehydrated, setRehydrated] = useState(false);
-  
 
   useEffect(() => {
     setTimeout(() => setRehydrated(true), 1000); // delay 1s
@@ -51,16 +51,12 @@ function App() {
 
   if (!rehydrated) return <Loading />;
 
-
- 
-  
-
   return (
     <Provider store={store}>
       <PersistGate loading={<Loading />} persistor={persistor}>
         <div className="app">
           <ToastContainer />
-          <Header />          
+          <Header />
           <main className="main-content-app">
             <Routes>
               <Route
@@ -97,7 +93,14 @@ function App() {
               <Route path="/consultant" element={<Consultant />} />
               <Route path="/admin" element={<Admin />} />
               <Route path="/settings" element={<Settings />} />
-              <Route path="/user/profile" element={<UserProfile />} />
+              <Route path="/user" element={<UserProfile />}>
+                {/* <Route index element={<Overview />} /> */}
+                <Route path="booking" element={<Booking />} />
+                {/* <Route path="health" element={<Health />} />
+                <Route path="saved" element={<Saved />} />
+                <Route path="attended" element={<Attended />} />
+                <Route path="settings" element={<Settings />} /> */}
+              </Route>
               <Route path="/staff" element={<Staff />} />{" "}
               <Route path="/booking" element={<BookingForm />} />
               <Route path="/service-detail/:id" element={<ServiceDetail />} />
