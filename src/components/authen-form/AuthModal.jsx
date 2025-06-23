@@ -17,9 +17,9 @@ const ConfirmExitModal = ({ open, onCancel, onOk }) => (
     className="exit-confirm-modal"
   >
     <div className="exit-content">
-      <div className="exit-icon-container">
+      {/* <div className="exit-icon-container">
         <img src="/exit-icon.png" alt="exit" className="exit-icon" />
-      </div>
+      </div> */}
       <h2 className="exit-title">Bạn có chắc muốn thoát?</h2>
       <div className="exit-subtitle">
         Bạn chưa hoàn tất thiết lập tài khoản. Bạn có thực sự muốn thoát?

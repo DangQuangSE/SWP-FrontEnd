@@ -202,8 +202,13 @@ const RegisterForm = () => {
       {step === 1 && (
         <Spin spinning={loading}>
           <Form form={form} layout="vertical">
+            <div className="auth-modal-logo">
+              <img src="/logostc.png" alt="Logo" />
+            </div>
+            <h2 className="login-title">Tạo tài khoản</h2>
             <Form.Item
               name="email"
+              label="Vui lòng nhập email của bạn"
               rules={[
                 { required: true, message: "Vui lòng nhập email!" },
                 { type: "email", message: "Email không hợp lệ!" },
