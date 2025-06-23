@@ -1,0 +1,219 @@
+/* Container chính */
+.up-profile-container {
+  display: flex;
+  min-height: 100vh;
+  background-color: #f8fafc;
+}
+
+/* Sidebar - BỎ POSITION FIXED */
+.up-sidebar {
+  width: 280px;
+  background: white;
+  border-right: 1px solid #e2e8f0;
+  padding: 24px;
+  /* BỎ position: fixed */
+  /* BỎ height: 100vh */
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+  flex-shrink: 0; /* Không cho sidebar co lại */
+}
+
+/* User profile section trong sidebar */
+.up-user-profile {
+  display: flex;
+  flex-direction: column; /* đổi từ row sang column */
+  align-items: center; /* căn giữa nội dung theo chiều ngang */
+  text-align: center; /* căn chữ giữa */
+  gap: 12px; /* khoảng cách giữa avatar và info */
+  padding: 16px;
+  background: #f8fafc;
+  border-radius: 12px;
+  margin-bottom: 24px;
+}
+.up-profile-avatar {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid #e2e8f0;
+}
+
+.up-user-info h3 {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 600;
+  color: #1e293b;
+}
+
+.up-user-info p {
+  margin: 4px 0 0 0;
+  font-size: 14px;
+  color: #64748b;
+}
+
+/* Sidebar menu */
+.up-sidebar-menu {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.up-menu-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  border-radius: 8px;
+  text-decoration: none;
+  color: #64748b;
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+.up-menu-item:hover {
+  background-color: #f1f5f9;
+  color: #334155;
+}
+
+.up-menu-item-selected {
+  background-color: #3b82f6;
+  color: white;
+}
+
+.up-menu-item-selected:hover {
+  background-color: #2563eb;
+}
+
+.up-menu-icon {
+  font-size: 18px;
+  width: 20px;
+  text-align: center;
+}
+
+.up-menu-label {
+  font-size: 14px;
+}
+
+/* Main content area - BỎ MARGIN-LEFT */
+.up-main {
+  flex: 1;
+  /* BỎ margin-left: 280px */
+  background: white;
+  min-height: 100vh;
+}
+
+.up-main-content {
+  padding: 32px;
+  margin: 0;
+  background: transparent;
+  border-radius: 0;
+  box-shadow: none;
+  min-height: 100vh;
+  max-width: none;
+}
+
+/* Responsive design */
+@media (max-width: 1024px) {
+  .up-sidebar {
+    width: 240px;
+  }
+
+  .up-main-content {
+    padding: 24px;
+  }
+}
+
+@media (max-width: 768px) {
+  .up-profile-container {
+    flex-direction: column;
+  }
+
+  .up-sidebar {
+    width: 100%;
+    border-right: none;
+    border-bottom: 1px solid #e2e8f0;
+  }
+
+  .up-main-content {
+    padding: 20px;
+  }
+
+  .up-sidebar-menu {
+    flex-direction: row;
+    overflow-x: auto;
+    gap: 8px;
+    padding: 0 16px;
+  }
+
+  .up-menu-item {
+    flex-shrink: 0;
+    min-width: 120px;
+    justify-content: center;
+    flex-direction: column;
+    gap: 4px;
+    padding: 8px 12px;
+  }
+
+  .up-menu-label {
+    font-size: 12px;
+  }
+}
+
+/* Styles cho các components con trong main-content */
+.up-main-content h1 {
+  margin: 0 0 24px 0;
+  font-size: 28px;
+  font-weight: 700;
+  color: #1e293b;
+}
+
+.up-main-content h2 {
+  margin: 0 0 16px 0;
+  font-size: 24px;
+  font-weight: 600;
+  color: #334155;
+}
+
+.up-main-content h3 {
+  margin: 0 0 12px 0;
+  font-size: 20px;
+  font-weight: 600;
+  color: #475569;
+}
+
+/* Card styles cho content */
+.up-content-card {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 24px;
+  margin-bottom: 24px;
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+}
+
+.up-content-section {
+  margin-bottom: 32px;
+}
+
+.up-content-section:last-child {
+  margin-bottom: 0;
+}
+
+/* Loading và empty states */
+.up-loading {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 200px;
+  color: #64748b;
+}
+
+.up-empty-state {
+  text-align: center;
+  padding: 48px 24px;
+  color: #64748b;
+}
+
+.up-empty-state h3 {
+  color: #94a3b8;
+  margin-bottom: 8px;
+}
