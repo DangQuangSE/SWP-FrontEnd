@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { Form, Input, Button, Spin, DatePicker, Select } from "antd";
 import GradientButton from "../common/GradientButton";
-import LoginFace from "../../api/LoginFace";
 import LoginGoogle from "../../api/LoginGoogle";
 import api from "../../configs/axios";
 import { useDispatch } from "react-redux";
@@ -54,32 +53,6 @@ const LoginForm = ({ onClose }) => {
       } else {
         toast.error("Lỗi đăng nhập!");
       }
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleFacebookSuccess = async (res) => {
-    try {
-      setLoading(true);
-      // Gửi accessToken lên backend để xác thực hoặc lấy thông tin user
-      const response = await api.post("/auth/facebook", {
-        accessToken: res.accessToken,
-      });
-
-      console.log("Facebook response:", response.data);
-
-      if (response.data.user && response.data.jwt) {
-        toast.success("Đăng nhập Facebook thành công!");
-        dispatch(login(response.data.user));
-        // TODO: Đóng modal hoặc redirect, ví dụ:
-        window.location.href = "/";
-      } else {
-        toast.error("Đăng nhập Facebook thất bại!");
-      }
-    } catch (err) {
-      toast.error("Lỗi xác thực Facebook!");
-      console.log(err.toast);
     } finally {
       setLoading(false);
     }
@@ -170,7 +143,6 @@ const LoginForm = ({ onClose }) => {
           </div>
           <div style={{ display: "flex", gap: 12, justifyContent: "center" }}>
             <LoginGoogle onSuccess={handleGoogleSuccess} />
-            <LoginFace onSuccess={handleFacebookSuccess} />
           </div>
           <div style={{ fontSize: 12, color: "#888", marginTop: 20 }}>
             Bằng cách đăng ký, bạn đồng ý với{" "}
