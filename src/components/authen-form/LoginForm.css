@@ -6,7 +6,7 @@
 }
 
 .login-title {
-  margin-bottom: 8px;
+  margin-bottom: 10px;
   text-align: center;
 }
 
@@ -51,6 +51,8 @@
 }
 .auth-modal-logo {
   text-align: center;
+  padding-bottom: 20px;
+  padding-top: 10px;
 }
 
 .auth-modal-logo img {
