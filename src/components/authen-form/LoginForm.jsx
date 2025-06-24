@@ -32,6 +32,8 @@ const LoginForm = ({ onClose }) => {
       });
       const user = res.data;
       dispatch(login(res.data.user));
+      console.log(user.jwt);
+      localStorage.setItem("token", user.jwt);
       toast.success("Đăng nhập thành công!");
       if (onClose) onClose();
 
