@@ -31,7 +31,7 @@ const Payment = () => {
           serviceName: booking.serviceName,
         };
 
-        console.log("📤 Gửi tới /api/payment/momo/create:", payload);
+        console.log(" Gửi tới /api/payment/momo/create:", payload);
 
         const res = await axios.get("/api/payment/momo/create", {
           headers: {
@@ -57,6 +57,9 @@ const Payment = () => {
           "Không thể khởi tạo thanh toán, vui lòng thử lại.";
         message.error(msg);
         setLoading(false);
+        setTimeout(() => {
+          navigate("/");
+        }, 3000);
       }
     };
 

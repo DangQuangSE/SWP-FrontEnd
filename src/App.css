@@ -9,7 +9,7 @@
 /* ===== CSS VARIABLES - NEW COLOR SCHEME ===== */
 :root {
   /* Primary Colors - Blend of #ff5a7d and #3870ff */
- --primary-blue: #06b6d4;
+  --primary-blue: #06b6d4;
   --primary-blue-dark: #009fd9;
   --background: #fff;
   --text: #222;
@@ -27,7 +27,7 @@
   --text-white: #fff;
 
   /* Background Colors */
-  --bg-white: #E8f4fd;
+  --bg-white: #e8f4fd;
   --bg-light: #f8f9ff;
   --bg-gray: #f5f6fa;
   --bg-gradient: linear-gradient(135deg, #ff5a7d10, #3870ff10);
@@ -70,7 +70,7 @@
 
 /* ===== BASE STYLES ===== */
 body {
-  background: #E8f4fd;
+  background: #e8f4fd;
   color: var(--text-primary);
   line-height: 1.6;
 }
@@ -81,7 +81,6 @@ body {
   display: flex;
   flex-direction: column;
 }
-
 
 .main-content {
   flex: 1;
@@ -247,8 +246,6 @@ body {
     padding: var(--spacing-xl) 0;
   }
 
-
-
   .section-title {
     font-size: 24px;
   }
@@ -267,6 +264,4 @@ html,
 body {
   width: 100%;
   min-height: 100vh;
-
 }
-

@@ -8,7 +8,7 @@ const TABS = {
   ALL: "Tất cả dịch vụ",
   CONSULTING: "Dịch vụ tư vấn",
   TESTING: "Dịch vụ xét nghiệm",
-  COMBO: "Combo dịch vụ",
+  COMBO: "Combo ",
 };
 
 const ServiceList = () => {

@@ -20,15 +20,6 @@ const Booking = () => {
   useEffect(() => {
     const storedId = localStorage.getItem("pendingBooking");
     if (!storedId) {
-      setAppointment({
-        id: 1,
-        preferredDate: "2025-06-24",
-        serviceName: "Gói tư vấn & xét nghiệm STIs",
-        status: "CANCELED",
-        note: "",
-        price: 650000,
-        created_at: "2025-06-23T16:58:15.472334",
-      });
       setLoading(false);
       return;
     }
@@ -41,6 +32,7 @@ const Booking = () => {
       .then((res) => {
         setAppointment(res.data);
         setLoading(false);
+        console.log("Lịch hẹn đã lấy:", res.data);
       })
       .catch((err) => {
         console.error("Lỗi khi lấy lịch hẹn:", err);

@@ -1,32 +1,48 @@
 .service-detail-container {
   display: flex;
+  flex-wrap: wrap;
   gap: 24px;
-  justify-content: space-between;
   align-items: flex-start;
-  padding: 24px;
+  justify-content: space-between;
+  padding: 24px 24px 32px;
   max-width: 1200px;
   margin: 0 auto;
+  background-color: #fff;
+  border-radius: 10px;
+  height: auto;
 }
-
+.service-info-detail {
+  width: 50%;
+}
+/* Bên trái chứa thông tin dịch vụ */
 .service-detail-left {
-  flex: 1.5;
+  flex: 1;
+  max-width: calc(100% - 440px); /* giữ đủ chỗ cho bên phải */
+  min-width: 0;
 }
 
 .service-detail-right {
-  flex: 1;
-  max-width: 460px;
+  width: 400px;
+  flex-shrink: 0;
+}
+
+/* Bên phải là form đặt lịch */
+.service-detail-right {
+  width: 400px;
+  flex-shrink: 0;
 }
 
 .service-title {
   font-size: 22px;
-  font-weight: bold;
+  font-weight: 700;
   margin-bottom: 8px;
+  color: #1e293b;
 }
 
 .service-price {
-  color: #1abc9c;
+  color: #10b981;
   font-size: 18px;
-  font-weight: 500;
+  font-weight: 600;
   margin-bottom: 16px;
 }
 
@@ -36,18 +52,39 @@
   margin-bottom: 24px;
 }
 
-.service-description p,
-.service-preparation li,
-.service-detail-list li {
-  font-size: 14px;
+.service-details-wrapper {
+  padding: 8px 0;
+}
+
+.service-description h3,
+.prep-section h3 {
+  font-size: 20px;
+  font-weight: 600;
+  margin-bottom: 16px;
+  color: #0f172a;
+}
+
+.service-description .description {
+  margin-bottom: 24px;
+  color: #334155;
   line-height: 1.6;
 }
 
-.service-preparation ul,
-.service-detail-list ul {
-  padding-left: 20px;
+.prep-items {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-top: 16px;
 }
 
+.prep-item {
+  border-radius: 6px;
+  font-size: 14px;
+  line-height: 1.6;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+}
+
+/* Responsive: Stack dọc trên mobile */
 @media (max-width: 768px) {
   .service-detail-container {
     flex-direction: column;
@@ -55,7 +92,32 @@
   }
 
   .service-detail-right {
-    max-width: 100%;
     width: 100%;
+    max-width: 100%;
   }
+}
+/* Tab items */
+
+.ant-tabs-tab {
+  padding: 12px 24px !important;
+  font-size: 16px;
+  font-weight: 600;
+  color: #334155;
+}
+
+.ant-tabs-tab-active {
+  background-color: #e0f7fa;
+  border-radius: 8px;
+  color: #0288d1 !important;
+}
+
+.ant-tabs-nav,
+.ant-tabs-nav-wrap {
+  justify-content: flex-start !important;
+}
+
+.ant-tabs-ink-bar {
+  height: 4px;
+  background-color: #0288d1 !important;
+  border-radius: 2px;
 }
