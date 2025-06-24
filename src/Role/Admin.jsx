@@ -52,8 +52,16 @@ function Admin() {
   const [editingService, setEditingService] = useState(null);
   const [isUserModalVisible, setIsUserModalVisible] = useState(false);
   const [isServiceModalVisible, setIsServiceModalVisible] = useState(false);
+  const [isServiceDetailModalVisible, setIsServiceDetailModalVisible] =
+    useState(false);
+  const [serviceDetail, setServiceDetail] = useState(null);
   const [isBlogModalVisible, setIsBlogModalVisible] = useState(false);
   const [isRoomModalVisible, setIsRoomModalVisible] = useState(false);
+  const [isComboService, setIsComboService] = useState(false);
+  const [availableServices, setAvailableServices] = useState([]);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [searchResults, setSearchResults] = useState([]);
+  const [isSearching, setIsSearching] = useState(false);
   const [form] = Form.useForm();
 
   const {
@@ -108,11 +116,64 @@ function Admin() {
   // Lấy danh sách dịch vụ
   const fetchServices = async () => {
     try {
-      const response = await api.get("/services");
-      return response.data;
+      const response = await api.get("/service");
+      // Nếu response trả về một object thay vì array, wrap nó trong array
+      const data = Array.isArray(response.data)
+        ? response.data
+        : [response.data];
+      return data;
     } catch (error) {
       console.error("Lỗi lấy dịch vụ:", error);
       return [];
+    }
+  };
+
+  // Lấy dịch vụ theo ID
+  const fetchServiceById = async (id) => {
+    try {
+      const response = await api.get(`/service/id/${id}`);
+      return response.data;
+    } catch (error) {
+      console.error("Lỗi lấy dịch vụ theo ID:", error);
+      throw error;
+    }
+  };
+
+  // Lấy danh sách services để làm sub-services (chỉ lấy những service không phải combo)
+  const fetchAvailableServices = async () => {
+    try {
+      const response = await api.get("/service");
+      const data = Array.isArray(response.data)
+        ? response.data
+        : [response.data];
+      // Lọc chỉ lấy những service không phải combo
+      return data.filter((service) => !service.isCombo);
+    } catch (error) {
+      console.error("Lỗi lấy danh sách services:", error);
+      return [];
+    }
+  };
+
+  // Tạo combo service
+  const createComboService = async (serviceData) => {
+    try {
+      const response = await api.post("/service/comboService", serviceData);
+      return response.data;
+    } catch (error) {
+      console.error("Lỗi tạo combo service:", error);
+      throw error;
+    }
+  };
+
+  // Tìm kiếm service theo tên
+  const searchServiceByName = async (name) => {
+    try {
+      const encodedName = encodeURIComponent(name);
+      const response = await api.get(`/service/name/${encodedName}`);
+      return response.data;
+    } catch (error) {
+      console.error("Lỗi tìm kiếm service:", error);
+      throw error;
     }
   };
   useEffect(() => {
@@ -126,7 +187,16 @@ function Admin() {
   // Thêm dịch vụ
   const addService = async (service) => {
     try {
-      const response = await api.post("/services", service);
+      // Chuyển đổi duration từ minutes sang seconds nếu cần
+      const serviceData = {
+        ...service,
+        duration: service.duration ? parseInt(service.duration) * 60 : null,
+        price: service.price ? parseFloat(service.price) : 0,
+        discountPercent: service.discountPercent
+          ? parseFloat(service.discountPercent)
+          : 0,
+      };
+      const response = await api.post("/service", serviceData);
       return response.data;
     } catch (error) {
       console.error("Lỗi thêm dịch vụ:", error);
@@ -137,7 +207,16 @@ function Admin() {
   // Sửa dịch vụ
   const updateService = async (id, service) => {
     try {
-      const response = await api.put(`/services/${id}`, service);
+      // Chuyển đổi duration từ minutes sang seconds nếu cần
+      const serviceData = {
+        ...service,
+        duration: service.duration ? parseInt(service.duration) * 60 : null,
+        price: service.price ? parseFloat(service.price) : 0,
+        discountPercent: service.discountPercent
+          ? parseFloat(service.discountPercent)
+          : 0,
+      };
+      const response = await api.put(`/service/${id}`, serviceData);
       return response.data;
     } catch (error) {
       console.error("Lỗi sửa dịch vụ:", error);
@@ -148,7 +227,7 @@ function Admin() {
   // Xóa dịch vụ
   const deleteService = async (id) => {
     try {
-      await api.delete(`/services/${id}`);
+      await api.delete(`/service/${id}`);
     } catch (error) {
       console.error("Lỗi xóa dịch vụ:", error);
       throw error;
@@ -341,14 +420,63 @@ function Admin() {
   ];
 
   const serviceColumns = [
+    { title: "ID", dataIndex: "id", key: "id" },
     { title: "Service Name", dataIndex: "name", key: "name" },
-    { title: "Price", dataIndex: "price", key: "price" },
-    { title: "Status", dataIndex: "status", key: "status" },
+    { title: "Description", dataIndex: "description", key: "description" },
+    {
+      title: "Duration (minutes)",
+      dataIndex: "duration",
+      key: "duration",
+      render: (duration) => (duration ? Math.floor(duration / 60) : "N/A"),
+    },
+    {
+      title: "Type",
+      dataIndex: "type",
+      key: "type",
+      render: (type) => (
+        <Tag color={type === "CONSULTING" ? "blue" : "green"}>{type}</Tag>
+      ),
+    },
+    {
+      title: "Price",
+      dataIndex: "price",
+      key: "price",
+      render: (price) => `${price?.toLocaleString() || 0}đ`,
+    },
+    {
+      title: "Discount",
+      dataIndex: "discountPercent",
+      key: "discountPercent",
+      render: (discount) => `${discount || 0}%`,
+    },
+    {
+      title: "Is Combo",
+      dataIndex: "isCombo",
+      key: "isCombo",
+      render: (isCombo) => (
+        <Tag color={isCombo ? "orange" : "default"}>
+          {isCombo ? "Yes" : "No"}
+        </Tag>
+      ),
+    },
+    {
+      title: "Created At",
+      dataIndex: "createdAt",
+      key: "createdAt",
+      render: (date) => new Date(date).toLocaleDateString("vi-VN"),
+    },
     {
       title: "Action",
       key: "action",
       render: (text, record) => (
         <Space size="middle">
+          <Button
+            icon={<EyeOutlined />}
+            size="small"
+            onClick={() => handleViewServiceDetail(record)}
+          >
+            View
+          </Button>
           <Button
             icon={<EditOutlined />}
             size="small"
@@ -500,32 +628,120 @@ function Admin() {
   const handleServiceModalOk = async () => {
     try {
       const values = await form.validateFields();
+
       if (editingService) {
+        // Chỉnh sửa service hiện có
         await updateService(editingService.id, values);
       } else {
-        await addService(values);
+        // Tạo service mới
+        if (values.isCombo) {
+          // Tạo combo service
+          const comboData = {
+            name: values.name,
+            description: values.description,
+            duration: values.duration ? parseInt(values.duration) * 60 : null,
+            type: values.type,
+            price: values.price ? parseFloat(values.price) : 0,
+            isCombo: true,
+            discountPercent: values.discountPercent
+              ? parseFloat(values.discountPercent)
+              : 0,
+            subServiceIds: values.subServiceIds || [],
+          };
+          await createComboService(comboData);
+        } else {
+          // Tạo regular service
+          await addService(values);
+        }
       }
+
       setIsServiceModalVisible(false);
       form.resetFields();
       setEditingService(null);
+      setIsComboService(false);
+
       // Cập nhật lại danh sách dịch vụ
       const data = await fetchServices();
       setServices(data);
+
+      message.success(
+        editingService
+          ? "Cập nhật dịch vụ thành công!"
+          : "Tạo dịch vụ thành công!"
+      );
     } catch (error) {
       console.error("Lỗi cập nhật dịch vụ:", error);
+      message.error("Có lỗi xảy ra khi xử lý dịch vụ!");
     }
   };
 
-  const handleEditService = (record) => {
-    setEditingService(record);
-    form.setFieldsValue(record); // Đổ dữ liệu dịch vụ lên form
-    setIsServiceModalVisible(true); // Mở modal
+  const handleEditService = async (record) => {
+    try {
+      // Lấy chi tiết service từ API theo ID
+      const serviceDetail = await fetchServiceById(record.id);
+      setEditingService(serviceDetail);
+
+      // Chuyển đổi duration từ seconds về minutes để hiển thị trong form
+      const formData = {
+        ...serviceDetail,
+        duration: serviceDetail.duration
+          ? Math.floor(serviceDetail.duration / 60)
+          : null,
+      };
+      form.setFieldsValue(formData); // Đổ dữ liệu dịch vụ lên form
+      setIsServiceModalVisible(true); // Mở modal
+    } catch (error) {
+      console.error("Lỗi lấy chi tiết dịch vụ:", error);
+      message.error("Không thể lấy thông tin chi tiết dịch vụ!");
+    }
+  };
+
+  const handleViewServiceDetail = async (record) => {
+    try {
+      // Lấy chi tiết service từ API theo ID
+      const detail = await fetchServiceById(record.id);
+      setServiceDetail(detail);
+      setIsServiceDetailModalVisible(true);
+    } catch (error) {
+      console.error("Lỗi lấy chi tiết dịch vụ:", error);
+      message.error("Không thể lấy thông tin chi tiết dịch vụ!");
+    }
   };
 
   const handleDeleteService = async (id) => {
     await deleteService(id);
     const data = await fetchServices();
     setServices(data);
+  };
+
+  // Handle search service
+  const handleSearchService = async (value) => {
+    if (!value.trim()) {
+      setSearchResults([]);
+      setSearchTerm("");
+      return;
+    }
+
+    try {
+      setIsSearching(true);
+      setSearchTerm(value);
+      const results = await searchServiceByName(value.trim());
+      // Nếu kết quả là object, wrap thành array
+      const searchData = Array.isArray(results) ? results : [results];
+      setSearchResults(searchData);
+    } catch (error) {
+      console.error("Lỗi tìm kiếm:", error);
+      setSearchResults([]);
+      message.error("Không tìm thấy dịch vụ nào!");
+    } finally {
+      setIsSearching(false);
+    }
+  };
+
+  // Clear search
+  const handleClearSearch = () => {
+    setSearchTerm("");
+    setSearchResults([]);
   };
 
   const handleBlogModalOk = async () => {
@@ -558,24 +774,26 @@ function Admin() {
   };
 
   // Hàm upload ảnh lên Supabase Storage
-const handleUpload = async (file) => {
-  if (!(file instanceof File)) {
-    message.error("File không hợp lệ!");
-    return;
-  }
-  const filePath = `articles/${Date.now()}_${file.name.replace(/\s/g, "_")}`;
-  const {data, error } = await supabase.storage
-    .from("image")
-    .upload(filePath, file, { upsert: true });
-  if (error) {
-    console.error("Upload error:", error);
-    message.error("Upload failed: " + error.message);
-    return;
-  }
-  const { data: urlData } = supabase.storage.from("image").getPublicUrl(filePath);
-  setImageUrl(urlData.publicUrl);
-  blogForm.setFieldsValue({ image_url: urlData.publicUrl });
-};
+  const handleUpload = async (file) => {
+    if (!(file instanceof File)) {
+      message.error("File không hợp lệ!");
+      return;
+    }
+    const filePath = `articles/${Date.now()}_${file.name.replace(/\s/g, "_")}`;
+    const { data, error } = await supabase.storage
+      .from("image")
+      .upload(filePath, file, { upsert: true });
+    if (error) {
+      console.error("Upload error:", error);
+      message.error("Upload failed: " + error.message);
+      return;
+    }
+    const { data: urlData } = supabase.storage
+      .from("image")
+      .getPublicUrl(filePath);
+    setImageUrl(urlData.publicUrl);
+    blogForm.setFieldsValue({ image_url: urlData.publicUrl });
+  };
 
   const handleRoomModalOk = () => {
     form.validateFields().then((values) => {
@@ -609,16 +827,50 @@ const handleUpload = async (file) => {
           <Card
             title="Manage Testing Services & Pricing"
             extra={
-              <Button
-                type="primary"
-                icon={<PlusOutlined />}
-                onClick={() => setIsServiceModalVisible(true)}
-              >
-                Add Service
-              </Button>
+              <Space>
+                <Input.Search
+                  placeholder="Search services by name..."
+                  allowClear
+                  loading={isSearching}
+                  onSearch={handleSearchService}
+                  onChange={(e) => {
+                    if (!e.target.value) {
+                      handleClearSearch();
+                    }
+                  }}
+                  style={{ width: 250 }}
+                />
+                <Button
+                  type="primary"
+                  icon={<PlusOutlined />}
+                  onClick={() => setIsServiceModalVisible(true)}
+                >
+                  Add Service
+                </Button>
+              </Space>
             }
           >
-            <Table columns={serviceColumns} dataSource={services} rowKey="id" />
+            {searchTerm && (
+              <div style={{ marginBottom: 16 }}>
+                <Tag color="blue">
+                  Search results for: "{searchTerm}" ({searchResults.length}{" "}
+                  found)
+                </Tag>
+                <Button type="link" size="small" onClick={handleClearSearch}>
+                  Clear search
+                </Button>
+              </div>
+            )}
+            <Table
+              columns={serviceColumns}
+              dataSource={searchTerm ? searchResults : services}
+              rowKey="id"
+              locale={{
+                emptyText: searchTerm
+                  ? `No services found for "${searchTerm}"`
+                  : "No services available",
+              }}
+            />
           </Card>
         );
       case "manage_articles":
@@ -791,37 +1043,246 @@ const handleUpload = async (file) => {
 
       {/* Service Modal */}
       <Modal
-        title="Manage Service"
+        title={editingService ? "Edit Service" : "Add Service"}
         visible={isServiceModalVisible}
         onOk={handleServiceModalOk}
-        onCancel={() => setIsServiceModalVisible(false)}
+        onCancel={() => {
+          setIsServiceModalVisible(false);
+          setEditingService(null);
+          setIsComboService(false);
+          setAvailableServices([]);
+          form.resetFields();
+        }}
+        width={600}
       >
         <Form form={form} layout="vertical">
           <Form.Item
-            name="serviceName"
+            name="name"
             label="Service Name"
             rules={[{ required: true, message: "Please input service name!" }]}
           >
-            <Input />
+            <Input placeholder="Enter service name" />
+          </Form.Item>
+          <Form.Item
+            name="description"
+            label="Description"
+            rules={[{ required: true, message: "Please input description!" }]}
+          >
+            <Input.TextArea rows={3} placeholder="Enter service description" />
+          </Form.Item>
+          <Form.Item
+            name="duration"
+            label="Duration (minutes)"
+            rules={[{ required: true, message: "Please input duration!" }]}
+          >
+            <Input type="number" placeholder="Enter duration in minutes" />
+          </Form.Item>
+          <Form.Item
+            name="type"
+            label="Service Type"
+            rules={[{ required: true, message: "Please select service type!" }]}
+          >
+            <Select placeholder="Select service type">
+              <Option value="CONSULTING">CONSULTING</Option>
+              <Option value="TESTING">TESTING</Option>
+              <Option value="TREATMENT">TREATMENT</Option>
+            </Select>
           </Form.Item>
           <Form.Item
             name="price"
-            label="Price"
+            label="Price (VND)"
             rules={[{ required: true, message: "Please input price!" }]}
           >
-            <Input />
+            <Input type="number" placeholder="Enter price" />
           </Form.Item>
-          <Form.Item
-            name="status"
-            label="Status"
-            rules={[{ required: true, message: "Please select status!" }]}
-          >
+          <Form.Item name="discountPercent" label="Discount Percentage">
+            <Input
+              type="number"
+              min={0}
+              max={100}
+              placeholder="Enter discount percentage (0-100)"
+            />
+          </Form.Item>
+          <Form.Item name="isCombo" label="Is Combo Service">
+            <Select
+              placeholder="Select if this is a combo service"
+              onChange={(value) => {
+                setIsComboService(value);
+                if (value) {
+                  // Load available services khi chọn combo
+                  fetchAvailableServices().then(setAvailableServices);
+                }
+              }}
+            >
+              <Option value={false}>No</Option>
+              <Option value={true}>Yes</Option>
+            </Select>
+          </Form.Item>
+
+          {/* Hiển thị trường sub-services khi isCombo = true */}
+          {isComboService && (
+            <Form.Item
+              name="subServiceIds"
+              label="Sub Services"
+              rules={[
+                { required: true, message: "Please select sub services!" },
+              ]}
+            >
+              <Select
+                mode="multiple"
+                placeholder="Select sub services"
+                loading={availableServices.length === 0}
+              >
+                {availableServices.map((service) => (
+                  <Option key={service.id} value={service.id}>
+                    {service.name} - {service.price?.toLocaleString() || 0}đ
+                  </Option>
+                ))}
+              </Select>
+            </Form.Item>
+          )}
+          <Form.Item name="isActive" label="Status">
             <Select placeholder="Select status">
-              <Option value="Active">Active</Option>
-              <Option value="Inactive">Inactive</Option>
+              <Option value={true}>Active</Option>
+              <Option value={false}>Inactive</Option>
             </Select>
           </Form.Item>
         </Form>
+      </Modal>
+
+      {/* Service Detail Modal */}
+      <Modal
+        title="Service Details"
+        visible={isServiceDetailModalVisible}
+        onCancel={() => {
+          setIsServiceDetailModalVisible(false);
+          setServiceDetail(null);
+        }}
+        footer={[
+          <Button
+            key="close"
+            onClick={() => setIsServiceDetailModalVisible(false)}
+          >
+            Close
+          </Button>,
+        ]}
+        width={600}
+      >
+        {serviceDetail && (
+          <div>
+            <p>
+              <strong>ID:</strong> {serviceDetail.id}
+            </p>
+            <p>
+              <strong>Name:</strong> {serviceDetail.name}
+            </p>
+            <p>
+              <strong>Description:</strong> {serviceDetail.description}
+            </p>
+            <p>
+              <strong>Duration:</strong>{" "}
+              {serviceDetail.duration
+                ? Math.floor(serviceDetail.duration / 60)
+                : "N/A"}{" "}
+              minutes
+            </p>
+            <p>
+              <strong>Type:</strong>
+              <Tag
+                color={serviceDetail.type === "CONSULTING" ? "blue" : "green"}
+                style={{ marginLeft: 8 }}
+              >
+                {serviceDetail.type}
+              </Tag>
+            </p>
+            <p>
+              <strong>Price:</strong>{" "}
+              {serviceDetail.price?.toLocaleString() || 0}đ
+            </p>
+            <p>
+              <strong>Discount:</strong> {serviceDetail.discountPercent || 0}%
+            </p>
+            <p>
+              <strong>Is Combo:</strong>
+              <Tag
+                color={serviceDetail.isCombo ? "orange" : "default"}
+                style={{ marginLeft: 8 }}
+              >
+                {serviceDetail.isCombo ? "Yes" : "No"}
+              </Tag>
+            </p>
+            <p>
+              <strong>Status:</strong>
+              <Tag
+                color={serviceDetail.isActive ? "green" : "red"}
+                style={{ marginLeft: 8 }}
+              >
+                {serviceDetail.isActive ? "Active" : "Inactive"}
+              </Tag>
+            </p>
+            <p>
+              <strong>Created At:</strong>{" "}
+              {new Date(serviceDetail.createdAt).toLocaleString("vi-VN")}
+            </p>
+            {serviceDetail.subServiceIds &&
+              serviceDetail.subServiceIds.length > 0 && (
+                <p>
+                  <strong>Sub Service IDs:</strong>{" "}
+                  {serviceDetail.subServiceIds.join(", ")}
+                </p>
+              )}
+            {serviceDetail.subServices &&
+              serviceDetail.subServices.length > 0 && (
+                <div>
+                  <p>
+                    <strong>Sub Services:</strong>
+                  </p>
+                  <div style={{ marginLeft: 16 }}>
+                    {serviceDetail.subServices.map((subService, index) => (
+                      <div
+                        key={subService.id}
+                        style={{
+                          marginBottom: 8,
+                          padding: 8,
+                          border: "1px solid #f0f0f0",
+                          borderRadius: 4,
+                        }}
+                      >
+                        <p style={{ margin: 0 }}>
+                          <strong>
+                            {index + 1}. {subService.name}
+                          </strong>
+                        </p>
+                        <p
+                          style={{ margin: 0, fontSize: "12px", color: "#666" }}
+                        >
+                          {subService.description}
+                        </p>
+                        <p style={{ margin: 0, fontSize: "12px" }}>
+                          Price: {subService.price?.toLocaleString() || 0}đ |
+                          Duration:{" "}
+                          {subService.duration
+                            ? Math.floor(subService.duration / 60)
+                            : "N/A"}{" "}
+                          minutes | Type:{" "}
+                          <Tag
+                            size="small"
+                            color={
+                              subService.type === "CONSULTING"
+                                ? "blue"
+                                : "green"
+                            }
+                          >
+                            {subService.type}
+                          </Tag>
+                        </p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+          </div>
+        )}
       </Modal>
 
       {/* Blog Modal */}
