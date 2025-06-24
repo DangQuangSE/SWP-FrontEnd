@@ -1,6 +1,8 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { useSelector } from "react-redux";
 import dayjs from "dayjs";
 import "./Consultant.css";
+import api from "../configs/axios";
 import {
   Layout,
   Menu,
@@ -21,6 +23,7 @@ import {
   Space,
   Breadcrumb,
   theme,
+  notification,
 } from "antd";
 import {
   CalendarOutlined,
@@ -44,10 +47,10 @@ const { TabPane } = Tabs;
 
 function Consultant() {
   const handleDeleteBlog = (id) => {
-  const updatedBlogs = blogArticles.filter(blog => blog.id !== id);
-  setBlogArticles(updatedBlogs);
-  localStorage.setItem("blogArticles", JSON.stringify(updatedBlogs));
-};
+    const updatedBlogs = blogArticles.filter((blog) => blog.id !== id);
+    setBlogArticles(updatedBlogs);
+    localStorage.setItem("blogArticles", JSON.stringify(updatedBlogs));
+  };
   const [editingBlog, setEditingBlog] = useState(null);
   const [isEditBlogModalVisible, setIsEditBlogModalVisible] = useState(false);
   const [isConsultationModalVisible, setIsConsultationModalVisible] =
@@ -56,11 +59,45 @@ function Consultant() {
   const [isScheduleModalVisible, setIsScheduleModalVisible] = useState(false);
   const [isCreateBlogModalVisible, setIsCreateBlogModalVisible] =
     useState(false);
+  const [isScheduleLoading, setIsScheduleLoading] = useState(false);
+  const [scheduleData, setScheduleData] = useState([]);
+  const [isLoadingSchedule, setIsLoadingSchedule] = useState(false);
   const [form] = Form.useForm();
+
+  // Lấy thông tin user từ Redux
+  const user = useSelector((state) => state.user);
 
   const {
     token: { colorBgContainer, borderRadiusLG },
   } = theme.useToken();
+
+  // Function để fetch dữ liệu lịch làm việc
+  const fetchScheduleData = async () => {
+    if (!user?.id) return;
+
+    try {
+      setIsLoadingSchedule(true);
+      const response = await api.get(
+        `/schedules/view?consultant_id=${user.id}`
+      );
+      setScheduleData(response.data);
+      console.log("Schedule data loaded:", response.data);
+    } catch (error) {
+      console.error("Error fetching schedule data:", error);
+      notification.error({
+        message: "Lỗi",
+        description: "Không thể tải dữ liệu lịch làm việc",
+        placement: "topRight",
+      });
+    } finally {
+      setIsLoadingSchedule(false);
+    }
+  };
+
+  // Load dữ liệu khi component mount hoặc user thay đổi
+  useEffect(() => {
+    fetchScheduleData();
+  }, [user?.id]);
 
   // Menu items for the top navigation (can be adapted for consultant dashboard)
   const items1 = ["Dashboard", "My Schedule", "Settings"].map((label, key) => ({
@@ -293,6 +330,58 @@ function Consultant() {
     },
   ];
 
+  // Columns cho bảng hiển thị lịch làm việc
+  const scheduleColumns = [
+    { title: "Ngày", dataIndex: "workDate", key: "workDate" },
+    {
+      title: "Thời gian",
+      key: "timeSlots",
+      render: (_, record) => (
+        <div>
+          {record.slots?.map((slot, index) => (
+            <Tag
+              key={index}
+              color="blue"
+              style={{ marginBottom: 4, display: "block" }}
+            >
+              {slot.startTime} - {slot.endTime}
+            </Tag>
+          ))}
+        </div>
+      ),
+    },
+    {
+      title: "Số lượng booking",
+      key: "bookings",
+      render: (_, record) => (
+        <div>
+          {record.slots?.map((slot, index) => (
+            <div key={index} style={{ marginBottom: 4 }}>
+              {slot.currentBooking}/{slot.maxBooking}
+            </div>
+          ))}
+        </div>
+      ),
+    },
+    {
+      title: "Còn trống",
+      key: "available",
+      render: (_, record) => (
+        <div>
+          {record.slots?.map((slot, index) => (
+            <Tag
+              key={index}
+              color={slot.availableBooking > 0 ? "green" : "red"}
+              style={{ marginBottom: 4, display: "block" }}
+            >
+              {slot.availableBooking}
+            </Tag>
+          ))}
+        </div>
+      ),
+    },
+  ];
+
   const handleConductConsultation = () => {
     form.validateFields().then((values) => {
       console.log("Consultation values:", values);
@@ -309,12 +398,62 @@ function Consultant() {
     });
   };
 
-  const handleManageSchedule = () => {
-    form.validateFields().then((values) => {
-      console.log("Schedule values:", values);
+  const handleManageSchedule = async () => {
+    try {
+      const values = await form.validateFields();
+      setIsScheduleLoading(true);
+
+      // Chuẩn bị dữ liệu theo format API yêu cầu
+      const scheduleData = {
+        scheduleItems: [
+          {
+            workDate: values.date.format("YYYY-MM-DD"),
+            timeSlotDTO: {
+              startTime: values.timeFrom.format("HH:mm"),
+              endTime: values.timeTo.format("HH:mm"),
+            },
+          },
+        ],
+      };
+
+      // Gọi API đăng ký lịch làm việc
+      const response = await api.post("/schedules/register", scheduleData);
+
+      console.log("Schedule registered successfully:", response.data);
+
+      // Hiển thị thông báo thành công
+      notification.success({
+        message: "Thành công",
+        description: "Đăng ký lịch làm việc thành công!",
+        placement: "topRight",
+      });
+
+      // Refresh dữ liệu lịch làm việc
+      await fetchScheduleData();
+
       setIsScheduleModalVisible(false);
       form.resetFields();
-    });
+    } catch (error) {
+      console.error("Error registering schedule:", error);
+
+      // Hiển thị thông báo lỗi
+      if (error.response) {
+        notification.error({
+          message: "Lỗi",
+          description:
+            error.response.data.message || "Không thể đăng ký lịch làm việc",
+          placement: "topRight",
+        });
+      } else {
+        notification.error({
+          message: "Lỗi kết nối",
+          description: "Không thể kết nối đến server. Vui lòng thử lại!",
+          placement: "topRight",
+        });
+      }
+    } finally {
+      setIsScheduleLoading(false);
+    }
   };
 
   const renderContent = () => {
@@ -369,15 +508,28 @@ function Consultant() {
         );
       case "manage_schedule":
         return (
-          <Card title="Manage Work Schedule">
-            <Button
-              type="primary"
-              icon={<ScheduleOutlined />}
-              onClick={() => setIsScheduleModalVisible(true)}
-            >
-              Add/Edit Schedule Slot
-            </Button>
-            <p style={{ marginTop: "20px" }}>Current schedule details...</p>
+          <Card
+            title="Manage Work Schedule"
+            extra={
+              <Button
+                type="primary"
+                icon={<ScheduleOutlined />}
+                onClick={() => setIsScheduleModalVisible(true)}
+              >
+                Add/Edit Schedule Slot
+              </Button>
+            }
+          >
+            <Table
+              columns={scheduleColumns}
+              dataSource={scheduleData}
+              rowKey="workDate"
+              loading={isLoadingSchedule}
+              pagination={false}
+              locale={{
+                emptyText: "Chưa có lịch làm việc nào được đăng ký",
+              }}
+            />
           </Card>
         );
       case "write_blogs":
@@ -525,6 +677,7 @@ function Consultant() {
         visible={isScheduleModalVisible}
         onOk={handleManageSchedule}
         onCancel={() => setIsScheduleModalVisible(false)}
+        confirmLoading={isScheduleLoading}
       >
         <Form form={form} layout="vertical">
           <Form.Item
