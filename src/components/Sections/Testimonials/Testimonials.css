@@ -1,31 +1,51 @@
-/* ===== DOCTORS SECTION STYLES ===== */
+/* ========== DOCTORS SECTION ========== */
 .doctors-section {
-  background-color: #ffffff;
-  padding: var(--spacing-3xl) 0;
+  background-color: #f7fbfd;
+  padding: 64px 0;
 }
 
-.doctors-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: var(--spacing-xl);
-  max-width: 1000px;
-  margin: 0 auto;
-}
-
-/* ===== DOCTOR CARD STYLES ===== */
-.doctor-card {
-  background: var(--bg-white);
-  border-radius: var(--radius-xl);
-  padding: var(--spacing-xl);
+.section-title {
   text-align: center;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
-  transition: all var(--transition-normal);
-  position: relative;
-  overflow: hidden;
-  min-height: 420px;
+  font-size: 2rem;
+  font-weight: 800;
+  margin-bottom: 12px;
+  background: linear-gradient(to right, #0288d1, #00bcd4);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  letter-spacing: 0.5px;
+}
+
+.section-subtitle-description {
+  text-align: center;
+  font-size: 1rem;
+  font-weight: 400;
+  color: #64748b;
+  margin-bottom: 36px;
+  max-width: 600px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* ========== SPLIDE STYLES ========== */
+.splide__slide {
+  display: flex;
+  justify-content: center;
+}
+
+/* ========== DOCTOR CARD ========== */
+.doctor-card {
+  width: 100%;
+  max-width: 300px;
+  background: #ffffff;
+  border-radius: 16px;
+  padding: 24px 20px;
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.08);
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
+  align-items: center;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  position: relative;
+  overflow: hidden;
 }
 
 .doctor-card::before {
@@ -33,244 +53,125 @@
   position: absolute;
   top: 0;
   left: 0;
-  right: 0;
   height: 4px;
-  background: var(--gradient-primary);
+  width: 100%;
+  background: linear-gradient(to right, #00bcd4, #0288d1);
 }
 
 .doctor-card:hover {
-  transform: translateY(-8px);
-  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+  transform: translateY(-6px);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.12);
 }
 
-/* ===== DOCTOR AVATAR ===== */
+/* ========== AVATAR ========== */
 .doctor-avatar {
-  width: 120px;
-  height: 120px;
-  margin: 0 auto var(--spacing-lg);
-  position: relative;
-  flex-shrink: 0;
+  width: 100px;
+  height: 100px;
+  margin-bottom: 16px;
 }
 
 .doctor-avatar img {
   width: 100%;
   height: 100%;
-  border-radius: 50%;
   object-fit: cover;
-  border: 4px solid #00bcd4;
-  background: linear-gradient(135deg, #00bcd4, #0097a7);
+  border-radius: 10%;
+  border: 2px solid #0288d1;
 }
 
-/* ===== DOCTOR STATS ===== */
+/* ========== NAME + TITLE ========== */
+.doctor-name {
+  font-size: 16px;
+  font-weight: 700;
+  color: #1e293b;
+  text-align: center;
+  margin-bottom: 4px;
+}
+
+.doctor-title {
+  font-size: 13px;
+  color: #64748b;
+  margin-bottom: 12px;
+  text-align: center;
+}
+
+/* ========== DETAILS BADGES ========== */
+.doctor-details {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 16px;
+  width: 100%;
+}
+
+.doctor-details div {
+  font-size: 13px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #475569;
+}
+
+.specialist-badge {
+  font-weight: 600;
+  color: #0288d1;
+}
+
+/* ========== STATS (Đánh giá & Lượt khám) ========== */
 .doctor-stats {
   display: flex;
   justify-content: space-between;
-  margin-bottom: var(--spacing-lg);
+  width: 100%;
   font-size: 12px;
-  flex-shrink: 0;
+  margin-bottom: 16px;
+  color: #64748b;
 }
 
-.rating-section,
-.views-section {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-}
-
-.rating-label,
-.views-label {
-  color: var(--text-secondary);
-  font-weight: 500;
-}
-
-.rating-value,
-.views-value {
-  color: #ff9800;
+.rating-value {
   font-weight: bold;
+  color: #f59e0b;
 }
 
 .rating-stars {
   display: flex;
   gap: 1px;
+  font-size: 12px;
 }
 
 .star {
-  color: #ddd;
-  font-size: 10px;
+  color: #e2e8f0;
 }
 
 .star.filled {
-  color: #ff9800;
+  color: #f59e0b;
 }
 
-.views-icon {
-  font-size: 10px;
-}
-
-/* ===== DOCTOR INFO ===== */
-.doctor-info {
-  margin-bottom: var(--spacing-lg);
-  text-align: left;
-  flex-grow: 1;
-  display: flex;
-  flex-direction: column;
-}
-
-.doctor-name {
-  font-size: 16px;
-  font-weight: 700;
-  color: var(--text-primary);
-  margin-bottom: var(--spacing-xs);
-  line-height: 1.3;
-  min-height: 44px;
-  display: flex;
-  align-items: center;
-}
-
-.doctor-title {
-  font-size: 14px;
-  color: var(--text-secondary);
-  margin-bottom: var(--spacing-md);
-  min-height: 20px;
-}
-
-.doctor-details {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-xs);
-  margin-top: auto;
-}
-
-.specialty,
-.price,
-.specialist-badge {
-  display: flex;
-  align-items: center;
-  gap: var(--spacing-xs);
-  font-size: 13px;
-  color: var(--text-secondary);
-  min-height: 20px;
-}
-
-.specialty-icon,
-.price-icon,
-.specialist-icon {
-  font-size: 12px;
-  width: 16px;
-  text-align: center;
-}
-
-.specialist-badge {
-  color: var(--primary-color);
-  font-weight: 600;
-}
-
-/* ===== CONSULT BUTTON ===== */
+/* ========== BUTTON ========== */
 .consult-btn {
-  width: 100%;
-  background: var(--gradient-primary);
-  color: white;
-  border: none;
-  border-radius: var(--radius-md);
-  padding: var(--spacing-md);
-  font-weight: 600;
-  font-size: 14px;
-  cursor: pointer;
-  transition: all var(--transition-normal);
   margin-top: auto;
-  flex-shrink: 0;
+  background: linear-gradient(to right, #00bcd4, #0288d1);
+  border: none;
+  padding: 12px 16px;
+  color: white;
+  font-size: 14px;
+  font-weight: 600;
+  width: 100%;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.25s ease;
 }
 
 .consult-btn:hover {
-  background: #0097a7;
-  transform: translateY(-2px);
-  box-shadow: 0 4px 15px rgba(0, 188, 212, 0.3);
+  background: #0288d1;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(2, 136, 209, 0.3);
 }
 
-/* ===== RESPONSIVE STYLES ===== */
-@media (max-width: 992px) {
-  .doctors-grid {
-    grid-template-columns: repeat(2, 1fr);
-    gap: var(--spacing-lg);
-    max-width: 700px;
-  }
-
-  .doctor-card {
-    min-height: 380px;
-  }
-
-  .doctor-avatar {
-    width: 100px;
-    height: 100px;
-  }
-}
-
-@media (max-width: 768px) {
-  .doctors-grid {
-    grid-template-columns: 1fr;
-    gap: var(--spacing-lg);
-    max-width: 400px;
-  }
-
-  .doctor-card {
-    padding: var(--spacing-lg);
-    min-height: 350px;
-  }
-
-  .doctor-stats {
-    font-size: 11px;
-  }
-
-  .doctor-name {
-    font-size: 15px;
-    min-height: 40px;
-  }
-}
-
-@media (max-width: 576px) {
-  .doctor-card {
-    padding: var(--spacing-md);
-    min-height: 320px;
-  }
-
-  .doctor-avatar {
-    width: 80px;
-    height: 80px;
-  }
-
-  .doctor-name {
-    font-size: 14px;
-    min-height: 36px;
-  }
-
-  .consult-btn {
-    padding: var(--spacing-sm);
-    font-size: 13px;
-  }
-}
-.doctors-section .section-title {
-  display: block;
-  margin-left: auto;
-  margin-right: auto;
-  text-align: center;
-  font-size: 2rem; /* hoặc 4rem nếu muốn to hơn */
-  font-weight: 700;
-  margin-bottom: 24px;
-  background: black;
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  color: transparent;
-  letter-spacing: 1px;
-  width: fit-content;
-}
-.section-subtitle-description {
-  display: block;
-  margin-left: auto;
-  margin-right: auto;
-  text-align: center;
-  font-size: 1rem;
-  font-weight: 400;
-  margin-bottom: 25px;
-  color: var(--text-secondary);
+/* ========== RESPONSIVE GRID (nếu dùng grid ngoài carousel) ========== */
+.doctors-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 24px;
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 0 16px;
 }
