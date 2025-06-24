@@ -6,7 +6,6 @@ import {
   Card,
   Table,
   Button,
-  Modal,
   Form,
   Input,
   Typography,
@@ -35,12 +34,18 @@ import api from "../configs/axios";
 import { useEffect } from "react";
 
 import { supabase } from "../utils/supabaseClient";
-import { Upload } from "antd";
-import { UploadOutlined } from "@ant-design/icons";
+
+// Import modals
+import {
+  UserModal,
+  ServiceModal,
+  ServiceDetailModal,
+  BlogModal,
+  RoomModal,
+} from "./modals";
 
 const { Header, Content, Sider } = Layout;
 const { Title } = Typography;
-const { Option } = Select;
 
 function Admin() {
   const [imageUrl, setImageUrl] = useState("");
@@ -999,384 +1004,56 @@ function Admin() {
       </Layout>
 
       {/* Modals for Admin Actions */}
-      {/* User Modal */}
-      <Modal
-        title="Manage User"
+      <UserModal
         visible={isUserModalVisible}
         onOk={handleUserModalOk}
         onCancel={() => setIsUserModalVisible(false)}
-      >
-        <Form form={form} layout="vertical">
-          <Form.Item
-            name="name"
-            label="User Name"
-            rules={[{ required: true, message: "Please input user name!" }]}
-          >
-            <Input />
-          </Form.Item>
-          <Form.Item
-            name="email"
-            label="Email"
-            rules={[
-              {
-                required: true,
-                type: "email",
-                message: "Please input a valid email!",
-              },
-            ]}
-          >
-            <Input />
-          </Form.Item>
-          <Form.Item
-            name="role"
-            label="Role"
-            rules={[{ required: true, message: "Please select a role!" }]}
-          >
-            <Select placeholder="Select a role">
-              <Option value="User">User</Option>
-              <Option value="Consultant">Consultant</Option>
-              <Option value="Admin">Admin</Option>
-            </Select>
-          </Form.Item>
-        </Form>
-      </Modal>
+        form={form}
+        editingUser={editingUser}
+      />
 
-      {/* Service Modal */}
-      <Modal
-        title={editingService ? "Edit Service" : "Add Service"}
+      <ServiceModal
         visible={isServiceModalVisible}
         onOk={handleServiceModalOk}
         onCancel={() => {
           setIsServiceModalVisible(false);
           setEditingService(null);
-          setIsComboService(false);
-          setAvailableServices([]);
-          form.resetFields();
         }}
-        width={600}
-      >
-        <Form form={form} layout="vertical">
-          <Form.Item
-            name="name"
-            label="Service Name"
-            rules={[{ required: true, message: "Please input service name!" }]}
-          >
-            <Input placeholder="Enter service name" />
-          </Form.Item>
-          <Form.Item
-            name="description"
-            label="Description"
-            rules={[{ required: true, message: "Please input description!" }]}
-          >
-            <Input.TextArea rows={3} placeholder="Enter service description" />
-          </Form.Item>
-          <Form.Item
-            name="duration"
-            label="Duration (minutes)"
-            rules={[{ required: true, message: "Please input duration!" }]}
-          >
-            <Input type="number" placeholder="Enter duration in minutes" />
-          </Form.Item>
-          <Form.Item
-            name="type"
-            label="Service Type"
-            rules={[{ required: true, message: "Please select service type!" }]}
-          >
-            <Select placeholder="Select service type">
-              <Option value="CONSULTING">CONSULTING</Option>
-              <Option value="TESTING">TESTING</Option>
-              <Option value="TREATMENT">TREATMENT</Option>
-            </Select>
-          </Form.Item>
-          <Form.Item
-            name="price"
-            label="Price (VND)"
-            rules={[{ required: true, message: "Please input price!" }]}
-          >
-            <Input type="number" placeholder="Enter price" />
-          </Form.Item>
-          <Form.Item name="discountPercent" label="Discount Percentage">
-            <Input
-              type="number"
-              min={0}
-              max={100}
-              placeholder="Enter discount percentage (0-100)"
-            />
-          </Form.Item>
-          <Form.Item name="isCombo" label="Is Combo Service">
-            <Select
-              placeholder="Select if this is a combo service"
-              onChange={(value) => {
-                setIsComboService(value);
-                if (value) {
-                  // Load available services khi chọn combo
-                  fetchAvailableServices().then(setAvailableServices);
-                }
-              }}
-            >
-              <Option value={false}>No</Option>
-              <Option value={true}>Yes</Option>
-            </Select>
-          </Form.Item>
+        form={form}
+        editingService={editingService}
+        isComboService={isComboService}
+        setIsComboService={setIsComboService}
+        availableServices={availableServices}
+        fetchAvailableServices={fetchAvailableServices}
+        setAvailableServices={setAvailableServices}
+      />
 
-          {/* Hiển thị trường sub-services khi isCombo = true */}
-          {isComboService && (
-            <Form.Item
-              name="subServiceIds"
-              label="Sub Services"
-              rules={[
-                { required: true, message: "Please select sub services!" },
-              ]}
-            >
-              <Select
-                mode="multiple"
-                placeholder="Select sub services"
-                loading={availableServices.length === 0}
-              >
-                {availableServices.map((service) => (
-                  <Option key={service.id} value={service.id}>
-                    {service.name} - {service.price?.toLocaleString() || 0}đ
-                  </Option>
-                ))}
-              </Select>
-            </Form.Item>
-          )}
-          <Form.Item name="isActive" label="Status">
-            <Select placeholder="Select status">
-              <Option value={true}>Active</Option>
-              <Option value={false}>Inactive</Option>
-            </Select>
-          </Form.Item>
-        </Form>
-      </Modal>
-
-      {/* Service Detail Modal */}
-      <Modal
-        title="Service Details"
+      <ServiceDetailModal
         visible={isServiceDetailModalVisible}
         onCancel={() => {
           setIsServiceDetailModalVisible(false);
           setServiceDetail(null);
         }}
-        footer={[
-          <Button
-            key="close"
-            onClick={() => setIsServiceDetailModalVisible(false)}
-          >
-            Close
-          </Button>,
-        ]}
-        width={600}
-      >
-        {serviceDetail && (
-          <div>
-            <p>
-              <strong>ID:</strong> {serviceDetail.id}
-            </p>
-            <p>
-              <strong>Name:</strong> {serviceDetail.name}
-            </p>
-            <p>
-              <strong>Description:</strong> {serviceDetail.description}
-            </p>
-            <p>
-              <strong>Duration:</strong>{" "}
-              {serviceDetail.duration
-                ? Math.floor(serviceDetail.duration / 60)
-                : "N/A"}{" "}
-              minutes
-            </p>
-            <p>
-              <strong>Type:</strong>
-              <Tag
-                color={serviceDetail.type === "CONSULTING" ? "blue" : "green"}
-                style={{ marginLeft: 8 }}
-              >
-                {serviceDetail.type}
-              </Tag>
-            </p>
-            <p>
-              <strong>Price:</strong>{" "}
-              {serviceDetail.price?.toLocaleString() || 0}đ
-            </p>
-            <p>
-              <strong>Discount:</strong> {serviceDetail.discountPercent || 0}%
-            </p>
-            <p>
-              <strong>Is Combo:</strong>
-              <Tag
-                color={serviceDetail.isCombo ? "orange" : "default"}
-                style={{ marginLeft: 8 }}
-              >
-                {serviceDetail.isCombo ? "Yes" : "No"}
-              </Tag>
-            </p>
-            <p>
-              <strong>Status:</strong>
-              <Tag
-                color={serviceDetail.isActive ? "green" : "red"}
-                style={{ marginLeft: 8 }}
-              >
-                {serviceDetail.isActive ? "Active" : "Inactive"}
-              </Tag>
-            </p>
-            <p>
-              <strong>Created At:</strong>{" "}
-              {new Date(serviceDetail.createdAt).toLocaleString("vi-VN")}
-            </p>
-            {serviceDetail.subServiceIds &&
-              serviceDetail.subServiceIds.length > 0 && (
-                <p>
-                  <strong>Sub Service IDs:</strong>{" "}
-                  {serviceDetail.subServiceIds.join(", ")}
-                </p>
-              )}
-            {serviceDetail.subServices &&
-              serviceDetail.subServices.length > 0 && (
-                <div>
-                  <p>
-                    <strong>Sub Services:</strong>
-                  </p>
-                  <div style={{ marginLeft: 16 }}>
-                    {serviceDetail.subServices.map((subService, index) => (
-                      <div
-                        key={subService.id}
-                        style={{
-                          marginBottom: 8,
-                          padding: 8,
-                          border: "1px solid #f0f0f0",
-                          borderRadius: 4,
-                        }}
-                      >
-                        <p style={{ margin: 0 }}>
-                          <strong>
-                            {index + 1}. {subService.name}
-                          </strong>
-                        </p>
-                        <p
-                          style={{ margin: 0, fontSize: "12px", color: "#666" }}
-                        >
-                          {subService.description}
-                        </p>
-                        <p style={{ margin: 0, fontSize: "12px" }}>
-                          Price: {subService.price?.toLocaleString() || 0}đ |
-                          Duration:{" "}
-                          {subService.duration
-                            ? Math.floor(subService.duration / 60)
-                            : "N/A"}{" "}
-                          minutes | Type:{" "}
-                          <Tag
-                            size="small"
-                            color={
-                              subService.type === "CONSULTING"
-                                ? "blue"
-                                : "green"
-                            }
-                          >
-                            {subService.type}
-                          </Tag>
-                        </p>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
-          </div>
-        )}
-      </Modal>
+        serviceDetail={serviceDetail}
+      />
 
-      {/* Blog Modal */}
-      <Modal
-        title="Manage Blog Article"
+      <BlogModal
         visible={isBlogModalVisible}
         onOk={handleBlogModalOk}
         onCancel={() => setIsBlogModalVisible(false)}
-      >
-        <Form form={blogForm} layout="vertical">
-          <Form.Item
-            name="title"
-            label="Article Title"
-            rules={[{ required: true, message: "Please input article title!" }]}
-          >
-            <Input />
-          </Form.Item>
-          <Form.Item
-            name="author"
-            label="Author"
-            rules={[{ required: true, message: "Please input author name!" }]}
-          >
-            <Input />
-          </Form.Item>
-          <Form.Item name="content" label="Content">
-            <Input.TextArea rows={8} />
-          </Form.Item>
-          {/* Tách riêng Form.Item cho ảnh và status */}
-          <Form.Item label="Ảnh minh họa" name="image_url">
-            <Upload
-              customRequest={({ file, onSuccess }) => {
-                handleUpload(file).then(() => onSuccess("ok"));
-              }}
-              showUploadList={false}
-              accept="image/*"
-            >
-              <Button icon={<UploadOutlined />}>Upload Image</Button>
-            </Upload>
-            {imageUrl && (
-              <img
-                src={imageUrl}
-                alt="preview"
-                style={{ width: 120, marginTop: 8 }}
-              />
-            )}
-          </Form.Item>
-          <Form.Item
-            name="status"
-            label="Status"
-            rules={[{ required: true, message: "Please select status!" }]}
-          >
-            <Select placeholder="Select status">
-              <Option value="Published">Published</Option>
-              <Option value="Draft">Draft</Option>
-            </Select>
-          </Form.Item>
-        </Form>
-      </Modal>
+        form={blogForm}
+        editingArticle={editingArticle}
+        imageUrl={imageUrl}
+        handleUpload={handleUpload}
+      />
 
-      {/* Room Modal */}
-      <Modal
-        title="Manage Medical Room"
-        open={isRoomModalVisible}
+      <RoomModal
+        visible={isRoomModalVisible}
         onOk={handleRoomModalOk}
         onCancel={() => setIsRoomModalVisible(false)}
-      >
-        <Form form={form} layout="vertical">
-          <Form.Item
-            name="roomName"
-            label="Room Name"
-            rules={[{ required: true, message: "Please input room name!" }]}
-          >
-            <Input />
-          </Form.Item>
-          <Form.Item
-            name="capacity"
-            label="Capacity"
-            rules={[{ required: true, message: "Please input capacity!" }]}
-          >
-            <Input type="number" />
-          </Form.Item>
-          <Form.Item
-            name="status"
-            label="Status"
-            rules={[{ required: true, message: "Please select status!" }]}
-          >
-            <Select placeholder="Select status">
-              <Option value="Available">Available</Option>
-              <Option value="Occupied">Occupied</Option>
-              <Option value="Maintenance">Maintenance</Option>
-            </Select>
-          </Form.Item>
-        </Form>
-      </Modal>
+        form={form}
+        editingRoom={null} // You can add editingRoom state if needed
+      />
     </Layout>
   );
 }
