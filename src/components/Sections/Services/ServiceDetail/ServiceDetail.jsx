@@ -39,57 +39,43 @@ const ServiceDetail = () => {
         <Tabs defaultActiveKey="1">
           <Tabs.TabPane tab="Thông tin dịch vụ" key="1">
             {/* Mô tả dịch vụ từ API */}
-            <div className="service-description">
-              <h3>Về dịch vụ</h3>
-              <ul>
-                <li>
-                  Mang theo sổ khám bệnh, kết quả khám và các xét nghiệm trước
-                  đó (nếu có).
-                </li>
-                <li>
-                  Trường hợp có các biểu hiện đau nhức bất thường, có thể trao
-                  đổi cùng đội ngũ y bác sĩ.
-                </li>
-                <li>
-                  Vui lòng liên hệ với bộ phận Chăm sóc khách hàng của Columbia
-                  Asia để được tư vấn cụ thể hơn về quá trình chuẩn bị.
-                </li>
-                <li>
-                  Hotline: <strong>0274 381 9933</strong>
-                </li>
-              </ul>
-              <div
-                className="description"
-                dangerouslySetInnerHTML={{ __html: service.description }}
-              />
-            </div>
+            <div className="service-details-wrapper">
+              <div className="service-description">
+                <h3>Về dịch vụ</h3>
+                <ul>
+                  <div
+                    className="description"
+                    dangerouslySetInnerHTML={{ __html: service.description }}
+                  />
+                </ul>
+              </div>
 
-            {/* Thêm phần chuẩn bị */}
-            <div className="prep-section">
-              <h3>Quá trình chuẩn bị</h3>
-              <ul>
-                <li>
-                  Mang theo sổ khám bệnh, kết quả khám và các xét nghiệm trước
-                  đó (nếu có).
-                </li>
-                <li>
-                  Trường hợp có các biểu hiện đau nhức bất thường, có thể trao
-                  đổi cùng đội ngũ y bác sĩ.
-                </li>
-                <li>
-                  Vui lòng liên hệ với bộ phận Chăm sóc khách hàng của Columbia
-                  Asia để được tư vấn cụ thể hơn về quá trình chuẩn bị.
-                </li>
-                <li>
-                  📞 Hotline: <strong>0274 381 9933</strong>
-                </li>
-              </ul>
+              {/* Thêm phần chuẩn bị */}
+              <div className="prep-section">
+                <h3>Quá trình chuẩn bị</h3>
+                <div className="prep-items">
+                  <div className="prep-item">
+                    📝 Mang theo sổ khám bệnh, kết quả khám và các xét nghiệm
+                    trước đó (nếu có).
+                  </div>
+                  <div className="prep-item">
+                    💬 Trường hợp có các biểu hiện đau nhức bất thường, có thể
+                    trao đổi cùng đội ngũ y bác sĩ.
+                  </div>
+                  <div className="prep-item">
+                    📞 Vui lòng liên hệ với bộ phận Chăm sóc khách hàng của
+                    Columbia Asia để được tư vấn cụ thể hơn.
+                  </div>
+                  <div className="prep-item">
+                    ☎️ Hotline: <strong>0274 381 9933</strong>
+                  </div>
+                </div>
+              </div>
             </div>
           </Tabs.TabPane>
 
           <Tabs.TabPane tab={`Đánh giá (${service.ratingCount || 0})`} key="2">
             <div style={{ textAlign: "center", padding: "32px 0" }}>
-              <img src="/no-comment-icon.svg" alt="No review" width={60} />
               <p style={{ color: "#888", marginTop: 12 }}>
                 Chưa có đánh giá nào
               </p>
