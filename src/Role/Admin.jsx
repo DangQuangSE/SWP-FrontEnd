@@ -42,7 +42,7 @@ import {
   ServiceDetailModal,
   BlogModal,
   RoomModal,
-} from "./modals";
+} from "./AdminDashboard/index";
 
 const { Header, Content, Sider } = Layout;
 const { Title } = Typography;
