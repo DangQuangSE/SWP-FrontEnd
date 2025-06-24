@@ -23,7 +23,7 @@ import axios from "axios";
 // import { useSelector } from "react-redux";
 
 const api = axios.create({
-  baseURL: "http://localhost:8085/api",
+  baseURL: "http://localhost:8080/api",
   withCredentials: true,
 });
 
