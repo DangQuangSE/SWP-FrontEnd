@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Form, Input, Button, message, Spin } from "antd";
 import GradientButton from "../common/GradientButton";
-import api from "../../configs/axios";
+import api from "../../configs/api";
 import { useDispatch } from "react-redux";
 import { login } from "../../redux/features/userSlice";
 import { toast } from "react-toastify";
@@ -108,7 +108,7 @@ const RegisterForm = () => {
         res.data.message.toLowerCase().includes("thành công") &&
         res.data.user
       ) {
-        dispatch(login(res.data.user));
+        dispatch(login());
         message.success("Đăng ký thành công!");
         window.location.href = "/";
       } else {

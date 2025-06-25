@@ -30,7 +30,7 @@ import {
   DeleteOutlined,
   EyeOutlined,
 } from "@ant-design/icons";
-import api from "../configs/axios";
+import api from "../configs/api";
 import { useEffect } from "react";
 
 import { supabase } from "../utils/supabaseClient";

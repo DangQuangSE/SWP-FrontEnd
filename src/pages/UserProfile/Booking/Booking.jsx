@@ -3,48 +3,77 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { useLocation, useNavigate } from "react-router-dom";
 import "./Booking.css";
-import { message, Avatar } from "antd";
+import { useSelector } from "react-redux";
+import { message } from "antd";
+import api from "../../../configs/api";
 const TABS = [
   { key: "upcoming", label: "Lịch hẹn sắp đến" },
   { key: "completed", label: "Hoàn thành" },
   { key: "history", label: "Lịch sử đặt chỗ" },
+  { key: "combo", label: "Gói khám" },
 ];
 
 const Booking = () => {
-  const [appointment, setAppointment] = useState(null);
+  const [appointments, setAppointments] = useState([]);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState("upcoming");
   const navigate = useNavigate();
   const { search } = useLocation();
+  const reduxToken = useSelector((state) => state.user.token);
+  const token = reduxToken || localStorage.getItem("token"); // fallback nếu Redux chưa có
+  // const token = useSelector((state) => state.user.token);
   useEffect(() => {
-    const storedId = localStorage.getItem("pendingBooking");
-    if (!storedId) {
-      setLoading(false);
-      return;
+    console.log("Redux token:", token);
+    console.log("Token (final dùng gọi API):", token);
+
+    const fetchAppointments = async () => {
+      setLoading(true);
+
+      try {
+        let data = [];
+
+        if (activeTab === "upcoming") {
+          const [booked, pending] = await Promise.all([
+            api.get("/appointment/by-status?status=CONFIRMED"),
+            api.get("/appointment/by-status?status=PENDING"),
+          ]);
+          data = [...booked.data, ...pending.data];
+        } else if (activeTab === "completed") {
+          const res = await axios.get(
+            "/appointment/by-status?status=COMPLETED"
+          );
+          data = res.data;
+        } else if (activeTab === "history") {
+          const res = await api.get("/appointment/by-status?status=CANCELED");
+          data = res.data;
+        }
+
+        data.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+        setAppointments(data);
+      } catch (err) {
+        console.error(
+          "Lỗi khi lấy lịch hẹn:",
+          err.response?.data || err.message
+        );
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    if (token) {
+      fetchAppointments();
+    } else {
+      console.warn(" Không có token để gọi API!");
     }
+  }, [activeTab, token]);
 
-    const parsed = JSON.parse(storedId);
-    const appointmentId = parsed?.appointmentId;
-
-    axios
-      .get(`/api/appointment/${appointmentId}`)
-      .then((res) => {
-        setAppointment(res.data);
-        setLoading(false);
-        console.log("Lịch hẹn đã lấy:", res.data);
-      })
-      .catch((err) => {
-        console.error("Lỗi khi lấy lịch hẹn:", err);
-        setLoading(false);
-      });
-  }, []);
   // 2. Kiểm tra MoMo trả về resultCode
   useEffect(() => {
     const query = new URLSearchParams(search);
     const resultCode = query.get("resultCode");
 
     if (resultCode) {
-      localStorage.removeItem("pendingBooking"); // ✅ Xoá dù thành công hay thất bại
+      localStorage.removeItem("pendingBooking"); // Xoá dù thành công hay thất bại
 
       if (resultCode === "1000") {
         message.success("Thanh toán thành công!");
@@ -60,17 +89,20 @@ const Booking = () => {
       }
     }
   }, [search, navigate]);
-  const renderAppointment = () => {
-    if (loading)
+  const renderAppointments = () => {
+    if (loading) {
       return (
         <div className="booking-loading-profile">Đang tải lịch hẹn...</div>
       );
+    }
 
-    if (!appointment) {
+    if (!appointments?.length) {
+      const currentTab = TABS.find((t) => t.key === activeTab);
+
       return (
         <div className="booking-empty-profile">
-          <h3>Không có lịch hẹn sắp đến</h3>
-          <p>Đừng lo lắng. Đặt lịch hẹn với một chuyên gia gần đó</p>
+          <h3>Không có {currentTab?.label.toLowerCase()}</h3>
+          <p>Đừng lo lắng. Bạn có thể đặt lịch khi cần</p>
           <button onClick={() => navigate("/services")}>
             Đăng kí khám bệnh
           </button>
@@ -78,8 +110,8 @@ const Booking = () => {
       );
     }
 
-    return (
-      <div className="booking-card-profile">
+    return appointments.map((appointment) => (
+      <div className="booking-card-profile" key={appointment.id}>
         <h2>Thông tin lịch hẹn</h2>
         <div className="booking-info-profile">
           <p>
@@ -106,20 +138,10 @@ const Booking = () => {
           </p>
         </div>
       </div>
-    );
+    ));
   };
 
-  const renderTabContent = () => {
-    if (activeTab === "upcoming") return renderAppointment();
-    return (
-      <div className="booking-empty-profile">
-        <h3>
-          Không có {TABS.find((t) => t.key === activeTab).label.toLowerCase()}
-        </h3>
-        <p>Đừng lo lắng. Bạn có thể đặt lịch khi cần</p>
-      </div>
-    );
-  };
+  const renderTabContent = () => renderAppointments();
 
   return (
     <div className="booking-tab-wrapper-profile">

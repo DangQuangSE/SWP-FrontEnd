@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Form, Input } from "antd";
 import GradientButton from "../common/GradientButton";
 import LoginGoogle from "../../api/LoginGoogle";
-import api from "../../configs/axios";
+import api from "../../configs/api";
 import { useDispatch } from "react-redux";
 import { toast } from "react-toastify";
 import { login } from "../../redux/features/userSlice";
@@ -23,7 +23,7 @@ const LoginForm = ({ onClose }) => {
         password: values.password,
       });
       const user = res.data;
-      dispatch(login(res.data.user));
+      dispatch(login({ user }));
       console.log(user.jwt);
       localStorage.setItem("token", user.jwt);
       toast.success("Đăng nhập thành công!");
@@ -71,10 +71,11 @@ const LoginForm = ({ onClose }) => {
       if (token) {
         localStorage.setItem("token", token);
         localStorage.setItem("user", JSON.stringify(user));
-        dispatch(login(user));
+        dispatch(login({ user, token }));
         toast.success("Đăng nhập Google thành công!");
         if (onClose) onClose();
         navigate("/");
+        console.log("Token", token);
       } else {
         toast.error("Đăng nhập Google thất bại! Không có token.");
       }

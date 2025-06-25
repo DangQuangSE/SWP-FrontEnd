@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useSelector } from "react-redux";
 import dayjs from "dayjs";
 import "./Consultant.css";
-import api from "../configs/axios";
+import api from "../configs/api";
 import {
   Layout,
   Menu,

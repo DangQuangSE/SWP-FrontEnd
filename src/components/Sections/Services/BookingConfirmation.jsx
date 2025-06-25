@@ -7,7 +7,7 @@ import axios from "axios";
 
 const BookingConfirmation = () => {
   const navigate = useNavigate();
-  const { search, state: booking } = useLocation();
+  const { state: booking } = useLocation();
   const user = JSON.parse(localStorage.getItem("user")) || {};
   const token = localStorage.getItem("token");
   const [paymentMethod, setPaymentMethod] = useState("momo");
@@ -23,28 +23,6 @@ const BookingConfirmation = () => {
       setTimeout(() => navigate("/login"), 1500);
     }
   }, [token, navigate]);
-  // 2. Kiểm tra MoMo trả về resultCode
-  useEffect(() => {
-    const query = new URLSearchParams(search);
-    const resultCode = query.get("resultCode");
-
-    if (resultCode) {
-      localStorage.removeItem("pendingBooking"); // ✅ Xoá dù thành công hay thất bại
-
-      if (resultCode === "0") {
-        message.success("Thanh toán thành công!");
-        navigate("/"); // hoặc navigate đến trang cảm ơn / lịch sử
-      } else {
-        message.warning("Thanh toán thất bại hoặc đã bị hủy.");
-        const serviceId = JSON.parse(localStorage.getItem("lastServiceId"));
-        if (serviceId) {
-          navigate(`/service-detail/${serviceId}`);
-        } else {
-          navigate("/"); // fallback
-        }
-      }
-    }
-  }, [search, navigate]);
 
   if (!token) {
     return (
