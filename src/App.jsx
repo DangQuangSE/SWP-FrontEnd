@@ -42,6 +42,7 @@ import Noti from "./components/NotificationCenter/Noti";
 
 import BookingConfirmation from "./components/Sections/Services/BookingConfirmation";
 import Payment from "./components/Sections/Payment/payment";
+import MomoReturn from "./components/Sections/Payment/MomoReturn";
 function App() {
   const [rehydrated, setRehydrated] = useState(false);
 
@@ -101,6 +102,7 @@ function App() {
                 <Route path="attended" element={<Attended />} />
                 <Route path="settings" element={<Settings />} /> */}
               </Route>
+              <Route path="/payment/result" element={<MomoReturn />} />
               <Route path="/staff" element={<Staff />} />{" "}
               <Route path="/booking" element={<BookingForm />} />
               <Route path="/service-detail/:id" element={<ServiceDetail />} />
