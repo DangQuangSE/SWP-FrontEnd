@@ -1,14 +1,13 @@
 // pages/UserProfile/Booking.jsx
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import "./Booking.css";
-
+import { message, Avatar } from "antd";
 const TABS = [
   { key: "upcoming", label: "Lịch hẹn sắp đến" },
   { key: "completed", label: "Hoàn thành" },
   { key: "history", label: "Lịch sử đặt chỗ" },
-  { key: "packages", label: "Gói khám sức khỏe" },
 ];
 
 const Booking = () => {
@@ -16,7 +15,7 @@ const Booking = () => {
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState("upcoming");
   const navigate = useNavigate();
-
+  const { search } = useLocation();
   useEffect(() => {
     const storedId = localStorage.getItem("pendingBooking");
     if (!storedId) {
@@ -39,7 +38,28 @@ const Booking = () => {
         setLoading(false);
       });
   }, []);
+  // 2. Kiểm tra MoMo trả về resultCode
+  useEffect(() => {
+    const query = new URLSearchParams(search);
+    const resultCode = query.get("resultCode");
 
+    if (resultCode) {
+      localStorage.removeItem("pendingBooking"); // ✅ Xoá dù thành công hay thất bại
+
+      if (resultCode === "1000") {
+        message.success("Thanh toán thành công!");
+        navigate("/"); // hoặc navigate đến trang cảm ơn / lịch sử
+      } else {
+        message.warning("Thanh toán thất bại hoặc đã bị hủy.");
+        const serviceId = JSON.parse(localStorage.getItem("lastServiceId"));
+        if (serviceId) {
+          navigate(`/service-detail/${serviceId}`);
+        } else {
+          navigate("/"); // fallback
+        }
+      }
+    }
+  }, [search, navigate]);
   const renderAppointment = () => {
     if (loading)
       return (

@@ -41,6 +41,9 @@ const AuthButtons = () => {
       icon: <LogoutOutlined />,
       onClick: () => {
         dispatch(logout());
+        localStorage.removeItem("token");
+        localStorage.removeItem("user");
+        localStorage.removeItem("pendingBooking");
         navigate("/");
       },
     },
