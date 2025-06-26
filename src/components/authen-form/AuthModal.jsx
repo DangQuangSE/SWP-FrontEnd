@@ -25,13 +25,13 @@ const ConfirmExitModal = ({ open, onCancel, onOk }) => (
         Bạn chưa hoàn tất thiết lập tài khoản. Bạn có thực sự muốn thoát?
       </div>
       <div className="exit-buttons">
-        <GradientButton className="btn-full" onClick={onCancel}>
+        <GradientButton className="btn-full exit-btn" onClick={onCancel}>
           <span className="exit">Hủy bỏ</span>
         </GradientButton>
       </div>
       <div className="exit-buttons">
-        <GradientButton className="btn-full" onClick={onOk}>
-          <span className="exit">Thoát</span>
+        <GradientButton className="btn-full exit-ok-btn" onClick={onOk}>
+          <span className="exit-ok">Thoát</span>
         </GradientButton>
       </div>
     </div>

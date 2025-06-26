@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Form, Input } from "antd";
 import GradientButton from "../common/GradientButton";
 import LoginGoogle from "../../api/LoginGoogle";
-import api from "../../configs/axios";
+import api from "../../configs/api";
 import { useDispatch } from "react-redux";
 import { toast } from "react-toastify";
 import { login } from "../../redux/features/userSlice";
@@ -49,34 +49,6 @@ const LoginForm = ({ onClose }) => {
       } else {
         toast.error("Lỗi đăng nhập!");
       }
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleFacebookSuccess = async (res) => {
-    try {
-      setLoading(true);
-      const response = await api.post("/auth/facebook", {
-        accessToken: res.accessToken,
-      });
-
-      console.log("Facebook response:", response.data);
-
-      const { user, jwt } = response.data;
-      if (user && jwt) {
-        toast.success("Đăng nhập Facebook thành công!");
-        // Lưu cả user và jwt vào Redux
-        dispatch(login({ ...user, jwt }));
-        localStorage.setItem("token", jwt);
-        localStorage.setItem("user", JSON.stringify(user));
-        window.location.href = "/";
-      } else {
-        toast.error("Đăng nhập Facebook thất bại!");
-      }
-    } catch (err) {
-      toast.error("Lỗi xác thực Facebook!");
-      console.log(err);
     } finally {
       setLoading(false);
     }

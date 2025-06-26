@@ -6,9 +6,8 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 
 const BookingConfirmation = () => {
-  const { state: booking } = useLocation();
   const navigate = useNavigate();
-
+  const { state: booking } = useLocation();
   const user = JSON.parse(localStorage.getItem("user")) || {};
   const token = localStorage.getItem("token");
   const [paymentMethod, setPaymentMethod] = useState("momo");
@@ -54,11 +53,9 @@ const BookingConfirmation = () => {
       paymentMethod,
     };
 
-    console.log("🔐 Token dùng để gửi:", token);
-    console.log("📤 Payload gửi:", payload);
+    console.log(" Payload gửi:", payload);
 
     try {
-      // 1. Gửi request tạo booking
       const res = await axios.post("/api/booking/medicalService", payload, {
         headers: {
           Authorization: `Bearer ${token}`,
@@ -66,10 +63,15 @@ const BookingConfirmation = () => {
         },
       });
 
-      const appointmentId = res.data.appointmentId;
-      console.log("📦 Kết quả trả về từ backend:", res.data);
+      // ✅ In toàn bộ phản hồi từ server để kiểm tra
+      console.log("📥 Phản hồi từ backend khi tạo booking:", res.data);
 
-      // 2. Lưu thông tin đầy đủ để dùng ở trang thanh toán
+      const appointmentId = res.data.appointmentId;
+      if (!appointmentId) {
+        message.error("Không lấy được mã lịch hẹn từ phản hồi server.");
+        return;
+      }
+
       localStorage.setItem(
         "pendingBooking",
         JSON.stringify({
@@ -79,14 +81,7 @@ const BookingConfirmation = () => {
           serviceName: fullBooking.serviceName,
         })
       );
-      console.log("Lưu localStorage với:", {
-        appointmentId,
-        paymentMethod,
-        amount: fullBooking.price,
-        serviceName: fullBooking.serviceName,
-      });
 
-      // 3. Chuyển sang trang thanh toán (Payment.jsx xử lý tiếp)
       message.success("Đặt lịch thành công!");
       navigate("/payment", { state: { bookingId: appointmentId } });
     } catch (error) {
@@ -95,6 +90,9 @@ const BookingConfirmation = () => {
         (typeof error.response?.data === "string"
           ? error.response.data
           : "Lỗi không xác định từ máy chủ");
+
+      // ✅ In lỗi đầy đủ nếu server có trả gì đó
+      console.error("❌ Lỗi phản hồi từ server:", error.response?.data);
       message.error(`Đặt lịch thất bại: ${errorMessage}`);
     }
   };

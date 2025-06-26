@@ -18,7 +18,7 @@
 
 /* ===== LOGO ICON ===== */
 .logo-icon {
-  font-size: 24px;
+  font-size: 24spx;
   margin-right: var(--spacing-xs);
   color: var(--primary-color);
   font-weight: bold;

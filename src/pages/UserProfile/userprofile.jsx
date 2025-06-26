@@ -14,7 +14,9 @@ const menuItems = [
 ];
 
 export default function UserProfileLayout() {
-  const user = useSelector((state) => state.user);
+  const user = useSelector((state) => state.user.user);
+
+  console.log("User redux:", user);
 
   return (
     <div className="up-profile-container">

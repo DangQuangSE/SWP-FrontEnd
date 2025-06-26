@@ -49,6 +49,7 @@ const Payment = () => {
         if (!payUrl) {
           throw new Error("Không nhận được liên kết thanh toán.");
         }
+        localStorage.removeItem("pendingBooking");
         window.location.href = payUrl; // Chuyển hướng sang trang thanh toán
       } catch (err) {
         console.error("Lỗi khi tạo thanh toán:", err);

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import "./Consultant.css";
+
 import jwt_decode from "jwt-decode";
 import {
   Layout,
@@ -192,30 +193,30 @@ function Consultant() {
   };
 
   // Tạo blog mới
-const handleCreateBlog = () => {
-  if (!userId) {
-    toast("Không tìm thấy userId. Vui lòng đăng nhập lại!");
-    return;
-  }
-  createBlogForm.validateFields().then(async (values) => {
-    try {
-      // Lấy file ảnh từ input (nếu có)
-      const imgFile = document.querySelector('input[type="file"]').files[0];
-      await createBlog({
-        title: values.title,
-        content: values.content,
-        status: values.status || "PUBLISHED",
-        imgFile: imgFile,
-        // tags: values.tags, // nếu có tag
-      });
-      setIsCreateBlogModalVisible(false);
-      createBlogForm.resetFields();
-      loadBlogs();
-    } catch {
-      toast("Tạo blog thất bại");
+  const handleCreateBlog = () => {
+    if (!userId) {
+      toast("Không tìm thấy userId. Vui lòng đăng nhập lại!");
+      return;
     }
-  });
-};
+    createBlogForm.validateFields().then(async (values) => {
+      try {
+        // Lấy file ảnh từ input (nếu có)
+        const imgFile = document.querySelector('input[type="file"]').files[0];
+        await createBlog({
+          title: values.title,
+          content: values.content,
+          status: values.status || "PUBLISHED",
+          imgFile: imgFile,
+          // tags: values.tags, // nếu có tag
+        });
+        setIsCreateBlogModalVisible(false);
+        createBlogForm.resetFields();
+        loadBlogs();
+      } catch {
+        toast("Tạo blog thất bại");
+      }
+    });
+  };
 
   // Xóa blog
   const handleDeleteBlog = async (blogId) => {
@@ -661,8 +662,8 @@ const handleCreateBlog = () => {
               <b>Ngày cập nhật:</b> {selectedBlog.updatedAt}
             </div>
             <div style={{ marginBottom: 12 }}>
-              <b>Lượt xem:</b> {selectedBlog.viewCount} |{" "}
-              <b>Lượt thích:</b> {selectedBlog.likeCount}
+              <b>Lượt xem:</b> {selectedBlog.viewCount} | <b>Lượt thích:</b>{" "}
+              {selectedBlog.likeCount}
             </div>
             <div style={{ marginBottom: 12 }}>
               <b>Trạng thái:</b> {selectedBlog.status}

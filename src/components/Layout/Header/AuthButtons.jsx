@@ -8,32 +8,37 @@ import {
   SettingOutlined,
   LogoutOutlined,
 } from "@ant-design/icons";
-
 import { Avatar, Dropdown } from "antd";
 import { logout } from "../../../redux/features/userSlice.js";
-import { useNavigate } from "react-router-dom"; // ✅ THÊM
+import { useNavigate } from "react-router-dom";
 
 const AuthButtons = () => {
   const [open, setOpen] = useState(false);
   const dispatch = useDispatch();
-  const navigate = useNavigate(); // ✅ THÊM
-  const user = useSelector((state) => state.user);
+  const navigate = useNavigate();
+
+  //  LẤY RA USER ĐÚNG TỪ state
+  const userState = useSelector((state) => state.user);
+  const user = userState?.user;
+
+  const isLoggedIn = user && user.email;
 
   const onLoginClick = () => {
     setOpen(true);
   };
+
   const items = [
     {
       key: "1",
       label: "Thông tin cá nhân",
       icon: <UserOutlined />,
-      onClick: () => navigate("/user"), // ✅ THÊM điều hướng
+      onClick: () => navigate("/user"),
     },
     {
       key: "2",
       label: "Cài đặt",
       icon: <SettingOutlined />,
-      onClick: () => navigate("/settings"), // ✅ Gợi ý thêm nếu có
+      onClick: () => navigate("/settings"),
     },
     {
       key: "3",
@@ -41,6 +46,7 @@ const AuthButtons = () => {
       icon: <LogoutOutlined />,
       onClick: () => {
         dispatch(logout());
+        localStorage.clear(); // ✅ Gộp xóa gọn
         navigate("/");
       },
     },
@@ -48,7 +54,7 @@ const AuthButtons = () => {
 
   return (
     <div className="header-buttons">
-      {user == null ? (
+      {!isLoggedIn ? (
         <GradientButton onClick={onLoginClick}>
           <span className="login-btn">Đăng nhập</span>
         </GradientButton>
@@ -56,16 +62,15 @@ const AuthButtons = () => {
         <Dropdown menu={{ items }} trigger={["click"]}>
           <div
             style={{ display: "flex", alignItems: "center", cursor: "pointer" }}
-            onClick={() => navigate("/user")} // ✅ Điều hướng khi click avatar
           >
-            <Avatar src={user?.imageUrl} />
+            <Avatar src={user?.imageUrl || "/placeholder.svg"} />
             <span style={{ marginLeft: "8px" }}>
-              {user?.name || user?.username || user?.fullname || "User"}
+              {user?.fullname || "User"}
             </span>
           </div>
         </Dropdown>
       )}
-      {/* Modal for login/signup */}
+
       <AuthModal open={open} onClose={() => setOpen(false)} />
     </div>
   );

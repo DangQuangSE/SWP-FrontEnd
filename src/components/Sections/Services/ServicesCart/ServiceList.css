@@ -152,6 +152,6 @@
 }
 
 .service-tab-button.active {
-  background: linear-gradient(to top, #4fc3f7, #0288d1);
+  background: #0283f5;
   color: white;
 }
