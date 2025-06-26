@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from "react";
 import "./Consultant.css";
-
 import jwt_decode from "jwt-decode";
 import {
   Layout,
