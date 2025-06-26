@@ -1,0 +1,84 @@
+/* AppointmentForm.css */
+.appointment-form-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+.appointment-form-header {
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+.appointment-form-header h1 {
+  color: #2c3e50;
+  font-size: 2.5rem;
+  margin-bottom: 10px;
+}
+
+.appointment-form-header p {
+  color: #7f8c8d;
+  font-size: 1.1rem;
+}
+
+.appointment-tabs {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 30px;
+  border-bottom: 2px solid #ecf0f1;
+}
+
+.appointment-tab {
+  padding: 15px 30px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 1rem;
+  color: #7f8c8d;
+  transition: all 0.3s ease;
+  border-bottom: 3px solid transparent;
+}
+
+.appointment-tab.active {
+  color: #3498db;
+  border-bottom-color: #3498db;
+}
+
+.appointment-tab:hover {
+  color: #2980b9;
+}
+
+.content-section {
+  background: white;
+  border-radius: 10px;
+  padding: 30px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.section-title-appointment {
+  color: #2c3e50;
+  font-size: 1.8rem;
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+.section-title-appointment span {
+  border-bottom: 3px solid #3498db;
+  padding-bottom: 5px;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .appointment-tabs {
+    flex-wrap: wrap;
+  }
+  
+  .appointment-tab {
+    padding: 10px 15px;
+    font-size: 0.9rem;
+  }
+  
+  .content-section {
+    padding: 20px;
+  }
+}
