@@ -39,7 +39,6 @@ import ServiceDetail from "./components/Sections/Services/ServiceDetail/ServiceD
 import Booking from "./pages/UserProfile/Booking/Booking";
 import UserProfileLayout from "./pages/UserProfile/userprofile";
 import Noti from "./components/NotificationCenter/Noti";
-
 import BookingConfirmation from "./components/Sections/Services/BookingConfirmation";
 import Payment from "./components/Sections/Payment/payment";
 function App() {

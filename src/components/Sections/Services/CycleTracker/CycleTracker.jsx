@@ -19,18 +19,18 @@ import {
 import Calendar from "./Calendar";
 import LogModal from "./LogModal";
 import "./CycleTracker.css";
-import axios from "axios";
-// import { useSelector } from "react-redux";
+import { useSelector } from "react-redux";
+import { toast } from "react-toastify";
+import api from "../../../../configs/axios";
 
-const api = axios.create({
-  baseURL: "http://localhost:8080/api",
-  withCredentials: true,
-});
-
-const fetchCycleLogs = (userId) => api.get(`/cycle-track/logs/${userId}`);
-const fetchNotifications = (userId) => api.get(`/notifications/user/${userId}`);
-const saveCycleLog = (logData) => api.post("/cycle-track/log", logData);
-// ==== END API ====
+// Sử dụng API mới: không truyền userId, chỉ dùng token ở header
+const fetchCycleLogs = () => api.get("/cycle-track/logs");
+const saveCycleLog = (logData, token) =>
+  api.post("/cycle-track/log", logData, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
 
 const INITIAL_USER_DATA = {
   periodHistory: [],
@@ -40,9 +40,6 @@ const INITIAL_USER_DATA = {
 const MIN_CYCLE_LENGTH = 15,
   MAX_CYCLE_LENGTH = 60,
   DEFAULT_CYCLE_LENGTH = 28;
-
-// TODO: Lấy userId thực tế từ redux/context/props
-const userId = 1;
 
 const enumToVietnamese = {
   STOMACH_PAIN: "Đau bụng",
@@ -67,8 +64,10 @@ const symptomEnumMap = {
 };
 
 const CycleTracker = () => {
-  // const userId = useSelector((state) => state.user?.id);
-  const [notifications, setNotifications] = useState([]);
+  const reduxToken = useSelector((state) => state.user.jwt || state.user.token);
+  const token = reduxToken || localStorage.getItem("token");
+
+  // Đã bỏ notifications
   const [showGuide, setShowGuide] = useState(false);
   const [selectedDay, setSelectedDay] = useState(startOfDay(new Date()));
   const [filterStart, setFilterStart] = useState("");
@@ -85,15 +84,11 @@ const CycleTracker = () => {
   });
   const [loading, setLoading] = useState(false);
 
+  // Lấy logs từ API mới (không truyền userId)
   useEffect(() => {
-    fetchNotifications(userId)
-      .then((res) => setNotifications(res.data || []))
-      .catch(() => setNotifications([]));
-  }, []);
-
-  useEffect(() => {
+    if (!token) return;
     setLoading(true);
-    fetchCycleLogs(userId)
+    fetchCycleLogs()
       .then((res) => {
         const logsArr = res.data || [];
         const logs = {};
@@ -127,7 +122,7 @@ const CycleTracker = () => {
       })
       .catch(() => setUserData(INITIAL_USER_DATA))
       .finally(() => setLoading(false));
-  }, []);
+  }, [token]);
 
   const calculatePredictions = useCallback(() => {
     const { periodHistory, avgPeriodLength } = userData;
@@ -211,7 +206,6 @@ const CycleTracker = () => {
     const log = userData.logs[format(selectedDay, "yyyy-MM-dd")];
 
     // ...giữ nguyên logic gợi ý như cũ...
-    // (phần này không cần sửa)
 
     // 🔁 Gợi ý về chu kỳ
     if (
@@ -355,29 +349,32 @@ const CycleTracker = () => {
     })
   );
 
-  // === HÀM XỬ LÝ CLICK QUAN TRỌNG ===
-
   const handleCloseModal = () =>
     setModalInfo({ isOpen: false, date: null, periodDayNumber: null });
 
-  // Lưu log qua API
+  // Lưu log: chỉ gửi dữ liệu, không gửi userId
   const handleSaveLog = async (date, logData) => {
+    if (!token) {
+      toast.error("Bạn chưa đăng nhập hoặc thông tin đăng nhập chưa sẵn sàng!");
+      return;
+    }
     setLoading(true);
     try {
-      // Map tiếng Việt sang Enum nếu cần
       const symptoms = Array.isArray(logData.symptoms)
         ? logData.symptoms.map((s) => symptomEnumMap[s] || s).filter(Boolean)
         : [];
 
-      await saveCycleLog({
-        userId,
-        startDate: format(date, "yyyy-MM-dd"),
-        isPeriodStart: !!logData.isPeriodStart,
-        symptoms, // gửi lên là mảng Enum
-        note: logData.note || "",
-      });
+      await saveCycleLog(
+        {
+          startDate: format(date, "yyyy-MM-dd"),
+          isPeriodStart: !!logData.isPeriodStart,
+          symptoms,
+          note: logData.note || "",
+        },
+        token
+      );
       // Sau khi lưu, refetch lại logs
-      const res = await fetchCycleLogs(userId);
+      const res = await fetchCycleLogs();
       const logsArr = res.data || [];
       const logs = {};
       const periodHistory = [];
@@ -407,9 +404,10 @@ const CycleTracker = () => {
         logs,
         avgPeriodLength,
       });
+      toast.success("Lưu nhật ký thành công!");
     } catch (err) {
-      console.error("Lỗi khi lưu log:", err);
-      alert("Không thể lưu log. Vui lòng thử lại sau.");
+      console.error("Lỗi khi lưu log:", err, err?.response?.data);
+      toast.error("Không thể lưu log. Vui lòng thử lại sau.");
     } finally {
       setLoading(false);
     }
@@ -422,7 +420,6 @@ const CycleTracker = () => {
     });
   });
 
-  // Nếu muốn thống kê theo tháng hiện tại:
   const currentMonth = today.getMonth();
   const currentYear = today.getFullYear();
   const monthlySymptomStats = {};
@@ -462,7 +459,6 @@ const CycleTracker = () => {
         );
       }
     }
-    // Kiểm tra độ đều
     const max = Math.max(...cycleLengths);
     const min = Math.min(...cycleLengths);
     if (max - min > 7) {
@@ -527,23 +523,7 @@ const CycleTracker = () => {
 
   return (
     <div className="cycle-tracker-container">
-      {notifications.length > 0 && (
-        <div className="notification-list">
-          <h3>Thông báo của bạn</h3>
-          <ul>
-            {notifications.map((noti) => (
-              <li key={noti.id} style={{ marginBottom: 8 }}>
-                <b>{noti.title}</b>
-                <br />
-                <span>{noti.content}</span>
-                <span style={{ fontSize: 12, color: "#888", marginLeft: 8 }}>
-                  {new Date(noti.createdAt).toLocaleString()}
-                </span>
-              </li>
-            ))}
-          </ul>
-        </div>
-      )}
+      {/* Đã bỏ notifications từ backend */}
       {loading && <div>Đang tải dữ liệu...</div>}
       {modalInfo.isOpen && (
         <LogModal

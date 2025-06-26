@@ -22,29 +22,27 @@ const LoginForm = ({ onClose }) => {
         email: values.email,
         password: values.password,
       });
-      const user = res.data;
-      dispatch(login(res.data.user));
-      console.log(user.jwt);
-      localStorage.setItem("token", user.jwt);
+      const token = res.data.jwt || res.data.accessToken || res.data.token;
+      localStorage.setItem("token", token);
+      // Lưu cả user và jwt vào Redux
+      const user = res.data.user || {};
+      dispatch(login({ ...user, jwt: token }));
       toast.success("Đăng nhập thành công!");
       if (onClose) onClose();
 
-      switch (user.user.role) {
-        case "CUSTOMER":
-          navigate("/");
-          break;
-        case "ADMIN":
-          navigate("/dashboard");
-          break;
-        case "STAFF":
-          navigate("/staff");
-          break;
-        case "CONSULTANT":
-          navigate("/consultant");
-          break;
-        default:
-          navigate("/error");
+      // Chuyển trang đúng theo role
+      if (user.role === "CUSTOMER") {
+        navigate("/");
+      } else if (user.role === "ADMIN") {
+        navigate("/dashboard");
+      } else if (user.role === "STAFF") {
+        navigate("/staff");
+      } else if (user.role === "CONSULTANT") {
+        navigate("/consultant");
+      } else {
+        navigate("/error");
       }
+      console.log("Login response:", res.data);
     } catch (err) {
       if (err.response?.status === 401) {
         toast.error("Email hoặc mật khẩu không chính xác!");
@@ -56,6 +54,35 @@ const LoginForm = ({ onClose }) => {
     }
   };
 
+  const handleFacebookSuccess = async (res) => {
+    try {
+      setLoading(true);
+      const response = await api.post("/auth/facebook", {
+        accessToken: res.accessToken,
+      });
+
+      console.log("Facebook response:", response.data);
+
+      const { user, jwt } = response.data;
+      if (user && jwt) {
+        toast.success("Đăng nhập Facebook thành công!");
+        // Lưu cả user và jwt vào Redux
+        dispatch(login({ ...user, jwt }));
+        localStorage.setItem("token", jwt);
+        localStorage.setItem("user", JSON.stringify(user));
+        window.location.href = "/";
+      } else {
+        toast.error("Đăng nhập Facebook thất bại!");
+      }
+    } catch (err) {
+      toast.error("Lỗi xác thực Facebook!");
+      console.log(err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Xử lý đăng nhập Google thành công
   const handleGoogleSuccess = async (credentialResponse) => {
     try {
       setLoading(true);
@@ -67,11 +94,16 @@ const LoginForm = ({ onClose }) => {
         { headers: { "Content-Type": "application/json" } }
       );
 
-      const { user, jwt: token } = res.data;
-      if (token) {
-        localStorage.setItem("token", token);
+      console.log(" FULL response từ backend:", res.data);
+
+      const { user, jwt } = res.data;
+      console.log("Google response user:", user);
+      console.log("Google response token:", jwt);
+
+      if (jwt) {
+        localStorage.setItem("token", jwt);
         localStorage.setItem("user", JSON.stringify(user));
-        dispatch(login(user));
+        dispatch(login({ ...user, jwt }));
         toast.success("Đăng nhập Google thành công!");
         if (onClose) onClose();
         navigate("/");

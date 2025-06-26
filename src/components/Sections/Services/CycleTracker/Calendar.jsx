@@ -86,8 +86,7 @@ const Calendar = ({ predictions, logs, onDayClick }) => {
                   className="note-dot"
                   title={logs[dateKey].note}
                   style={{ display: "block", fontSize: 13, lineHeight: 1 }}
-                >
-                  🧸
+                >                 
                 </span>
               )}
               <span style={{ position: "relative", display: "inline-block" }}>

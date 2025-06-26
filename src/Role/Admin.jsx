@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import "./Admin.css";
 import {
   Layout,
@@ -12,28 +12,23 @@ import {
   Space,
   Breadcrumb,
   Tag,
-  Select,
   Popconfirm,
   message,
   theme,
 } from "antd";
 import {
   UserOutlined,
-  SettingOutlined,
-  DollarOutlined,
   SolutionOutlined,
-  FormOutlined,
-  CreditCardOutlined,
-  MedicineBoxOutlined,
+  FileTextOutlined,
+  BarChartOutlined,
+  SettingOutlined,
+  TeamOutlined,
   PlusOutlined,
   EditOutlined,
   DeleteOutlined,
   EyeOutlined,
 } from "@ant-design/icons";
 import api from "../configs/axios";
-import { useEffect } from "react";
-
-import { supabase } from "../utils/supabaseClient";
 
 // Import modals
 import {
@@ -79,50 +74,35 @@ function Admin() {
     label,
   }));
 
-  // Lấy danh sách bài viết
+  // Lấy danh sách bài viết từ backend
   const fetchArticles = async () => {
-    const { data, error } = await supabase
-      .from("articles")
-      .select("*")
-      .order("create-at", { ascending: false }); // sửa lại tên cột
-    if (error) throw error;
-    return data;
-  };
-  useEffect(() => {
-    const getArticles = async () => {
-      const data = await fetchArticles();
-      setArticles(data);
-    };
-    getArticles();
-  }, []);
-
-  // Thêm bài viết
-  const addArticle = async (article) => {
-    const { data, error } = await supabase.from("articles").insert([article]);
-    if (error) throw error;
-    return data;
-  };
-
-  // Sửa bài viết
-  const updateArticle = async (id, article) => {
-    const { data, error } = await supabase
-      .from("articles")
-      .update(article)
-      .eq("id", id);
-    if (error) throw error;
-    return data;
+    try {
+      const response = await api.get("/blog/summary");
+      // Đảm bảo trả về array
+      const data = Array.isArray(response.data)
+        ? response.data
+        : [response.data];
+      return data;
+    } catch (error) {
+      message.error("Lỗi lấy danh sách bài viết!");
+      return [];
+    }
   };
 
   // Xóa bài viết
   const deleteArticle = async (id) => {
-    const { error } = await supabase.from("articles").delete().eq("id", id);
-    if (error) throw error;
+    try {
+      await api.delete(`/blog/${id}`);
+      message.success("Xóa bài viết thành công!");
+    } catch (error) {
+      message.error("Xóa bài viết thất bại!");
+    }
   };
+
   // Lấy danh sách dịch vụ
   const fetchServices = async () => {
     try {
       const response = await api.get("/service");
-      // Nếu response trả về một object thay vì array, wrap nó trong array
       const data = Array.isArray(response.data)
         ? response.data
         : [response.data];
@@ -151,7 +131,6 @@ function Admin() {
       const data = Array.isArray(response.data)
         ? response.data
         : [response.data];
-      // Lọc chỉ lấy những service không phải combo
       return data.filter((service) => !service.isCombo);
     } catch (error) {
       console.error("Lỗi lấy danh sách services:", error);
@@ -181,6 +160,7 @@ function Admin() {
       throw error;
     }
   };
+
   useEffect(() => {
     const getServices = async () => {
       const data = await fetchServices();
@@ -189,10 +169,16 @@ function Admin() {
     getServices();
   }, []);
 
+  // Lấy danh sách bài viết khi vào tab manage_articles
+  useEffect(() => {
+    if (selectedMenuItem === "manage_articles") {
+      fetchArticles().then(setArticles);
+    }
+  }, [selectedMenuItem]);
+
   // Thêm dịch vụ
   const addService = async (service) => {
     try {
-      // Chuyển đổi duration từ minutes sang seconds nếu cần
       const serviceData = {
         ...service,
         duration: service.duration ? parseInt(service.duration) * 60 : null,
@@ -212,7 +198,6 @@ function Admin() {
   // Sửa dịch vụ
   const updateService = async (id, service) => {
     try {
-      // Chuyển đổi duration từ minutes sang seconds nếu cần
       const serviceData = {
         ...service,
         duration: service.duration ? parseInt(service.duration) * 60 : null,
@@ -238,6 +223,7 @@ function Admin() {
       throw error;
     }
   };
+
   // Lấy danh sách user từ API
   const fetchUsers = async () => {
     try {
@@ -290,7 +276,6 @@ function Admin() {
   };
   const handleDeleteUser = async (id) => {
     await deleteUser(id);
-    // Cập nhật lại danh sách
     const data = await fetchUsers();
     setUsers(data);
   };
@@ -309,32 +294,32 @@ function Admin() {
     },
     {
       key: "manage_articles",
-      icon: React.createElement(FormOutlined),
+      icon: React.createElement(FileTextOutlined),
       label: "Manage Blog Articles",
     },
     {
       key: "dashboard_reports",
-      icon: React.createElement(SolutionOutlined),
+      icon: React.createElement(BarChartOutlined),
       label: "View Dashboard & Reports",
     },
     {
       key: "handle_feedback",
-      icon: React.createElement(EyeOutlined), // Reusing EyeOutlined, consider a more specific icon if available
+      icon: React.createElement(EyeOutlined),
       label: "Handle Service/Consultant Feedback",
     },
     {
       key: "manage_payments",
-      icon: React.createElement(CreditCardOutlined),
+      icon: React.createElement(SolutionOutlined),
       label: "Manage Payment & Transaction Records",
     },
     {
       key: "manage_rooms",
-      icon: React.createElement(MedicineBoxOutlined),
+      icon: React.createElement(TeamOutlined),
       label: "Manage Medical Rooms",
     },
   ];
 
-  const [selectedMenuItem, setSelectedMenuItem] = useState("manage_users"); // Default selected item
+  const [selectedMenuItem, setSelectedMenuItem] = useState("manage_users");
 
   const feedbacks = [
     {
@@ -504,8 +489,23 @@ function Admin() {
 
   const articleColumns = [
     { title: "Title", dataIndex: "title", key: "title" },
-    { title: "Author", dataIndex: "author", key: "author" },
-    { title: "Status", dataIndex: "status", key: "status" },
+    {
+      title: "Author",
+      dataIndex: "author",
+      key: "author",
+      render: (author) =>
+        author && author.fullname ? author.fullname : "Không rõ",
+    },
+    {
+      title: "Status",
+      dataIndex: "status",
+      key: "status",
+      render: (status) => (
+        <Tag color={status === "PUBLISHED" ? "green" : "orange"}>
+          {status}
+        </Tag>
+      ),
+    },
     {
       title: "Action",
       key: "action",
@@ -580,7 +580,7 @@ function Admin() {
     {
       title: "Action",
       key: "action",
-      render: (_, record) => (
+      render: (text, record) => (
         <Space size="middle">
           <Button
             icon={<EditOutlined />}
@@ -613,16 +613,13 @@ function Admin() {
     try {
       const values = await form.validateFields();
       if (editingUser) {
-        // Sửa user
         await updateUser(editingUser.id, values);
       } else {
-        // Thêm user
         await addUser(values);
       }
       setIsUserModalVisible(false);
       form.resetFields();
       setEditingUser(null);
-      // Cập nhật lại danh sách
       const data = await fetchUsers();
       setUsers(data);
     } catch (error) {
@@ -635,12 +632,9 @@ function Admin() {
       const values = await form.validateFields();
 
       if (editingService) {
-        // Chỉnh sửa service hiện có
         await updateService(editingService.id, values);
       } else {
-        // Tạo service mới
         if (values.isCombo) {
-          // Tạo combo service
           const comboData = {
             name: values.name,
             description: values.description,
@@ -655,7 +649,6 @@ function Admin() {
           };
           await createComboService(comboData);
         } else {
-          // Tạo regular service
           await addService(values);
         }
       }
@@ -665,7 +658,6 @@ function Admin() {
       setEditingService(null);
       setIsComboService(false);
 
-      // Cập nhật lại danh sách dịch vụ
       const data = await fetchServices();
       setServices(data);
 
@@ -682,19 +674,17 @@ function Admin() {
 
   const handleEditService = async (record) => {
     try {
-      // Lấy chi tiết service từ API theo ID
       const serviceDetail = await fetchServiceById(record.id);
       setEditingService(serviceDetail);
 
-      // Chuyển đổi duration từ seconds về minutes để hiển thị trong form
       const formData = {
         ...serviceDetail,
         duration: serviceDetail.duration
           ? Math.floor(serviceDetail.duration / 60)
           : null,
       };
-      form.setFieldsValue(formData); // Đổ dữ liệu dịch vụ lên form
-      setIsServiceModalVisible(true); // Mở modal
+      form.setFieldsValue(formData);
+      setIsServiceModalVisible(true);
     } catch (error) {
       console.error("Lỗi lấy chi tiết dịch vụ:", error);
       message.error("Không thể lấy thông tin chi tiết dịch vụ!");
@@ -703,7 +693,6 @@ function Admin() {
 
   const handleViewServiceDetail = async (record) => {
     try {
-      // Lấy chi tiết service từ API theo ID
       const detail = await fetchServiceById(record.id);
       setServiceDetail(detail);
       setIsServiceDetailModalVisible(true);
@@ -731,7 +720,6 @@ function Admin() {
       setIsSearching(true);
       setSearchTerm(value);
       const results = await searchServiceByName(value.trim());
-      // Nếu kết quả là object, wrap thành array
       const searchData = Array.isArray(results) ? results : [results];
       setSearchResults(searchData);
     } catch (error) {
@@ -749,23 +737,6 @@ function Admin() {
     setSearchResults([]);
   };
 
-  const handleBlogModalOk = async () => {
-    try {
-      const values = await blogForm.validateFields();
-      if (editingArticle) {
-        await updateArticle(editingArticle.id, values);
-      } else {
-        await addArticle(values);
-      }
-      setIsBlogModalVisible(false);
-      setEditingArticle(null);
-      const data = await fetchArticles();
-      setArticles(data);
-    } catch (error) {
-      console.error("Lỗi cập nhật bài viết:", error);
-    }
-  };
-
   const handleEditArticle = (record) => {
     setEditingArticle(record);
     blogForm.setFieldsValue(record);
@@ -778,31 +749,8 @@ function Admin() {
     setArticles(data);
   };
 
-  // Hàm upload ảnh lên Supabase Storage
-  const handleUpload = async (file) => {
-    if (!(file instanceof File)) {
-      message.error("File không hợp lệ!");
-      return;
-    }
-    const filePath = `articles/${Date.now()}_${file.name.replace(/\s/g, "_")}`;
-    const { data, error } = await supabase.storage
-      .from("image")
-      .upload(filePath, file, { upsert: true });
-    if (error) {
-      console.error("Upload error:", error);
-      message.error("Upload failed: " + error.message);
-      return;
-    }
-    const { data: urlData } = supabase.storage
-      .from("image")
-      .getPublicUrl(filePath);
-    setImageUrl(urlData.publicUrl);
-    blogForm.setFieldsValue({ image_url: urlData.publicUrl });
-  };
-
   const handleRoomModalOk = () => {
     form.validateFields().then((values) => {
-      console.log("Room Form values:", values);
       setIsRoomModalVisible(false);
       form.resetFields();
     });
@@ -858,8 +806,7 @@ function Admin() {
             {searchTerm && (
               <div style={{ marginBottom: 16 }}>
                 <Tag color="blue">
-                  Search results for: "{searchTerm}" ({searchResults.length}{" "}
-                  found)
+                  Search results for: "{searchTerm}" ({searchResults.length} found)
                 </Tag>
                 <Button type="link" size="small" onClick={handleClearSearch}>
                   Clear search
@@ -905,7 +852,6 @@ function Admin() {
             <p>
               Admin dashboard with analytics and reports will be displayed here.
             </p>
-            {/* Placeholder for charts/graphs */}
           </Card>
         );
       case "handle_feedback":
@@ -962,7 +908,7 @@ function Admin() {
             flex: 1,
             minWidth: 0,
             justifyContent: "flex-end",
-          }} /* Align right */
+          }}
         />
       </Header>
       <Layout>
@@ -1039,12 +985,12 @@ function Admin() {
 
       <BlogModal
         visible={isBlogModalVisible}
-        onOk={handleBlogModalOk}
+        onOk={() => {}}
         onCancel={() => setIsBlogModalVisible(false)}
         form={blogForm}
         editingArticle={editingArticle}
         imageUrl={imageUrl}
-        handleUpload={handleUpload}
+        handleUpload={() => {}}
       />
 
       <RoomModal
@@ -1052,7 +998,7 @@ function Admin() {
         onOk={handleRoomModalOk}
         onCancel={() => setIsRoomModalVisible(false)}
         form={form}
-        editingRoom={null} // You can add editingRoom state if needed
+        editingRoom={null}
       />
     </Layout>
   );
