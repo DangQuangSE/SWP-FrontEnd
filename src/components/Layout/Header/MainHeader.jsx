@@ -1,15 +1,11 @@
 "use client";
 import "./MainHeader.css";
-import Logo from "../../UI/Logo/Logo";
+import Logo from "../../../assets/Logo";
 import Navigation from "./Navigation";
 import AuthButtons from "./AuthButtons";
 
-
 const MainHeader = () => {
-
-
-
-// Ví dụ notifications demo, bạn có thể truyền props hoặc lấy từ redux, context...
+  // Ví dụ notifications demo, bạn có thể truyền props hoặc lấy từ redux, context...
 
   return (
     <div className="main-header">

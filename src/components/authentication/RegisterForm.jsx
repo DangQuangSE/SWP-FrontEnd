@@ -1,11 +1,11 @@
 import { useState } from "react";
 import { Form, Input, Button, message, Spin } from "antd";
-import GradientButton from "../common/GradientButton";
+import GradientButton from "../../components/common/GradientButton";
 import api from "../../configs/api";
 import { useDispatch } from "react-redux";
 import { login } from "../../redux/features/userSlice";
 import { toast } from "react-toastify";
-import LoginGoogle from "../../service/LoginGoogle";
+import LoginGoogle from "../../api/LoginGoogle";
 
 const RegisterForm = () => {
   const [step, setStep] = useState(1);

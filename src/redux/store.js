@@ -2,7 +2,7 @@ import storage from "redux-persist/lib/storage"; // defaults to localStorage for
 import persistReducer from "redux-persist/es/persistReducer";
 import { configureStore } from "@reduxjs/toolkit";
 import persistStore from "redux-persist/es/persistStore";
-import rootReducer from "./features/rootReducer";
+import rootReducer from "./reduxStore/rootReducer";
 
 const persistConfig = {
   key: "root",

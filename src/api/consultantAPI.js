@@ -1,4 +1,4 @@
-import api, { upload } from './axios';
+import api, { upload } from "../configs/api";
 
 export const fetchBlogs = () => {
   return api.get("/blog/summary");
@@ -11,7 +11,7 @@ export const fetchBlogDetail = (id) => {
 export const uploadImage = (file) => {
   const formData = new FormData();
   formData.append("file", file);
-  formData.append("upload_preset", "unsigned_preset"); 
+  formData.append("upload_preset", "unsigned_preset");
   return upload.post("", formData);
 };
 
@@ -20,8 +20,10 @@ export const fetchConsultantSchedule = (userId) => {
   const oneMonthLater = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000)
     .toISOString()
     .slice(0, 10);
- // Ví dụ truyền thêm from/to
-return api.get(`/schedules/view?consultant_id=${userId}&from=2024-06-01&to=2024-07-30`);
+  // Ví dụ truyền thêm from/to
+  return api.get(
+    `/schedules/view?consultant_id=${userId}&from=2024-06-01&to=2024-07-30`
+  );
 };
 
 export const createBlog = (blogData) => {
@@ -56,10 +58,12 @@ export const registerSchedule = (requestBody) => {
 
 export const deleteBlog = (blogId) => {
   // This is a placeholder. The actual API endpoint is needed.
-  return Promise.reject(new Error(`API for deleting blog ${blogId} is not implemented.`));
+  return Promise.reject(
+    new Error(`API for deleting blog ${blogId} is not implemented.`)
+  );
 };
 
 export const fetchAvailableSlots = (serviceId, from, to) => {
-    const params = { service_id: serviceId, from, to };
-    return api.get("/schedules/slot-free-service", { params });
-}; 
+  const params = { service_id: serviceId, from, to };
+  return api.get("/schedules/slot-free-service", { params });
+};

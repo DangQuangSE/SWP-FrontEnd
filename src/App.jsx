@@ -10,38 +10,38 @@ import "./App.css";
 // Layout & Sections
 import Header from "./components/Layout/Header/Header";
 import Footer from "./components/Layout/Footer/Footer";
-import Hero from "./components/Sections/Hero/Hero";
-import Services from "./components/Sections/Services/Services";
-import Articles from "./components/Sections/Articles/Articles";
-import Testimonials from "./components/Sections/Testimonials/Testimonials";
+import Hero from "./pages/Home/Hero/Hero";
+import Services from "./pages/Home/Services";
+import Articles from "./features/Sections/Blog/Articles";
+import Testimonials from "./pages/Home/Testimonials/Testimonials";
 
 // Pages & Features
-import AppointmentForm from "./components/Sections/Services/AppointmentForm";
-import DoctorList from "./components/Sections/Services/DoctorList/DoctorList";
-import CycleTracker from "./components/Sections/Services/CycleTracker/CycleTracker";
-import StisTest from "./components/Sections/Services/StisTest";
-import ForgotPasswordOTP from "./components/authen-form/ForgotPassword";
-import AllBlog from "./components/Sections/Articles/pages/allBlog";
-import BlogDetail from "./components/Sections/Articles/pages/BlogDetail";
-import Medicalnew from "./components/Sections/Articles/pages/Medicalnew";
-import Servicevnew from "./components/Sections/Articles/pages/Servicenew";
-import Generalnew from "./components/Sections/Articles/pages/Generalnew";
-import CycleTracking from "./components/Sections/Services/CycleTracker/CycleTracker";
-import Doctor from "./components/Sections/Services/DoctorList/DoctorList";
+import AppointmentForm from "./features/Services/BookingService/BookingService";
+import DoctorList from "./features/Services/DoctorList/DoctorList";
+import CycleTracker from "./features/Services/CycleTracker/CycleTracker";
+// import StisTest from "./components/Sections/Services/StisTest";
+import ForgotPasswordOTP from "./features/authentication/ForgotPassword";
+import AllBlog from "./features/Sections/Blog/pages/allBlog";
+import BlogDetail from "./features/Sections/Blog/pages/BlogDetail";
+import Medicalnew from "./features/Sections/Blog/pages/Medicalnew";
+import Servicevnew from "./features/Sections/Blog/pages/Servicenew";
+import Generalnew from "./features/Sections/Blog/pages/Generalnew";
+import CycleTracking from "./features/Services/CycleTracker/CycleTracker";
+import Doctor from "./features/Services/DoctorList/DoctorList";
 import Loading from "./components/Loading/Loading";
-import Staff from "./Role/Staff";
-import Consultant from "./Role/Consultant";
-import Admin from "./Role/Admin";
+import Staff from "./features/Dashboard/StaffDashboard/Staff";
+import Consultant from "./features/Dashboard/ConsultantDashboard/Consultant";
+import Admin from "./features/Dashboard/AdminDashboard/Admin";
 import Settings from "./pages/Settings";
 import UserProfile from "./pages/UserProfile/userprofile";
-import BookingForm from "./components/Sections/Services/BookingForm";
-import ServiceDetail from "./components/Sections/Services/ServiceDetail/ServiceDetail";
+import BookingForm from "./features/Services/Booking/BookingForm";
+import ServiceDetail from "./features/Services/ServiceList/ServiceDetail/ServiceDetail";
 import Booking from "./pages/UserProfile/Booking/Booking";
 import UserProfileLayout from "./pages/UserProfile/userprofile";
-import Noti from "./components/NotificationCenter/Noti";
-import BookingConfirmation from "./components/Sections/Services/BookingConfirmation";
-import Payment from "./components/Sections/Payment/payment";
-import MomoReturn from "./components/Sections/Payment/MomoReturn";
+import Noti from "./features/NotificationCenter/Noti";
+import BookingConfirmation from "./features/Services/Booking/BookingConfirmation";
+import Payment from "./features/Services/Payment/Payment";
+import MomoReturn from "./features/Services/Payment/MomoReturn";
 function App() {
   const [rehydrated, setRehydrated] = useState(false);
 
@@ -82,7 +82,7 @@ function App() {
                 }
               />
               <Route path="/CycleTracking" element={<CycleTracking />} />
-              <Route path="/appointment" element={<StisTest />} />
+              {/* <Route path="/appointment" element={<StisTest />} /> */}
               <Route path="/forgot-password" element={<ForgotPasswordOTP />} />
               <Route path="/blog" element={<AllBlog />} />
               <Route path="/blog/:id" element={<BlogDetail />} />

@@ -1,15 +1,15 @@
-import React from 'react';
-import { useSelector, useDispatch } from 'react-redux';
-import { Card, Switch, Select, Form, Button, message, Divider } from 'antd';
+import React from "react";
+import { useSelector, useDispatch } from "react-redux";
+import { Card, Switch, Select, Form, Button, message, Divider } from "antd";
 import {
   BellOutlined,
   LockOutlined,
   GlobalOutlined,
   EyeOutlined,
   SoundOutlined,
-} from '@ant-design/icons';
-import { updateSettings } from '../redux/features/userSlice';
-import './Settings.css';
+} from "@ant-design/icons";
+import { updateSettings } from "../redux/reduxStore/userSlice";
+import "./Settings.css";
 
 const { Option } = Select;
 
@@ -22,9 +22,9 @@ const Settings = () => {
   const onFinish = async (values) => {
     try {
       await dispatch(updateSettings(values)).unwrap();
-      message.success('Cập nhật cài đặt thành công!');
+      message.success("Cập nhật cài đặt thành công!");
     } catch (error) {
-      message.error(error.message || 'Có lỗi xảy ra khi cập nhật cài đặt!');
+      message.error(error.message || "Có lỗi xảy ra khi cập nhật cài đặt!");
     }
   };
 
@@ -32,7 +32,7 @@ const Settings = () => {
     <div className="settings-container">
       <Card className="settings-card">
         <h2 className="settings-title">Cài đặt</h2>
-        
+
         <Form
           form={form}
           layout="vertical"
@@ -66,20 +66,14 @@ const Settings = () => {
             <h3>
               <GlobalOutlined /> Ngôn ngữ & Giao diện
             </h3>
-            <Form.Item
-              name="language"
-              label="Ngôn ngữ"
-            >
+            <Form.Item name="language" label="Ngôn ngữ">
               <Select>
                 <Option value="vi">Tiếng Việt</Option>
                 <Option value="en">English</Option>
               </Select>
             </Form.Item>
 
-            <Form.Item
-              name="theme"
-              label="Giao diện"
-            >
+            <Form.Item name="theme" label="Giao diện">
               <Select>
                 <Option value="light">Sáng</Option>
                 <Option value="dark">Tối</Option>
@@ -94,10 +88,7 @@ const Settings = () => {
             <h3>
               <LockOutlined /> Quyền riêng tư
             </h3>
-            <Form.Item
-              name="privacy"
-              label="Chế độ hiển thị hồ sơ"
-            >
+            <Form.Item name="privacy" label="Chế độ hiển thị hồ sơ">
               <Select>
                 <Option value="public">Công khai</Option>
                 <Option value="friends">Chỉ bạn bè</Option>
@@ -163,4 +154,4 @@ const Settings = () => {
   );
 };
 
-export default Settings; 
+export default Settings;

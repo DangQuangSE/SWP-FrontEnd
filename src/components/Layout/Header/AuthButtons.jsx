@@ -1,7 +1,7 @@
 import "./AuthButtons.css";
 import GradientButton from "../../common/GradientButton.jsx";
 import { useState } from "react";
-import AuthModal from "../../authen-form/AuthModal";
+import AuthModal from "../../../features/authentication/AuthModal";
 import { useDispatch, useSelector } from "react-redux";
 import {
   UserOutlined,
@@ -9,7 +9,7 @@ import {
   LogoutOutlined,
 } from "@ant-design/icons";
 import { Avatar, Dropdown } from "antd";
-import { logout } from "../../../redux/features/userSlice.js";
+import { logout } from "../../../redux/reduxStore/userSlice.js";
 import { useNavigate } from "react-router-dom";
 
 const AuthButtons = () => {
