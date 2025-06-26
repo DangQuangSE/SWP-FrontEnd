@@ -20,25 +20,24 @@ import {
 } from "antd";
 import {
   UserOutlined,
-  SettingOutlined,
-  DollarOutlined,
   SolutionOutlined,
-  FormOutlined,
-  CreditCardOutlined,
-  MedicineBoxOutlined,
+  FileTextOutlined,
+  BarChartOutlined,
+  SettingOutlined,
+  TeamOutlined,
   PlusOutlined,
   EditOutlined,
   DeleteOutlined,
   EyeOutlined,
 } from "@ant-design/icons";
+// import { supabase } from "../utils/supabaseClient";
 import api from "../configs/axios";
 import { useEffect } from "react";
 
-import { supabase } from "../utils/supabaseClient";
 import { Upload } from "antd";
 import { UploadOutlined } from "@ant-design/icons";
 
-const { Header, Content, Sider } = Layout;
+const { Header, Content, Sider, Footer } = Layout;
 const { Title } = Typography;
 const { Option } = Select;
 
@@ -225,12 +224,12 @@ function Admin() {
     },
     {
       key: "manage_articles",
-      icon: React.createElement(FormOutlined),
+      icon: React.createElement(FileTextOutlined),
       label: "Manage Blog Articles",
     },
     {
       key: "dashboard_reports",
-      icon: React.createElement(SolutionOutlined),
+      icon: React.createElement(BarChartOutlined),
       label: "View Dashboard & Reports",
     },
     {
@@ -240,12 +239,12 @@ function Admin() {
     },
     {
       key: "manage_payments",
-      icon: React.createElement(CreditCardOutlined),
+      icon: React.createElement(SolutionOutlined),
       label: "Manage Payment & Transaction Records",
     },
     {
       key: "manage_rooms",
-      icon: React.createElement(MedicineBoxOutlined),
+      icon: React.createElement(TeamOutlined),
       label: "Manage Medical Rooms",
     },
   ];

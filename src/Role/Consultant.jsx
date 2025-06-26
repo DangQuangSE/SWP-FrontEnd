@@ -1,54 +1,74 @@
-import React, { useState } from "react";
-import dayjs from "dayjs";
+import React, { useState, useEffect } from "react";
 import "./Consultant.css";
+import jwt_decode from "jwt-decode";
 import {
   Layout,
   Menu,
-  Card,
-  Table,
   Button,
   Modal,
   Form,
   Input,
   DatePicker,
   TimePicker,
-  Tabs,
-  List,
   Typography,
-  Row,
-  Col,
   Tag,
   Space,
   Breadcrumb,
   theme,
+  Popconfirm,
+  Table,
 } from "antd";
 import {
   CalendarOutlined,
   UserOutlined,
-  QuestionCircleOutlined,
   PlusOutlined,
   EditOutlined,
-  EyeOutlined,
-  LaptopOutlined,
-  NotificationOutlined,
-  SolutionOutlined, // For consultation
-  ScheduleOutlined, // For schedule management
-  FormOutlined, // For writing blogs
-  CommentOutlined, // For feedback/comments
-  ProfileOutlined, // For user profile
+  SolutionOutlined,
+  ScheduleOutlined,
+  FormOutlined,
+  CommentOutlined,
 } from "@ant-design/icons";
+import { useSelector } from "react-redux";
+import { toast } from "react-toastify";
+import {
+  fetchBlogs,
+  fetchBlogDetail,
+  createBlog,
+  likeBlog,
+  deleteBlog,
+  uploadImage,
+  fetchAvailableSlots,
+  fetchConsultantSchedule,
+  cancelSchedule,
+  registerSchedule,
+} from "../configs/consultantService";
 
 const { Header, Content, Sider } = Layout;
 const { Title } = Typography;
-const { TabPane } = Tabs;
 
 function Consultant() {
-  const handleDeleteBlog = (id) => {
-  const updatedBlogs = blogArticles.filter(blog => blog.id !== id);
-  setBlogArticles(updatedBlogs);
-  localStorage.setItem("blogArticles", JSON.stringify(updatedBlogs));
-};
-  const [editingBlog, setEditingBlog] = useState(null);
+  const [selectedMenuItem, setSelectedMenuItem] = useState("personal_schedule");
+  const token = useSelector((state) => state.user.jwt || state.user.token);
+  let userId;
+  if (token) {
+    try {
+      const decoded = jwt_decode(token);
+      userId = decoded.id;
+    } catch {
+      userId = null;
+    }
+  }
+
+  // Form
+  const [createBlogForm] = Form.useForm();
+  const [editBlogForm] = Form.useForm();
+  const [consultForm] = Form.useForm();
+  const [resultForm] = Form.useForm();
+  const [scheduleForm] = Form.useForm();
+
+  // State
+  const [personalConsultations, setPersonalConsultations] = useState([]);
+  const [manageSchedules, setManageSchedules] = useState([]);
   const [isEditBlogModalVisible, setIsEditBlogModalVisible] = useState(false);
   const [isConsultationModalVisible, setIsConsultationModalVisible] =
     useState(false);
@@ -56,139 +76,250 @@ function Consultant() {
   const [isScheduleModalVisible, setIsScheduleModalVisible] = useState(false);
   const [isCreateBlogModalVisible, setIsCreateBlogModalVisible] =
     useState(false);
-  const [form] = Form.useForm();
+  const [imageUploading, setImageUploading] = useState(false);
 
   const {
     token: { colorBgContainer, borderRadiusLG },
   } = theme.useToken();
 
-  // Menu items for the top navigation (can be adapted for consultant dashboard)
-  const items1 = ["Dashboard", "My Schedule", "Settings"].map((label, key) => ({
-    key: String(key + 1),
-    label,
-  }));
+  // BLOG STATE & API
+  const [blogs, setBlogs] = useState([]);
+  const [loadingBlogs, setLoadingBlogs] = useState(false);
+  const [selectedBlog, setSelectedBlog] = useState({});
+  const [isDetailModalVisible, setIsDetailModalVisible] = useState(false);
 
-  const [blogArticles, setBlogArticles] = useState(() => {
-    // Lấy dữ liệu từ localStorage khi load trang
-    return JSON.parse(localStorage.getItem("blogArticles") || "[]");
-  });
-
-  const handleCreateBlog = () => {
-    form.validateFields().then((values) => {
-      const newBlog = {
-        id: Date.now(),
-        title: values.title,
-        content: values.content,
-        date: values.date.format("YYYY-MM-DD"),
-        viewCount: 0,
-        likeCount: 0,
-        commentCount: 0,
-      };
-      const updatedBlogs = [newBlog, ...blogArticles];
-      setBlogArticles(updatedBlogs);
-      localStorage.setItem("blogArticles", JSON.stringify(updatedBlogs));
-      setIsCreateBlogModalVisible(false);
-      form.resetFields();
-    });
+  // Lịch tư vấn cá nhân
+  const loadPersonalConsultations = async () => {
+    try {
+      const today = new Date().toISOString().slice(0, 10);
+      const oneMonthLater = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000)
+        .toISOString()
+        .slice(0, 10);
+      const res = await fetchAvailableSlots(userId, today, oneMonthLater);
+      const slots = (res.data || []).map((slot) => ({
+        id: slot.id || slot.slotId,
+        date: slot.workDate || slot.date,
+        time:
+          slot.startTime && slot.endTime
+            ? `${slot.startTime.substring(0, 5)} - ${slot.endTime.substring(
+                0,
+                5
+              )}`
+            : "",
+        patient: `${slot.currentBooking || 0}/${slot.maxBooking || 0}`,
+        status: slot.status || "ACTIVE",
+      }));
+      setPersonalConsultations(slots);
+    } catch {
+      setPersonalConsultations([]);
+    }
   };
 
-  // Menu items for the side navigation
-  const items2 = [
-    {
-      key: "personal_schedule",
-      icon: React.createElement(CalendarOutlined),
-      label: "Personal Consultation Schedule",
-    },
-    {
-      key: "user_profiles",
-      icon: React.createElement(UserOutlined),
-      label: "User Profiles",
-    },
-    {
-      key: "online_consultation",
-      icon: React.createElement(SolutionOutlined),
-      label: "Online Consultation",
-    },
-    {
-      key: "consultation_results",
-      icon: React.createElement(EditOutlined),
-      label: "Send Consultation Results",
-    },
-    {
-      key: "manage_schedule",
-      icon: React.createElement(ScheduleOutlined),
-      label: "Manage Work Schedule",
-    },
-    {
-      key: "write_blogs",
-      icon: React.createElement(FormOutlined),
-      label: "Write Blogs",
-    },
-    {
-      key: "view_feedback",
-      icon: React.createElement(CommentOutlined),
-      label: "View Feedback/Comments",
-    },
-  ];
+  // Lịch làm việc
+  const loadManageSchedules = async () => {
+    try {
+      const res = await fetchConsultantSchedule(userId);
+      const flattenedSchedule = (res.data || []).flatMap((workDateItem) =>
+        (workDateItem.slots || []).map((slot) => ({
+          id: slot.slotId || slot.id,
+          date: workDateItem.workDate,
+          time:
+            slot.startTime && slot.endTime
+              ? `${slot.startTime.substring(0, 5)} - ${slot.endTime.substring(
+                  0,
+                  5
+                )}`
+              : "",
+          patient: `${slot.currentBooking || 0}/${slot.maxBooking || 0}`,
+          status: slot.status || "ACTIVE",
+        }))
+      );
+      setManageSchedules(flattenedSchedule);
+    } catch {
+      setManageSchedules([]);
+    }
+  };
 
-  const [selectedMenuItem, setSelectedMenuItem] = useState("personal_schedule"); // Default selected item
+  // BLOG
+  const loadBlogs = async () => {
+    setLoadingBlogs(true);
+    try {
+      const res = await fetchBlogs();
+      setBlogs(
+        (res.data || []).map((blog) => ({
+          ...blog,
+          id: blog.id || blog.blog_id, // Đảm bảo luôn có id
+        }))
+      );
+    } catch {
+      toast.error("Không thể tải danh sách blog");
+      setBlogs([]);
+    } finally {
+      setLoadingBlogs(false);
+    }
+  };
 
-  // Mock data - Replace with actual API calls
-  const personalConsultations = [
-    {
-      id: 1,
-      date: "2024-03-25",
-      time: "10:00 AM",
-      patient: "Alice Wonderland",
-      status: "Confirmed",
-    },
-    {
-      id: 2,
-      date: "2024-03-25",
-      time: "02:30 PM",
-      patient: "Bob The Builder",
-      status: "Pending",
-    },
-  ];
+  useEffect(() => {
+    loadBlogs();
+  }, []);
 
-  const userProfiles = [
-    {
-      id: 1,
-      name: "Alice Wonderland",
-      age: 30,
-      gender: "Female",
-      medicalHistory: "None",
-    },
-    {
-      id: 2,
-      name: "Bob The Builder",
-      age: 45,
-      gender: "Male",
-      medicalHistory: "Hypertension",
-    },
-  ];
+  // Lấy chi tiết blog - GÁN GIÁ TRỊ MẶC ĐỊNH
+  const handleFetchBlogDetail = async (id) => {
+    try {
+      const res = await fetchBlogDetail(id);
+      const blog = res.data || {};
+      setSelectedBlog({
+        id: blog.id ?? "Không có",
+        title: blog.title ?? "Không có",
+        author: blog.author ?? { fullname: "Không có" },
+        createdAt: blog.createdAt ?? "Không có",
+        updatedAt: blog.updatedAt ?? "Không có",
+        viewCount: blog.viewCount ?? 0,
+        likeCount: blog.likeCount ?? 0,
+        status: blog.status ?? "Không có",
+        imgUrl: blog.imgUrl ?? "",
+        content: blog.content ?? "Không có nội dung",
+      });
+      setIsDetailModalVisible(true);
+    } catch (err) {
+      toast.error("Không thể tải chi tiết blog");
+      setSelectedBlog({});
+      setIsDetailModalVisible(true);
+    }
+  };
 
-  const feedback = [
-    {
-      id: 1,
-      source: "Blog: Common Cold",
-      comment: "Very informative article!",
-      date: "2024-03-21",
-    },
-    {
-      id: 2,
-      source: "Service: Online Consultation",
-      comment: "Great consultation, very helpful.",
-      date: "2024-03-22",
-    },
-  ];
+  // Tạo blog mới
+const handleCreateBlog = () => {
+  if (!userId) {
+    toast("Không tìm thấy userId. Vui lòng đăng nhập lại!");
+    return;
+  }
+  createBlogForm.validateFields().then(async (values) => {
+    try {
+      // Lấy file ảnh từ input (nếu có)
+      const imgFile = document.querySelector('input[type="file"]').files[0];
+      await createBlog({
+        title: values.title,
+        content: values.content,
+        status: values.status || "PUBLISHED",
+        imgFile: imgFile,
+        // tags: values.tags, // nếu có tag
+      });
+      setIsCreateBlogModalVisible(false);
+      createBlogForm.resetFields();
+      loadBlogs();
+    } catch {
+      toast("Tạo blog thất bại");
+    }
+  });
+};
 
+  // Xóa blog
+  const handleDeleteBlog = async (blogId) => {
+    if (!blogId) return;
+    try {
+      await deleteBlog(blogId);
+      toast.success("Xóa blog thành công!");
+      loadBlogs();
+    } catch {
+      toast.error("Chức năng xóa blog chưa được hỗ trợ hoặc đã xảy ra lỗi.");
+    }
+  };
+
+  // Like blog
+  const handleLikeBlog = async (id) => {
+    if (!id) return;
+    try {
+      await likeBlog(id);
+      loadBlogs();
+    } catch {
+      toast.error("Không thể thả tim");
+    }
+  };
+
+  // Upload ảnh
+  const handleImageChange = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    setImageUploading(true);
+    try {
+      const res = await uploadImage(file);
+      createBlogForm.setFieldsValue({ imgUrl: res.data.secure_url });
+    } catch {
+      toast("Upload ảnh thất bại");
+    } finally {
+      setImageUploading(false);
+    }
+  };
+
+  // Hủy lịch làm việc
+  const handleCancelSchedule = async (record) => {
+    try {
+      let startTime = "08:00";
+      let endTime = "09:00";
+      if (record.time && record.time.includes("-")) {
+        const [start, end] = record.time.split("-").map((s) => s.trim());
+        startTime = start;
+        endTime = end;
+      }
+      const scheduleData = {
+        consultant_id: userId,
+        date: `${record.date}T${startTime}:00`,
+        startTime: startTime,
+        endTime: endTime,
+        reason: "Hủy lịch làm việc",
+      };
+      await cancelSchedule(scheduleData);
+      Modal.success({ content: "Hủy lịch làm việc thành công!" });
+      loadManageSchedules();
+      loadPersonalConsultations();
+    } catch {
+      Modal.error({ content: "Hủy lịch làm việc thất bại!" });
+    }
+  };
+
+  // Đăng ký lịch làm việc
+  const handleManageSchedule = async () => {
+    try {
+      const values = await scheduleForm.validateFields();
+      const workDate = values.date.format("YYYY-MM-DD");
+      const timeFrom = values.timeFrom.format("HH:mm");
+      const timeTo = values.timeTo.format("HH:mm");
+      const requestBody = {
+        scheduleItems: [
+          {
+            workDate: workDate,
+            timeSlotDTO: {
+              startTime: timeFrom,
+              endTime: timeTo,
+            },
+          },
+        ],
+      };
+      await registerSchedule(requestBody);
+      Modal.success({ content: "Đăng ký lịch làm việc thành công!" });
+      setIsScheduleModalVisible(false);
+      scheduleForm.resetFields();
+      loadPersonalConsultations();
+    } catch {
+      Modal.error({ content: "Đăng ký lịch làm việc thất bại!" });
+    }
+  };
+
+  // useEffect cho từng tab
+  useEffect(() => {
+    if (selectedMenuItem === "personal_schedule") loadPersonalConsultations();
+    if (selectedMenuItem === "manage_schedule") loadManageSchedules();
+    // eslint-disable-next-line
+  }, [selectedMenuItem, userId]);
+
+  // Columns cho các bảng
   const consultationColumns = [
-    { title: "Date", dataIndex: "date", key: "date" },
-    { title: "Time", dataIndex: "time", key: "time" },
-    { title: "Patient", dataIndex: "patient", key: "patient" },
+    { title: "Ngày", dataIndex: "date", key: "date" },
+    { title: "Giờ", dataIndex: "time", key: "time" },
+    { title: "Bệnh nhân", dataIndex: "patient", key: "patient" },
     {
-      title: "Status",
+      title: "Trạng thái",
       dataIndex: "status",
       key: "status",
       render: (status) => (
@@ -196,7 +327,7 @@ function Consultant() {
       ),
     },
     {
-      title: "Action",
+      title: "Thao tác",
       key: "action",
       render: (_, record) => (
         <Space size="middle">
@@ -206,211 +337,183 @@ function Consultant() {
             size="small"
             onClick={() => setIsConsultationModalVisible(true)}
           >
-            Conduct
+            Tư vấn
           </Button>
           <Button
             icon={<EditOutlined />}
             size="small"
             onClick={() => setIsResultModalVisible(true)}
           >
-            Send Results
+            Gửi kết quả
           </Button>
+          <Popconfirm
+            title="Bạn chắc chắn muốn hủy lịch này?"
+            onConfirm={() => handleCancelSchedule(record)}
+            okText="Đồng ý"
+            cancelText="Hủy"
+          >
+            <Button danger size="small">
+              Hủy
+            </Button>
+          </Popconfirm>
         </Space>
       ),
     },
   ];
 
-  const userProfileColumns = [
-    { title: "Name", dataIndex: "name", key: "name" },
-    { title: "Age", dataIndex: "age", key: "age" },
-    { title: "Gender", dataIndex: "gender", key: "gender" },
-    {
-      title: "Medical History",
-      dataIndex: "medicalHistory",
-      key: "medicalHistory",
-    },
-    {
-      title: "Action",
-      key: "action",
-      render: (_, record) => (
-        <Button icon={<EyeOutlined />} size="small">
-          View Details
-        </Button>
-      ),
-    },
-  ];
-
   const blogColumns = [
-    { title: "Title", dataIndex: "title", key: "title" },
-    { title: "Date", dataIndex: "date", key: "date" },
-    { title: "Views", dataIndex: "viewCount", key: "viewCount" },
-    { title: "Likes", dataIndex: "likeCount", key: "likeCount" },
-    { title: "Comments", dataIndex: "commentCount", key: "commentCount" },
+    { title: "Tiêu đề", dataIndex: "title", key: "title" },
+    { title: "Lượt xem", dataIndex: "viewCount", key: "viewCount" },
+    { title: "Lượt thích", dataIndex: "likeCount", key: "likeCount" },
+    { title: "Bình luận", dataIndex: "commentCount", key: "commentCount" },
     {
-      title: "Action",
+      title: "Thao tác",
       key: "action",
       render: (_, record) => (
         <Space>
           <Button
+            onClick={() => handleFetchBlogDetail(record.id)}
+            size="small"
+            type="default"
+          >
+            Xem chi tiết
+          </Button>
+          <Button
             icon={<EditOutlined />}
             size="small"
             onClick={() => {
-              setEditingBlog(record);
-              form.setFieldsValue({
+              editBlogForm.setFieldsValue({
                 title: record.title,
                 content: record.content,
-                date: dayjs(record.date),
               });
               setIsEditBlogModalVisible(true);
             }}
           >
-            Edit
+            Sửa
+          </Button>
+          <Button
+            icon={<PlusOutlined />}
+            size="small"
+            onClick={() => handleLikeBlog(record.id)}
+          >
+            Thích
           </Button>
           <Button
             danger
             size="small"
             onClick={() => handleDeleteBlog(record.id)}
           >
-            Delete
+            Xóa
           </Button>
         </Space>
       ),
     },
   ];
 
-  const feedbackColumns = [
-    { title: "Source", dataIndex: "source", key: "source" },
-    { title: "Comment", dataIndex: "comment", key: "comment" },
-    { title: "Date", dataIndex: "date", key: "date" },
+  // Menu
+  const items1 = [
+    { key: "1", label: "Trang chủ" },
+    { key: "2", label: "Lịch của tôi" },
+    { key: "3", label: "Cài đặt" },
+  ];
+  const items2 = [
     {
-      title: "Action",
-      key: "action",
-      render: (_, record) => (
-        <Button icon={<EyeOutlined />} size="small">
-          View
-        </Button>
-      ),
+      key: "personal_schedule",
+      icon: React.createElement(CalendarOutlined),
+      label: "Lịch tư vấn cá nhân",
+    },
+    {
+      key: "user_profiles",
+      icon: React.createElement(UserOutlined),
+      label: "Thông tin người dùng",
+    },
+    {
+      key: "online_consultation",
+      icon: React.createElement(SolutionOutlined),
+      label: "Tư vấn trực tuyến",
+    },
+    {
+      key: "consultation_results",
+      icon: React.createElement(EditOutlined),
+      label: "Gửi kết quả tư vấn",
+    },
+    {
+      key: "manage_schedule",
+      icon: React.createElement(ScheduleOutlined),
+      label: "Quản lý lịch làm việc",
+    },
+    {
+      key: "write_blogs",
+      icon: React.createElement(FormOutlined),
+      label: "Viết bài đăng",
+    },
+    {
+      key: "view_feedback",
+      icon: React.createElement(CommentOutlined),
+      label: "Xem phản hồi/nhận xét",
     },
   ];
 
-  const handleConductConsultation = () => {
-    form.validateFields().then((values) => {
-      console.log("Consultation values:", values);
-      setIsConsultationModalVisible(false);
-      form.resetFields();
-    });
-  };
-
-  const handleSendResult = () => {
-    form.validateFields().then((values) => {
-      console.log("Result values:", values);
-      setIsResultModalVisible(false);
-      form.resetFields();
-    });
-  };
-
-  const handleManageSchedule = () => {
-    form.validateFields().then((values) => {
-      console.log("Schedule values:", values);
-      setIsScheduleModalVisible(false);
-      form.resetFields();
-    });
-  };
-
+  // Render content theo tab
   const renderContent = () => {
     switch (selectedMenuItem) {
       case "personal_schedule":
         return (
-          <Card title="Personal Consultation Schedule">
-            <Table
-              columns={consultationColumns}
-              dataSource={personalConsultations}
-              rowKey="id"
-            />
-          </Card>
+          <Table
+            columns={consultationColumns}
+            dataSource={personalConsultations}
+            rowKey="id"
+            pagination={false}
+          />
         );
       case "user_profiles":
-        return (
-          <Card title="User Profiles">
-            <Table
-              columns={userProfileColumns}
-              dataSource={userProfiles}
-              rowKey="id"
-            />
-          </Card>
-        );
+        return <div>Thông tin người dùng</div>;
       case "online_consultation":
         return (
-          <Card title="Online Consultation">
-            <Button
-              type="primary"
-              icon={<SolutionOutlined />}
-              onClick={() => setIsConsultationModalVisible(true)}
-            >
-              Start New Consultation
-            </Button>
-            <p style={{ marginTop: "20px" }}>
-              Details for ongoing consultations...
-            </p>
-          </Card>
+          <Button
+            type="primary"
+            onClick={() => setIsConsultationModalVisible(true)}
+          >
+            Tư vấn trực tuyến
+          </Button>
         );
       case "consultation_results":
         return (
-          <Card title="Send Consultation Results">
-            <Button
-              type="primary"
-              icon={<EditOutlined />}
-              onClick={() => setIsResultModalVisible(true)}
-            >
-              Send New Result
-            </Button>
-            <p style={{ marginTop: "20px" }}>List of sent results...</p>
-          </Card>
+          <Button type="primary" onClick={() => setIsResultModalVisible(true)}>
+            Gửi kết quả tư vấn
+          </Button>
         );
       case "manage_schedule":
         return (
-          <Card title="Manage Work Schedule">
-            <Button
-              type="primary"
-              icon={<ScheduleOutlined />}
-              onClick={() => setIsScheduleModalVisible(true)}
-            >
-              Add/Edit Schedule Slot
-            </Button>
-            <p style={{ marginTop: "20px" }}>Current schedule details...</p>
-          </Card>
+          <Table
+            columns={consultationColumns}
+            dataSource={manageSchedules}
+            rowKey="id"
+            pagination={false}
+          />
         );
       case "write_blogs":
         return (
-          <Card
-            title="Write Blogs"
-            extra={
-              <Button
-                type="primary"
-                icon={<PlusOutlined />}
-                onClick={() => setIsCreateBlogModalVisible(true)}
-              >
-                Create New Blog
-              </Button>
-            }
-          >
+          <div>
+            <Button
+              type="primary"
+              icon={<PlusOutlined />}
+              style={{ marginBottom: 16 }}
+              onClick={() => setIsCreateBlogModalVisible(true)}
+            >
+              Tạo Blog mới
+            </Button>
             <Table
               columns={blogColumns}
-              dataSource={blogArticles}
+              dataSource={blogs}
+              loading={loadingBlogs}
               rowKey="id"
+              pagination={false}
             />
-          </Card>
+          </div>
         );
       case "view_feedback":
-        return (
-          <Card title="View Feedback/Comments">
-            <Table
-              columns={feedbackColumns}
-              dataSource={feedback}
-              rowKey="id"
-            />
-          </Card>
-        );
+        return <div>Xem phản hồi/nhận xét</div>;
       default:
         return null;
     }
@@ -421,7 +524,7 @@ function Consultant() {
       <Header style={{ display: "flex", alignItems: "center" }}>
         <div className="demo-logo" />
         <Title level={3} style={{ color: "white", margin: 0 }}>
-          Consultant Dashboard
+          Bảng điều khiển tư vấn viên
         </Title>
         <Menu
           theme="dark"
@@ -432,7 +535,7 @@ function Consultant() {
             flex: 1,
             minWidth: 0,
             justifyContent: "flex-end",
-          }} /* Align right */
+          }}
         />
       </Header>
       <Layout>
@@ -449,12 +552,10 @@ function Consultant() {
         <Layout style={{ padding: "0 24px 24px" }}>
           <Breadcrumb
             items={[
-              { title: "Home" },
-              { title: "Consultant" },
+              { title: "Trang chủ" },
+              { title: "Tư vấn viên" },
               {
-                title: selectedMenuItem
-                  .replace(/_/g, " ")
-                  .replace(/\b\w/g, (c) => c.toUpperCase()),
+                title: items2.find((i) => i.key === selectedMenuItem)?.label,
               },
             ]}
             style={{ margin: "16px 0" }}
@@ -473,46 +574,169 @@ function Consultant() {
         </Layout>
       </Layout>
 
-      {/* Modals for Consultant Actions */}
+      {/* Modal tạo bài đăng mới */}
       <Modal
-        title="Conduct Online Consultation"
-        visible={isConsultationModalVisible}
-        onOk={handleConductConsultation}
-        onCancel={() => setIsConsultationModalVisible(false)}
+        title="Tạo bài đăng mới"
+        open={isCreateBlogModalVisible}
+        onOk={handleCreateBlog}
+        onCancel={() => setIsCreateBlogModalVisible(false)}
       >
-        <Form form={form} layout="vertical">
+        <Form form={createBlogForm} layout="vertical">
           <Form.Item
-            name="patientName"
-            label="Patient Name"
-            rules={[{ required: true, message: "Please input patient name!" }]}
+            name="title"
+            label="Tiêu đề"
+            rules={[{ required: true, message: "Vui lòng nhập tiêu đề!" }]}
           >
             <Input />
           </Form.Item>
-          <Form.Item name="consultationNotes" label="Consultation Notes">
+          <Form.Item
+            name="content"
+            label="Nội dung"
+            rules={[{ required: true, message: "Vui lòng nhập nội dung!" }]}
+          >
+            <Input.TextArea rows={6} />
+          </Form.Item>
+          <Form.Item name="imgUrl" label="Ảnh" rules={[{ required: false }]}>
+            <Input
+              placeholder="Dán link ảnh hoặc tải lên bên dưới"
+              style={{ marginBottom: 8 }}
+              value={createBlogForm.getFieldValue("imgUrl")}
+              onChange={(e) =>
+                createBlogForm.setFieldsValue({ imgUrl: e.target.value })
+              }
+            />
+            <input
+              type="file"
+              accept="image/*"
+              onChange={handleImageChange}
+              disabled={imageUploading}
+              style={{ marginTop: 8 }}
+            />
+            {imageUploading && <div>Đang tải ảnh...</div>}
+          </Form.Item>
+          <Form.Item
+            name="status"
+            label="Trạng thái"
+            initialValue="PUBLISHED"
+            rules={[{ required: true, message: "Vui lòng chọn trạng thái!" }]}
+          >
+            <select style={{ width: "100%", height: 32 }}>
+              <option value="DRAFT">Nháp</option>
+              <option value="PUBLISHED">Công khai</option>
+              <option value="ARCHIVED">Lưu trữ</option>
+            </select>
+          </Form.Item>
+        </Form>
+      </Modal>
+
+      {/* Modal chi tiết blog */}
+      <Modal
+        title={
+          selectedBlog && (selectedBlog.title || selectedBlog.id)
+            ? selectedBlog.title || selectedBlog.id
+            : "Chi tiết bài viết"
+        }
+        open={isDetailModalVisible}
+        onCancel={() => setIsDetailModalVisible(false)}
+        footer={null}
+      >
+        {selectedBlog && Object.keys(selectedBlog).length > 0 ? (
+          <div>
+            <div style={{ marginBottom: 12 }}>
+              <b>ID:</b> {selectedBlog.id}
+            </div>
+            <div style={{ marginBottom: 12 }}>
+              <b>Tiêu đề:</b> {selectedBlog.title}
+            </div>
+            <div style={{ marginBottom: 12 }}>
+              <b>Tác giả:</b> {selectedBlog.author?.fullname}
+            </div>
+            <div style={{ marginBottom: 12 }}>
+              <b>Ngày tạo:</b> {selectedBlog.createdAt}
+            </div>
+            <div style={{ marginBottom: 12 }}>
+              <b>Ngày cập nhật:</b> {selectedBlog.updatedAt}
+            </div>
+            <div style={{ marginBottom: 12 }}>
+              <b>Lượt xem:</b> {selectedBlog.viewCount} |{" "}
+              <b>Lượt thích:</b> {selectedBlog.likeCount}
+            </div>
+            <div style={{ marginBottom: 12 }}>
+              <b>Trạng thái:</b> {selectedBlog.status}
+            </div>
+            {selectedBlog.imgUrl ? (
+              <div style={{ marginBottom: 12 }}>
+                <b>Ảnh blog:</b>
+                <br />
+                <img
+                  src={selectedBlog.imgUrl}
+                  alt="blog"
+                  style={{
+                    maxWidth: "100%",
+                    marginTop: 4,
+                    marginBottom: 12,
+                  }}
+                />
+              </div>
+            ) : null}
+            <div style={{ marginBottom: 12 }}>
+              <b>Nội dung:</b>
+              <br />
+              <div style={{ whiteSpace: "pre-line" }}>
+                {selectedBlog.content}
+              </div>
+            </div>
+          </div>
+        ) : (
+          <div>Không có dữ liệu</div>
+        )}
+      </Modal>
+
+      {/* Modal tư vấn trực tuyến */}
+      <Modal
+        title="Tư vấn trực tuyến"
+        open={isConsultationModalVisible}
+        onCancel={() => setIsConsultationModalVisible(false)}
+        footer={null}
+      >
+        <Form form={consultForm} layout="vertical">
+          <Form.Item
+            name="patientName"
+            label="Tên bệnh nhân"
+            rules={[
+              { required: true, message: "Vui lòng nhập tên bệnh nhân!" },
+            ]}
+          >
+            <Input />
+          </Form.Item>
+          <Form.Item name="consultationNotes" label="Ghi chú tư vấn">
             <Input.TextArea rows={4} />
           </Form.Item>
         </Form>
       </Modal>
 
+      {/* Modal gửi kết quả tư vấn */}
       <Modal
-        title="Send Consultation Results"
-        visible={isResultModalVisible}
-        onOk={handleSendResult}
+        title="Gửi kết quả tư vấn"
+        open={isResultModalVisible}
         onCancel={() => setIsResultModalVisible(false)}
+        footer={null}
       >
-        <Form form={form} layout="vertical">
+        <Form form={resultForm} layout="vertical">
           <Form.Item
             name="patientName"
-            label="Patient Name"
-            rules={[{ required: true, message: "Please input patient name!" }]}
+            label="Tên bệnh nhân"
+            rules={[
+              { required: true, message: "Vui lòng nhập tên bệnh nhân!" },
+            ]}
           >
             <Input />
           </Form.Item>
           <Form.Item
             name="results"
-            label="Results"
+            label="Kết quả"
             rules={[
-              { required: true, message: "Please input consultation results!" },
+              { required: true, message: "Vui lòng nhập kết quả tư vấn!" },
             ]}
           >
             <Input.TextArea rows={6} />
@@ -520,110 +744,34 @@ function Consultant() {
         </Form>
       </Modal>
 
+      {/* Modal quản lý lịch làm việc */}
       <Modal
-        title="Manage Work Schedule"
-        visible={isScheduleModalVisible}
+        title="Quản lý lịch làm việc"
+        open={isScheduleModalVisible}
         onOk={handleManageSchedule}
         onCancel={() => setIsScheduleModalVisible(false)}
       >
-        <Form form={form} layout="vertical">
+        <Form form={scheduleForm} layout="vertical">
           <Form.Item
             name="date"
-            label="Date"
-            rules={[{ required: true, message: "Please select date!" }]}
+            label="Ngày"
+            rules={[{ required: true, message: "Vui lòng chọn ngày!" }]}
           >
             <DatePicker style={{ width: "100%" }} />
           </Form.Item>
           <Form.Item
             name="timeFrom"
-            label="Time From"
-            rules={[{ required: true, message: "Please select start time!" }]}
+            label="Giờ bắt đầu"
+            rules={[{ required: true, message: "Vui lòng chọn giờ bắt đầu!" }]}
           >
             <TimePicker style={{ width: "100%" }} format="HH:mm" />
           </Form.Item>
           <Form.Item
             name="timeTo"
-            label="Time To"
-            rules={[{ required: true, message: "Please select end time!" }]}
+            label="Giờ kết thúc"
+            rules={[{ required: true, message: "Vui lòng chọn giờ kết thúc!" }]}
           >
             <TimePicker style={{ width: "100%" }} format="HH:mm" />
-          </Form.Item>
-        </Form>
-      </Modal>
-      <Modal
-        title="Create New Blog"
-        visible={isCreateBlogModalVisible}
-        onOk={handleCreateBlog}
-        onCancel={() => setIsCreateBlogModalVisible(false)}
-      >
-        <Form form={form} layout="vertical">
-          <Form.Item
-            name="title"
-            label="Title"
-            rules={[{ required: true, message: "Please input blog title!" }]}
-          >
-            <Input />
-          </Form.Item>
-          <Form.Item
-            name="content"
-            label="Content"
-            rules={[{ required: true, message: "Please input blog content!" }]}
-          >
-            <Input.TextArea rows={6} />
-          </Form.Item>
-          <Form.Item
-            name="date"
-            label="Date"
-            rules={[{ required: true, message: "Please select date!" }]}
-          >
-            <DatePicker style={{ width: "100%" }} />
-          </Form.Item>
-        </Form>
-      </Modal>
-      <Modal
-        title="Edit Blog"
-        open={isEditBlogModalVisible}
-        onOk={() => {
-          form.validateFields().then((values) => {
-            const updatedBlogs = blogArticles.map((blog) =>
-              blog.id === editingBlog.id
-                ? { ...blog, ...values, date: values.date.format("YYYY-MM-DD") }
-                : blog
-            );
-            setBlogArticles(updatedBlogs);
-            localStorage.setItem("blogArticles", JSON.stringify(updatedBlogs));
-            setIsEditBlogModalVisible(false);
-            setEditingBlog(null);
-            form.resetFields();
-          });
-        }}
-        onCancel={() => {
-          setIsEditBlogModalVisible(false);
-          setEditingBlog(null);
-          form.resetFields();
-        }}
-      >
-        <Form form={form} layout="vertical">
-          <Form.Item
-            name="title"
-            label="Title"
-            rules={[{ required: true, message: "Please input blog title!" }]}
-          >
-            <Input />
-          </Form.Item>
-          <Form.Item
-            name="content"
-            label="Content"
-            rules={[{ required: true, message: "Please input blog content!" }]}
-          >
-            <Input.TextArea rows={6} />
-          </Form.Item>
-          <Form.Item
-            name="date"
-            label="Date"
-            rules={[{ required: true, message: "Please select date!" }]}
-          >
-            <DatePicker style={{ width: "100%" }} />
           </Form.Item>
         </Form>
       </Modal>

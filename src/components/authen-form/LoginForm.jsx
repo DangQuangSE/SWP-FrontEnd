@@ -30,24 +30,27 @@ const LoginForm = ({ onClose }) => {
         email: values.email,
         password: values.password,
       });
-      const user = res.data;
-      dispatch(login(res.data.user));
+      const token = res.data.jwt || res.data.accessToken || res.data.token;
+      localStorage.setItem("token", token);
+      // Lưu cả user và jwt vào Redux
+      const user = res.data.user || {};
+      dispatch(login({ ...user, jwt: token }));
       toast.success("Đăng nhập thành công!");
       if (onClose) onClose();
 
       // Chuyển trang đúng theo role
-      if (user.user.role === "CUSTOMER") {
+      if (user.role === "CUSTOMER") {
         navigate("/");
-      } else if (user.user.role === "ADMIN") {
+      } else if (user.role === "ADMIN") {
         navigate("/dashboard");
-      } else if (user.user.role === "STAFF") {
+      } else if (user.role === "STAFF") {
         navigate("/staff");
-      } else if (user.user.role === "CONSULTANT") {
+      } else if (user.role === "CONSULTANT") {
         navigate("/consultant");
       } else {
         navigate("/error");
       }
-      console.log("Login response:", user);
+      console.log("Login response:", res.data);
     } catch (err) {
       if (err.response && err.response.status === 401) {
         toast.error("Email hoặc mật khẩu không chính xác!");
@@ -62,24 +65,26 @@ const LoginForm = ({ onClose }) => {
   const handleFacebookSuccess = async (res) => {
     try {
       setLoading(true);
-      // Gửi accessToken lên backend để xác thực hoặc lấy thông tin user
       const response = await api.post("/auth/facebook", {
         accessToken: res.accessToken,
       });
 
       console.log("Facebook response:", response.data);
 
-      if (response.data.user && response.data.jwt) {
+      const { user, jwt } = response.data;
+      if (user && jwt) {
         toast.success("Đăng nhập Facebook thành công!");
-        dispatch(login(response.data.user));
-        // TODO: Đóng modal hoặc redirect, ví dụ:
+        // Lưu cả user và jwt vào Redux
+        dispatch(login({ ...user, jwt }));
+        localStorage.setItem("token", jwt);
+        localStorage.setItem("user", JSON.stringify(user));
         window.location.href = "/";
       } else {
         toast.error("Đăng nhập Facebook thất bại!");
       }
     } catch (err) {
       toast.error("Lỗi xác thực Facebook!");
-      console.log(err.toast);
+      console.log(err);
     } finally {
       setLoading(false);
     }
@@ -106,14 +111,14 @@ const LoginForm = ({ onClose }) => {
 
       console.log(" FULL response từ backend:", res.data);
 
-      const { user, jwt: token } = res.data;
+      const { user, jwt } = res.data;
       console.log("Google response user:", user);
-      console.log("Google response token:", token);
+      console.log("Google response token:", jwt);
 
-      if (token) {
-        localStorage.setItem("token", token);
+      if (jwt) {
+        localStorage.setItem("token", jwt);
         localStorage.setItem("user", JSON.stringify(user));
-        dispatch(login(user));
+        dispatch(login({ ...user, jwt }));
         toast.success("Đăng nhập Google thành công!");
         window.location.href = "/";
       } else {
