@@ -9,7 +9,7 @@ const Footer = () => {
       <div className="container">
         <div className="footer-content">
           <div className="footer-logo">
-            <Logo />
+            <Logo className="logo" />
             <p className="footer-description">
               Professional healthcare services for sexual and reproductive
               health.

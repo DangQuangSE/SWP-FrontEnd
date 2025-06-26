@@ -14,7 +14,7 @@ const ServiceDetail = () => {
     if (!id) return;
 
     axios
-      .get(`/api/service/id/${id}`)
+      .get(`/api/services/${id}`)
       .then((res) => {
         setService(res.data);
         setLoading(false);

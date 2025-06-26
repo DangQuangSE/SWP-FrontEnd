@@ -18,11 +18,11 @@ import dayjs from "dayjs";
 import isSameOrBefore from "dayjs/plugin/isSameOrBefore";
 import "dayjs/locale/vi";
 import locale from "antd/es/date-picker/locale/vi_VN";
-import axios from "axios";
+
 import { useSearchParams, useNavigate } from "react-router-dom";
 import "./BookingForm.css";
 import GradientButton from "../../common/GradientButton";
-
+import api from "../../../configs/api";
 dayjs.extend(isSameOrBefore);
 
 const { Title, Text } = Typography;
@@ -53,8 +53,8 @@ const BookingForm = ({ serviceIdProp, serviceDetail: detailProp }) => {
       const from = dateRange[0].format("YYYY-MM-DD");
       const to = dateRange[1].format("YYYY-MM-DD");
 
-      axios
-        .get("/api/schedules/slot-free-service", {
+      api
+        .get("/schedules/slot-free-service", {
           params: { service_id: defaultServiceId, from, to },
         })
         .then((res) => {

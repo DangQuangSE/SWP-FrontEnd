@@ -19,7 +19,7 @@ const ServiceList = () => {
 
   useEffect(() => {
     axios
-      .get("/api/service")
+      .get("/api/services")
       .then((res) => {
         setServices(res.data);
       })

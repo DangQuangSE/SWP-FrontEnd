@@ -42,6 +42,7 @@ import {
   ServiceDetailModal,
   BlogModal,
   RoomModal,
+  SpecializationModal,
 } from "./AdminDashboard/index";
 
 const { Header, Content, Sider } = Layout;
@@ -68,6 +69,12 @@ function Admin() {
   const [searchResults, setSearchResults] = useState([]);
   const [isSearching, setIsSearching] = useState(false);
   const [form] = Form.useForm();
+
+  // Specialization states
+  const [specializations, setSpecializations] = useState([]);
+  const [editingSpecialization, setEditingSpecialization] = useState(null);
+  const [isSpecializationModalVisible, setIsSpecializationModalVisible] =
+    useState(false);
 
   const {
     token: { colorBgContainer, borderRadiusLG },
@@ -257,6 +264,14 @@ function Admin() {
     getUsers();
   }, []);
 
+  useEffect(() => {
+    const getSpecializations = async () => {
+      const data = await fetchSpecializations();
+      setSpecializations(data);
+    };
+    getSpecializations();
+  }, []);
+
   // Thêm user
   const addUser = async (user) => {
     try {
@@ -295,6 +310,46 @@ function Admin() {
     setUsers(data);
   };
 
+  // Specialization API functions
+  const fetchSpecializations = async () => {
+    try {
+      const response = await api.get("/specializations");
+      return Array.isArray(response.data) ? response.data : [response.data];
+    } catch (error) {
+      console.error("Lỗi lấy danh sách specializations:", error);
+      return [];
+    }
+  };
+
+  const addSpecialization = async (specialization) => {
+    try {
+      const response = await api.post("/specializations", specialization);
+      return response.data;
+    } catch (error) {
+      console.error("Lỗi thêm specialization:", error);
+      throw error;
+    }
+  };
+
+  const updateSpecialization = async (id, specialization) => {
+    try {
+      const response = await api.put(`/specializations/${id}`, specialization);
+      return response.data;
+    } catch (error) {
+      console.error("Lỗi sửa specialization:", error);
+      throw error;
+    }
+  };
+
+  const deleteSpecialization = async (id) => {
+    try {
+      await api.delete(`/specializations/${id}`);
+    } catch (error) {
+      console.error("Lỗi xóa specialization:", error);
+      throw error;
+    }
+  };
+
   // Menu items for the side navigation
   const items2 = [
     {
@@ -331,6 +386,11 @@ function Admin() {
       key: "manage_rooms",
       icon: React.createElement(MedicineBoxOutlined),
       label: "Manage Medical Rooms",
+    },
+    {
+      key: "manage_specializations",
+      icon: React.createElement(SolutionOutlined),
+      label: "Manage Specializations",
     },
   ];
 
@@ -602,6 +662,51 @@ function Admin() {
     },
   ];
 
+  const specializationColumns = [
+    { title: "ID", dataIndex: "id", key: "id" },
+    { title: "Name", dataIndex: "name", key: "name" },
+    { title: "Description", dataIndex: "description", key: "description" },
+    {
+      title: "Status",
+      dataIndex: "isActive",
+      key: "isActive",
+      render: (isActive) => (
+        <Tag color={isActive ? "green" : "red"}>
+          {isActive ? "Active" : "Inactive"}
+        </Tag>
+      ),
+    },
+    {
+      title: "Created At",
+      dataIndex: "createdAt",
+      key: "createdAt",
+      render: (date) => new Date(date).toLocaleDateString("vi-VN"),
+    },
+    {
+      title: "Action",
+      key: "action",
+      render: (_, record) => (
+        <Space size="middle">
+          <Button
+            icon={<EditOutlined />}
+            size="small"
+            onClick={() => handleEditSpecialization(record)}
+          >
+            Edit
+          </Button>
+          <Popconfirm
+            title="Sure to delete?"
+            onConfirm={() => handleDeleteSpecialization(record.id)}
+          >
+            <Button icon={<DeleteOutlined />} size="small" danger>
+              Delete
+            </Button>
+          </Popconfirm>
+        </Space>
+      ),
+    },
+  ];
+
   const handleEditUser = (record) => {
     setEditingUser(record);
     form.setFieldsValue(record);
@@ -808,6 +913,50 @@ function Admin() {
     });
   };
 
+  // Specialization handlers
+  const handleEditSpecialization = (record) => {
+    setEditingSpecialization(record);
+    form.setFieldsValue(record);
+    setIsSpecializationModalVisible(true);
+  };
+
+  const handleSpecializationModalOk = async () => {
+    try {
+      const values = await form.validateFields();
+      if (editingSpecialization) {
+        // Sửa specialization
+        await updateSpecialization(editingSpecialization.id, values);
+        message.success("Cập nhật specialization thành công!");
+      } else {
+        // Thêm specialization
+        await addSpecialization(values);
+        message.success("Thêm specialization thành công!");
+      }
+      setIsSpecializationModalVisible(false);
+      form.resetFields();
+      setEditingSpecialization(null);
+      // Cập nhật lại danh sách
+      const data = await fetchSpecializations();
+      setSpecializations(data);
+    } catch (error) {
+      console.error("Lỗi cập nhật specialization:", error);
+      message.error("Có lỗi xảy ra khi xử lý specialization!");
+    }
+  };
+
+  const handleDeleteSpecialization = async (id) => {
+    try {
+      await deleteSpecialization(id);
+      message.success("Xóa specialization thành công!");
+      // Cập nhật lại danh sách
+      const data = await fetchSpecializations();
+      setSpecializations(data);
+    } catch (error) {
+      console.error("Lỗi xóa specialization:", error);
+      message.error("Có lỗi xảy ra khi xóa specialization!");
+    }
+  };
+
   const renderContent = () => {
     switch (selectedMenuItem) {
       case "manage_users":
@@ -941,6 +1090,31 @@ function Admin() {
             <Table columns={roomColumns} dataSource={rooms} rowKey="id" />
           </Card>
         );
+      case "manage_specializations":
+        return (
+          <Card
+            title="Manage Specializations"
+            extra={
+              <Button
+                type="primary"
+                icon={<PlusOutlined />}
+                onClick={() => {
+                  setEditingSpecialization(null);
+                  form.resetFields();
+                  setIsSpecializationModalVisible(true);
+                }}
+              >
+                Add Specialization
+              </Button>
+            }
+          >
+            <Table
+              columns={specializationColumns}
+              dataSource={specializations}
+              rowKey="id"
+            />
+          </Card>
+        );
       default:
         return null;
     }
@@ -1053,6 +1227,18 @@ function Admin() {
         onCancel={() => setIsRoomModalVisible(false)}
         form={form}
         editingRoom={null} // You can add editingRoom state if needed
+      />
+
+      <SpecializationModal
+        visible={isSpecializationModalVisible}
+        onOk={handleSpecializationModalOk}
+        onCancel={() => {
+          setIsSpecializationModalVisible(false);
+          setEditingSpecialization(null);
+          form.resetFields();
+        }}
+        form={form}
+        editingSpecialization={editingSpecialization}
       />
     </Layout>
   );

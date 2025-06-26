@@ -17,8 +17,9 @@ const AuthButtons = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
-  // ✅ LẤY RA USER ĐÚNG TỪ state
-  const { user } = useSelector((state) => state.user);
+  //  LẤY RA USER ĐÚNG TỪ state
+  const userState = useSelector((state) => state.user);
+  const user = userState?.user;
 
   const isLoggedIn = user && user.email;
 
@@ -64,7 +65,7 @@ const AuthButtons = () => {
           >
             <Avatar src={user?.imageUrl || "/placeholder.svg"} />
             <span style={{ marginLeft: "8px" }}>
-              {user?.name || user?.username || user?.fullname || "User"}
+              {user?.fullname || "User"}
             </span>
           </div>
         </Dropdown>
