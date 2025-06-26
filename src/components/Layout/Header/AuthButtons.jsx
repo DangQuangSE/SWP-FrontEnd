@@ -21,7 +21,17 @@ const AuthButtons = () => {
   const userState = useSelector((state) => state.user);
   const user = userState?.user;
 
-  const isLoggedIn = user && user.email;
+  //  Debug logging
+  console.log("AuthButtons Debug:");
+  console.log("Full userState:", userState);
+  console.log("Extracted user:", user);
+  console.log("user.email:", user?.email);
+  console.log("user.fullname:", user?.fullname);
+  console.log("user.imageUrl:", user?.imageUrl);
+
+  //  Cải thiện logic kiểm tra đăng nhập
+  const isLoggedIn = user && user.email && user.email.trim() !== "";
+  console.log("isLoggedIn:", isLoggedIn);
 
   const onLoginClick = () => {
     setOpen(true);
@@ -46,7 +56,7 @@ const AuthButtons = () => {
       icon: <LogoutOutlined />,
       onClick: () => {
         dispatch(logout());
-        localStorage.clear(); // ✅ Gộp xóa gọn
+        localStorage.clear(); //  Gộp xóa gọn
         navigate("/");
       },
     },

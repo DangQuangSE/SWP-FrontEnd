@@ -66,12 +66,21 @@ export const userSlice = createSlice({
   initialState,
   reducers: {
     login: (state, action) => {
+      console.log("🔄 Redux login action:", action.payload);
       state.user = action.payload.user;
       state.token = action.payload.token;
+      console.log(" Redux state updated:", {
+        user: state.user,
+        token: state.token,
+      });
     },
     logout: () => {
+      console.log("🚪 Redux logout action");
       // Xóa thông tin người dùng đăng nhập
-      localStorage.clear();
+      localStorage.removeItem("token");
+      localStorage.removeItem("user");
+      localStorage.removeItem("persist:root");
+      console.log("🗑️ Cleared localStorage");
       return initialState;
     },
   },

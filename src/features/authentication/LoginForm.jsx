@@ -22,11 +22,21 @@ const LoginForm = ({ onClose }) => {
         email: values.email,
         password: values.password,
       });
+      console.log("🔍 Login API Response:", res.data);
+
       const token = res.data.jwt || res.data.accessToken || res.data.token;
+      const user = res.data.user || res.data;
+
+      console.log("🔑 Extracted token:", token);
+      console.log("👤 Extracted user:", user);
+
+      // ✅ Lưu vào localStorage
       localStorage.setItem("token", token);
-      // Lưu cả user và jwt vào Redux
-      const user = res.data.user || {};
-      dispatch(login({ ...user, jwt: token }));
+      localStorage.setItem("user", JSON.stringify(user));
+
+      // ✅ Dispatch đúng cấu trúc
+      dispatch(login({ user, token }));
+
       toast.success("Đăng nhập thành công!");
       if (onClose) onClose();
 
@@ -34,15 +44,14 @@ const LoginForm = ({ onClose }) => {
       if (user.role === "CUSTOMER") {
         navigate("/");
       } else if (user.role === "ADMIN") {
-        navigate("/dashboard");
+        navigate("/admin");
       } else if (user.role === "STAFF") {
         navigate("/staff");
       } else if (user.role === "CONSULTANT") {
         navigate("/consultant");
       } else {
-        navigate("/error");
+        navigate("/");
       }
-      console.log("Login response:", res.data);
     } catch (err) {
       if (err.response?.status === 401) {
         toast.error("Email hoặc mật khẩu không chính xác!");
@@ -66,16 +75,19 @@ const LoginForm = ({ onClose }) => {
         { headers: { "Content-Type": "application/json" } }
       );
 
-      console.log(" FULL response từ backend:", res.data);
+      console.log("🔍 Google API Response:", res.data);
 
-      const { user, jwt } = res.data;
-      console.log("Google response user:", user);
-      console.log("Google response token:", jwt);
+      const { user, jwt: token } = res.data;
+      console.log("👤 Google user:", user);
+      console.log("🔑 Google token:", token);
 
-      if (jwt) {
-        localStorage.setItem("token", jwt);
+      if (token) {
+        localStorage.setItem("token", token);
         localStorage.setItem("user", JSON.stringify(user));
-        dispatch(login({ ...user, jwt }));
+
+        // ✅ Dispatch đúng cấu trúc
+        dispatch(login({ user, token }));
+
         toast.success("Đăng nhập Google thành công!");
         if (onClose) onClose();
         navigate("/");
