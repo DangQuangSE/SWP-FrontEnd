@@ -66,7 +66,7 @@ function Consultant() {
   const [resultForm] = Form.useForm();
   const [scheduleForm] = Form.useForm();
 
-  // State
+  const [isScheduleLoading, setIsScheduleLoading] = useState(false);
   const [personalConsultations, setPersonalConsultations] = useState([]);
   const [manageSchedules, setManageSchedules] = useState([]);
   const [isEditBlogModalVisible, setIsEditBlogModalVisible] = useState(false);
