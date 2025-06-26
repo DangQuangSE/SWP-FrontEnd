@@ -42,7 +42,7 @@ const AppointmentForm = () => {
                 <div className="logo-content">
                   <div className="logo-icon">
                     <img
-                      src="logostc.png"
+                      src="logo.png"
                       alt="Hospital Logo"
                       className="logo-image"
                     />

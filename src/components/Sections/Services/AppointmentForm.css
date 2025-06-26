@@ -32,7 +32,7 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  background-color: #f9f9f9;
+  background-color: #ffffff;
 }
 
 .hospital-profile {
@@ -105,8 +105,8 @@
 }
 
 .nav-tab.active {
-  border-bottom: 2px solid #0288d1;
-  color: #0288d1;
+  border-bottom: 2px solid #0283f5;
+  color: #0283f5;
 }
 
 /* Main Content */
@@ -144,7 +144,7 @@
   gap: 10px;
   font-size: 22px;
   font-weight: 600;
-  color: #0288d1;
+  color: #0283f5;
   margin-bottom: 20px;
 }
 

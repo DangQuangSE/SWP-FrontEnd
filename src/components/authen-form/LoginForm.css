@@ -19,7 +19,9 @@
   display: flex;
   justify-content: space-between;
 }
-
+.forgot-password a {
+  color: #2753d0;
+}
 .submit-button {
   margin-top: 16px;
 }
@@ -47,16 +49,15 @@
 }
 
 .login-policy a {
-  color: #3870ff;
+  color: #2753d0;
 }
 .auth-modal-logo {
   text-align: center;
-  padding-bottom: 20px;
   padding-top: 10px;
 }
 
 .auth-modal-logo img {
-  width: 50px;
+  width: 150px;
   height: auto;
   opacity: 0.8;
 }

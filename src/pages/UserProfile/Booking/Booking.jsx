@@ -66,7 +66,22 @@ const Booking = () => {
       console.warn(" Không có token để gọi API!");
     }
   }, [activeTab, token]);
+  const handleCancelAppointment = async (appointmentId) => {
+    if (!window.confirm("Bạn chắc chắn muốn hủy lịch hẹn này?")) return;
 
+    try {
+      await api.delete(`/appointment/${appointmentId}/cancel`);
+      message.success("Hủy lịch hẹn thành công");
+
+      // Làm mới lại danh sách sau khi hủy
+      setAppointments((prev) =>
+        prev.filter((appointment) => appointment.id !== appointmentId)
+      );
+    } catch (err) {
+      console.error("Lỗi khi hủy lịch hẹn:", err.response?.data || err.message);
+      message.error("Không thể hủy lịch hẹn. Vui lòng thử lại sau.");
+    }
+  };
   // 2. Kiểm tra MoMo trả về resultCode
   useEffect(() => {
     const query = new URLSearchParams(search);
@@ -136,6 +151,14 @@ const Booking = () => {
             <strong>Thời gian tạo:</strong>{" "}
             {new Date(appointment.created_at).toLocaleString()}
           </p>
+          {["CONFIRMED", "PENDING"].includes(appointment.status) && (
+            <button
+              className="cancel-button-profile"
+              onClick={() => handleCancelAppointment(appointment.id)}
+            >
+              Hủy lịch hẹn
+            </button>
+          )}
         </div>
       </div>
     ));

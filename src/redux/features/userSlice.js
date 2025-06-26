@@ -53,8 +53,13 @@ export const updateSettings = createAsyncThunk(
   }
 );
 const initialState = {
-  user: null,
-  token: null,
+  user: {
+    fullname: "",
+    email: "",
+    role: "",
+    imageUrl: "",
+  },
+  token: "",
 };
 export const userSlice = createSlice({
   name: "user",
@@ -66,6 +71,7 @@ export const userSlice = createSlice({
     },
     logout: () => {
       // Xóa thông tin người dùng đăng nhập
+      localStorage.clear();
       return initialState;
     },
   },
