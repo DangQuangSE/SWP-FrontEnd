@@ -5,7 +5,6 @@ import api from "../../configs/axios";
 import { useDispatch } from "react-redux";
 import { login } from "../../redux/features/userSlice";
 import { toast } from "react-toastify";
-import LoginFace from "../../api/LoginFace";
 import LoginGoogle from "../../api/LoginGoogle";
 
 const RegisterForm = () => {
@@ -82,60 +81,58 @@ const RegisterForm = () => {
 
   // Bước 3: Tạo mật khẩu mới
   const handleCreateAccount = async (values) => {
-  try {
-    setLoading(true);
+    try {
+      setLoading(true);
 
-    const res = await api.post("/auth/config-password", {
-      email,
-      password: values.password,
-      confirmPassword: values.confirm,
-    });
+      const res = await api.post("/auth/config-password", {
+        email,
+        password: values.password,
+        confirmPassword: values.confirm,
+      });
 
-    console.log("Response đăng ký:", res.data);
+      console.log("Response đăng ký:", res.data);
 
-    // Giả sử API chỉ trả về chuỗi thông báo thành công
-    if (
-      typeof res.data === "string" &&
-      res.data.toLowerCase().includes("thành công")
-    ) {
-      // Không có user để dispatch (vì chỉ là string "Thành công!")
-      message.success("Đăng ký thành công!");
-      window.location.href = "/";
-    } 
-    // Nếu API trả về object có user:
-    else if (
-      res.data &&
-      res.data.message &&
-      res.data.message.toLowerCase().includes("thành công") &&
-      res.data.user
-    ) {
-      dispatch(login(res.data.user));
-      message.success("Đăng ký thành công!");
-      window.location.href = "/";
-    } 
-    else {
-      message.error("Đăng ký thất bại!");
+      // Giả sử API chỉ trả về chuỗi thông báo thành công
+      if (
+        typeof res.data === "string" &&
+        res.data.toLowerCase().includes("thành công")
+      ) {
+        // Không có user để dispatch (vì chỉ là string "Thành công!")
+        message.success("Đăng ký thành công!");
+        window.location.href = "/";
+      }
+      // Nếu API trả về object có user:
+      else if (
+        res.data &&
+        res.data.message &&
+        res.data.message.toLowerCase().includes("thành công") &&
+        res.data.user
+      ) {
+        dispatch(login(res.data.user));
+        message.success("Đăng ký thành công!");
+        window.location.href = "/";
+      } else {
+        message.error("Đăng ký thất bại!");
+      }
+    } catch (err) {
+      // Nếu chắc chắn chỉ lỗi mật khẩu không cần thông báo
+      if (
+        err?.response?.data &&
+        typeof err.response.data === "string" &&
+        err.response.data.includes("Mật khẩu")
+      ) {
+        console.warn("Server password validation: ", err.response.data);
+      } else {
+        const errMsg =
+          err?.response?.data && typeof err.response.data === "string"
+            ? err.response.data
+            : "Đăng ký thất bại!";
+        message.error(errMsg);
+      }
+    } finally {
+      setLoading(false);
     }
-  } catch (err) {
-    // Nếu chắc chắn chỉ lỗi mật khẩu không cần thông báo
-    if (
-      err?.response?.data &&
-      typeof err.response.data === "string" &&
-      err.response.data.includes("Mật khẩu")
-    ) {
-      console.warn("Server password validation: ", err.response.data);
-    } else {
-      const errMsg =
-        err?.response?.data && typeof err.response.data === "string"
-          ? err.response.data
-          : "Đăng ký thất bại!";
-      message.error(errMsg);
-    }
-  } finally {
-    setLoading(false);
-  }
-};
-
+  };
 
   // Bước 4: Đăng nhập nếu đã có tài khoản
   const handleLogin = async (values) => {
@@ -154,30 +151,6 @@ const RegisterForm = () => {
       }
     } catch (err) {
       message.error("Lỗi đăng nhập!", err.message);
-    } finally {
-      setLoading(false);
-    }
-  };
-  const handleFacebookSuccess = async (res) => {
-    try {
-      setLoading(true);
-      // Gửi accessToken lên backend để xác thực hoặc lấy thông tin user
-      const response = await api.post("/auth/facebook", {
-        accessToken: res.accessToken,
-      });
-      dispatch(login(response.data.user));
-      console.log("Facebook response:", response.data);
-
-      if (response.data.user && response.data.jwt) {
-        toast.success("Đăng nhập Facebook thành công!");
-        // TODO: Đóng modal hoặc redirect, ví dụ:
-        window.location.href = "/";
-      } else {
-        toast.error("Đăng nhập Facebook thất bại!");
-      }
-    } catch (err) {
-      toast.error("Lỗi xác thực Facebook!");
-      console.log(err.toast);
     } finally {
       setLoading(false);
     }
@@ -229,8 +202,13 @@ const RegisterForm = () => {
       {step === 1 && (
         <Spin spinning={loading}>
           <Form form={form} layout="vertical">
+            <div className="auth-modal-logo">
+              <img src="/logostc.png" alt="Logo" />
+            </div>
+            <h2 className="login-title">Tạo tài khoản</h2>
             <Form.Item
               name="email"
+              label="Vui lòng nhập email của bạn"
               rules={[
                 { required: true, message: "Vui lòng nhập email!" },
                 { type: "email", message: "Email không hợp lệ!" },
@@ -257,7 +235,6 @@ const RegisterForm = () => {
                 style={{ display: "flex", gap: 12, justifyContent: "center" }}
               >
                 <LoginGoogle onSuccess={handleGoogleSuccess} />
-                <LoginFace onSuccess={handleFacebookSuccess} />
               </div>
               <div style={{ fontSize: 12, color: "#888", marginTop: 20 }}>
                 Bằng cách đăng ký, bạn đồng ý với{" "}

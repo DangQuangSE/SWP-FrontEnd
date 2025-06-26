@@ -27,7 +27,7 @@ const AuthButtons = () => {
       key: "1",
       label: "Thông tin cá nhân",
       icon: <UserOutlined />,
-      onClick: () => navigate("/user/profile"), // ✅ THÊM điều hướng
+      onClick: () => navigate("/user"), // ✅ THÊM điều hướng
     },
     {
       key: "2",
@@ -41,6 +41,7 @@ const AuthButtons = () => {
       icon: <LogoutOutlined />,
       onClick: () => {
         dispatch(logout());
+        navigate("/");
       },
     },
   ];
@@ -55,7 +56,7 @@ const AuthButtons = () => {
         <Dropdown menu={{ items }} trigger={["click"]}>
           <div
             style={{ display: "flex", alignItems: "center", cursor: "pointer" }}
-            onClick={() => navigate("/user/profile")} // ✅ Điều hướng khi click avatar
+            onClick={() => navigate("/user")} // ✅ Điều hướng khi click avatar
           >
             <Avatar src={user?.imageUrl} />
             <span style={{ marginLeft: "8px" }}>

@@ -32,7 +32,6 @@ const { TextArea } = Input;
 const TAB_LABELS = {
   morning: "Buổi sáng",
   afternoon: "Buổi chiều",
-  evening: "Buổi tối",
 };
 
 const BookingForm = ({ serviceIdProp, serviceDetail: detailProp }) => {
@@ -90,24 +89,13 @@ const BookingForm = ({ serviceIdProp, serviceDetail: detailProp }) => {
     const entry = scheduleData.find((s) => s.workDate === date);
     if (!entry || !entry.slots) return [];
 
-    const slots = [];
-
-    entry.slots.forEach(({ startTime, endTime, slotId, availableBooking }) => {
-      if (availableBooking > 0 && startTime && endTime) {
-        let current = dayjs(`${date}T${startTime}`);
-        const end = dayjs(`${date}T${endTime}`);
-
-        while (current.isBefore(end)) {
-          slots.push({
-            time: current.format("HH:mm"),
-            slotId, // bạn có thể thay đổi logic nếu mỗi khung giờ cần id riêng
-          });
-          current = current.add(30, "minute");
-        }
-      }
-    });
-
-    return slots;
+    return entry.slots
+      .filter(({ availableBooking }) => availableBooking > 0)
+      .map(({ startTime, endTime, slotId }) => ({
+        time: `${startTime.slice(0, 5)} - ${endTime.slice(0, 5)}`,
+        slotId,
+        hour: parseInt(startTime.slice(0, 2), 10),
+      }));
   };
 
   const handleBooking = () => {
@@ -122,7 +110,8 @@ const BookingForm = ({ serviceIdProp, serviceDetail: detailProp }) => {
       price: serviceDetail.price,
       duration: serviceDetail.duration,
       preferredDate: selectedDay,
-      slot: selectedTime,
+      // slot: selectedTime,
+      slot: selectedTime.split(" - ")[0],
       slotId: selectedSlotId,
       note,
     };
@@ -224,12 +213,12 @@ const BookingForm = ({ serviceIdProp, serviceDetail: detailProp }) => {
           >
             {(() => {
               const slots = getTimeSlotsForDay(selectedDay);
-              const parts = { morning: [], afternoon: [], evening: [] };
+              const parts = { morning: [], afternoon: [] /*evening: [] */ };
               slots.forEach((slot) => {
                 const hour = parseInt(slot.time.split(":"[0]), 10);
                 if (hour < 12) parts.morning.push(slot);
                 else if (hour < 18) parts.afternoon.push(slot);
-                else parts.evening.push(slot);
+                // else parts.evening.push(slot);
               });
               return Object.entries(parts).map(([key, list]) => (
                 <TabPane tab={TAB_LABELS[key] || key} key={key}>

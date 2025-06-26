@@ -1,133 +1,62 @@
-/* Container bao quanh modal */
-.login-container {
-  display: flex;
+.login-form-wrapper {
+  padding: 0 24px 24px 24px;
+
+  min-width: 340px;
   justify-content: center;
-  align-items: center;
-  min-height: 100vh;
-  background: #f9fafc;
-  font-family: "Poppins", "Segoe UI", sans-serif;
 }
 
-/* Form box */
-.login-box {
-  background-color: #fff;
-  padding: 2.5rem;
-  border-radius: 14px;
-  width: 100%;
-  max-width: 420px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-  transition: all 0.3s ease-in-out;
-}
-
-/* Header */
-.login-header {
+.login-title {
+  margin-bottom: 10px;
   text-align: center;
-  margin-bottom: 20px;
 }
 
-.login-header h2 {
-  font-size: 1.6rem;
-  font-weight: bold;
-  color: #111;
-  margin-bottom: 4px;
-}
-
-.login-header p {
-  font-size: 0.95rem;
+.login-subtext {
   color: #666;
+  margin-bottom: 24px;
 }
 
-/* Ant Design form label */
-.ant-form-item-label > label {
-  font-weight: 600;
-  color: #444;
-  font-size: 0.92rem;
-}
-
-/* Forgot password line */
-.login-extra {
+.forgot-password {
   display: flex;
   justify-content: space-between;
-  font-size: 0.85rem;
+}
+
+.submit-button {
+  margin-top: 16px;
+}
+
+.login-divider {
+  margin: 32px 0 0;
+}
+
+.login-divider-text {
+  text-align: center;
+  color: #bbb;
+  margin-bottom: 16px;
+}
+
+.login-socials {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+}
+
+.login-policy {
+  font-size: 12px;
   color: #888;
-  margin-bottom: 12px;
-}
-
-.forgot-link {
-  color: #3870ff;
-  text-decoration: none;
-}
-.forgot-link:hover {
-  text-decoration: underline;
-  color: #ff7d9d;
-}
-
-/* Submit button margin */
-.login-submit {
   margin-top: 20px;
 }
 
-/* Divider "hoặc tiếp tục bằng" */
-.auth-divider {
-  text-align: center;
-  margin: 24px 0 16px;
-  font-size: 12px;
-  color: #999;
-}
-
-/* Social login buttons */
-.social-buttons {
-  display: flex;
-  justify-content: center;
-  gap: 12px;
-  flex-wrap: wrap;
-}
-
-.social-button {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 8px 12px;
-  border-radius: 6px;
-  border: 1px solid #ddd;
-  font-size: 14px;
-  background-color: #fff;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  min-width: 160px;
-  justify-content: center;
-}
-
-.social-button:hover {
-  background-color: #f0f2f5;
-}
-
-/* Facebook logo color */
-.facebook svg {
-  color: #1877f2;
-}
-
-/* Footer chính sách */
-.auth-footer {
-  margin-top: 16px;
-  text-align: center;
-  font-size: 12px;
-  color: #999;
-}
-
-.auth-footer a {
+.login-policy a {
   color: #3870ff;
-  text-decoration: none;
+}
+.auth-modal-logo {
+  text-align: center;
+  padding-bottom: 20px;
+  padding-top: 10px;
 }
 
-.auth-footer a:hover {
-  text-decoration: underline;
-}
-
-/* Responsive mobile */
-@media (max-width: 480px) {
-  .login-box {
-    padding: 1.5rem;
-    border-radius: 10px;
-  }
+.auth-modal-logo img {
+  width: 50px;
+  height: auto;
+  opacity: 0.8;
 }

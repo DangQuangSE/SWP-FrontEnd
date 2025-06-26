@@ -1,0 +1,77 @@
+/* Modal body */
+.auth-modal .ant-modal-body {
+  padding: 0;
+  background: #ffffff;
+  border-radius: 12px;
+}
+
+/* Close icon */
+.close-icon {
+  font-size: 24px;
+}
+
+/* Tabs */
+.auth-tab-label {
+  font-weight: 600;
+  font-size: 16px;
+}
+.ant-tabs-tab-active .auth-tab-label {
+  color: #0288d1 !important;
+}
+.auth-modal-body {
+  padding: 24px;
+}
+
+/* Exit confirm modal */
+.exit-confirm-modal .ant-modal-body {
+  text-align: center;
+  padding: 32px;
+}
+
+/* Exit confirm content */
+.exit-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.exit-icon-container {
+  background: #ffffff;
+  border-radius: 50%;
+  width: 80px;
+  height: 80px;
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.exit-icon {
+  width: 40px;
+}
+
+.exit-title {
+  font-weight: 700;
+  margin-bottom: 8px;
+}
+
+.exit-subtitle {
+  color: #555;
+  margin-bottom: 24px;
+}
+
+/* Buttons */
+.exit {
+  font-size: 16px;
+  font-weight: 600;
+  display: flex;
+  justify-content: center;
+  transition: color 0.3s ease;
+  padding: 10px 32px;
+  cursor: pointer;
+  width: 100%;
+}
+.exit-buttons {
+  margin-bottom: 12px;
+  width: 100%;
+}

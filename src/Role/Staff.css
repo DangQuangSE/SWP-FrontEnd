@@ -71,7 +71,7 @@
   .staff-container {
     padding: 16px;
   }
-  
+
   .MuiDialog-paper {
     min-width: 300px;
   }
@@ -128,7 +128,7 @@
 
 /* Modal styles */
 .ant-modal-content {
-  border-radius: 8px;
+  border-radius: 18px;
 }
 
 /* Tabs styles */
@@ -145,7 +145,7 @@
   .ant-card {
     margin-bottom: 12px;
   }
-  
+
   .ant-list-item {
     padding: 12px;
   }

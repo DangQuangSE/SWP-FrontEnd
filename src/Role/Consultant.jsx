@@ -78,6 +78,9 @@ function Consultant() {
     useState(false);
   const [imageUploading, setImageUploading] = useState(false);
 
+  // Lấy thông tin user từ Redux
+  const user = useSelector((state) => state.user);
+
   const {
     token: { colorBgContainer, borderRadiusLG },
   } = theme.useToken();
@@ -750,6 +753,7 @@ const handleCreateBlog = () => {
         open={isScheduleModalVisible}
         onOk={handleManageSchedule}
         onCancel={() => setIsScheduleModalVisible(false)}
+        confirmLoading={isScheduleLoading}
       >
         <Form form={scheduleForm} layout="vertical">
           <Form.Item

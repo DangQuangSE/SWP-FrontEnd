@@ -1,15 +1,17 @@
 .gradient-button {
-  display: inline-flex !important;
+  display: inline-flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, #00b5f1, #0ea5e9) !important;
-  color: white !important;
+  background: linear-gradient(to top, #4fc3f7, #0288d1);
+  color: white;
   border-radius: 20px;
   padding: 10px 18px;
   font-size: 16px;
   font-weight: 600;
   cursor: pointer;
-  transition: all 0.3s ease;
+  /* transition: all 1s ease; */
+  transition: background 1.2s ease-in-out, transform 1.2s ease-in-out;
+
   height: 40px;
   border: none;
   gap: 8px;
@@ -34,7 +36,8 @@
 /* Hover */
 .gradient-button:hover {
   transform: translateY(-1px);
-  box-shadow: 0 6px 8px rgba(0, 181, 241, 0.3);
+  /* box-shadow: 0 6px 8px rgba(0, 181, 241, 0.3); */
+  background: linear-gradient(to top, #0288d1, #4fc3f7) !important;
 }
 
 .login-btn {
@@ -42,11 +45,21 @@
   font-weight: 600;
   display: flex;
   justify-content: center;
-  color: white;
+  color: white !important;
   transition: color 0.3s ease;
 }
 
 /* Khi hover vào button, đổi màu text thành xanh lá */
 .gradient-button:hover .login-btn {
-  color: #00b5f1;
+  color: #ffffff;
+}
+.gradient-button:hover .exit {
+  color: #ffffff;
+}
+
+.gradient-button:hover .exit-ok-btn {
+  color: #ffffff;
+}
+.gradient-button:hover .login-title {
+  color: #ffffff !important;
 }

@@ -105,8 +105,8 @@ const AppointmentForm = () => {
                 <>
                   {/* content-section: Thông tin chung, Giờ làm việc, FAQ */}
                   <div className="content-section">
-                    <h2 className="section-title">
-                      <span className="icon">⏰</span>
+                    <h2 className="section-title-appointment">
+                      {/* <span className="icon"></span> */}
                       <span>Giờ làm việc</span>
                     </h2>
                     <div className="hours-table">
@@ -125,8 +125,7 @@ const AppointmentForm = () => {
                     </div>
                   </div>
                   <div className="content-section">
-                    <h2 className="section-title">
-                      <span className="icon">🏥</span>
+                    <h2 className="section-title-appointment">
                       <span>Giới thiệu chung</span>
                     </h2>
                     <div className="about-text">
@@ -246,8 +245,8 @@ const AppointmentForm = () => {
                   </div>
 
                   <div className="content-section">
-                    <h2 className="section-title">
-                      <span className="icon">❓</span>
+                    <h2 className="section-title-appointment">
+                      <span className="icon"></span>
                       <span>Câu hỏi thường gặp</span>
                     </h2>
                     <div className="faq-list">
@@ -283,7 +282,7 @@ const AppointmentForm = () => {
               )}
               {activeTab === "doctors" && (
                 <div className="content-section">
-                  <h2 className="section-title">
+                  <h2 className="section-title-appointment">
                     <span>Danh sách bác sĩ</span>
                   </h2>
                   <DoctorList />
@@ -291,7 +290,7 @@ const AppointmentForm = () => {
               )}
               {activeTab === "reviews" && (
                 <div className="content-section">
-                  <h2 className="section-title">
+                  <h2 className="section-title-appointment">
                     <span>Đánh giá từ khách hàng</span>
                   </h2>
                   <FeedbackList />
