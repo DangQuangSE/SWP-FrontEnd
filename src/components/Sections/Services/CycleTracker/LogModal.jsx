@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { format } from "date-fns";
 import { vi } from "date-fns/locale";
 import "./LogModal.css";
@@ -22,6 +22,8 @@ const LogModal = ({ date, existingLog, onSave, onClose, periodDayNumber }) => {
   const [selectedSymptoms, setSelectedSymptoms] = useState(
     existingLog?.symptoms || []
   );
+  const [showConfirmDelete, setShowConfirmDelete] = useState(false);
+
   if (!date) return null;
 
   // Đảm bảo không bị trùng triệu chứng khi render
@@ -38,18 +40,40 @@ const LogModal = ({ date, existingLog, onSave, onClose, periodDayNumber }) => {
   };
 
   const handleDelete = () => {
-    if (
-      window.confirm(
-        "Bạn có chắc muốn xóa tất cả ghi chú và triệu chứng của ngày này?"
-      )
-    ) {
-      onSave(date, { isPeriodStart: false, symptoms: [], note: "" });
-      onClose();
-    }
+    setShowConfirmDelete(true);
+  };
+
+  const confirmDelete = () => {
+    onSave(date, { isPeriodStart: false, symptoms: [], note: "" });
+    setShowConfirmDelete(false);
+    onClose();
   };
 
   const handleSave = () => {
-    const shouldMarkAsStart = isPeriodStart && !periodDayNumber;
+    const shouldMarkAsStart = isPeriodStart;
+    // Nếu không có gì được chọn, hỏi lại người dùng xác nhận xóa (chỉ khi đã có log cũ)
+    if (
+      !shouldMarkAsStart &&
+      selectedSymptoms.length === 0 &&
+      note.trim() === ""
+    ) {
+      if (existingLog) {
+        setShowConfirmDelete(true);
+      } else {
+        onClose();
+      }
+      return;
+    }
+    if (
+      existingLog &&
+      existingLog.isPeriodStart === shouldMarkAsStart &&
+      JSON.stringify(existingLog.symptoms || []) ===
+        JSON.stringify(selectedSymptoms) &&
+      (existingLog.note || "") === note
+    ) {
+      onClose();
+      return;
+    }
     onSave(date, {
       isPeriodStart: shouldMarkAsStart,
       symptoms: selectedSymptoms,
@@ -59,9 +83,6 @@ const LogModal = ({ date, existingLog, onSave, onClose, periodDayNumber }) => {
   };
 
   const displayPeriodDay = periodDayNumber || 1;
-
-  // Thêm icon con gấu nếu có triệu chứng được chọn
-  const hasSymptoms = selectedSymptoms.length > 0;
 
   return (
     <div className="modal-overlay" onClick={onClose}>
@@ -74,7 +95,7 @@ const LogModal = ({ date, existingLog, onSave, onClose, periodDayNumber }) => {
           ×
         </button>
         <h2>
-          Ghi chú cho ngày: {format(date, "dd MMMM, yyyy", { locale: vi })}{" "}         
+          Ghi chú cho ngày: {format(date, "dd MMMM, yyyy", { locale: vi })}{" "}
         </h2>
         <div className="modal-section period-start-option">
           <label className="period-start-label">
@@ -107,7 +128,7 @@ const LogModal = ({ date, existingLog, onSave, onClose, periodDayNumber }) => {
           <h4>Triệu chứng hôm nay:</h4>
           <div className="symptoms-grid">
             {SYMPTOM_OPTIONS.filter(
-              (opt, idx, arr) => symptomLabels.indexOf(opt.label) === idx // loại trùng
+              (opt, idx) => symptomLabels.indexOf(opt.label) === idx // loại trùng
             ).map(({ label, icon }) => (
               <label key={label} className="symptom-label">
                 <input
@@ -135,6 +156,48 @@ const LogModal = ({ date, existingLog, onSave, onClose, periodDayNumber }) => {
             Lưu thay đổi
           </button>
         </div>
+        {showConfirmDelete && (
+          <div className="modal-overlay" style={{ zIndex: 1001 }}>
+            <div
+              className="modal-content"
+              style={{
+                maxWidth: 340,
+                textAlign: "center",
+                padding: 24,
+                position: "relative",
+              }}
+              onClick={(e) => e.stopPropagation()}
+            >
+              <h3 style={{ marginBottom: 16 }}>Xác nhận xóa</h3>
+              <p>
+                Bạn có chắc muốn xóa tất cả ghi chú và triệu chứng của ngày này?
+              </p>
+              <div
+                style={{
+                  marginTop: 20,
+                  display: "flex",
+                  justifyContent: "center",
+                  gap: 16,
+                }}
+              >
+                <button
+                  className="button-danger"
+                  onClick={confirmDelete}
+                  tabIndex={0}
+                >
+                  Xóa
+                </button>
+                <button
+                  className="button-secondary"
+                  onClick={() => setShowConfirmDelete(false)}
+                  tabIndex={0}
+                >
+                  Hủy
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

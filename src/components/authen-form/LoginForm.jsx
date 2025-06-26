@@ -22,29 +22,27 @@ const LoginForm = ({ onClose }) => {
         email: values.email,
         password: values.password,
       });
-      const user = res.data;
-      dispatch(login({ user }));
-      console.log(user.jwt);
-      localStorage.setItem("token", user.jwt);
+      const token = res.data.jwt || res.data.accessToken || res.data.token;
+      localStorage.setItem("token", token);
+      // Lưu cả user và jwt vào Redux
+      const user = res.data.user || {};
+      dispatch(login({ ...user, jwt: token }));
       toast.success("Đăng nhập thành công!");
       if (onClose) onClose();
 
-      switch (user.user.role) {
-        case "CUSTOMER":
-          navigate("/");
-          break;
-        case "ADMIN":
-          navigate("/dashboard");
-          break;
-        case "STAFF":
-          navigate("/staff");
-          break;
-        case "CONSULTANT":
-          navigate("/consultant");
-          break;
-        default:
-          navigate("/error");
+      // Chuyển trang đúng theo role
+      if (user.role === "CUSTOMER") {
+        navigate("/");
+      } else if (user.role === "ADMIN") {
+        navigate("/dashboard");
+      } else if (user.role === "STAFF") {
+        navigate("/staff");
+      } else if (user.role === "CONSULTANT") {
+        navigate("/consultant");
+      } else {
+        navigate("/error");
       }
+      console.log("Login response:", res.data);
     } catch (err) {
       if (err.response?.status === 401) {
         toast.error("Email hoặc mật khẩu không chính xác!");
@@ -56,6 +54,7 @@ const LoginForm = ({ onClose }) => {
     }
   };
 
+  // Xử lý đăng nhập Google thành công
   const handleGoogleSuccess = async (credentialResponse) => {
     try {
       setLoading(true);
@@ -67,15 +66,19 @@ const LoginForm = ({ onClose }) => {
         { headers: { "Content-Type": "application/json" } }
       );
 
-      const { user, jwt: token } = res.data;
-      if (token) {
-        localStorage.setItem("token", token);
+      console.log(" FULL response từ backend:", res.data);
+
+      const { user, jwt } = res.data;
+      console.log("Google response user:", user);
+      console.log("Google response token:", jwt);
+
+      if (jwt) {
+        localStorage.setItem("token", jwt);
         localStorage.setItem("user", JSON.stringify(user));
-        dispatch(login({ user, token }));
+        dispatch(login({ ...user, jwt }));
         toast.success("Đăng nhập Google thành công!");
         if (onClose) onClose();
         navigate("/");
-        console.log("Token", token);
       } else {
         toast.error("Đăng nhập Google thất bại! Không có token.");
       }
