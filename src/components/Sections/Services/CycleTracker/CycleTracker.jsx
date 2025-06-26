@@ -21,7 +21,7 @@ import LogModal from "./LogModal";
 import "./CycleTracker.css";
 import { useSelector } from "react-redux";
 import { toast } from "react-toastify";
-import api from "../../../../configs/axios";
+import api from "../../../../configs/api";
 
 // Sử dụng API mới: không truyền userId, chỉ dùng token ở header
 const fetchCycleLogs = () => api.get("/cycle-track/logs");

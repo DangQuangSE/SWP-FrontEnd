@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from "react";
 import "./Consultant.css";
-
 import jwt_decode from "jwt-decode";
 import {
   Layout,
@@ -31,18 +30,18 @@ import {
 } from "@ant-design/icons";
 import { useSelector } from "react-redux";
 import { toast } from "react-toastify";
-import {
-  fetchBlogs,
-  fetchBlogDetail,
-  createBlog,
-  likeBlog,
-  deleteBlog,
-  uploadImage,
-  fetchAvailableSlots,
-  fetchConsultantSchedule,
-  cancelSchedule,
-  registerSchedule,
-} from "../configs/consultantService";
+// import {
+//   fetchBlogs,
+//   fetchBlogDetail,
+//   createBlog,
+//   likeBlog,
+//   deleteBlog,
+//   uploadImage,
+//   fetchAvailableSlots,
+//   fetchConsultantSchedule,
+//   cancelSchedule,
+//   registerSchedule,
+// } from "../configs/consultantService";
 
 const { Header, Content, Sider } = Layout;
 const { Title } = Typography;
