@@ -326,9 +326,6 @@ const ServiceManagement = () => {
             type: values.type,
             price: values.price ? parseFloat(values.price) : 0,
             isCombo: true,
-            discountPercent: values.discountPercent
-              ? parseFloat(values.discountPercent)
-              : 0,
             subServiceIds: values.subServiceIds || [],
           };
           console.log(" Sending combo data:", comboData);
@@ -413,10 +410,10 @@ const ServiceManagement = () => {
   // Table columns definition
   const serviceColumns = [
     { title: "ID", dataIndex: "id", key: "id" },
-    { title: "Service Name", dataIndex: "name", key: "name" },
-    { title: "Description", dataIndex: "description", key: "description" },
+    { title: "Tên Dịch vụ", dataIndex: "name", key: "name" },
+    { title: "Mô tả", dataIndex: "description", key: "description" },
     {
-      title: "Duration (minutes)",
+      title: "Thời gian (phút)",
       dataIndex: "duration",
       key: "duration",
       render: (duration) => {
@@ -429,7 +426,7 @@ const ServiceManagement = () => {
       },
     },
     {
-      title: "Type",
+      title: "Loại",
       dataIndex: "type",
       key: "type",
       render: (type) => (
@@ -437,7 +434,7 @@ const ServiceManagement = () => {
       ),
     },
     {
-      title: "Price",
+      title: "Giá",
       dataIndex: "price",
       key: "price",
       render: (price) => {
@@ -450,30 +447,30 @@ const ServiceManagement = () => {
       },
     },
     {
-      title: "Discount",
+      title: "Giảm giá",
       dataIndex: "discountPercent",
       key: "discountPercent",
       render: (discount) => `${discount || 0}%`,
     },
     {
-      title: "Is Combo",
+      title: "Gói Dịch vụ",
       dataIndex: "isCombo",
       key: "isCombo",
       render: (isCombo) => (
         <Tag color={isCombo ? "orange" : "default"}>
-          {isCombo ? "Yes" : "No"}
+          {isCombo ? "Có" : "Không"}
         </Tag>
       ),
     },
 
     {
-      title: "Created At",
+      title: "Ngày tạo",
       dataIndex: "createdAt",
       key: "createdAt",
       render: (date) => new Date(date).toLocaleDateString("vi-VN"),
     },
     {
-      title: "Action",
+      title: "Thao tác",
       key: "action",
       render: (_, record) => {
         try {
@@ -491,19 +488,19 @@ const ServiceManagement = () => {
                 size="small"
                 onClick={() => handleViewServiceDetail(record)}
               >
-                View
+                Xem
               </Button>
               <Button
                 icon={<EditOutlined />}
                 size="small"
                 onClick={() => handleEditService(record)}
               >
-                Edit
+                Sửa
               </Button>
               <Popconfirm
-                title={`Sure to ${
-                  record.isActive ? "deactivate" : "activate"
-                } this service?`}
+                title={`Bạn có chắc muốn ${
+                  record.isActive ? "vô hiệu hóa" : "kích hoạt"
+                } dịch vụ này?`}
                 onConfirm={() => handleToggleServiceStatus(record)}
               >
                 <Button
@@ -512,7 +509,7 @@ const ServiceManagement = () => {
                   danger={record.isActive}
                   type={record.isActive ? "default" : "primary"}
                 >
-                  {record.isActive ? "Deactivate" : "Activate"}
+                  {record.isActive ? "Vô hiệu hóa" : "Kích hoạt"}
                 </Button>
               </Popconfirm>
             </Space>
@@ -536,11 +533,11 @@ const ServiceManagement = () => {
   return (
     <>
       <Card
-        title="Manage Testing Services & Pricing"
+        title="Quản lý Dịch vụ Xét nghiệm & Giá cả"
         extra={
           <Space>
             <Input.Search
-              placeholder="Search services by name..."
+              placeholder="Tìm kiếm dịch vụ theo tên..."
               allowClear
               loading={isSearching}
               onSearch={handleSearchService}
@@ -556,7 +553,7 @@ const ServiceManagement = () => {
               icon={<PlusOutlined />}
               onClick={handleAddService}
             >
-              Add Service
+              Thêm Dịch vụ
             </Button>
             <Button
               type="default"
@@ -568,7 +565,7 @@ const ServiceManagement = () => {
                 color: "white",
               }}
             >
-              Add Combo Service
+              Thêm Gói Dịch vụ
             </Button>
           </Space>
         }
@@ -576,10 +573,11 @@ const ServiceManagement = () => {
         {searchTerm && (
           <div style={{ marginBottom: 16 }}>
             <Tag color="blue">
-              Search results for: "{searchTerm}" ({searchResults.length} found)
+              Kết quả tìm kiếm cho: "{searchTerm}" ({searchResults.length} tìm
+              thấy)
             </Tag>
             <Button type="link" size="small" onClick={handleClearSearch}>
-              Clear search
+              Xóa tìm kiếm
             </Button>
           </div>
         )}
@@ -592,8 +590,8 @@ const ServiceManagement = () => {
           }}
           locale={{
             emptyText: searchTerm
-              ? `No services found for "${searchTerm}"`
-              : "No services available",
+              ? `Không tìm thấy dịch vụ nào cho "${searchTerm}"`
+              : "Không có dịch vụ nào",
           }}
           // onRow={(record, index) => {
           //   // console.log(" Table onRow:", { record, index });

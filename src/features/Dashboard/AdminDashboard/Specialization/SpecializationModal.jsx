@@ -12,7 +12,7 @@ const SpecializationModal = ({
 }) => {
   return (
     <Modal
-      title={editingSpecialization ? "Edit Specialization" : "Add Specialization"}
+      title={editingSpecialization ? "Sửa Chuyên khoa" : "Thêm Chuyên khoa"}
       visible={visible}
       onOk={onOk}
       onCancel={onCancel}
@@ -21,20 +21,19 @@ const SpecializationModal = ({
       <Form form={form} layout="vertical">
         <Form.Item
           name="name"
-          label="Specialization Name"
-          rules={[{ required: true, message: "Please input specialization name!" }]}
+          label="Tên Chuyên khoa"
+          rules={[
+            { required: true, message: "Vui lòng nhập tên chuyên khoa!" },
+          ]}
         >
-          <Input placeholder="Enter specialization name" />
+          <Input placeholder="Nhập tên chuyên khoa" />
         </Form.Item>
         <Form.Item
           name="description"
-          label="Description"
-          rules={[{ required: true, message: "Please input description!" }]}
+          label="Mô tả"
+          rules={[{ required: true, message: "Vui lòng nhập mô tả!" }]}
         >
-          <TextArea 
-            rows={4} 
-            placeholder="Enter specialization description" 
-          />
+          <TextArea rows={4} placeholder="Nhập mô tả chuyên khoa" />
         </Form.Item>
       </Form>
     </Modal>

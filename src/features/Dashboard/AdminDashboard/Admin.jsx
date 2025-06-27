@@ -30,13 +30,16 @@ import {
 import api from "../../../configs/api";
 
 // Import modals
-import { UserModal, BlogModal, RoomModal } from "./index";
+import { UserModal, BlogModal } from "./index";
 
 // Import Specialization components
 import { SpecializationManagement } from "./Specialization";
 
 // Import Service Management component
 import ServiceManagement from "./ServiceModal/ServiceManagement";
+
+// Import Room Management component
+import { RoomManagement } from "./Room";
 
 const { Header, Content, Sider } = Layout;
 const { Title } = Typography;
@@ -49,7 +52,7 @@ function Admin() {
   const [editingUser, setEditingUser] = useState(null);
   const [isUserModalVisible, setIsUserModalVisible] = useState(false);
   const [isBlogModalVisible, setIsBlogModalVisible] = useState(false);
-  const [isRoomModalVisible, setIsRoomModalVisible] = useState(false);
+
   const [form] = Form.useForm();
 
   //  Di chuyển selectedMenuItem lên đây để tránh lỗi hooks order
@@ -233,11 +236,6 @@ function Admin() {
     },
   ];
 
-  const rooms = [
-    { id: 1, name: "Room 101", capacity: 5, status: "Available" },
-    { id: 2, name: "Room 102", capacity: 3, status: "Occupied" },
-  ];
-
   // Column Definitions
   const userColumns = [
     { title: "Name", dataIndex: "name", key: "name" },
@@ -369,35 +367,6 @@ function Admin() {
     },
   ];
 
-  const roomColumns = [
-    { title: "Room Name", dataIndex: "name", key: "name" },
-    { title: "Capacity", dataIndex: "capacity", key: "capacity" },
-    { title: "Status", dataIndex: "status", key: "status" },
-    {
-      title: "Action",
-      key: "action",
-      render: (text, record) => (
-        <Space size="middle">
-          <Button
-            icon={<EditOutlined />}
-            size="small"
-            onClick={() => setIsRoomModalVisible(true)}
-          >
-            Edit
-          </Button>
-          <Popconfirm
-            title="Sure to delete?"
-            onConfirm={() => message.success("Deleted")}
-          >
-            <Button icon={<DeleteOutlined />} size="small" danger>
-              Delete
-            </Button>
-          </Popconfirm>
-        </Space>
-      ),
-    },
-  ];
-
   const handleEditUser = (record) => {
     setEditingUser(record);
     form.setFieldsValue(record);
@@ -433,13 +402,6 @@ function Admin() {
     await deleteArticle(id);
     const data = await fetchArticles();
     setArticles(data);
-  };
-
-  const handleRoomModalOk = () => {
-    form.validateFields().then((values) => {
-      setIsRoomModalVisible(false);
-      form.resetFields();
-    });
   };
 
   const renderContent = () => {
@@ -509,22 +471,7 @@ function Admin() {
           </Card>
         );
       case "manage_rooms":
-        return (
-          <Card
-            title="Manage Medical Rooms"
-            extra={
-              <Button
-                type="primary"
-                icon={<PlusOutlined />}
-                onClick={() => setIsRoomModalVisible(true)}
-              >
-                Add Room
-              </Button>
-            }
-          >
-            <Table columns={roomColumns} dataSource={rooms} rowKey="id" />
-          </Card>
-        );
+        return <RoomManagement />;
       case "manage_specializations":
         return <SpecializationManagement form={form} />;
       default:
@@ -606,14 +553,6 @@ function Admin() {
         editingArticle={editingArticle}
         imageUrl={imageUrl}
         handleUpload={() => {}}
-      />
-
-      <RoomModal
-        visible={isRoomModalVisible}
-        onOk={handleRoomModalOk}
-        onCancel={() => setIsRoomModalVisible(false)}
-        form={form}
-        editingRoom={null}
       />
     </Layout>
   );

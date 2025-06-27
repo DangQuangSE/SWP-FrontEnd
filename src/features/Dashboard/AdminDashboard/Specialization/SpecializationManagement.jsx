@@ -30,37 +30,37 @@ const SpecializationManagement = ({ form }) => {
       width: 80,
     },
     {
-      title: "Name",
+      title: "Tên",
       dataIndex: "name",
       key: "name",
       ellipsis: true,
     },
     {
-      title: "Description",
+      title: "Mô tả",
       dataIndex: "description",
       key: "description",
       ellipsis: true,
     },
     {
-      title: "Status",
+      title: "Trạng thái",
       dataIndex: "isActive",
       key: "isActive",
       width: 100,
       render: (isActive) => (
         <Tag color={isActive ? "green" : "red"}>
-          {isActive ? "Active" : "Inactive"}
+          {isActive ? "Hoạt động" : "Không hoạt động"}
         </Tag>
       ),
     },
     {
-      title: "Created At",
+      title: "Ngày tạo",
       dataIndex: "createdAt",
       key: "createdAt",
       width: 120,
       render: (date) => new Date(date).toLocaleDateString("vi-VN"),
     },
     {
-      title: "Action",
+      title: "Thao tác",
       key: "action",
       width: 150,
       render: (_, record) => (
@@ -70,10 +70,10 @@ const SpecializationManagement = ({ form }) => {
             size="small"
             onClick={() => handleEditSpecialization(record, form)}
           >
-            Edit
+            Sửa
           </Button>
           <Popconfirm
-            title="Sure to delete?"
+            title="Bạn có chắc muốn xóa?"
             onConfirm={() => handleDeleteSpecialization(record.id)}
           >
             <Button
@@ -82,7 +82,7 @@ const SpecializationManagement = ({ form }) => {
               danger
               style={{ marginLeft: "-4px" }}
             >
-              Delete
+              Xóa
             </Button>
           </Popconfirm>
         </Space>
@@ -93,14 +93,14 @@ const SpecializationManagement = ({ form }) => {
   return (
     <>
       <Card
-        title="Manage Specializations"
+        title="Quản lý Chuyên khoa"
         extra={
           <Button
             type="primary"
             icon={<PlusOutlined />}
             onClick={() => handleAddSpecialization(form)}
           >
-            Add Specialization
+            Thêm Chuyên khoa
           </Button>
         }
       >

@@ -42,7 +42,7 @@ import Noti from "./features/NotificationCenter/Noti";
 import BookingConfirmation from "./features/Services/Booking/BookingConfirmation";
 import Payment from "./features/Services/Payment/Payment";
 import MomoReturn from "./features/Services/Payment/MomoReturn";
-// import UserDebug from "./components/Debug/UserDebug";
+import ProtectedRoute from "./components/ProtectedRoute";
 
 function App() {
   const [rehydrated, setRehydrated] = useState(false);
@@ -93,7 +93,7 @@ function App() {
               <Route path="/y-hoc-thuong-thuc" element={<Generalnew />} />
 
               {/* Protected routes */}
-              <Route
+              {/* <Route
                 path="/consultant"
                 element={
                   <ProtectedRoute
@@ -118,8 +118,8 @@ function App() {
                     <Admin />
                   </ProtectedRoute>
                 }
-              />
-
+              /> */}
+              <Route path="/admin" element={<Admin />} />
               <Route path="/settings" element={<Settings />} />
               <Route path="/user" element={<UserProfile />}>
                 {/* <Route index element={<Overview />} /> */}

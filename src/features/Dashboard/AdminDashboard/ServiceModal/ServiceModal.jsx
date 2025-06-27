@@ -51,10 +51,10 @@ const ServiceModal = ({
     <Modal
       title={
         editingService
-          ? "Edit Service"
+          ? "Sửa Dịch vụ"
           : isComboService
-          ? "Add Combo Service"
-          : "Add Service"
+          ? "Thêm Gói Dịch vụ"
+          : "Thêm Dịch vụ"
       }
       open={visible}
       onOk={handleOk}
@@ -64,31 +64,31 @@ const ServiceModal = ({
       <Form form={form} layout="vertical">
         <Form.Item
           name="name"
-          label="Service Name"
-          rules={[{ required: true, message: "Please input service name!" }]}
+          label="Tên Dịch vụ"
+          rules={[{ required: true, message: "Vui lòng nhập tên dịch vụ!" }]}
         >
-          <Input placeholder="Enter service name" />
+          <Input placeholder="Nhập tên dịch vụ" />
         </Form.Item>
         <Form.Item
           name="description"
-          label="Description"
-          rules={[{ required: true, message: "Please input description!" }]}
+          label="Mô tả"
+          rules={[{ required: true, message: "Vui lòng nhập mô tả!" }]}
         >
-          <Input.TextArea rows={3} placeholder="Enter service description" />
+          <Input.TextArea rows={3} placeholder="Nhập mô tả dịch vụ" />
         </Form.Item>
         <Form.Item
           name="duration"
-          label="Duration (minutes)"
-          rules={[{ required: true, message: "Please input duration!" }]}
+          label="Thời gian (phút)"
+          rules={[{ required: true, message: "Vui lòng nhập thời gian!" }]}
         >
-          <Input type="number" placeholder="Enter duration in minutes" />
+          <Input type="number" placeholder="Nhập thời gian tính bằng phút" />
         </Form.Item>
         <Form.Item
           name="type"
-          label="Service Type"
-          rules={[{ required: true, message: "Please select service type!" }]}
+          label="Loại Dịch vụ"
+          rules={[{ required: true, message: "Vui lòng chọn loại dịch vụ!" }]}
         >
-          <Select placeholder="Select service type">
+          <Select placeholder="Chọn loại dịch vụ">
             {SERVICE_TYPE_OPTIONS.map((option) => (
               <Option key={option.value} value={option.value}>
                 {option.label}
@@ -98,38 +98,38 @@ const ServiceModal = ({
         </Form.Item>
         <Form.Item
           name="price"
-          label="Price (VND)"
-          rules={[
-            { required: !isComboService, message: "Please input price!" },
-          ]}
+          label="Giá (VND)"
+          rules={[{ required: !isComboService, message: "Vui lòng nhập giá!" }]}
         >
           {isComboService ? (
             <Input
               type="number"
-              placeholder="Will be calculated by backend from selected services"
+              placeholder="Sẽ được tính tự động từ các dịch vụ đã chọn"
               disabled
               style={{ backgroundColor: "#f5f5f5" }}
             />
           ) : (
-            <Input type="number" placeholder="Enter price" />
+            <Input type="number" placeholder="Nhập giá" />
           )}
         </Form.Item>
-        <Form.Item name="discountPercent" label="Discount Percentage">
-          <Input
-            type="number"
-            min={0}
-            max={100}
-            placeholder="Enter discount percentage (0-100)"
-          />
-        </Form.Item>
+        {!isComboService && (
+          <Form.Item name="discountPercent" label="Phần trăm Giảm giá">
+            <Input
+              type="number"
+              min={0}
+              max={100}
+              placeholder="Nhập phần trăm giảm giá (0-100)"
+            />
+          </Form.Item>
+        )}
 
         {/* Hiển thị trường sub-services khi isCombo = true */}
         {isComboService && (
           <Form.Item
             name="subServiceIds"
-            label="Sub Services"
+            label="Dịch vụ Con"
             rules={[
-              { required: true, message: "Please select at least 2 services!" },
+              { required: true, message: "Vui lòng chọn ít nhất 2 dịch vụ!" },
               {
                 validator: (_, value) => {
                   console.log(" Validator checking value:", value);
@@ -137,16 +137,16 @@ const ServiceModal = ({
                     return Promise.resolve();
                   }
                   return Promise.reject(
-                    new Error("Please select at least 2 services for combo!")
+                    new Error("Vui lòng chọn ít nhất 2 dịch vụ cho gói!")
                   );
                 },
               },
             ]}
-            extra="Select multiple services to create combo package"
+            extra="Chọn nhiều dịch vụ để tạo gói dịch vụ"
           >
             <Select
               mode="multiple"
-              placeholder="Select sub services to create combo"
+              placeholder="Chọn dịch vụ con để tạo gói"
               loading={availableServices.length === 0}
               onChange={(selectedIds) => {
                 console.log(" Selected service IDs:", selectedIds);
@@ -157,8 +157,8 @@ const ServiceModal = ({
               }}
               notFoundContent={
                 availableServices.length === 0
-                  ? "Loading available services..."
-                  : "No active services available"
+                  ? "Đang tải dịch vụ..."
+                  : "Không có dịch vụ nào"
               }
             >
               {availableServices.map((service) => {
@@ -184,7 +184,7 @@ const ServiceModal = ({
             </Select>
             {availableServices.length === 0 && (
               <div style={{ marginTop: 8, color: "#666", fontSize: "12px" }}>
-                💡 Only non-combo services can be selected for combo packages
+                💡 Chỉ có thể chọn các dịch vụ đơn lẻ cho gói dịch vụ
               </div>
             )}
             {isComboService && (
@@ -197,8 +197,7 @@ const ServiceModal = ({
                 }}
               >
                 <div style={{ fontSize: "12px", color: "#666" }}>
-                  💰 Backend will automatically calculate total price from
-                  selected services
+                  💰 Hệ thống sẽ tự động tính tổng giá từ các dịch vụ đã chọn
                 </div>
                 <div
                   style={{ fontSize: "11px", color: "#999", marginTop: "4px" }}
