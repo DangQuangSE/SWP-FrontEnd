@@ -3,7 +3,7 @@
 import { Link } from "react-router-dom";
 import { useState } from "react";
 import "./Medicalnew.css";
-import Breadcrumb from "../../../../components/Breadcrumb/Breadcrumb";
+import Breadcrumb from "../../components/Breadcrumb/Breadcrumb";
 
 const MedicalNew = () => {
   const [currentPage, setCurrentPage] = useState(1);

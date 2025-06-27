@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const api = axios.create({
-  baseURL: "http://localhost:8080/api", 
+  baseURL: "http://localhost:8080/api", // Sử dụng proxy thay vì gọi trực tiếp
 });
 
 const upload = axios.create({
@@ -11,6 +11,13 @@ const upload = axios.create({
 api.interceptors.request.use(
   function (config) {
     // Do something before request is sent
+    console.log("API Request:", {
+      method: config.method,
+      url: config.url,
+      baseURL: config.baseURL,
+      fullURL: `${config.baseURL}${config.url}`
+    });
+
     const token = localStorage.getItem("token");
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
@@ -18,6 +25,28 @@ api.interceptors.request.use(
     return config;
   },
   function (error) {
+    console.error("API Request Error:", error);
+    return Promise.reject(error);
+  }
+);
+
+// Response interceptor để log responses
+api.interceptors.response.use(
+  function (response) {
+    console.log("API Response:", {
+      status: response.status,
+      url: response.config.url,
+      data: response.data
+    });
+    return response;
+  },
+  function (error) {
+    console.error("API Response Error:", {
+      status: error.response?.status,
+      url: error.config?.url,
+      message: error.message,
+      code: error.code
+    });
     return Promise.reject(error);
   }
 );

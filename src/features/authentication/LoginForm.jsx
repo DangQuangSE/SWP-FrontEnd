@@ -18,12 +18,16 @@ const LoginForm = ({ onClose }) => {
   const handleLogin = async (values) => {
     try {
       setLoading(true);
+      console.log("Attempting login with:", { email: values.email });
+      console.log("API base URL:", api.defaults.baseURL);
+
       const res = await api.post("/auth/login", {
         email: values.email,
         password: values.password,
       });
       console.log(" Login API Response:", res.data);
 
+      console.log("Login successful, response:", res.data);
       const token = res.data.jwt || res.data.accessToken || res.data.token;
       const user = res.data.user || res.data;
 
@@ -53,10 +57,23 @@ const LoginForm = ({ onClose }) => {
         navigate("/");
       }
     } catch (err) {
+      console.error("Login error:", err);
+      console.error("Error response:", err.response);
+      console.error("Error message:", err.message);
+
       if (err.response?.status === 401) {
         toast.error("Email hoặc mật khẩu không chính xác!");
+      } else if (
+        err.code === "ERR_NETWORK" ||
+        err.message.includes("Network Error")
+      ) {
+        toast.error(
+          "Không thể kết nối đến server. Vui lòng kiểm tra kết nối mạng!"
+        );
+      } else if (err.code === "ERR_FAILED") {
+        toast.error("Lỗi kết nối đến server. Vui lòng thử lại sau!");
       } else {
-        toast.error("Lỗi đăng nhập!");
+        toast.error(`Lỗi đăng nhập: ${err.message || "Lỗi không xác định"}`);
       }
     } finally {
       setLoading(false);
