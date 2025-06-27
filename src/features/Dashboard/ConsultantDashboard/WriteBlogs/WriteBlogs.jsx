@@ -19,7 +19,6 @@ import {
   createBlog,
   likeBlog,
   deleteBlog,
-  uploadImage,
 } from "../../../../api/consultantAPI";
 import "./WriteBlogs.css";
 
@@ -37,7 +36,6 @@ const WriteBlogs = ({ userId, selectedTab }) => {
   const [isCreateBlogModalVisible, setIsCreateBlogModalVisible] =
     useState(false);
   const [isEditBlogModalVisible, setIsEditBlogModalVisible] = useState(false);
-  const [imageUploading, setImageUploading] = useState(false);
   const [editingBlogId, setEditingBlogId] = useState(null);
   const [createBlogLoading, setCreateBlogLoading] = useState(false);
 
@@ -210,7 +208,7 @@ const WriteBlogs = ({ userId, selectedTab }) => {
       console.log("Creating blog with values:", values);
 
       // Get image file if exists
-      const fileInput = document.querySelector('input[type="file"]');
+      const fileInput = document.getElementById("blog-image-input");
       const imgFile = fileInput?.files[0] || null;
 
       console.log("Image file:", imgFile);
@@ -295,16 +293,35 @@ const WriteBlogs = ({ userId, selectedTab }) => {
   const handleImageChange = async (e) => {
     const file = e.target.files[0];
     if (!file) return;
-    setImageUploading(true);
-    try {
-      const res = await uploadImage(file);
-      createBlogForm.setFieldsValue({ imgUrl: res.data.secure_url });
-      toast.success("Upload ảnh thành công!");
-    } catch {
-      toast.error("Upload ảnh thất bại");
-    } finally {
-      setImageUploading(false);
+
+    // Validate file size (max 5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error("Kích thước ảnh không được vượt quá 5MB!");
+      e.target.value = "";
+      return;
     }
+
+    // Validate file type
+    if (!file.type.startsWith("image/")) {
+      toast.error("Vui lòng chọn file ảnh!");
+      e.target.value = "";
+      return;
+    }
+
+    console.log("Selected image file:", file);
+    toast.success("Đã chọn ảnh thành công!");
+
+    // Optional: Upload immediately to get URL
+    // setImageUploading(true);
+    // try {
+    //   const res = await uploadImage(file);
+    //   createBlogForm.setFieldsValue({ imgUrl: res.data.secure_url });
+    //   toast.success("Upload ảnh thành công!");
+    // } catch {
+    //   toast.error("Upload ảnh thất bại");
+    // } finally {
+    //   setImageUploading(false);
+    // }
   };
 
   useEffect(() => {
@@ -454,7 +471,7 @@ const WriteBlogs = ({ userId, selectedTab }) => {
           okText="Tạo bài đăng"
           cancelText="Hủy"
           width={800}
-          confirmLoading={createBlogLoading || imageUploading}
+          confirmLoading={createBlogLoading}
           maskClosable={!createBlogLoading}
         >
           <Form form={createBlogForm} layout="vertical">
@@ -512,7 +529,7 @@ const WriteBlogs = ({ userId, selectedTab }) => {
                 style={{ marginBottom: 8 }}
                 disabled={createBlogLoading}
               />
-              {imageUploading && <div>Đang tải ảnh...</div>}
+              {createBlogLoading && <div>Đang xử lý...</div>}
               <div style={{ fontSize: "12px", color: "#666", marginTop: 4 }}>
                 Chọn ảnh đại diện cho bài viết (tùy chọn)
               </div>
