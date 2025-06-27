@@ -1,7 +1,7 @@
 import api, { upload } from "../configs/api";
 
-export const fetchBlogs = () => {
-  return api.get("/blog/summary");
+export const fetchBlogs = (page = 0, size = 10) => {
+  return api.get(`/blog?page=${page}&size=${size}`);
 };
 
 export const fetchBlogDetail = (id) => {
