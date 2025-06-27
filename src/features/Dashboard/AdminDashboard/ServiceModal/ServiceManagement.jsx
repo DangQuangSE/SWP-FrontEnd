@@ -25,9 +25,8 @@ import ServiceDetailModal from "./ServiceDetailModal";
 const getServiceTypeColor = (serviceType) => {
   switch (serviceType) {
     case "CONSULTING":
+    case "CONSULTING_ON":
       return "blue";
-    case "DIAGNOSIS":
-      return "purple";
     case "TREATMENT":
       return "red";
     case "TESTING_ON":

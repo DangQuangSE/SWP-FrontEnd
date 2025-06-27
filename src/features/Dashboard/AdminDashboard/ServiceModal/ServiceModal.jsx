@@ -6,7 +6,7 @@ const { Option } = Select;
 // Service Type Options
 const SERVICE_TYPE_OPTIONS = [
   { value: "CONSULTING", label: "CONSULTING" },
-  // { value: "DIAGNOSIS", label: "DIAGNOSIS" },
+  { value: "CONSULTING_ON", label: "CONSULTING_ON" },
   { value: "TREATMENT", label: "TREATMENT" },
   { value: "TESTING_ON", label: "TESTING ON" },
   { value: "TESTING_OFF", label: "TESTING OFF" },

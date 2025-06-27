@@ -432,11 +432,6 @@ function Admin() {
     },
   ];
 
-  const rooms = [
-    { id: 1, name: "Room 101", capacity: 5, status: "Available" },
-    { id: 2, name: "Room 102", capacity: 3, status: "Occupied" },
-  ];
-
   // Column Definitions
   const userColumns = [
     { title: "Name", dataIndex: "name", key: "name" },

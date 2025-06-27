@@ -35,7 +35,12 @@ const ServiceDetailModal = ({ visible, onCancel, serviceDetail }) => {
           <p>
             <strong>Type:</strong>
             <Tag
-              color={serviceDetail.type === "CONSULTING" ? "blue" : "green"}
+              color={
+                serviceDetail.type === "CONSULTING" ||
+                serviceDetail.type === "CONSULTING_ON"
+                  ? "blue"
+                  : "green"
+              }
               style={{ marginLeft: 8 }}
             >
               {serviceDetail.type}
@@ -112,7 +117,10 @@ const ServiceDetailModal = ({ visible, onCancel, serviceDetail }) => {
                         <Tag
                           size="small"
                           color={
-                            subService.type === "CONSULTING" ? "blue" : "green"
+                            subService.type === "CONSULTING" ||
+                            subService.type === "CONSULTING_ON"
+                              ? "blue"
+                              : "green"
                           }
                         >
                           {subService.type}
