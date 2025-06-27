@@ -50,10 +50,10 @@ const RoomModal = ({ visible, onOk, onCancel, form, editingRoom }) => {
           : null,
       };
 
-      console.log("🚀 Processed room data:", roomData);
+      console.log(" Processed room data:", roomData);
       onOk(roomData);
     } catch (error) {
-      console.error("❌ Form validation failed:", error);
+      console.error(" Form validation failed:", error);
     }
   };
 
