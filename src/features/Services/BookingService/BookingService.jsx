@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import "./AppointmentForm.css";
+import "./BookingService.css";
 import BookingForm from "../Booking/BookingForm";
 import { Link } from "react-router-dom";
 import ServiceList from "../ServiceList/ServicesCart/ServiceList";

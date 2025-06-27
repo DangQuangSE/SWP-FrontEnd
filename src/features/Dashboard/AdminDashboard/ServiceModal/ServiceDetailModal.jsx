@@ -1,15 +1,11 @@
 import React from "react";
 import { Modal, Button, Tag } from "antd";
 
-const ServiceDetailModal = ({
-  visible,
-  onCancel,
-  serviceDetail,
-}) => {
+const ServiceDetailModal = ({ visible, onCancel, serviceDetail }) => {
   return (
     <Modal
       title="Service Details"
-      visible={visible}
+      open={visible}
       onCancel={onCancel}
       footer={[
         <Button key="close" onClick={onCancel}>
@@ -39,15 +35,20 @@ const ServiceDetailModal = ({
           <p>
             <strong>Type:</strong>
             <Tag
-              color={serviceDetail.type === "CONSULTING" ? "blue" : "green"}
+              color={
+                serviceDetail.type === "CONSULTING" ||
+                serviceDetail.type === "CONSULTING_ON"
+                  ? "blue"
+                  : "green"
+              }
               style={{ marginLeft: 8 }}
             >
               {serviceDetail.type}
             </Tag>
           </p>
           <p>
-            <strong>Price:</strong>{" "}
-            {serviceDetail.price?.toLocaleString() || 0}đ
+            <strong>Price:</strong> {serviceDetail.price?.toLocaleString() || 0}
+            đ
           </p>
           <p>
             <strong>Discount:</strong> {serviceDetail.discountPercent || 0}%
@@ -103,9 +104,7 @@ const ServiceDetailModal = ({
                           {index + 1}. {subService.name}
                         </strong>
                       </p>
-                      <p
-                        style={{ margin: 0, fontSize: "12px", color: "#666" }}
-                      >
+                      <p style={{ margin: 0, fontSize: "12px", color: "#666" }}>
                         {subService.description}
                       </p>
                       <p style={{ margin: 0, fontSize: "12px" }}>
@@ -118,7 +117,8 @@ const ServiceDetailModal = ({
                         <Tag
                           size="small"
                           color={
-                            subService.type === "CONSULTING"
+                            subService.type === "CONSULTING" ||
+                            subService.type === "CONSULTING_ON"
                               ? "blue"
                               : "green"
                           }

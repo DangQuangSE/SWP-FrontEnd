@@ -63,7 +63,7 @@ const BookingConfirmation = () => {
         },
       });
 
-      // ✅ In toàn bộ phản hồi từ server để kiểm tra
+      //  In toàn bộ phản hồi từ server để kiểm tra
       console.log("📥 Phản hồi từ backend khi tạo booking:", res.data);
 
       const appointmentId = res.data.appointmentId;
@@ -91,8 +91,8 @@ const BookingConfirmation = () => {
           ? error.response.data
           : "Lỗi không xác định từ máy chủ");
 
-      // ✅ In lỗi đầy đủ nếu server có trả gì đó
-      console.error("❌ Lỗi phản hồi từ server:", error.response?.data);
+      //  In lỗi đầy đủ nếu server có trả gì đó
+      console.error(" Lỗi phản hồi từ server:", error.response?.data);
       message.error(`Đặt lịch thất bại: ${errorMessage}`);
     }
   };
