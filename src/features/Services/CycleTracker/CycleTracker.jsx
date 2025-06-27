@@ -290,13 +290,13 @@ const CycleTracker = () => {
       );
     }
 
-    // ❌ Gợi ý tránh thai tự nhiên
+    //  Gợi ý tránh thai tự nhiên
     if (
       differenceInDays(predictions.ovulationDay, selectedDay) <= 2 &&
       differenceInDays(predictions.ovulationDay, selectedDay) >= -2
     ) {
       recs.push(
-        `❌ Những ngày này có nguy cơ thụ thai cao:
+        ` Những ngày này có nguy cơ thụ thai cao:
       1. Nếu bạn muốn tránh thai tự nhiên, hãy tránh quan hệ hoặc sử dụng bao cao su.
       2. Theo dõi sát các dấu hiệu rụng trứng để xác định ngày an toàn.
       3. Ghi chú lại các ngày quan hệ để kiểm soát tốt hơn.`
@@ -652,7 +652,7 @@ const CycleTracker = () => {
                 chọn "Xóa ngày này".
               </li>
               <li style={{ marginBottom: 12 }}>
-                <b>📊 Xem dự đoán và gợi ý:</b> Hệ thống sẽ dựa trên dữ liệu của
+                <b> Xem dự đoán và gợi ý:</b> Hệ thống sẽ dựa trên dữ liệu của
                 bạn để:
                 <ul style={{ marginTop: 6, marginLeft: 20 }}>
                   <li>Dự đoán ngày rụng trứng và kỳ kinh tiếp theo</li>

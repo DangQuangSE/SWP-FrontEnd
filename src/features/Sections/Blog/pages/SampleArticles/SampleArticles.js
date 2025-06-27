@@ -2,7 +2,8 @@
 export const sampleArticles = [
   {
     id: 1,
-    title: 'Điều gì xảy ra khi bạn quên hạ trinh sau khi sinh và tháng hậu sản chấp dứt',
+    title:
+      "Điều gì xảy ra khi bạn quên hạ trinh sau khi sinh và tháng hậu sản chấp dứt",
     content: `
 ### 🍼 Tháng hậu sản là gì?
 
@@ -39,7 +40,7 @@ Hậu quả có thể bao gồm:
 
 ---
 
-### ✅ Lời khuyên từ bác sĩ
+###  Lời khuyên từ bác sĩ
 
 Để đảm bảo vùng kín hồi phục tốt, bạn nên:
 
@@ -92,7 +93,7 @@ Hậu quả có thể bao gồm:
 
 ---
 
-### ✅ Lời khuyên từ bác sĩ
+###  Lời khuyên từ bác sĩ
 
 Để đảm bảo vùng kín hồi phục tốt, bạn nên:
 
@@ -113,9 +114,10 @@ Hãy nhớ rằng chăm sóc vùng kín sau sinh không chỉ là việc vệ si
 ---
 
 `,
-    image: 'https://i.pinimg.com/736x/41/37/30/413730c203226a65b5a72ec505b2399d.jpg',
-    author: { name: 'Dr. Trần Thanh'},
-    date: '15/05/2023',
+    image:
+      "https://i.pinimg.com/736x/41/37/30/413730c203226a65b5a72ec505b2399d.jpg",
+    author: { name: "Dr. Trần Thanh" },
+    date: "15/05/2023",
   },
   {
     id: 2,
@@ -137,7 +139,7 @@ Viêm nhiễm phụ khoa là tình trạng viêm hoặc nhiễm khuẩn xảy ra
 
 ---
 
-### 🔍 Dấu hiệu nhận biết
+###  Dấu hiệu nhận biết
 
 1. Âm đạo **ra nhiều khí hư bất thường**, đôi khi có mùi hôi  
 2. **Ngứa, rát**, vùng kín đỏ, sưng  
@@ -145,8 +147,7 @@ Viêm nhiễm phụ khoa là tình trạng viêm hoặc nhiễm khuẩn xảy ra
 4. Đau khi quan hệ hoặc chảy máu sau quan hệ
 
 ---
-
-### ✅ Cách phòng ngừa hiệu quả
+ Cách phòng ngừa hiệu quả
 
 - Vệ sinh vùng kín **hằng ngày với sản phẩm dịu nhẹ**  
 - Mặc đồ lót thoáng, không ẩm ướt; tránh đồ quá bó  
@@ -162,10 +163,11 @@ Viêm nhiễm phụ khoa là tình trạng viêm hoặc nhiễm khuẩn xảy ra
 - Có dấu hiệu sốt, đau vùng bụng dưới, chảy máu bất thường  
 - Khi mang thai hoặc chuẩn bị mang thai  
     `,
-    image: "https://i.pinimg.com/736x/4b/5b/6f/4b5b6f26df0b61b28266ebf2605eae93.jpg",
+    image:
+      "https://i.pinimg.com/736x/4b/5b/6f/4b5b6f26df0b61b28266ebf2605eae93.jpg",
     category: "Tin Y tế",
     author: { name: "Dr. Nguyễn Minh", avatar: "/placeholder.svg" },
-    date: "20/04/2023"
+    date: "20/04/2023",
   },
   {
     id: 3,
@@ -212,10 +214,11 @@ Sức khỏe sinh sản nam giới ảnh hưởng trực tiếp đến khả nă
 - Đau sưng tinh hoàn, tiểu buốt  
 - Rối loạn khả năng cương, xuất tinh  
     `,
-    image: "https://i.pinimg.com/736x/08/89/51/088951e1a9cbf9ab9b12ebd7be30f0f9.jpg",
+    image:
+      "https://i.pinimg.com/736x/08/89/51/088951e1a9cbf9ab9b12ebd7be30f0f9.jpg",
     category: "Tin Y tế",
     author: { name: "Dr. Lê Hùng", avatar: "/placeholder.svg" },
-    date: "05/03/2023"
+    date: "05/03/2023",
   },
   {
     id: 4,
@@ -259,10 +262,11 @@ Sức khỏe sinh sản nam giới ảnh hưởng trực tiếp đến khả nă
 
 Mang thai là hành trình dài – hãy lắng nghe cơ thể và có kế hoạch chăm sóc toàn diện để đảm bảo an toàn cho cả mẹ và bé.  
     `,
-    image: "https://i.pinimg.com/736x/b9/6a/9e/b96a9ec59995fbc5d0967ac34861d383.jpg",
+    image:
+      "https://i.pinimg.com/736x/b9/6a/9e/b96a9ec59995fbc5d0967ac34861d383.jpg",
     category: "Tin Y tế",
     author: { name: "Dr. Phạm Thảo", avatar: "/placeholder.svg" },
-    date: "10/02/2023"
+    date: "10/02/2023",
   },
   {
     id: 5,
@@ -308,10 +312,11 @@ Mang thai là hành trình dài – hãy lắng nghe cơ thể và có kế ho�
 
 Lựa chọn tránh thai phù hợp giúp bảo vệ sức khỏe, giảm lo lắng và cải thiện chất lượng cuộc sống tình dục.  
     `,
-    image: "https://i.pinimg.com/736x/ca/9b/04/ca9b048a774ec168de6a4ff488c5ac2f.jpg",
+    image:
+      "https://i.pinimg.com/736x/ca/9b/04/ca9b048a774ec168de6a4ff488c5ac2f.jpg",
     category: "Tin Y tế",
     author: { name: "Dr. Hoàng Anh", avatar: "/placeholder.svg" },
-    date: "25/01/2023"
+    date: "25/01/2023",
   },
   {
     id: 6,
@@ -353,9 +358,10 @@ Khám định kỳ giúp phát hiện sớm bệnh lây truyền, rối loạn c
 
 Khám định kỳ 6–12 tháng; nếu lo ngại triệu chứng, hãy đi khám ngay.  
     `,
-    image: "https://i.pinimg.com/736x/4e/d9/bf/4ed9bf9cd6f34e1ca721e90971a6eb70.jpg",
+    image:
+      "https://i.pinimg.com/736x/4e/d9/bf/4ed9bf9cd6f34e1ca721e90971a6eb70.jpg",
     category: "Tin thường thức",
     author: { name: "Dr. Khám Tư vấn", avatar: "/placeholder.svg" },
-    date: "??/??/2025" // bạn cập nhật ngày phù hợp
-  }
+    date: "??/??/2025", // bạn cập nhật ngày phù hợp
+  },
 ];

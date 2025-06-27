@@ -1,15 +1,11 @@
 import React from "react";
 import { Modal, Button, Tag } from "antd";
 
-const ServiceDetailModal = ({
-  visible,
-  onCancel,
-  serviceDetail,
-}) => {
+const ServiceDetailModal = ({ visible, onCancel, serviceDetail }) => {
   return (
     <Modal
       title="Service Details"
-      visible={visible}
+      open={visible}
       onCancel={onCancel}
       footer={[
         <Button key="close" onClick={onCancel}>
@@ -46,8 +42,8 @@ const ServiceDetailModal = ({
             </Tag>
           </p>
           <p>
-            <strong>Price:</strong>{" "}
-            {serviceDetail.price?.toLocaleString() || 0}đ
+            <strong>Price:</strong> {serviceDetail.price?.toLocaleString() || 0}
+            đ
           </p>
           <p>
             <strong>Discount:</strong> {serviceDetail.discountPercent || 0}%
@@ -103,9 +99,7 @@ const ServiceDetailModal = ({
                           {index + 1}. {subService.name}
                         </strong>
                       </p>
-                      <p
-                        style={{ margin: 0, fontSize: "12px", color: "#666" }}
-                      >
+                      <p style={{ margin: 0, fontSize: "12px", color: "#666" }}>
                         {subService.description}
                       </p>
                       <p style={{ margin: 0, fontSize: "12px" }}>
@@ -118,9 +112,7 @@ const ServiceDetailModal = ({
                         <Tag
                           size="small"
                           color={
-                            subService.type === "CONSULTING"
-                              ? "blue"
-                              : "green"
+                            subService.type === "CONSULTING" ? "blue" : "green"
                           }
                         >
                           {subService.type}

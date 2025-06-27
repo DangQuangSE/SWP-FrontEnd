@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import axios from "axios";
+import api from "";
 import { useNavigate } from "react-router-dom";
 import "./ServiceList.css";
 import { Button } from "antd";
@@ -18,8 +18,8 @@ const ServiceList = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    axios
-      .get("/api/services")
+    api
+      .get("/services")
       .then((res) => {
         setServices(res.data);
       })

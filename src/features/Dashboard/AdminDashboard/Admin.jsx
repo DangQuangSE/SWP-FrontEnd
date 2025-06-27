@@ -7,7 +7,6 @@ import {
   Table,
   Button,
   Form,
-  Input,
   Typography,
   Space,
   Breadcrumb,
@@ -31,14 +30,13 @@ import {
 import api from "../../../configs/api";
 
 // Import modals
-import {
-  UserModal,
-  ServiceModal,
-  ServiceDetailModal,
-  BlogModal,
-  RoomModal,
-  SpecializationModal,
-} from "./index";
+import { UserModal, BlogModal, RoomModal } from "./index";
+
+// Import Specialization components
+import { SpecializationManagement } from "./Specialization";
+
+// Import Service Management component
+import ServiceManagement from "./ServiceModal/ServiceManagement";
 
 const { Header, Content, Sider } = Layout;
 const { Title } = Typography;
@@ -48,28 +46,14 @@ function Admin() {
   const [blogForm] = Form.useForm();
   const [articles, setArticles] = useState([]);
   const [editingArticle, setEditingArticle] = useState(null);
-  const [services, setServices] = useState([]);
   const [editingUser, setEditingUser] = useState(null);
-  const [editingService, setEditingService] = useState(null);
   const [isUserModalVisible, setIsUserModalVisible] = useState(false);
-  const [isServiceModalVisible, setIsServiceModalVisible] = useState(false);
-  const [isServiceDetailModalVisible, setIsServiceDetailModalVisible] =
-    useState(false);
-  const [serviceDetail, setServiceDetail] = useState(null);
   const [isBlogModalVisible, setIsBlogModalVisible] = useState(false);
   const [isRoomModalVisible, setIsRoomModalVisible] = useState(false);
-  const [isComboService, setIsComboService] = useState(false);
-  const [availableServices, setAvailableServices] = useState([]);
-  const [searchTerm, setSearchTerm] = useState("");
-  const [searchResults, setSearchResults] = useState([]);
-  const [isSearching, setIsSearching] = useState(false);
   const [form] = Form.useForm();
 
-  // Specialization states
-  const [specializations, setSpecializations] = useState([]);
-  const [editingSpecialization, setEditingSpecialization] = useState(null);
-  const [isSpecializationModalVisible, setIsSpecializationModalVisible] =
-    useState(false);
+  //  Di chuyển selectedMenuItem lên đây để tránh lỗi hooks order
+  const [selectedMenuItem, setSelectedMenuItem] = useState("manage_users");
 
   const {
     token: { colorBgContainer, borderRadiusLG },
@@ -106,130 +90,12 @@ function Admin() {
     }
   };
 
-  // Lấy danh sách dịch vụ
-  const fetchServices = async () => {
-    try {
-      const response = await api.get("/service");
-      const data = Array.isArray(response.data)
-        ? response.data
-        : [response.data];
-      return data;
-    } catch (error) {
-      console.error("Lỗi lấy dịch vụ:", error);
-      return [];
-    }
-  };
-
-  // Lấy dịch vụ theo ID
-  const fetchServiceById = async (id) => {
-    try {
-      const response = await api.get(`/service/id/${id}`);
-      return response.data;
-    } catch (error) {
-      console.error("Lỗi lấy dịch vụ theo ID:", error);
-      throw error;
-    }
-  };
-
-  // Lấy danh sách services để làm sub-services (chỉ lấy những service không phải combo)
-  const fetchAvailableServices = async () => {
-    try {
-      const response = await api.get("/service");
-      const data = Array.isArray(response.data)
-        ? response.data
-        : [response.data];
-      return data.filter((service) => !service.isCombo);
-    } catch (error) {
-      console.error("Lỗi lấy danh sách services:", error);
-      return [];
-    }
-  };
-
-  // Tạo combo service
-  const createComboService = async (serviceData) => {
-    try {
-      const response = await api.post("/service/comboService", serviceData);
-      return response.data;
-    } catch (error) {
-      console.error("Lỗi tạo combo service:", error);
-      throw error;
-    }
-  };
-
-  // Tìm kiếm service theo tên
-  const searchServiceByName = async (name) => {
-    try {
-      const encodedName = encodeURIComponent(name);
-      const response = await api.get(`/service/name/${encodedName}`);
-      return response.data;
-    } catch (error) {
-      console.error("Lỗi tìm kiếm service:", error);
-      throw error;
-    }
-  };
-
-  useEffect(() => {
-    const getServices = async () => {
-      const data = await fetchServices();
-      setServices(data);
-    };
-    getServices();
-  }, []);
-
   // Lấy danh sách bài viết khi vào tab manage_articles
   useEffect(() => {
     if (selectedMenuItem === "manage_articles") {
       fetchArticles().then(setArticles);
     }
   }, [selectedMenuItem]);
-
-  // Thêm dịch vụ
-  const addService = async (service) => {
-    try {
-      const serviceData = {
-        ...service,
-        duration: service.duration ? parseInt(service.duration) * 60 : null,
-        price: service.price ? parseFloat(service.price) : 0,
-        discountPercent: service.discountPercent
-          ? parseFloat(service.discountPercent)
-          : 0,
-      };
-      const response = await api.post("/service", serviceData);
-      return response.data;
-    } catch (error) {
-      console.error("Lỗi thêm dịch vụ:", error);
-      throw error;
-    }
-  };
-
-  // Sửa dịch vụ
-  const updateService = async (id, service) => {
-    try {
-      const serviceData = {
-        ...service,
-        duration: service.duration ? parseInt(service.duration) * 60 : null,
-        price: service.price ? parseFloat(service.price) : 0,
-        discountPercent: service.discountPercent
-          ? parseFloat(service.discountPercent)
-          : 0,
-      };
-      const response = await api.put(`/service/${id}`, serviceData);
-      return response.data;
-    } catch (error) {
-      console.error("Lỗi sửa dịch vụ:", error);
-      throw error;
-    }
-  };
-
-  // Xóa dịch vụ
-  const deleteService = async (id) => {
-    try {
-      await api.delete(`/service/${id}`);
-    } catch (error) {
-      console.error("Lỗi xóa dịch vụ:", error);
-      throw error;
-    }
-  };
 
   // Lấy danh sách user từ API
   const fetchUsers = async () => {
@@ -248,14 +114,6 @@ function Admin() {
       setUsers(data);
     };
     getUsers();
-  }, []);
-
-  useEffect(() => {
-    const getSpecializations = async () => {
-      const data = await fetchSpecializations();
-      setSpecializations(data);
-    };
-    getSpecializations();
   }, []);
 
   // Thêm user
@@ -293,46 +151,6 @@ function Admin() {
     await deleteUser(id);
     const data = await fetchUsers();
     setUsers(data);
-  };
-
-  // Specialization API functions
-  const fetchSpecializations = async () => {
-    try {
-      const response = await api.get("/specializations");
-      return Array.isArray(response.data) ? response.data : [response.data];
-    } catch (error) {
-      console.error("Lỗi lấy danh sách specializations:", error);
-      return [];
-    }
-  };
-
-  const addSpecialization = async (specialization) => {
-    try {
-      const response = await api.post("/specializations", specialization);
-      return response.data;
-    } catch (error) {
-      console.error("Lỗi thêm specialization:", error);
-      throw error;
-    }
-  };
-
-  const updateSpecialization = async (id, specialization) => {
-    try {
-      const response = await api.put(`/specializations/${id}`, specialization);
-      return response.data;
-    } catch (error) {
-      console.error("Lỗi sửa specialization:", error);
-      throw error;
-    }
-  };
-
-  const deleteSpecialization = async (id) => {
-    try {
-      await api.delete(`/specializations/${id}`);
-    } catch (error) {
-      console.error("Lỗi xóa specialization:", error);
-      throw error;
-    }
   };
 
   // Menu items for the side navigation
@@ -378,8 +196,6 @@ function Admin() {
       label: "Manage Specializations",
     },
   ];
-
-  const [selectedMenuItem, setSelectedMenuItem] = useState("manage_users");
 
   const feedbacks = [
     {
@@ -459,84 +275,6 @@ function Admin() {
           <Popconfirm
             title="Sure to delete?"
             onConfirm={() => handleDeleteUser(record.id)}
-          >
-            <Button icon={<DeleteOutlined />} size="small" danger>
-              Delete
-            </Button>
-          </Popconfirm>
-        </Space>
-      ),
-    },
-  ];
-
-  const serviceColumns = [
-    { title: "ID", dataIndex: "id", key: "id" },
-    { title: "Service Name", dataIndex: "name", key: "name" },
-    { title: "Description", dataIndex: "description", key: "description" },
-    {
-      title: "Duration (minutes)",
-      dataIndex: "duration",
-      key: "duration",
-      render: (duration) => (duration ? Math.floor(duration / 60) : "N/A"),
-    },
-    {
-      title: "Type",
-      dataIndex: "type",
-      key: "type",
-      render: (type) => (
-        <Tag color={type === "CONSULTING" ? "blue" : "green"}>{type}</Tag>
-      ),
-    },
-    {
-      title: "Price",
-      dataIndex: "price",
-      key: "price",
-      render: (price) => `${price?.toLocaleString() || 0}đ`,
-    },
-    {
-      title: "Discount",
-      dataIndex: "discountPercent",
-      key: "discountPercent",
-      render: (discount) => `${discount || 0}%`,
-    },
-    {
-      title: "Is Combo",
-      dataIndex: "isCombo",
-      key: "isCombo",
-      render: (isCombo) => (
-        <Tag color={isCombo ? "orange" : "default"}>
-          {isCombo ? "Yes" : "No"}
-        </Tag>
-      ),
-    },
-    {
-      title: "Created At",
-      dataIndex: "createdAt",
-      key: "createdAt",
-      render: (date) => new Date(date).toLocaleDateString("vi-VN"),
-    },
-    {
-      title: "Action",
-      key: "action",
-      render: (text, record) => (
-        <Space size="middle">
-          <Button
-            icon={<EyeOutlined />}
-            size="small"
-            onClick={() => handleViewServiceDetail(record)}
-          >
-            View
-          </Button>
-          <Button
-            icon={<EditOutlined />}
-            size="small"
-            onClick={() => handleEditService(record)}
-          >
-            Edit
-          </Button>
-          <Popconfirm
-            title="Sure to delete?"
-            onConfirm={() => handleDeleteService(record.id)}
           >
             <Button icon={<DeleteOutlined />} size="small" danger>
               Delete
@@ -660,51 +398,6 @@ function Admin() {
     },
   ];
 
-  const specializationColumns = [
-    { title: "ID", dataIndex: "id", key: "id" },
-    { title: "Name", dataIndex: "name", key: "name" },
-    { title: "Description", dataIndex: "description", key: "description" },
-    {
-      title: "Status",
-      dataIndex: "isActive",
-      key: "isActive",
-      render: (isActive) => (
-        <Tag color={isActive ? "green" : "red"}>
-          {isActive ? "Active" : "Inactive"}
-        </Tag>
-      ),
-    },
-    {
-      title: "Created At",
-      dataIndex: "createdAt",
-      key: "createdAt",
-      render: (date) => new Date(date).toLocaleDateString("vi-VN"),
-    },
-    {
-      title: "Action",
-      key: "action",
-      render: (_, record) => (
-        <Space size="middle">
-          <Button
-            icon={<EditOutlined />}
-            size="small"
-            onClick={() => handleEditSpecialization(record)}
-          >
-            Edit
-          </Button>
-          <Popconfirm
-            title="Sure to delete?"
-            onConfirm={() => handleDeleteSpecialization(record.id)}
-          >
-            <Button icon={<DeleteOutlined />} size="small" danger>
-              Delete
-            </Button>
-          </Popconfirm>
-        </Space>
-      ),
-    },
-  ];
-
   const handleEditUser = (record) => {
     setEditingUser(record);
     form.setFieldsValue(record);
@@ -730,116 +423,6 @@ function Admin() {
     }
   };
 
-  const handleServiceModalOk = async () => {
-    try {
-      const values = await form.validateFields();
-
-      if (editingService) {
-        await updateService(editingService.id, values);
-      } else {
-        if (values.isCombo) {
-          const comboData = {
-            name: values.name,
-            description: values.description,
-            duration: values.duration ? parseInt(values.duration) * 60 : null,
-            type: values.type,
-            price: values.price ? parseFloat(values.price) : 0,
-            isCombo: true,
-            discountPercent: values.discountPercent
-              ? parseFloat(values.discountPercent)
-              : 0,
-            subServiceIds: values.subServiceIds || [],
-          };
-          await createComboService(comboData);
-        } else {
-          await addService(values);
-        }
-      }
-
-      setIsServiceModalVisible(false);
-      form.resetFields();
-      setEditingService(null);
-      setIsComboService(false);
-
-      const data = await fetchServices();
-      setServices(data);
-
-      message.success(
-        editingService
-          ? "Cập nhật dịch vụ thành công!"
-          : "Tạo dịch vụ thành công!"
-      );
-    } catch (error) {
-      console.error("Lỗi cập nhật dịch vụ:", error);
-      message.error("Có lỗi xảy ra khi xử lý dịch vụ!");
-    }
-  };
-
-  const handleEditService = async (record) => {
-    try {
-      const serviceDetail = await fetchServiceById(record.id);
-      setEditingService(serviceDetail);
-
-      const formData = {
-        ...serviceDetail,
-        duration: serviceDetail.duration
-          ? Math.floor(serviceDetail.duration / 60)
-          : null,
-      };
-      form.setFieldsValue(formData);
-      setIsServiceModalVisible(true);
-    } catch (error) {
-      console.error("Lỗi lấy chi tiết dịch vụ:", error);
-      message.error("Không thể lấy thông tin chi tiết dịch vụ!");
-    }
-  };
-
-  const handleViewServiceDetail = async (record) => {
-    try {
-      const detail = await fetchServiceById(record.id);
-      setServiceDetail(detail);
-      setIsServiceDetailModalVisible(true);
-    } catch (error) {
-      console.error("Lỗi lấy chi tiết dịch vụ:", error);
-      message.error("Không thể lấy thông tin chi tiết dịch vụ!");
-    }
-  };
-
-  const handleDeleteService = async (id) => {
-    await deleteService(id);
-    const data = await fetchServices();
-    setServices(data);
-  };
-
-  // Handle search service
-  const handleSearchService = async (value) => {
-    if (!value.trim()) {
-      setSearchResults([]);
-      setSearchTerm("");
-      return;
-    }
-
-    try {
-      setIsSearching(true);
-      setSearchTerm(value);
-      const results = await searchServiceByName(value.trim());
-      const searchData = Array.isArray(results) ? results : [results];
-      setSearchResults(searchData);
-    } catch (error) {
-      console.error("Lỗi tìm kiếm:", error);
-      setSearchResults([]);
-      message.error("Không tìm thấy dịch vụ nào!");
-    } finally {
-      setIsSearching(false);
-    }
-  };
-
-  // Clear search
-  const handleClearSearch = () => {
-    setSearchTerm("");
-    setSearchResults([]);
-  };
-
   const handleEditArticle = (record) => {
     setEditingArticle(record);
     blogForm.setFieldsValue(record);
@@ -857,50 +440,6 @@ function Admin() {
       setIsRoomModalVisible(false);
       form.resetFields();
     });
-  };
-
-  // Specialization handlers
-  const handleEditSpecialization = (record) => {
-    setEditingSpecialization(record);
-    form.setFieldsValue(record);
-    setIsSpecializationModalVisible(true);
-  };
-
-  const handleSpecializationModalOk = async () => {
-    try {
-      const values = await form.validateFields();
-      if (editingSpecialization) {
-        // Sửa specialization
-        await updateSpecialization(editingSpecialization.id, values);
-        message.success("Cập nhật specialization thành công!");
-      } else {
-        // Thêm specialization
-        await addSpecialization(values);
-        message.success("Thêm specialization thành công!");
-      }
-      setIsSpecializationModalVisible(false);
-      form.resetFields();
-      setEditingSpecialization(null);
-      // Cập nhật lại danh sách
-      const data = await fetchSpecializations();
-      setSpecializations(data);
-    } catch (error) {
-      console.error("Lỗi cập nhật specialization:", error);
-      message.error("Có lỗi xảy ra khi xử lý specialization!");
-    }
-  };
-
-  const handleDeleteSpecialization = async (id) => {
-    try {
-      await deleteSpecialization(id);
-      message.success("Xóa specialization thành công!");
-      // Cập nhật lại danh sách
-      const data = await fetchSpecializations();
-      setSpecializations(data);
-    } catch (error) {
-      console.error("Lỗi xóa specialization:", error);
-      message.error("Có lỗi xảy ra khi xóa specialization!");
-    }
   };
 
   const renderContent = () => {
@@ -923,56 +462,7 @@ function Admin() {
           </Card>
         );
       case "manage_services":
-        return (
-          <Card
-            title="Manage Testing Services & Pricing"
-            extra={
-              <Space>
-                <Input.Search
-                  placeholder="Search services by name..."
-                  allowClear
-                  loading={isSearching}
-                  onSearch={handleSearchService}
-                  onChange={(e) => {
-                    if (!e.target.value) {
-                      handleClearSearch();
-                    }
-                  }}
-                  style={{ width: 250 }}
-                />
-                <Button
-                  type="primary"
-                  icon={<PlusOutlined />}
-                  onClick={() => setIsServiceModalVisible(true)}
-                >
-                  Add Service
-                </Button>
-              </Space>
-            }
-          >
-            {searchTerm && (
-              <div style={{ marginBottom: 16 }}>
-                <Tag color="blue">
-                  Search results for: "{searchTerm}" ({searchResults.length}{" "}
-                  found)
-                </Tag>
-                <Button type="link" size="small" onClick={handleClearSearch}>
-                  Clear search
-                </Button>
-              </div>
-            )}
-            <Table
-              columns={serviceColumns}
-              dataSource={searchTerm ? searchResults : services}
-              rowKey="id"
-              locale={{
-                emptyText: searchTerm
-                  ? `No services found for "${searchTerm}"`
-                  : "No services available",
-              }}
-            />
-          </Card>
-        );
+        return <ServiceManagement />;
       case "manage_articles":
         return (
           <Card
@@ -1036,30 +526,7 @@ function Admin() {
           </Card>
         );
       case "manage_specializations":
-        return (
-          <Card
-            title="Manage Specializations"
-            extra={
-              <Button
-                type="primary"
-                icon={<PlusOutlined />}
-                onClick={() => {
-                  setEditingSpecialization(null);
-                  form.resetFields();
-                  setIsSpecializationModalVisible(true);
-                }}
-              >
-                Add Specialization
-              </Button>
-            }
-          >
-            <Table
-              columns={specializationColumns}
-              dataSource={specializations}
-              rowKey="id"
-            />
-          </Card>
-        );
+        return <SpecializationManagement form={form} />;
       default:
         return null;
     }
@@ -1131,31 +598,6 @@ function Admin() {
         editingUser={editingUser}
       />
 
-      <ServiceModal
-        visible={isServiceModalVisible}
-        onOk={handleServiceModalOk}
-        onCancel={() => {
-          setIsServiceModalVisible(false);
-          setEditingService(null);
-        }}
-        form={form}
-        editingService={editingService}
-        isComboService={isComboService}
-        setIsComboService={setIsComboService}
-        availableServices={availableServices}
-        fetchAvailableServices={fetchAvailableServices}
-        setAvailableServices={setAvailableServices}
-      />
-
-      <ServiceDetailModal
-        visible={isServiceDetailModalVisible}
-        onCancel={() => {
-          setIsServiceDetailModalVisible(false);
-          setServiceDetail(null);
-        }}
-        serviceDetail={serviceDetail}
-      />
-
       <BlogModal
         visible={isBlogModalVisible}
         onOk={() => {}}
@@ -1172,18 +614,6 @@ function Admin() {
         onCancel={() => setIsRoomModalVisible(false)}
         form={form}
         editingRoom={null}
-      />
-
-      <SpecializationModal
-        visible={isSpecializationModalVisible}
-        onOk={handleSpecializationModalOk}
-        onCancel={() => {
-          setIsSpecializationModalVisible(false);
-          setEditingSpecialization(null);
-          form.resetFields();
-        }}
-        form={form}
-        editingSpecialization={editingSpecialization}
       />
     </Layout>
   );
