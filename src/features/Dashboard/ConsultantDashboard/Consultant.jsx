@@ -42,6 +42,7 @@ import {
   cancelSchedule,
   registerSchedule,
 } from "../../../api/consultantAPI";
+import ManageSchedule from "./ManageSchedule/ManageSchedule";
 
 const { Header, Content, Sider } = Layout;
 const { Title } = Typography;
@@ -488,11 +489,10 @@ function Consultant() {
         );
       case "manage_schedule":
         return (
-          <Table
-            columns={consultationColumns}
-            dataSource={manageSchedules}
-            rowKey="id"
-            pagination={false}
+          <ManageSchedule
+            setIsScheduleModalVisible={setIsScheduleModalVisible}
+            consultationColumns={consultationColumns}
+            personalConsultations={manageSchedules}
           />
         );
       case "write_blogs":

@@ -42,6 +42,8 @@ import Noti from "./features/NotificationCenter/Noti";
 import BookingConfirmation from "./features/Services/Booking/BookingConfirmation";
 import Payment from "./features/Services/Payment/Payment";
 import MomoReturn from "./features/Services/Payment/MomoReturn";
+import ProtectedRoute from "./components/ProtectedRoute";
+
 function App() {
   const [rehydrated, setRehydrated] = useState(false);
 
@@ -89,9 +91,35 @@ function App() {
               <Route path="/tin-y-te" element={<Medicalnew />} />
               <Route path="/tin-dich-vu" element={<Servicevnew />} />
               <Route path="/y-hoc-thuong-thuc" element={<Generalnew />} />
-              <Route path="/staff" element={<Staff />} />
-              <Route path="/consultant" element={<Consultant />} />
-              <Route path="/admin" element={<Admin />} />
+
+              {/* Protected routes */}
+              <Route
+                path="/consultant"
+                element={
+                  <ProtectedRoute
+                    allowedRoles={["CONSULTANT", "ADMIN", "STAFF"]}
+                  >
+                    <Consultant />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/staff"
+                element={
+                  <ProtectedRoute allowedRoles={["STAFF", "ADMIN"]}>
+                    <Staff />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/admin"
+                element={
+                  <ProtectedRoute allowedRoles={["ADMIN"]}>
+                    <Admin />
+                  </ProtectedRoute>
+                }
+              />
+
               <Route path="/settings" element={<Settings />} />
               <Route path="/user" element={<UserProfile />}>
                 {/* <Route index element={<Overview />} /> */}
@@ -102,7 +130,6 @@ function App() {
                 <Route path="settings" element={<Settings />} /> */}
               </Route>
               <Route path="/payment/result" element={<MomoReturn />} />
-              <Route path="/staff" element={<Staff />} />{" "}
               <Route path="/booking" element={<BookingForm />} />
               <Route path="/service-detail/:id" element={<ServiceDetail />} />
               <Route

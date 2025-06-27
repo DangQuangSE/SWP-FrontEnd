@@ -22,7 +22,7 @@ export const fetchConsultantSchedule = (userId) => {
     .slice(0, 10);
   // Ví dụ truyền thêm from/to
   return api.get(
-    `/schedules/view?consultant_id=${userId}&from=2024-06-01&to=2024-07-30`
+    `/schedules/view?consultant_id=${userId}&from=2025-06-01&to=2025-07-30`
   );
 };
 
