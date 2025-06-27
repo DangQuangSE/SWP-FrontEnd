@@ -3,7 +3,7 @@
 import { Link } from "react-router-dom";
 import { useState } from "react";
 import "./Servicenew.css";
-import Breadcrumb from "../../../../components/Breadcrumb/Breadcrumb";
+import Breadcrumb from "../../components/Breadcrumb/Breadcrumb";
 
 const Servicenew = () => {
   const [currentPage, setCurrentPage] = useState(1);

@@ -4,7 +4,7 @@ import { Link } from "react-router-dom";
 import { useState } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import "./allBlog.css";
-import Breadcrumb from "../../../../components/Breadcrumb/Breadcrumb";
+import Breadcrumb from "../../components/Breadcrumb/Breadcrumb";
 
 const AllBlog = () => {
   const [currentServiceSlide, setCurrentServiceSlide] = useState(0);

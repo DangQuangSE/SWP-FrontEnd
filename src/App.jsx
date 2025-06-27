@@ -12,7 +12,7 @@ import Header from "./components/Layout/Header/Header";
 import Footer from "./components/Layout/Footer/Footer";
 import Hero from "./pages/Home/Hero/Hero";
 import Services from "./pages/Home/Services";
-import Articles from "./features/Sections/Blog/Articles";
+import Articles from "./features/bloglist/Articles";
 import Testimonials from "./pages/Home/Testimonials/Testimonials";
 
 // Pages & Features
@@ -21,16 +21,16 @@ import DoctorList from "./features/Services/DoctorList/DoctorList";
 import CycleTracker from "./features/Services/CycleTracker/CycleTracker";
 // import StisTest from "./components/Sections/Services/StisTest";
 import ForgotPasswordOTP from "./features/authentication/ForgotPassword";
-import AllBlog from "./features/Sections/Blog/pages/allBlog";
-import BlogDetail from "./features/Sections/Blog/pages/BlogDetail";
-import Medicalnew from "./features/Sections/Blog/pages/Medicalnew";
-import Servicevnew from "./features/Sections/Blog/pages/Servicenew";
-import Generalnew from "./features/Sections/Blog/pages/Generalnew";
+import AllBlog from "./features/bloglist/allBlog";
+import BlogDetail from "./features/bloglist/BlogDetail";
+import Medicalnew from "./features/bloglist/Medicalnew";
+import Servicevnew from "./features/bloglist/Servicenew";
+import Generalnew from "./features/bloglist/Generalnew";
 import CycleTracking from "./features/Services/CycleTracker/CycleTracker";
 import Doctor from "./features/Services/DoctorList/DoctorList";
 import Loading from "./components/Loading/Loading";
 import Staff from "./features/Dashboard/StaffDashboard/Staff";
-import Consultant from "./features/Dashboard/ConsultantDashboard/Consultant";
+import Consultant from "./features/Dashboard/ConsultantDashboard/ConsultantMain";
 import Admin from "./features/Dashboard/AdminDashboard/Admin";
 import Settings from "./pages/Settings";
 import UserProfile from "./pages/UserProfile/userprofile";
@@ -42,6 +42,8 @@ import Noti from "./features/NotificationCenter/Noti";
 import BookingConfirmation from "./features/Services/Booking/BookingConfirmation";
 import Payment from "./features/Services/Payment/Payment";
 import MomoReturn from "./features/Services/Payment/MomoReturn";
+import ProtectedRoute from "./components/ProtectedRoute";
+
 function App() {
   const [rehydrated, setRehydrated] = useState(false);
 
@@ -89,9 +91,35 @@ function App() {
               <Route path="/tin-y-te" element={<Medicalnew />} />
               <Route path="/tin-dich-vu" element={<Servicevnew />} />
               <Route path="/y-hoc-thuong-thuc" element={<Generalnew />} />
-              <Route path="/staff" element={<Staff />} />
-              <Route path="/consultant" element={<Consultant />} />
-              <Route path="/admin" element={<Admin />} />
+
+              {/* Protected routes */}
+              <Route
+                path="/consultant"
+                element={
+                  <ProtectedRoute
+                    allowedRoles={["CONSULTANT", "ADMIN", "STAFF"]}
+                  >
+                    <Consultant />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/staff"
+                element={
+                  <ProtectedRoute allowedRoles={["STAFF", "ADMIN"]}>
+                    <Staff />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/admin"
+                element={
+                  <ProtectedRoute allowedRoles={["ADMIN"]}>
+                    <Admin />
+                  </ProtectedRoute>
+                }
+              />
+
               <Route path="/settings" element={<Settings />} />
               <Route path="/user" element={<UserProfile />}>
                 {/* <Route index element={<Overview />} /> */}
@@ -102,7 +130,6 @@ function App() {
                 <Route path="settings" element={<Settings />} /> */}
               </Route>
               <Route path="/payment/result" element={<MomoReturn />} />
-              <Route path="/staff" element={<Staff />} />{" "}
               <Route path="/booking" element={<BookingForm />} />
               <Route path="/service-detail/:id" element={<ServiceDetail />} />
               <Route

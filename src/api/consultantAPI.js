@@ -1,7 +1,7 @@
 import api, { upload } from "../configs/api";
 
-export const fetchBlogs = () => {
-  return api.get("/blog/summary");
+export const fetchBlogs = (page = 0, size = 10) => {
+  return api.get(`/blog?page=${page}&size=${size}`);
 };
 
 export const fetchBlogDetail = (id) => {
@@ -22,7 +22,7 @@ export const fetchConsultantSchedule = (userId) => {
     .slice(0, 10);
   // Ví dụ truyền thêm from/to
   return api.get(
-    `/schedules/view?consultant_id=${userId}&from=2024-06-01&to=2024-07-30`
+    `/schedules/view?consultant_id=${userId}&from=2025-06-01&to=2025-07-30`
   );
 };
 
