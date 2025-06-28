@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Card, Table, Button, Space, Tag, Popconfirm, message, Form } from "antd";
+import { Card, Table, Button, Space, Popconfirm, message, Form } from "antd";
 import { PlusOutlined, EditOutlined, DeleteOutlined } from "@ant-design/icons";
 import { fetchRooms, addRoom, updateRoom, deleteRoom } from "./roomAPI";
 import RoomModal from "./RoomModal";
@@ -42,14 +42,14 @@ const RoomManagement = () => {
   // Handle edit room
   const handleEditRoom = (record) => {
     setEditingRoom(record);
-    
+
     // Convert time strings to dayjs objects for TimePicker
     const formData = {
       ...record,
-      openTime: record.openTime ? dayjs(record.openTime, 'HH:mm:ss') : null,
-      closeTime: record.closeTime ? dayjs(record.closeTime, 'HH:mm:ss') : null,
+      openTime: record.openTime ? dayjs(record.openTime, "HH:mm:ss") : null,
+      closeTime: record.closeTime ? dayjs(record.closeTime, "HH:mm:ss") : null,
     };
-    
+
     form.setFieldsValue(formData);
     setIsRoomModalVisible(true);
   };
@@ -120,45 +120,12 @@ const RoomManagement = () => {
       ellipsis: true,
     },
     {
-      title: "Vị trí",
-      dataIndex: "location",
-      key: "location",
-      ellipsis: true,
-    },
-    {
-      title: "Sức chứa",
-      dataIndex: "capacity",
-      key: "capacity",
-      width: 100,
-    },
-    {
-      title: "Tiện nghi",
-      dataIndex: "facilities",
-      key: "facilities",
-      ellipsis: true,
-    },
-    {
-      title: "Giờ hoạt động",
-      key: "workingHours",
-      width: 150,
-      render: (_, record) => (
-        <span>
-          {record.openTime} - {record.closeTime}
-        </span>
-      ),
-    },
-    {
-      title: "Chuyên khoa",
-      dataIndex: "specializationName",
-      key: "specializationName",
-      ellipsis: true,
-    },
-    {
       title: "Ngày tạo",
       dataIndex: "createdAt",
       key: "createdAt",
       width: 120,
-      render: (date) => date ? new Date(date).toLocaleDateString("vi-VN") : "N/A",
+      render: (date) =>
+        date ? new Date(date).toLocaleDateString("vi-VN") : "N/A",
     },
     {
       title: "Thao tác",
@@ -177,11 +144,7 @@ const RoomManagement = () => {
             title="Bạn có chắc muốn xóa phòng này?"
             onConfirm={() => handleDeleteRoom(record.id)}
           >
-            <Button
-              icon={<DeleteOutlined />}
-              size="small"
-              danger
-            >
+            <Button icon={<DeleteOutlined />} size="small" danger>
               Xóa
             </Button>
           </Popconfirm>

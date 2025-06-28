@@ -62,41 +62,45 @@
 .booking-card-profile {
   background: white;
   border: 1px solid #e2e8f0;
-  border-radius: 12px;
-  padding: 24px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  border-radius: 8px;
+  padding: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  margin-bottom: 12px;
+  transition: all 0.2s ease;
 }
 
 .booking-card-profile h2 {
-  margin: 0 0 20px 0;
-  font-size: 20px;
+  margin: 0 0 10px 0;
+  font-size: 16px;
   font-weight: 600;
   color: #1e293b;
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 4px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid #f1f5f9;
 }
 
 .booking-card-profile h2::before {
-  content: "📅";
-  font-size: 18px;
+  /* content: "📅"; */
+  font-size: 14px;
 }
 
 /* Booking info */
 .booking-info-profile {
   display: grid;
-  gap: 16px;
+  gap: 6px;
 }
 
 .booking-info-profile p {
   margin: 0;
   display: flex;
   align-items: flex-start;
-  gap: 8px;
-  padding: 12px 0;
-  border-bottom: 1px solid #f1f5f9;
-  font-size: 15px;
-  line-height: 1.5;
+  gap: 6px;
+  padding: 4px 0;
+  border-bottom: 1px solid #f8fafc;
+  font-size: 14px;
+  line-height: 1.4;
 }
 
 .booking-info-profile p:last-child {
@@ -106,18 +110,19 @@
 .booking-info-profile strong {
   color: #374151;
   font-weight: 600;
-  min-width: 120px;
+  min-width: 80px;
   flex-shrink: 0;
+  font-size: 15px;
 }
 
 /* Status styling */
 .status {
-  padding: 4px 12px;
-  border-radius: 20px;
-  font-size: 12px;
+  padding: 3px 10px;
+  border-radius: 16px;
+  font-size: 11px;
   font-weight: 600;
   text-transform: uppercase;
-  letter-spacing: 0.5px;
+  letter-spacing: 0.3px;
 }
 
 .status.pending {
@@ -244,114 +249,27 @@
 }
 
 /* Responsive design */
-@media (max-width: 768px) {
-  .booking-title-profile {
-    font-size: 24px;
-    margin-bottom: 24px;
-  }
 
-  .booking-tabs-profile {
-    flex-direction: column;
-    gap: 2px;
-  }
-
-  .tab-button-profile {
-    min-width: auto;
-    text-align: left;
-    padding: 14px 16px;
-  }
-
-  .booking-card-profile {
-    padding: 20px;
-  }
-
-  .booking-info-profile p {
-    flex-direction: column;
-    gap: 4px;
-    align-items: flex-start;
-  }
-
-  .booking-info-profile strong {
-    min-width: auto;
-  }
-
-  .booking-empty-profile {
-    padding: 32px 20px;
-  }
-
-  .booking-empty-profile h3 {
-    font-size: 18px;
-  }
-}
-
-@media (max-width: 480px) {
-  .booking-tabs-profile {
-    margin: 0 -16px 24px -16px;
-    border-radius: 0;
-    border-left: none;
-    border-right: none;
-  }
-
-  .tab-button-profile {
-    border-radius: 0;
-    padding: 16px;
-    border-bottom: 1px solid #e2e8f0;
-  }
-
-  .tab-button-profile:last-child {
-    border-bottom: none;
-  }
-
-  .booking-card-profile {
-    margin: 0 -16px;
-    border-radius: 0;
-    border-left: none;
-    border-right: none;
-  }
-}
-
-/* Hover effects cho desktop */
-@media (min-width: 769px) {
-  .booking-card-profile {
-    transition: all 0.2s ease;
-  }
-
-  .booking-card-profile:hover {
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-    transform: translateY(-2px);
-  }
-}
+/* Hover effects đã được tích hợp vào main class */
 
 /* Print styles */
-@media print {
-  .booking-tabs-profile {
-    display: none;
-  }
-
-  .booking-card-profile {
-    box-shadow: none;
-    border: 1px solid #000;
-  }
-
-  .status {
-    border: 1px solid #000 !important;
-    background: transparent !important;
-    color: #000 !important;
-  }
-}
 .cancel-button-profile {
   margin-top: 8px;
-  padding: 10px 14px;
-  font-size: 15px;
+  padding: 6px 12px;
+  font-size: 12px;
   background-color: #ff4d4f;
   color: white;
   border: none;
   border-radius: 4px;
   cursor: pointer;
-
-  /* 👇 THÊM các dòng này để giới hạn chiều ngang */
+  transition: all 0.2s ease;
   display: inline-block;
   width: auto;
-  max-width: 150px;
-  margin: 0 auto;
+  max-width: 120px;
+  font-weight: 500;
+}
+
+.cancel-button-profile:hover {
+  background-color: #ff7875;
+  transform: translateY(-1px);
 }

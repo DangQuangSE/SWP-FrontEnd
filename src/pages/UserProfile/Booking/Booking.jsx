@@ -1,11 +1,10 @@
 // pages/UserProfile/Booking.jsx
-import React, { useEffect, useState } from "react";
-import axios from "axios";
+import React, { useEffect, useState, useCallback } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import "./Booking.css";
 import { useSelector } from "react-redux";
 import { message } from "antd";
 import api from "../../../configs/api";
+import "./Booking.css";
 const TABS = [
   { key: "upcoming", label: "Lịch hẹn sắp đến" },
   { key: "completed", label: "Hoàn thành" },
@@ -13,59 +12,71 @@ const TABS = [
   { key: "combo", label: "Gói khám" },
 ];
 
+// API status mapping
+const STATUS_MAP = {
+  upcoming: ["CONFIRMED", "PENDING"],
+  completed: ["COMPLETED"],
+  history: ["CANCELED"],
+  combo: ["COMBO"],
+};
+
 const Booking = () => {
   const [appointments, setAppointments] = useState([]);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState("upcoming");
   const navigate = useNavigate();
   const { search } = useLocation();
-  const reduxToken = useSelector((state) => state.user.token);
-  const token = reduxToken || localStorage.getItem("token"); // fallback nếu Redux chưa có
-  // const token = useSelector((state) => state.user.token);
-  useEffect(() => {
-    console.log("Redux token:", token);
-    console.log("Token (final dùng gọi API):", token);
+  const token =
+    useSelector((state) => state.user.token) || localStorage.getItem("token");
 
-    const fetchAppointments = async () => {
-      setLoading(true);
+  // API status mapping
+  const statusMap = {
+    upcoming: ["CONFIRMED", "PENDING"],
+    completed: ["COMPLETED"],
+    history: ["CANCELED"],
+    combo: ["COMBO"],
+  };
 
-      try {
-        let data = [];
+  // Fetch appointments based on active tab
+  const fetchAppointments = useCallback(async () => {
+    if (!token) {
+      console.warn("Không có token để gọi API!");
+      return;
+    }
 
-        if (activeTab === "upcoming") {
-          const [booked, pending] = await Promise.all([
-            api.get("/appointment/by-status?status=CONFIRMED"),
-            api.get("/appointment/by-status?status=PENDING"),
-          ]);
-          data = [...booked.data, ...pending.data];
-        } else if (activeTab === "completed") {
-          const res = await axios.get(
-            "/appointment/by-status?status=COMPLETED"
-          );
-          data = res.data;
-        } else if (activeTab === "history") {
-          const res = await api.get("/appointment/by-status?status=CANCELED");
-          data = res.data;
-        }
+    setLoading(true);
+    try {
+      const statuses = statusMap[activeTab];
+      let data = [];
 
-        data.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
-        setAppointments(data);
-      } catch (err) {
-        console.error(
-          "Lỗi khi lấy lịch hẹn:",
-          err.response?.data || err.message
+      if (activeTab === "upcoming") {
+        // Fetch multiple statuses for upcoming
+        const requests = statuses.map((status) =>
+          api.get(`/appointment/by-status?status=${status}`)
         );
-      } finally {
-        setLoading(false);
+        const responses = await Promise.all(requests);
+        data = responses.flatMap((res) => res.data);
+      } else {
+        // Fetch single status for other tabs
+        const res = await api.get(
+          `/appointment/by-status?status=${statuses[0]}`
+        );
+        data = res.data;
       }
-    };
 
-    if (token) {
-      fetchAppointments();
-    } else {
-      console.warn(" Không có token để gọi API!");
+      data.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+      setAppointments(data);
+    } catch (err) {
+      console.error("Lỗi khi lấy lịch hẹn:", err.response?.data || err.message);
+      setAppointments([]);
+    } finally {
+      setLoading(false);
     }
   }, [activeTab, token]);
+
+  useEffect(() => {
+    fetchAppointments();
+  }, [fetchAppointments]);
   const handleCancelAppointment = async (appointmentId) => {
     if (!window.confirm("Bạn chắc chắn muốn hủy lịch hẹn này?")) return;
 
@@ -79,7 +90,25 @@ const Booking = () => {
       );
     } catch (err) {
       console.error("Lỗi khi hủy lịch hẹn:", err.response?.data || err.message);
-      message.error("Không thể hủy lịch hẹn. Vui lòng thử lại sau.");
+
+      // Handle specific error cases
+      if (err.response?.status === 500) {
+        message.error(
+          "Lỗi hệ thống: Không thể hủy lịch hẹn này. Vui lòng liên hệ hỗ trợ."
+        );
+      } else if (err.response?.status === 404) {
+        message.error("Lịch hẹn không tồn tại hoặc đã được hủy.");
+        // Remove from UI if appointment doesn't exist
+        setAppointments((prev) =>
+          prev.filter((apt) => apt.id !== appointmentId)
+        );
+      } else if (err.response?.status === 400) {
+        message.error(
+          "Không thể hủy lịch hẹn này. Lịch hẹn có thể đã được xác nhận hoặc đã diễn ra."
+        );
+      } else {
+        message.error("Không thể hủy lịch hẹn. Vui lòng thử lại sau.");
+      }
     }
   };
   // 2. Kiểm tra MoMo trả về resultCode

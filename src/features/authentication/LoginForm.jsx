@@ -31,8 +31,8 @@ const LoginForm = ({ onClose }) => {
       const token = res.data.jwt || res.data.accessToken || res.data.token;
       const user = res.data.user || res.data;
 
-      console.log("🔑 Extracted token:", token);
-      console.log("👤 Extracted user:", user);
+      console.log(" Extracted token:", token);
+      console.log(" Extracted user:", user);
 
       //  Lưu vào localStorage
       localStorage.setItem("token", token);
@@ -95,8 +95,8 @@ const LoginForm = ({ onClose }) => {
       console.log(" Google API Response:", res.data);
 
       const { user, jwt: token } = res.data;
-      console.log("👤 Google user:", user);
-      console.log("🔑 Google token:", token);
+      console.log(" Google user:", user);
+      console.log(" Google token:", token);
 
       if (token) {
         localStorage.setItem("token", token);

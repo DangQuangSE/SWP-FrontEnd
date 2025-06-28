@@ -4,7 +4,7 @@
 }
 
 .consultant-header {
-  background-color: #001529; /* Dark background for header */
+  background-color: #2753d0; /* Dark background for header */
   color: white;
   padding: 0 20px;
   display: flex;
@@ -50,4 +50,4 @@
   .ant-card {
     margin-bottom: 12px;
   }
-} 
+}

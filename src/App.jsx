@@ -38,6 +38,7 @@ import BookingForm from "./features/Services/Booking/BookingForm";
 import ServiceDetail from "./features/Services/ServiceList/ServiceDetail/ServiceDetail";
 import Booking from "./pages/UserProfile/Booking/Booking";
 import UserProfileLayout from "./pages/UserProfile/userprofile";
+import Profile from "./pages/UserProfile/Profile";
 import Noti from "./features/NotificationCenter/Noti";
 import BookingConfirmation from "./features/Services/Booking/BookingConfirmation";
 import Payment from "./features/Services/Payment/Payment";
@@ -122,7 +123,8 @@ function App() {
               <Route path="/admin" element={<Admin />} />
               <Route path="/settings" element={<Settings />} />
               <Route path="/user" element={<UserProfile />}>
-                {/* <Route index element={<Overview />} /> */}
+                <Route index element={<Profile />} />
+                <Route path="profile" element={<Profile />} />
                 <Route path="booking" element={<Booking />} />
                 {/* <Route path="health" element={<Health />} />
                 <Route path="saved" element={<Saved />} />

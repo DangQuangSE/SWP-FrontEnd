@@ -10,7 +10,7 @@ const BookingConfirmation = () => {
   const { state: booking } = useLocation();
   const user = JSON.parse(localStorage.getItem("user")) || {};
   const token = localStorage.getItem("token");
-  const [paymentMethod, setPaymentMethod] = useState("momo");
+  const [paymentMethod, setPaymentMethod] = useState("direct");
   const fullBooking = {
     ...booking,
     price: booking.price,
@@ -81,6 +81,10 @@ const BookingConfirmation = () => {
           serviceName: fullBooking.serviceName,
         })
       );
+
+      // Trigger refresh schedule data khi user quay lại booking form
+      localStorage.setItem("shouldRefreshSchedule", "true");
+      localStorage.setItem("lastBookedServiceId", booking.serviceId);
 
       message.success("Đặt lịch thành công!");
       navigate("/payment", { state: { bookingId: appointmentId } });
@@ -189,26 +193,26 @@ const BookingConfirmation = () => {
         <h2 className="booking-payment-title">Phương thức thanh toán</h2>
         <div
           className={`booking-payment-method ${
-            paymentMethod === "momo" ? "selected" : ""
+            paymentMethod === "direct" ? "selected" : ""
           }`}
-          onClick={() => setPaymentMethod("momo")}
+          onClick={() => setPaymentMethod("direct")}
         >
           <input
             type="radio"
-            id="momo"
+            id="direct"
             name="payment"
-            value="momo"
-            checked={paymentMethod === "momo"}
+            value="direct"
+            checked={paymentMethod === "direct"}
             onChange={(e) => setPaymentMethod(e.target.value)}
           />
           <img
-            src="/momo_icon_square_pinkbg_RGB.png"
-            alt="MoMo"
+            src="/cash-payment-icon.png"
+            alt="Thanh toán trực tiếp"
             className="booking-payment-logo"
           />
           <div className="booking-payment-info">
-            <label htmlFor="momo">Thanh toán qua MoMo</label>
-            <p>Ví điện tử MoMo - Nhanh chóng, tiện lợi</p>
+            <label htmlFor="direct">Thanh toán trực tiếp</label>
+            <p>Thanh toán bằng tiền mặt tại quầy</p>
           </div>
         </div>
 

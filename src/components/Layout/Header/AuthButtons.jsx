@@ -42,7 +42,7 @@ const AuthButtons = () => {
       key: "1",
       label: "Thông tin cá nhân",
       icon: <UserOutlined />,
-      onClick: () => navigate("/user"),
+      onClick: () => navigate("/user/profile"),
     },
     {
       key: "2",
