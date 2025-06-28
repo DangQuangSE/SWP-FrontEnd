@@ -10,7 +10,7 @@
   font-weight: 600;
   cursor: pointer;
   /* transition: all 1s ease; */
-  transition: background 1.2s ease-in-out, transform 1.2s ease-in-out;
+  transition: background 0.2s ease-in-out, transform 0.2s ease-in-out;
   height: 40px;
   border: none;
   gap: 8px;
@@ -50,7 +50,7 @@
 
 /* Khi hover vào button, đổi màu text thành xanh lá */
 .gradient-button:hover .login-btn {
-  color: #ffffff;
+  color: #2753d0;
 }
 
 .gradient-button:hover .exit {
@@ -75,4 +75,9 @@
 .exit-ok-btn:hover {
   background: linear-gradient(90deg, #f52f88, #ff4699) !important;
   color: #fff;
+}
+.ant-btn-variant-outlined:hover {
+  background: #0283f5 !important;
+  box-shadow: rgba(50, 50, 93, 0.25) 0px 30px 60px -12px inset,
+    rgba(0, 0, 0, 0.3) 0px 18px 36px -18px inset !important;
 }

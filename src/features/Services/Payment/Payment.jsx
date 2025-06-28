@@ -77,7 +77,7 @@ const Payment = () => {
     <Result
       status="info"
       title="Đang chuyển đến cổng thanh toán..."
-      subTitle="Bạn sẽ được chuyển hướng đến VNPay "
+      subTitle="Bạn sẽ được chuyển hướng đến VNPay... "
       extra={[
         <Button key="home" onClick={() => navigate("/")}>
           Trở về trang chủ

@@ -6,7 +6,7 @@
 
 /* Header Styles */
 .medicalnew-header {
-  background: #0ea5e9;
+  background: #0283f5;
   padding: 32px 0 16px 0;
   text-align: center;
   margin-top: -40px; /* Adjusted for fixed header */
@@ -30,7 +30,7 @@
 }
 
 .medicalnew-logo-text {
-    color: white;
+  color: white;
   font-size: 32px;
   font-weight: bold;
   letter-spacing: 2px;
@@ -72,7 +72,7 @@
 
 /* Featured Article */
 .medicalnew-featured-article {
-  background: #e0f2fe;
+  background: #eeeeee;
   border-radius: 12px;
   overflow: hidden;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
@@ -97,7 +97,11 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background: linear-gradient(135deg, rgba(59, 130, 246, 0.8) 0%, rgba(147, 51, 234, 0.6) 100%);
+  background: linear-gradient(
+    135deg,
+    rgba(59, 130, 246, 0.8) 0%,
+    rgba(147, 51, 234, 0.6) 100%
+  );
   display: flex;
   align-items: center;
   padding: 32px;
@@ -153,14 +157,14 @@
 }
 
 .medicalnew-read-more-link {
-  color: #06b6d4;
+  color: #0283f5;
   text-decoration: none;
   font-weight: 500;
   font-size: 14px;
 }
 
 .medicalnew-read-more-link:hover {
-  color: #0891b2;
+  color: #2753d0;
 }
 
 /* Bottom Featured Cards */
@@ -193,7 +197,11 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background: linear-gradient(135deg, rgba(0, 0, 0, 0.7) 0%, rgba(0, 0, 0, 0.5) 100%);
+  background: linear-gradient(
+    135deg,
+    rgba(0, 0, 0, 0.7) 0%,
+    rgba(0, 0, 0, 0.5) 100%
+  );
   color: white;
   padding: 7px;
   display: flex;
@@ -223,7 +231,7 @@
 }
 
 .medicalnew-card-link {
-  color: #06b6d4;
+  color: #0283f5;
   text-decoration: none;
   font-weight: 500;
   font-size: 14px;
@@ -246,7 +254,7 @@
   display: flex;
   gap: 12px;
   padding: 18px;
-  background: #e0f2fe;
+  background: #eeeeee;
   border-radius: 8px;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
   transition: transform 0.2s;
@@ -281,7 +289,7 @@
 
 .medicalnew-sidebar-category {
   font-size: 13px;
-  color: #0ea5e9;
+  color: #0283f5;
   font-weight: 700;
   margin-bottom: 4px;
   text-decoration: none;
@@ -321,7 +329,7 @@
 .medicalnew-section-title {
   font-size: 28px;
   font-weight: bold;
-  color: #06b6d4;
+  color: #0283f5;
   margin: 0 0 32px 0;
   position: relative;
 }
@@ -333,7 +341,7 @@
   left: 0;
   width: 60px;
   height: 3px;
-  background: #06b6d4;
+  background: #0283f5;
 }
 
 .medicalnew-service-slider {
@@ -348,7 +356,7 @@
 }
 
 .medicalnew-service-card {
-  background: #e0f2fe;
+  background: #eeeeee;
   border-radius: 12px;
   overflow: hidden;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
@@ -397,7 +405,7 @@
 }
 
 .medicalnew-service-link {
-  color: #06b6d4;
+  color: #0283f5;
   text-decoration: none;
   font-size: 12px;
   font-weight: 500;
@@ -467,7 +475,11 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background: linear-gradient(135deg, rgba(0, 0, 0, 0.7) 0%, rgba(0, 0, 0, 0.5) 100%);
+  background: linear-gradient(
+    135deg,
+    rgba(0, 0, 0, 0.7) 0%,
+    rgba(0, 0, 0, 0.5) 100%
+  );
   color: white;
   padding: 24px;
   display: flex;
@@ -476,7 +488,7 @@
 }
 
 .medicalnew-knowledge-category {
-  color: #06b6d4;
+  color: #0283f5;
   font-size: 12px;
   font-weight: 500;
   text-transform: uppercase;
@@ -498,7 +510,7 @@
 }
 
 .medicalnew-knowledge-link {
-  color: #06b6d4;
+  color: #0283f5;
   text-decoration: none;
   font-weight: 500;
   font-size: 14px;
@@ -524,7 +536,7 @@
 }
 
 .medicalnew-knowledge-card-category {
-  color: #06b6d4;
+  color: #0283f5;
   font-size: 12px;
   font-weight: 500;
   text-transform: uppercase;
@@ -557,7 +569,7 @@
 }
 
 .medicalnew-view-all-btn {
-  background: #06b6d4;
+  background: #0283f5;
   color: white;
   text-decoration: none;
   padding: 12px 32px;
@@ -568,7 +580,7 @@
 }
 
 .medicalnew-view-all-btn:hover {
-  background: #0891b2;
+  background: #2753d0;
 }
 
 /* Responsive Design */
@@ -638,8 +650,8 @@
   }
 }
 .medicalnew-main-nav a.active {
-  color: #facc15;
+  color: #ffffff;
   font-weight: bold;
-  border-bottom: 3px solid #facc15;
+  border-bottom: 3px solid #ffffff;
   padding-bottom: 3px;
 }

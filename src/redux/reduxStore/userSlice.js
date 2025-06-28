@@ -75,7 +75,7 @@ export const userSlice = createSlice({
       });
     },
     logout: () => {
-      console.log("🚪 Redux logout action");
+      console.log(" Redux logout action");
       // Xóa thông tin người dùng đăng nhập
       localStorage.removeItem("token");
       localStorage.removeItem("user");

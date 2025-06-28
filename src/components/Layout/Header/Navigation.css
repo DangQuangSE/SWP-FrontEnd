@@ -1,4 +1,10 @@
 /* ===== NAVIGATION STYLES ===== */
+/* Color Palette:
+   - Xanh đậm 1 (đậm nhất): #2753d0
+   - Xanh đậm 2: #086ce4
+   - Xanh đậm 3 (nhạt nhất): #0283f5
+*/
+
 .main-nav {
   display: flex;
   justify-content: center;
@@ -29,12 +35,8 @@
   display: block;
 }
 
-.nav-link:hover {
-  color: var(--primary-color);
-}
-
 .nav-link.active {
-  color: var(--primary-color);
+  color: #2753d0; /* Xanh đậm 1 - đậm nhất */
   font-weight: 600;
 }
 
@@ -46,7 +48,7 @@
   transform: translateX(-50%);
   width: 30px;
   height: 3px;
-  background: var(--gradient-primary);
+  background: linear-gradient(90deg, #2753d0 0%, #086ce4 50%, #0283f5 100%);
   border-radius: var(--radius-sm);
 }
 
@@ -59,15 +61,16 @@
   opacity: 0;
   visibility: hidden;
   transform: translateY(10px);
-  transition: opacity 0.3s ease-out, transform 0.3s ease-out, visibility 0.3s ease-out;
+  transition: opacity 0.3s ease-out, transform 0.3s ease-out,
+    visibility 0.3s ease-out;
   position: absolute;
   left: 0;
   top: 100%;
   min-width: 240px;
   padding: 0;
   border-radius: 12px;
-  background: linear-gradient(to bottom, #ffffff 0%, #c6f2ff 100%);
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  background: linear-gradient(to bottom, #ffffff 0%, rgb(255, 255, 255) 100%);
+  box-shadow: 0 4px 20px rgba(39, 83, 208, 0.15);
   animation: fadeSlideIn 0.4s ease;
   overflow: hidden;
   z-index: 100;
@@ -80,8 +83,8 @@
 }
 
 .dropdown-menu li:hover {
-  background: rgba(0, 180, 216, 0.2);
-  color: #0077b6;
+  background: white; /* Xanh đậm 1 với opacity */
+  color: #000000; /* Xanh đậm 1 */
 }
 
 .nav-item.has-dropdown:hover .dropdown-menu {
@@ -93,7 +96,7 @@
 .dropdown-link {
   display: block;
   padding: 12px 20px;
-  color: #0a2236;
+  color: #000000; /* Xanh đậm 1 */
   text-decoration: none;
   font-size: 15px;
   font-weight: 600;
@@ -101,7 +104,6 @@
 }
 
 .dropdown-link:hover {
-  background: rgba(0, 169, 230, 0.1); /* Màu hover nhẹ */
-  color: #1976d2;
+  background: #0283f580; /* Xanh đậm 2 với opacity */
+  color: #000000; /* Xanh đậm 2 */
 }
-
