@@ -1,13 +1,12 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom"; // hoặc thêm useLocation nếu cần
 import { Result, Button, Spin, message } from "antd";
-import axios from "axios";
+import api from "../../../configs/api";
 
 const Payment = () => {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
 
-  const token = localStorage.getItem("token");
   const booking = JSON.parse(localStorage.getItem("pendingBooking"));
 
   useEffect(() => {
@@ -33,10 +32,7 @@ const Payment = () => {
 
         console.log(" Gửi tới /api/payment/momo/create:", payload);
 
-        const res = await axios.get("/api/payment/momo/create", {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
+        const res = await api.get("/payment/vnpay/create", {
           params: {
             appointmentId: booking.appointmentId,
             amount: booking.amount,
@@ -44,13 +40,19 @@ const Payment = () => {
           },
         });
 
-        const payUrl = res.data.payUrl || res.data.paymentUrl;
+        const payUrl = res.data.url || res.data.payUrl || res.data.paymentUrl;
 
         if (!payUrl) {
           throw new Error("Không nhận được liên kết thanh toán.");
         }
+
         localStorage.removeItem("pendingBooking");
-        window.location.href = payUrl; // Chuyển hướng sang trang thanh toán
+        setLoading(false); // Hiển thị trang "Đang chuyển đến cổng thanh toán..."
+
+        // Chuyển hướng sau 5 giây
+        setTimeout(() => {
+          window.location.href = payUrl;
+        }, 5000);
       } catch (err) {
         console.error("Lỗi khi tạo thanh toán:", err);
         const msg =
@@ -75,7 +77,7 @@ const Payment = () => {
     <Result
       status="info"
       title="Đang chuyển đến cổng thanh toán..."
-      subTitle="Vui lòng đợi trong giây lát."
+      subTitle="Bạn sẽ được chuyển hướng đến VNPay "
       extra={[
         <Button key="home" onClick={() => navigate("/")}>
           Trở về trang chủ

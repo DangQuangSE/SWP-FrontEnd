@@ -2,8 +2,8 @@
 import { useLocation, useNavigate } from "react-router-dom";
 import { message, Avatar } from "antd";
 import "./BookingConfirmation.css";
-import { useEffect, useState } from "react";
-import axios from "axios";
+import { useState } from "react";
+import api from "../../../configs/api";
 
 const BookingConfirmation = () => {
   const navigate = useNavigate();
@@ -17,17 +17,26 @@ const BookingConfirmation = () => {
     serviceName: booking.serviceName,
   };
 
-  useEffect(() => {
-    if (!token) {
-      message.error("Bạn chưa đăng nhập. Đang chuyển về trang đăng nhập...");
-      setTimeout(() => navigate("/login"), 1500);
-    }
-  }, [token, navigate]);
-
+  // useEffect(() => {
+  //   if (!token) {
+  //     message.error(
+  //       "Bạn chưa đăng nhập. Vui lòng đăng nhập để tiếp tục đặt lịch."
+  //     );
+  //     setTimeout(() => navigate("/"), 3000);
+  //   }
+  // }, [token, navigate]);
   if (!token) {
     return (
       <div className="booking-confirmation-container">
-        <p style={{ padding: 40, color: "red", fontWeight: "bold" }}>
+        <p
+          style={{
+            padding: 40,
+            color: "#2753d0",
+            fontWeight: "bold",
+            fontSize: "30px",
+            textAlign: "center",
+          }}
+        >
           Bạn chưa đăng nhập. Vui lòng đăng nhập để tiếp tục đặt lịch.
         </p>
       </div>
@@ -56,12 +65,7 @@ const BookingConfirmation = () => {
     console.log(" Payload gửi:", payload);
 
     try {
-      const res = await axios.post("/api/booking/medicalService", payload, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-      });
+      const res = await api.post("/booking/medicalService", payload);
 
       //  In toàn bộ phản hồi từ server để kiểm tra
       console.log("📥 Phản hồi từ backend khi tạo booking:", res.data);
@@ -72,22 +76,30 @@ const BookingConfirmation = () => {
         return;
       }
 
-      localStorage.setItem(
-        "pendingBooking",
-        JSON.stringify({
-          appointmentId,
-          paymentMethod,
-          amount: fullBooking.price,
-          serviceName: fullBooking.serviceName,
-        })
-      );
-
       // Trigger refresh schedule data khi user quay lại booking form
       localStorage.setItem("shouldRefreshSchedule", "true");
       localStorage.setItem("lastBookedServiceId", booking.serviceId);
 
       message.success("Đặt lịch thành công!");
-      navigate("/payment", { state: { bookingId: appointmentId } });
+
+      // Nếu chọn thanh toán VNPay, lưu thông tin và chuyển đến trang Payment
+      if (paymentMethod === "vnpay") {
+        localStorage.setItem(
+          "pendingBooking",
+          JSON.stringify({
+            appointmentId,
+            paymentMethod,
+            amount: fullBooking.price,
+            serviceName: fullBooking.serviceName,
+          })
+        );
+
+        // Chuyển đến trang Payment để xử lý VNPay
+        navigate("/payment");
+      } else {
+        // Thanh toán trực tiếp - chuyển về trang booking
+        navigate("/user/booking");
+      }
     } catch (error) {
       const errorMessage =
         error.response?.data?.message ||
@@ -206,7 +218,7 @@ const BookingConfirmation = () => {
             onChange={(e) => setPaymentMethod(e.target.value)}
           />
           <img
-            src="/cash-payment-icon.png"
+            src="/cash-wallet.svg"
             alt="Thanh toán trực tiếp"
             className="booking-payment-logo"
           />

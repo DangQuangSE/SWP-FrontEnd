@@ -267,6 +267,19 @@ const RegisterForm = () => {
                 Xác nhận OTP
               </GradientButton>
             </Form.Item>
+            <Form.Item>
+              <Button
+                block
+                type="default"
+                onClick={() => {
+                  setStep(1);
+                  otpForm.resetFields();
+                }}
+                style={{ marginTop: 8 }}
+              >
+                Trở lại
+              </Button>
+            </Form.Item>
           </Form>
         </Spin>
       )}

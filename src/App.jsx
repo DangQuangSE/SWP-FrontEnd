@@ -42,7 +42,6 @@ import Profile from "./pages/UserProfile/Profile";
 import Noti from "./features/NotificationCenter/Noti";
 import BookingConfirmation from "./features/Services/Booking/BookingConfirmation";
 import Payment from "./features/Services/Payment/Payment";
-import MomoReturn from "./features/Services/Payment/MomoReturn";
 import ProtectedRoute from "./components/ProtectedRoute";
 
 function App() {
@@ -131,7 +130,6 @@ function App() {
                 <Route path="attended" element={<Attended />} />
                 <Route path="settings" element={<Settings />} /> */}
               </Route>
-              <Route path="/payment/result" element={<MomoReturn />} />
               <Route path="/booking" element={<BookingForm />} />
               <Route path="/service-detail/:id" element={<ServiceDetail />} />
               <Route

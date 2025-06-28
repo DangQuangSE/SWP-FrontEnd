@@ -12,14 +12,6 @@ const TABS = [
   { key: "combo", label: "Gói khám" },
 ];
 
-// API status mapping
-const STATUS_MAP = {
-  upcoming: ["CONFIRMED", "PENDING"],
-  completed: ["COMPLETED"],
-  history: ["CANCELED"],
-  combo: ["COMBO"],
-};
-
 const Booking = () => {
   const [appointments, setAppointments] = useState([]);
   const [loading, setLoading] = useState(true);
