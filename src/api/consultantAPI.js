@@ -81,7 +81,7 @@ export const createBlog = (blogData) => {
 const LIKE_API_SIMULATION_MODE = false;
 
 export const likeBlog = async (id) => {
-  console.log(`🔄 likeBlog API call for blog ID: ${id}`);
+  console.log(` likeBlog API call for blog ID: ${id}`);
   const token = localStorage.getItem("token");
   console.log(`🔑 Token available:`, !!token);
   console.log(`🌐 API endpoint: POST /blog/${id}/like`);
@@ -117,7 +117,7 @@ export const likeBlog = async (id) => {
 
   // REAL API CALL with authentication
   try {
-    console.log(`🔄 Attempting authenticated API call...`);
+    console.log(` Attempting authenticated API call...`);
 
     const response = await api.post(
       `/blog/${id}/like`,
@@ -133,10 +133,10 @@ export const likeBlog = async (id) => {
     console.log(` Like API call success:`, response);
     return response;
   } catch (error) {
-    console.error(`❌ likeBlog API error:`, error);
-    console.error(`❌ Error response:`, error.response?.data);
-    console.error(`❌ Error status:`, error.response?.status);
-    console.error(`❌ Error message:`, error.message);
+    console.error(` likeBlog API error:`, error);
+    console.error(` Error response:`, error.response?.data);
+    console.error(` Error status:`, error.response?.status);
+    console.error(` Error message:`, error.message);
 
     // Handle specific error cases
     if (error.response?.status === 401) {
@@ -174,7 +174,7 @@ export const deleteBlog = async (blogId) => {
   }
 
   try {
-    console.log(`🔄 Attempting to delete blog ${blogId}...`);
+    console.log(` Attempting to delete blog ${blogId}...`);
 
     const response = await api.delete(`/blog/${blogId}`, {
       headers: {
@@ -185,10 +185,10 @@ export const deleteBlog = async (blogId) => {
     console.log(` Delete blog API success:`, response);
     return response;
   } catch (error) {
-    console.error(`❌ deleteBlog API error:`, error);
-    console.error(`❌ Error response:`, error.response?.data);
-    console.error(`❌ Error status:`, error.response?.status);
-    console.error(`❌ Error message:`, error.message);
+    console.error(` deleteBlog API error:`, error);
+    console.error(` Error response:`, error.response?.data);
+    console.error(` Error status:`, error.response?.status);
+    console.error(` Error message:`, error.message);
 
     // Handle specific error cases
     if (error.response?.status === 401) {

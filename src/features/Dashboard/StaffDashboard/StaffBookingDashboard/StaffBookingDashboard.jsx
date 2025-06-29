@@ -10,25 +10,21 @@ import {
   Modal,
   Input,
 } from "antd";
-import { EyeOutlined, EditOutlined, DeleteOutlined } from "@ant-design/icons";
+import { EyeOutlined, EditOutlined, CheckOutlined } from "@ant-design/icons";
 import api from "../../../../configs/api";
-import "./BookingDashboard.css";
+import "../../AdminDashboard/BookingDashboard/BookingDashboard.css";
 
-const { TabPane } = Tabs;
 const { Search } = Input;
 
-// Định nghĩa tất cả status
+// Định nghĩa status cho Staff (chỉ 3 trạng thái)
 const APPOINTMENT_STATUSES = [
   { key: "ALL", label: "Tất cả", color: "default" },
   { key: "PENDING", label: "Chờ xác nhận", color: "orange" },
   { key: "CONFIRMED", label: "Đã xác nhận", color: "blue" },
-  { key: "CHECKED", label: "Đã khám", color: "green" },
-  { key: "COMPLETED", label: "Hoàn thành", color: "success" },
-  { key: "CANCELED", label: "Đã hủy", color: "red" },
-  { key: "ABSENT", label: "Vắng mặt", color: "volcano" },
+  { key: "CHECKED", label: "Có mặt", color: "green" },
 ];
 
-const BookingDashboard = () => {
+const StaffBookingDashboard = () => {
   const [appointments, setAppointments] = useState([]);
   const [loading, setLoading] = useState(false);
   const [activeTab, setActiveTab] = useState("ALL");
@@ -41,17 +37,10 @@ const BookingDashboard = () => {
       let allAppointments = [];
 
       if (status === "ALL") {
-        // Gọi API cho tất cả status và merge lại
-        const statusList = [
-          "PENDING",
-          "CONFIRMED",
-          "CHECKED",
-          "COMPLETED",
-          "CANCELED",
-          "ABSENT",
-        ];
+        // Gọi API cho 3 status của Staff và merge lại
+        const statusList = ["PENDING", "CONFIRMED", "CHECKED"];
 
-        console.log("📋 Fetching all appointments for all statuses...");
+        console.log(" Fetching staff appointments for statuses:", statusList);
 
         const promises = statusList.map(async (s) => {
           try {
@@ -59,13 +48,13 @@ const BookingDashboard = () => {
               `/appointment/by-status?status=${s}`
             );
             console.log(
-              `📋 Status ${s}:`,
+              ` Status ${s}:`,
               response.data?.length || 0,
               "appointments"
             );
             return response.data || [];
           } catch (error) {
-            console.error(`❌ Error fetching ${s}:`, error);
+            console.error(` Error fetching ${s}:`, error);
             return [];
           }
         });
@@ -105,19 +94,6 @@ const BookingDashboard = () => {
     fetchAppointments(activeTab);
   }, [activeTab]);
 
-  // Filter appointments theo search text
-  const filteredAppointments = appointments.filter((appointment) => {
-    if (!searchText) return true;
-
-    const searchLower = searchText.toLowerCase();
-    return (
-      appointment.user?.fullname?.toLowerCase().includes(searchLower) ||
-      appointment.user?.email?.toLowerCase().includes(searchLower) ||
-      appointment.serviceName?.toLowerCase().includes(searchLower) ||
-      appointment.service?.serviceName?.toLowerCase().includes(searchLower)
-    );
-  });
-
   // Get status color
   const getStatusColor = (status) => {
     const statusObj = APPOINTMENT_STATUSES.find((s) => s.key === status);
@@ -130,128 +106,24 @@ const BookingDashboard = () => {
     return statusObj?.label || status;
   };
 
-  // Table columns
-  const columns = [
-    {
-      title: "Tên khách hàng",
-      dataIndex: "customerName",
-      key: "customerName",
-      width: 100,
-      render: (customerName) => (
-        <div className="booking-dashboard__customer-name">
-          {customerName || "N/A"}
-        </div>
-      ),
-    },
-    {
-      title: "Dịch vụ",
-      dataIndex: "serviceName",
-      key: "serviceName",
-      width: 180,
-      render: (serviceName, record) => (
-        <div className="booking-dashboard__service">
-          <div className="booking-dashboard__service-name">
-            {serviceName || "N/A"}
-          </div>
-          <div className="booking-dashboard__service-price">
-            {record.price ? `${record.price.toLocaleString()} VNĐ` : ""}
-          </div>
-        </div>
-      ),
-    },
-    {
-      title: "Ngày & Giờ",
-      key: "datetime",
-      width: 50,
-      render: (_, record) => {
-        // Lấy slotTime từ appointmentDetails array
-        const slotTime = record.appointmentDetails?.[0]?.slotTime;
+  // Handle checked (check-in)
+  const handleChecked = async (record) => {
+    try {
+      console.log("🔄 Checking appointment:", record.id);
 
-        if (slotTime) {
-          const dateTime = new Date(slotTime);
-          const date = dateTime.toLocaleDateString("vi-VN");
-          const time = dateTime.toLocaleTimeString("vi-VN", {
-            hour: "2-digit",
-            minute: "2-digit",
-          });
+      await api.put(`/appointment/${record.id}/checkin`);
 
-          return (
-            <div className="booking-dashboard__datetime">
-              <div className="booking-dashboard__date">{date}</div>
-              <div className="booking-dashboard__time">{time}</div>
-            </div>
-          );
-        }
+      message.success("Đã đánh dấu checked thành công!");
 
-        // Fallback to preferredDate if no slotTime
-        return (
-          <div className="booking-dashboard__datetime">
-            <div className="booking-dashboard__date">
-              {record.preferredDate
-                ? new Date(record.preferredDate).toLocaleDateString("vi-VN")
-                : "N/A"}
-            </div>
-            <div className="booking-dashboard__time">Chưa có giờ</div>
-          </div>
-        );
-      },
-    },
-    {
-      title: "Trạng thái",
-      dataIndex: "status",
-      key: "status",
-      width: 60,
-      render: (status) => (
-        <Tag color={getStatusColor(status)}>{getStatusLabel(status)}</Tag>
-      ),
-    },
-    {
-      title: "Ngày tạo",
-      dataIndex: "created_at",
-      key: "created_at",
-      width: 60,
-      render: (date) =>
-        date ? new Date(date).toLocaleDateString("vi-VN") : "N/A",
-    },
-    {
-      title: "Ghi chú",
-      dataIndex: "note",
-      key: "note",
-      width: 100,
-      render: (note) => note || "Không có",
-    },
-    {
-      title: "Thao tác",
-      key: "actions",
-      width: 90,
-      fixed: "right",
-      render: (_, record) => (
-        <Space size="small" className="booking-dashboard__action-space">
-          <Button
-            type="primary"
-            size="small"
-            icon={<EyeOutlined />}
-            className="booking-dashboard__view-btn"
-            onClick={() => handleViewDetail(record)}
-            title="Xem chi tiết"
-          >
-            Chi tiết
-          </Button>
-          <Button
-            size="small"
-            icon={<EditOutlined />}
-            className="booking-dashboard__edit-btn"
-            onClick={() => handleEdit(record)}
-            title="Chỉnh sửa"
-          >
-            Sửa
-          </Button>
-        </Space>
-      ),
-    },
-  ];
+      // Refresh appointments
+      fetchAppointments(activeTab);
+    } catch (error) {
+      console.error(" Error checking appointment:", error);
+      message.error("Không thể đánh dấu checked. Vui lòng thử lại!");
+    }
+  };
 
-  // Handle actions
+  // Handle view detail
   const handleViewDetail = (record) => {
     console.log("🔍 Showing appointment detail for:", record.id);
 
@@ -349,12 +221,154 @@ const BookingDashboard = () => {
     message.info("Chức năng chỉnh sửa đang được phát triển");
   };
 
+  // Table columns
+  const columns = [
+    {
+      title: "Tên khách hàng",
+      dataIndex: "customerName",
+      key: "customerName",
+      width: 70,
+      render: (customerName) => (
+        <div className="booking-dashboard__customer-name">
+          {customerName || "N/A"}
+        </div>
+      ),
+    },
+    {
+      title: "Dịch vụ",
+      dataIndex: "serviceName",
+      key: "serviceName",
+      width: 150,
+      render: (serviceName, record) => (
+        <div className="booking-dashboard__service">
+          <div className="booking-dashboard__service-name">
+            {serviceName || "N/A"}
+          </div>
+          <div className="booking-dashboard__service-price">
+            {record.price ? `${record.price.toLocaleString()} VNĐ` : ""}
+          </div>
+        </div>
+      ),
+    },
+    {
+      title: "Ngày & Giờ",
+      key: "datetime",
+      width: 40,
+      render: (_, record) => {
+        // Lấy slotTime từ appointmentDetails array
+        const slotTime = record.appointmentDetails?.[0]?.slotTime;
+
+        if (slotTime) {
+          const dateTime = new Date(slotTime);
+          const date = dateTime.toLocaleDateString("vi-VN");
+          const time = dateTime.toLocaleTimeString("vi-VN", {
+            hour: "2-digit",
+            minute: "2-digit",
+          });
+
+          return (
+            <div className="booking-dashboard__datetime">
+              <div className="booking-dashboard__date">{date}</div>
+              <div className="booking-dashboard__time">{time}</div>
+            </div>
+          );
+        }
+
+        // Fallback to preferredDate if no slotTime
+        return (
+          <div className="booking-dashboard__datetime">
+            <div className="booking-dashboard__date">
+              {record.preferredDate
+                ? new Date(record.preferredDate).toLocaleDateString("vi-VN")
+                : "N/A"}
+            </div>
+            <div className="booking-dashboard__time">Chưa có giờ</div>
+          </div>
+        );
+      },
+    },
+    {
+      title: "Trạng thái",
+      dataIndex: "status",
+      key: "status",
+      width: 50,
+      render: (status) => (
+        <Tag color={getStatusColor(status)}>{getStatusLabel(status)}</Tag>
+      ),
+    },
+    {
+      title: "Ngày tạo",
+      dataIndex: "created_at",
+      key: "created_at",
+      width: 45,
+      render: (date) =>
+        date ? new Date(date).toLocaleDateString("vi-VN") : "N/A",
+    },
+    {
+      title: "Ghi chú",
+      dataIndex: "note",
+      key: "note",
+      width: 100,
+      render: (note) => note || "Không có",
+    },
+    {
+      title: "Thao tác",
+      key: "actions",
+      width: 120,
+      fixed: "right",
+      render: (_, record) => (
+        <Space size="small" className="booking-dashboard__action-space">
+          <Button
+            type="primary"
+            size="small"
+            icon={<EyeOutlined />}
+            className="booking-dashboard__view-btn"
+            onClick={() => handleViewDetail(record)}
+            title="Xem chi tiết"
+          >
+            Chi tiết
+          </Button>
+          {record.status === "CONFIRMED" && (
+            <Button
+              type="primary"
+              size="small"
+              icon={<CheckOutlined />}
+              onClick={() => handleChecked(record)}
+              title="Đánh dấu đã khám"
+              className="booking-dashboard__checkin-btn"
+            >
+              Checked
+            </Button>
+          )}
+          <Button
+            size="small"
+            icon={<EditOutlined />}
+            className="booking-dashboard__edit-btn"
+            onClick={() => handleEdit()}
+            title="Chỉnh sửa"
+          >
+            Sửa
+          </Button>
+        </Space>
+      ),
+    },
+  ];
+
+  // Filter appointments based on search text
+  const filteredAppointments = appointments.filter(
+    (appointment) =>
+      appointment.customerName
+        ?.toLowerCase()
+        .includes(searchText.toLowerCase()) ||
+      appointment.serviceName?.toLowerCase().includes(searchText.toLowerCase())
+  );
+
   return (
     <Card title="Quản lý lịch hẹn" className="booking-dashboard">
       {/* Search */}
       <div className="booking-dashboard__search">
         <Search
-          placeholder="Tìm kiếm theo tên, email, dịch vụ..."
+          placeholder="Tìm kiếm theo tên khách hàng, dịch vụ..."
           allowClear
           className="booking-dashboard__search-input"
           onChange={(e) => setSearchText(e.target.value)}
@@ -369,14 +383,7 @@ const BookingDashboard = () => {
         items={APPOINTMENT_STATUSES.map((status) => ({
           key: status.key,
           label: (
-            <span className="booking-dashboard__tab-label">
-              <Tag color={status.color}>{status.label}</Tag>
-              {activeTab === status.key && (
-                <span className="booking-dashboard__tab-count">
-                  ({filteredAppointments.length})
-                </span>
-              )}
-            </span>
+            <span className="booking-dashboard__tab-label">{status.label}</span>
           ),
         }))}
       />
@@ -402,4 +409,4 @@ const BookingDashboard = () => {
   );
 };
 
-export default BookingDashboard;
+export default StaffBookingDashboard;

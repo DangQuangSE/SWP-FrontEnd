@@ -20,7 +20,7 @@ const Articles = () => {
     try {
       setLikingBlogs((prev) => new Set([...prev, blogId]));
 
-      console.log(`🔄 Attempting to like blog ${blogId}...`);
+      console.log(` Attempting to like blog ${blogId}...`);
       console.log(`🔑 Token available:`, !!localStorage.getItem("token"));
 
       const response = await likeBlog(blogId);
@@ -38,7 +38,7 @@ const Articles = () => {
       // Reload all articles to get updated data from server
       setTimeout(async () => {
         try {
-          console.log(`🔄 Reloading all articles to verify like count...`);
+          console.log(` Reloading all articles to verify like count...`);
 
           // Reload the articles data from API
           const response = await fetch(
@@ -92,14 +92,14 @@ const Articles = () => {
             console.log(` Articles reloaded successfully`);
           }
         } catch (reloadError) {
-          console.error(`❌ Error reloading articles:`, reloadError);
+          console.error(` Error reloading articles:`, reloadError);
         }
       }, 2000);
 
       console.log(` Successfully liked blog ${blogId}`);
     } catch (error) {
-      console.error(`❌ Error liking blog ${blogId}:`, error);
-      console.error(`❌ Error details:`, {
+      console.error(` Error liking blog ${blogId}:`, error);
+      console.error(` Error details:`, {
         message: error.message,
         status: error.response?.status,
         data: error.response?.data,
@@ -112,14 +112,14 @@ const Articles = () => {
 
       if (errorMessage.includes("đăng nhập")) {
         const shouldLogin = confirm(
-          `❌ ${errorMessage}\n\n🔑 Bạn có muốn đăng nhập ngay không?`
+          ` ${errorMessage}\n\n🔑 Bạn có muốn đăng nhập ngay không?`
         );
         if (shouldLogin) {
           // Redirect to login page
           window.location.href = "/login";
         }
       } else {
-        alert(`❌ ${errorMessage}`);
+        alert(` ${errorMessage}`);
       }
 
       // Revert optimistic update on error
@@ -146,7 +146,7 @@ const Articles = () => {
     const loadTopBlogs = async () => {
       try {
         setLoading(true);
-        console.log("🔄 Loading top 5 blogs by view count...");
+        console.log(" Loading top 5 blogs by view count...");
         console.log("🌐 Current URL:", window.location.href);
         console.log("🔑 Token available:", !!localStorage.getItem("token"));
 
@@ -222,7 +222,7 @@ const Articles = () => {
           JSON.stringify(transformedArticles)
         );
       } catch (error) {
-        console.error("❌ Error loading blogs:", error);
+        console.error(" Error loading blogs:", error);
         // Fallback to empty array if API fails
         setArticles([]);
       } finally {
@@ -255,7 +255,7 @@ const Articles = () => {
             className="loading-container"
             style={{ textAlign: "center", padding: "50px" }}
           >
-            <div>🔄 Đang tải top 5 bài viết có lượt xem cao nhất...</div>
+            <div> Đang tải top 5 bài viết có lượt xem cao nhất...</div>
           </div>
         </div>
       </section>
