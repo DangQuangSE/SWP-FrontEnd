@@ -93,26 +93,6 @@ function Staff() {
   ];
 
   // Mock data - Replace with actual API calls
-  const appointments = [
-    {
-      id: 1,
-      customer: "John Doe",
-      room: "Room 101",
-      consultant: "Dr. Smith",
-      time: "10:00 AM",
-      status: "Confirmed",
-      date: "2024-03-20",
-    },
-    {
-      id: 2,
-      customer: "Jane Smith",
-      room: "Room 102",
-      consultant: "Dr. Johnson",
-      time: "11:30 AM",
-      status: "Pending",
-      date: "2024-03-20",
-    },
-  ];
 
   const consultantSchedule = [
     {
@@ -143,57 +123,6 @@ function Staff() {
       lastVisit: "2024-03-01",
     },
   ];
-
-  const appointmentColumns = [
-    {
-      title: "Customer",
-      dataIndex: "customer",
-      key: "customer",
-    },
-    {
-      title: "Room",
-      dataIndex: "room",
-      key: "room",
-    },
-    {
-      title: "Consultant",
-      dataIndex: "consultant",
-      key: "consultant",
-    },
-    {
-      title: "Date",
-      dataIndex: "date",
-      key: "date",
-    },
-    {
-      title: "Time",
-      dataIndex: "time",
-      key: "time",
-    },
-    {
-      title: "Status",
-      dataIndex: "status",
-      key: "status",
-      render: (status) => (
-        <Tag color={status === "Confirmed" ? "green" : "orange"}>{status}</Tag>
-      ),
-    },
-    {
-      title: "Action",
-      key: "action",
-      render: (_, record) => (
-        <Space size="middle">
-          <Button type="primary" icon={<EditOutlined />} size="small">
-            Update Status
-          </Button>
-        </Space>
-      ),
-    },
-  ];
-
-  const handleCreateAppointment = () => {
-    setIsAppointmentModalVisible(true);
-  };
 
   const handleCreateQA = () => {
     setIsQAModalVisible(true);
