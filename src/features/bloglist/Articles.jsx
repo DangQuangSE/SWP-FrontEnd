@@ -24,7 +24,7 @@ const Articles = () => {
       console.log(`🔑 Token available:`, !!localStorage.getItem("token"));
 
       const response = await likeBlog(blogId);
-      console.log(`✅ Like API response:`, response);
+      console.log(` Like API response:`, response);
 
       // Update local state optimistically
       setArticles((prevArticles) =>
@@ -89,14 +89,14 @@ const Articles = () => {
             }));
 
             setArticles(transformedArticles);
-            console.log(`✅ Articles reloaded successfully`);
+            console.log(` Articles reloaded successfully`);
           }
         } catch (reloadError) {
           console.error(`❌ Error reloading articles:`, reloadError);
         }
       }, 2000);
 
-      console.log(`✅ Successfully liked blog ${blogId}`);
+      console.log(` Successfully liked blog ${blogId}`);
     } catch (error) {
       console.error(`❌ Error liking blog ${blogId}:`, error);
       console.error(`❌ Error details:`, {

@@ -48,7 +48,7 @@ const AllBlog = () => {
       setServiceArticles(updateArticleArray);
       setMedicalKnowledgeArticles(updateArticleArray);
 
-      console.log(`✅ Liked blog ${blogId}`);
+      console.log(` Liked blog ${blogId}`);
     } catch (error) {
       console.error(`❌ Error liking blog ${blogId}:`, error);
     } finally {
@@ -276,7 +276,7 @@ const AllBlog = () => {
           }));
         setBottomFeaturedCards(sortedByLikes);
 
-        console.log("✅ All blog sections loaded successfully");
+        console.log(" All blog sections loaded successfully");
         console.log("🎯 Featured article will be:", sortedByViews[0]);
         console.log("📋 Sidebar articles will be:", recentBlogs);
         console.log("🏥 Medical articles will be:", medicalBlogs.slice(0, 6));

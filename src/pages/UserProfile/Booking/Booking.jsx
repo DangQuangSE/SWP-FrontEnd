@@ -128,7 +128,7 @@ const Booking = () => {
 
     // Check for VNPay return parameters
     if (vnpResponseCode) {
-      console.log("🔍 VNPay Return in Booking page:", {
+      console.log(" VNPay Return in Booking page:", {
         vnpResponseCode,
         vnpTransactionStatus,
         vnpTxnRef,

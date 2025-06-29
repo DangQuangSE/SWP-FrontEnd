@@ -94,7 +94,7 @@ const BlogDetail = () => {
         likeCount: (prev.likeCount || 0) + 1,
       }));
 
-      console.log(`✅ Liked blog ${article.id}`);
+      console.log(` Liked blog ${article.id}`);
     } catch (error) {
       console.error(`❌ Error liking blog ${article.id}:`, error);
     } finally {

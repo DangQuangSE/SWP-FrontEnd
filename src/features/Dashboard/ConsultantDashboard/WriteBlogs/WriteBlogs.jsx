@@ -107,7 +107,7 @@ const WriteBlogs = ({ userId, selectedTab }) => {
 
       setBlogs(processedBlogs);
       console.log(
-        "✅ Processed blogs set to state:",
+        " Processed blogs set to state:",
         processedBlogs.length,
         "blogs"
       );
@@ -316,36 +316,36 @@ const WriteBlogs = ({ userId, selectedTab }) => {
 
     // Temporary bypass for testing - use hardcoded userId
     const testUserId = userId || 1;
-    console.log("✅ Using userId (test mode):", testUserId);
+    console.log(" Using userId (test mode):", testUserId);
 
-    console.log("✅ UserId found:", userId);
+    console.log(" UserId found:", userId);
     setCreateBlogLoading(true);
 
     try {
       console.log("🔄 Validating form fields...");
       const values = await createBlogForm.validateFields();
-      console.log("✅ Form validation passed:", values);
+      console.log(" Form validation passed:", values);
 
       // Get image file if exists
       const fileInput = document.getElementById("blog-image-input");
       const imgFile = fileInput?.files[0] || null;
 
       // Validate required fields
-      console.log("🔍 Validating title:", values.title?.length);
+      console.log(" Validating title:", values.title?.length);
       if (!values.title || values.title.trim().length < 10) {
         console.error("❌ Title validation failed");
         toast.error("Tiêu đề phải có ít nhất 10 ký tự!");
         return;
       }
 
-      console.log("🔍 Validating content:", values.content?.length);
+      console.log(" Validating content:", values.content?.length);
       if (!values.content || values.content.trim().length < 50) {
         console.error("❌ Content validation failed");
         toast.error("Nội dung phải có ít nhất 50 ký tự!");
         return;
       }
 
-      console.log("✅ All validations passed");
+      console.log(" All validations passed");
 
       // Process tags - convert IDs to names for backend
       let tagNames = [];
@@ -378,7 +378,7 @@ const WriteBlogs = ({ userId, selectedTab }) => {
       try {
         console.log("📤 Calling createBlog API...");
         const response = await createBlog(blogData);
-        console.log("✅ Blog created successfully:", response.data);
+        console.log(" Blog created successfully:", response.data);
 
         toast.success("Tạo blog thành công!");
 
@@ -417,7 +417,7 @@ const WriteBlogs = ({ userId, selectedTab }) => {
           console.log("🔄 Retrying without tags...");
           const blogDataNoTags = { ...blogData, tagNames: [] };
           const retryResponse = await createBlog(blogDataNoTags);
-          console.log("✅ Blog created without tags:", retryResponse.data);
+          console.log(" Blog created without tags:", retryResponse.data);
 
           toast.warning(
             "Blog được tạo thành công nhưng không có tags do hạn chế hệ thống"
@@ -508,7 +508,7 @@ const WriteBlogs = ({ userId, selectedTab }) => {
 
     try {
       await deleteBlog(blogId);
-      console.log(`✅ Blog ${blogId} deleted successfully`);
+      console.log(` Blog ${blogId} deleted successfully`);
       toast.success("Xóa blog thành công!");
       loadBlogs(); // Reload the blog list
     } catch (error) {
@@ -552,7 +552,7 @@ const WriteBlogs = ({ userId, selectedTab }) => {
     const statusConfig = {
       DRAFT: { color: "#8c8c8c", icon: "📝", text: "Bản nháp" },
       PENDING: { color: "#faad14", icon: "⏳", text: "Chờ duyệt" },
-      APPROVED: { color: "#52c41a", icon: "✅", text: "Đã duyệt" },
+      APPROVED: { color: "#52c41a", icon: "", text: "Đã duyệt" },
       PUBLISHED: { color: "#1890ff", icon: "🌐", text: "Đã đăng" },
       REJECTED: { color: "#ff4d4f", icon: "❌", text: "Bị từ chối" },
       ARCHIVED: { color: "#722ed1", icon: "📦", text: "Đã lưu trữ" },
@@ -733,7 +733,7 @@ const WriteBlogs = ({ userId, selectedTab }) => {
 
                 const response = await api.delete(`/tags/${record.id}`);
                 console.log(
-                  "✅ Delete API response:",
+                  " Delete API response:",
                   response.status,
                   response.statusText
                 );
@@ -1006,7 +1006,7 @@ const WriteBlogs = ({ userId, selectedTab }) => {
               <Select placeholder="Chọn trạng thái bài viết">
                 <Select.Option value="DRAFT">📝 Bản nháp</Select.Option>
                 <Select.Option value="PENDING">⏳ Chờ duyệt</Select.Option>
-                <Select.Option value="APPROVED">✅ Đã duyệt</Select.Option>
+                <Select.Option value="APPROVED"> Đã duyệt</Select.Option>
                 <Select.Option value="PUBLISHED">🌐 Đã đăng</Select.Option>
                 <Select.Option value="REJECTED">❌ Bị từ chối</Select.Option>
                 <Select.Option value="ARCHIVED">📦 Đã lưu trữ</Select.Option>
@@ -1086,7 +1086,7 @@ const WriteBlogs = ({ userId, selectedTab }) => {
               <Select placeholder="Chọn trạng thái bài viết">
                 <Select.Option value="DRAFT">📝 Bản nháp</Select.Option>
                 <Select.Option value="PENDING">⏳ Chờ duyệt</Select.Option>
-                <Select.Option value="APPROVED">✅ Đã duyệt</Select.Option>
+                <Select.Option value="APPROVED"> Đã duyệt</Select.Option>
                 <Select.Option value="PUBLISHED">🌐 Đã đăng</Select.Option>
                 <Select.Option value="REJECTED">❌ Bị từ chối</Select.Option>
                 <Select.Option value="ARCHIVED">📦 Đã lưu trữ</Select.Option>
