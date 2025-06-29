@@ -26,6 +26,7 @@ import {
   EditOutlined,
   DeleteOutlined,
   EyeOutlined,
+  CalendarOutlined,
 } from "@ant-design/icons";
 import api from "../../../configs/api";
 
@@ -40,6 +41,9 @@ import ServiceManagement from "./ServiceModal/ServiceManagement";
 
 // Import Room Management component
 import { RoomManagement } from "./Room";
+
+// Import Booking Dashboard component
+import BookingDashboard from "./BookingDashboard/BookingDashboard";
 
 const { Header, Content, Sider } = Layout;
 const { Title } = Typography;
@@ -64,6 +68,7 @@ function Admin() {
       manage_users: "Quản lý Tài khoản & Vai trò",
       manage_services: "Quản lý Dịch vụ Xét nghiệm & Giá cả",
       manage_articles: "Quản lý Bài viết Blog",
+      manage_bookings: "Quản lý Lịch hẹn",
       dashboard_reports: "Xem Dashboard & Báo cáo",
       handle_feedback: "Xử lý Phản hồi Dịch vụ/Tư vấn",
       manage_payments: "Quản lý Thanh toán & Giao dịch",
@@ -182,6 +187,11 @@ function Admin() {
       key: "manage_services",
       icon: React.createElement(SolutionOutlined),
       label: "Quản lý Dịch vụ Xét nghiệm & Giá cả",
+    },
+    {
+      key: "manage_bookings",
+      icon: React.createElement(CalendarOutlined),
+      label: "Quản lý Lịch hẹn",
     },
     {
       key: "manage_articles",
@@ -529,6 +539,8 @@ function Admin() {
         );
       case "manage_services":
         return <ServiceManagement />;
+      case "manage_bookings":
+        return <BookingDashboard />;
       case "manage_articles":
         return (
           <Card

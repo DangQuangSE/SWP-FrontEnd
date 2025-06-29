@@ -208,12 +208,12 @@ const ServiceModal = ({
             )}
           </Form.Item>
         )}
-        <Form.Item name="isActive" label="Status">
+        {/* <Form.Item name="isActive" label="Status">
           <Select placeholder="Select status">
             <Option value={true}>Active</Option>
             <Option value={false}>Inactive</Option>
           </Select>
-        </Form.Item>
+        </Form.Item> */}
       </Form>
     </Modal>
   );

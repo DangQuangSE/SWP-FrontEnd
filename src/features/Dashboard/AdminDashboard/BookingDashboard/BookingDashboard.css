@@ -1,0 +1,225 @@
+/* BookingDashboard Styles */
+
+.booking-dashboard {
+  margin: 20px;
+}
+
+.booking-dashboard__search {
+  margin-bottom: 16px;
+}
+
+.booking-dashboard__search-input {
+  width: 400px;
+}
+
+/* Table Styles */
+.booking-dashboard__table {
+  /* Custom table styles if needed */
+}
+
+.booking-dashboard__table .ant-table {
+  /* Ant Design table overrides */
+}
+
+/* Customer Column */
+.booking-dashboard__customer {
+  /* Container for customer info */
+}
+
+.booking-dashboard__customer-name {
+  font-weight: bold;
+}
+
+.booking-dashboard__customer-email {
+  font-size: 12px;
+  color: #666;
+}
+
+/* Service Column */
+.booking-dashboard__service {
+  /* Container for service info */
+}
+
+.booking-dashboard__service-name {
+  /* Service name styling */
+}
+
+.booking-dashboard__service-price {
+  font-size: 12px;
+  color: #666;
+}
+
+/* DateTime Column */
+.booking-dashboard__datetime {
+  /* Container for date and time */
+}
+
+.booking-dashboard__date {
+  /* Date styling */
+}
+
+.booking-dashboard__time {
+  font-size: 12px;
+  color: #666;
+}
+
+/* Status Column */
+.booking-dashboard__status {
+  /* Status tag container */
+}
+
+/* Actions Column */
+.booking-dashboard__actions {
+  /* Actions container */
+}
+
+.booking-dashboard__action-space {
+  /* Space between action buttons */
+}
+
+.booking-dashboard__view-btn {
+  /* View button specific styles */
+}
+
+.booking-dashboard__edit-btn {
+  /* Edit button specific styles */
+}
+
+/* Tabs Styles */
+.booking-dashboard__tabs {
+  /* Tabs container */
+}
+
+.booking-dashboard__tab-label {
+  /* Tab label styling */
+}
+
+.booking-dashboard__tab-count {
+  margin-left: 8px;
+}
+
+/* Modal Styles */
+.booking-dashboard__modal {
+  /* Modal container */
+}
+
+.booking-dashboard__modal-content {
+  /* Modal content styling */
+}
+
+.booking-dashboard__modal-field {
+  margin-bottom: 8px;
+}
+
+.booking-dashboard__modal-label {
+  font-weight: bold;
+}
+
+.booking-dashboard__modal-value {
+  /* Modal field value styling */
+}
+
+/* Responsive Styles */
+@media (max-width: 768px) {
+  .booking-dashboard {
+    margin: 10px;
+  }
+  
+  .booking-dashboard__search-input {
+    width: 100%;
+  }
+  
+  .booking-dashboard__table {
+    font-size: 12px;
+  }
+  
+  .booking-dashboard__customer-name,
+  .booking-dashboard__service-name {
+    font-size: 13px;
+  }
+  
+  .booking-dashboard__customer-email,
+  .booking-dashboard__service-price,
+  .booking-dashboard__time {
+    font-size: 11px;
+  }
+}
+
+@media (max-width: 480px) {
+  .booking-dashboard {
+    margin: 5px;
+  }
+  
+  .booking-dashboard__table {
+    font-size: 11px;
+  }
+  
+  .booking-dashboard__actions .ant-btn {
+    padding: 4px 8px;
+  }
+}
+
+/* Print Styles */
+@media print {
+  .booking-dashboard__search,
+  .booking-dashboard__actions {
+    display: none;
+  }
+  
+  .booking-dashboard__table {
+    font-size: 10px;
+  }
+  
+  .booking-dashboard__table .ant-table-tbody > tr > td {
+    padding: 4px 8px;
+  }
+}
+
+/* Dark Mode Support */
+@media (prefers-color-scheme: dark) {
+  .booking-dashboard__customer-email,
+  .booking-dashboard__service-price,
+  .booking-dashboard__time {
+    color: #999;
+  }
+}
+
+/* Loading States */
+.booking-dashboard__loading {
+  text-align: center;
+  padding: 50px;
+}
+
+.booking-dashboard__empty {
+  text-align: center;
+  padding: 50px;
+  color: #999;
+}
+
+/* Animation */
+.booking-dashboard__table .ant-table-tbody > tr {
+  transition: background-color 0.2s ease;
+}
+
+.booking-dashboard__table .ant-table-tbody > tr:hover {
+  background-color: #f5f5f5;
+}
+
+/* Custom scrollbar for table */
+.booking-dashboard__table .ant-table-body::-webkit-scrollbar {
+  height: 8px;
+}
+
+.booking-dashboard__table .ant-table-body::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 4px;
+}
+
+.booking-dashboard__table .ant-table-body::-webkit-scrollbar-thumb {
+  background: #c1c1c1;
+  border-radius: 4px;
+}
+
+.booking-dashboard__table .ant-table-body::-webkit-scrollbar-thumb:hover {
+  background: #a8a8a8;
+}
