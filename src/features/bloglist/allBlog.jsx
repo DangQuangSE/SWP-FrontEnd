@@ -50,7 +50,7 @@ const AllBlog = () => {
 
       console.log(` Liked blog ${blogId}`);
     } catch (error) {
-      console.error(`❌ Error liking blog ${blogId}:`, error);
+      console.error(` Error liking blog ${blogId}:`, error);
     } finally {
       setLikingBlogs((prev) => {
         const newSet = new Set(prev);
@@ -63,7 +63,7 @@ const AllBlog = () => {
   // Helper function to load blogs by tag with tag info
   const loadBlogsByTag = async (tagId, size = 2) => {
     try {
-      console.log(`🔄 Loading blogs for tag ${tagId}...`);
+      console.log(` Loading blogs for tag ${tagId}...`);
 
       // Load tag info and blogs in parallel
       const [tagResponse, blogsResponse] = await Promise.all([
@@ -88,7 +88,7 @@ const AllBlog = () => {
         blogs: blogs.filter((blog) => blog.status === "PUBLISHED"),
       };
     } catch (error) {
-      console.error(`❌ Error loading blogs for tag ${tagId}:`, error);
+      console.error(` Error loading blogs for tag ${tagId}:`, error);
       return {
         tagInfo: { name: `Tag ${tagId}`, description: "" },
         blogs: [],
@@ -100,7 +100,7 @@ const AllBlog = () => {
     const loadBlogsData = async () => {
       try {
         setLoading(true);
-        console.log("🔄 Loading all blogs data for /blog page...");
+        console.log(" Loading all blogs data for /blog page...");
 
         // Gọi API trực tiếp để tránh CORS
         const response = await fetch(
@@ -282,7 +282,7 @@ const AllBlog = () => {
         console.log("🏥 Medical articles will be:", medicalBlogs.slice(0, 6));
         console.log("🏢 Service articles will be:", serviceBlogs.slice(0, 6));
       } catch (error) {
-        console.error("❌ Error loading blogs:", error);
+        console.error(" Error loading blogs:", error);
         // Fallback to empty arrays
         setAllBlogs([]);
         setFeaturedArticle(null);
@@ -315,7 +315,7 @@ const AllBlog = () => {
         </header>
         <div style={{ textAlign: "center", padding: "100px 20px" }}>
           <div style={{ fontSize: "18px", marginBottom: "10px" }}>
-            🔄 Đang tải dữ liệu blog...
+            Đang tải dữ liệu blog...
           </div>
           <div style={{ color: "#666" }}>Vui lòng chờ trong giây lát</div>
         </div>

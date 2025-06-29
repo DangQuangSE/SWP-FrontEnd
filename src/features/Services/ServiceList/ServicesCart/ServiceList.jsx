@@ -22,6 +22,7 @@ const ServiceList = () => {
       .get("/api/services")
       .then((res) => {
         setServices(res.data);
+        console.log(res.data);
       })
       .catch((err) => {
         console.error("Lỗi khi tải service:", err);

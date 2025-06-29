@@ -75,16 +75,7 @@ export const userSlice = createSlice({
             action.payload.user.fullname || action.payload.user.name || "",
           email: action.payload.user.email || "",
           role: action.payload.user.role || "",
-          imageUrl:
-            action.payload.user.imageUrl ||
-            // action.payload.user.avatar ||
-            // action.payload.user.picture ||
-            // action.payload.user.photo ||
-            // action.payload.user.image ||
-            // action.payload.user.profilePicture ||
-            // action.payload.user.avatarUrl ||
-            // action.payload.user.photoUrl ||
-            "",
+          imageUrl: action.payload.user.imageUrl || "",
         };
       } else {
         // If user fields are directly in payload
@@ -93,15 +84,7 @@ export const userSlice = createSlice({
           email: action.payload.email || "",
           role: action.payload.role || "",
           imageUrl:
-            action.payload.imageUrl ||
-            // action.payload.avatar ||
-            // action.payload.picture ||
-            // action.payload.photo ||
-            // action.payload.image ||
-            // action.payload.profilePicture ||
-            // action.payload.avatarUrl ||
-            // action.payload.photoUrl ||
-            "",
+            (action.payload.imageUrl && action.payload.imageUrl.trim()) || "",
         };
       }
       // Handle both jwt and token fields

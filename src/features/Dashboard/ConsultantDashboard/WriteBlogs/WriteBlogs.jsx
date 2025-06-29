@@ -52,11 +52,11 @@ const WriteBlogs = ({ userId, selectedTab }) => {
 
   // Load blogs
   const loadBlogs = async (page = 0, size = 10) => {
-    console.log(`🔄 Loading blogs: page=${page}, size=${size}`);
+    console.log(` Loading blogs: page=${page}, size=${size}`);
     setLoadingBlogs(true);
     try {
       // Simplified: Just use basic fetchBlogs endpoint
-      console.log("🔄 Using basic fetchBlogs endpoint...");
+      console.log(" Using basic fetchBlogs endpoint...");
       const res = await fetchBlogs(page, size);
       console.log("📋 fetchBlogs response:", res.data);
 
@@ -126,7 +126,7 @@ const WriteBlogs = ({ userId, selectedTab }) => {
         );
       }
     } catch (error) {
-      console.error("❌ Error loading blogs:", error);
+      console.error(" Error loading blogs:", error);
       toast.error(
         `Không thể tải danh sách blog: ${error.message || "Lỗi không xác định"}`
       );
@@ -322,7 +322,7 @@ const WriteBlogs = ({ userId, selectedTab }) => {
     setCreateBlogLoading(true);
 
     try {
-      console.log("🔄 Validating form fields...");
+      console.log(" Validating form fields...");
       const values = await createBlogForm.validateFields();
       console.log(" Form validation passed:", values);
 
@@ -333,14 +333,14 @@ const WriteBlogs = ({ userId, selectedTab }) => {
       // Validate required fields
       console.log(" Validating title:", values.title?.length);
       if (!values.title || values.title.trim().length < 10) {
-        console.error("❌ Title validation failed");
+        console.error(" Title validation failed");
         toast.error("Tiêu đề phải có ít nhất 10 ký tự!");
         return;
       }
 
       console.log(" Validating content:", values.content?.length);
       if (!values.content || values.content.trim().length < 50) {
-        console.error("❌ Content validation failed");
+        console.error(" Content validation failed");
         toast.error("Nội dung phải có ít nhất 50 ký tự!");
         return;
       }
@@ -387,7 +387,7 @@ const WriteBlogs = ({ userId, selectedTab }) => {
         createBlogForm.resetFields();
 
         // Force reload blogs to show new blog
-        console.log("🔄 Reloading blogs after create...");
+        console.log(" Reloading blogs after create...");
 
         // Add the created blog directly to state as immediate feedback
         if (response.data) {
@@ -409,12 +409,12 @@ const WriteBlogs = ({ userId, selectedTab }) => {
 
         await loadBlogs(0, 20); // Also try to reload from server
       } catch (error) {
-        console.error("❌ Create blog failed:", error);
-        console.error("❌ Error response:", error.response?.data);
+        console.error(" Create blog failed:", error);
+        console.error(" Error response:", error.response?.data);
 
         // Retry without tags if error occurs and tags were included
         if (error.response?.status === 500 && blogData.tagNames.length > 0) {
-          console.log("🔄 Retrying without tags...");
+          console.log(" Retrying without tags...");
           const blogDataNoTags = { ...blogData, tagNames: [] };
           const retryResponse = await createBlog(blogDataNoTags);
           console.log(" Blog created without tags:", retryResponse.data);
@@ -512,7 +512,7 @@ const WriteBlogs = ({ userId, selectedTab }) => {
       toast.success("Xóa blog thành công!");
       loadBlogs(); // Reload the blog list
     } catch (error) {
-      console.error(`❌ Error deleting blog ${blogId}:`, error);
+      console.error(` Error deleting blog ${blogId}:`, error);
 
       // Show specific error message
       const errorMessage =
@@ -554,7 +554,7 @@ const WriteBlogs = ({ userId, selectedTab }) => {
       PENDING: { color: "#faad14", icon: "⏳", text: "Chờ duyệt" },
       APPROVED: { color: "#52c41a", icon: "", text: "Đã duyệt" },
       PUBLISHED: { color: "#1890ff", icon: "🌐", text: "Đã đăng" },
-      REJECTED: { color: "#ff4d4f", icon: "❌", text: "Bị từ chối" },
+      REJECTED: { color: "#ff4d4f", icon: "", text: "Bị từ chối" },
       ARCHIVED: { color: "#722ed1", icon: "📦", text: "Đã lưu trữ" },
     };
 
@@ -758,13 +758,13 @@ const WriteBlogs = ({ userId, selectedTab }) => {
                   toast.success("Xóa chủ đề thành công!");
                 } else {
                   // Nếu backend thực sự xóa, reload như bình thường
-                  console.log("�🔄 Reloading tags after delete...");
+                  console.log("� Reloading tags after delete...");
                   await loadTags();
                   console.log("📋 Tags after reload:", tags.length);
                   toast.success("Xóa chủ đề thành công!");
                 }
               } catch (error) {
-                console.error("❌ Error deleting tag:", error);
+                console.error(" Error deleting tag:", error);
                 console.error("Response data:", error.response?.data);
                 console.error("Response status:", error.response?.status);
                 toast.error(
@@ -1008,7 +1008,7 @@ const WriteBlogs = ({ userId, selectedTab }) => {
                 <Select.Option value="PENDING">⏳ Chờ duyệt</Select.Option>
                 <Select.Option value="APPROVED"> Đã duyệt</Select.Option>
                 <Select.Option value="PUBLISHED">🌐 Đã đăng</Select.Option>
-                <Select.Option value="REJECTED">❌ Bị từ chối</Select.Option>
+                <Select.Option value="REJECTED"> Bị từ chối</Select.Option>
                 <Select.Option value="ARCHIVED">📦 Đã lưu trữ</Select.Option>
               </Select>
             </Form.Item>
@@ -1088,7 +1088,7 @@ const WriteBlogs = ({ userId, selectedTab }) => {
                 <Select.Option value="PENDING">⏳ Chờ duyệt</Select.Option>
                 <Select.Option value="APPROVED"> Đã duyệt</Select.Option>
                 <Select.Option value="PUBLISHED">🌐 Đã đăng</Select.Option>
-                <Select.Option value="REJECTED">❌ Bị từ chối</Select.Option>
+                <Select.Option value="REJECTED"> Bị từ chối</Select.Option>
                 <Select.Option value="ARCHIVED">📦 Đã lưu trữ</Select.Option>
               </Select>
             </Form.Item>
@@ -1240,7 +1240,7 @@ const WriteBlogs = ({ userId, selectedTab }) => {
                   : "Thêm chủ đề thành công!"
               );
             } catch (error) {
-              console.error("❌ Error creating/updating tag:", error);
+              console.error(" Error creating/updating tag:", error);
               console.error("📦 Error response data:", error.response?.data);
               console.error(
                 "🔢 Error response status:",

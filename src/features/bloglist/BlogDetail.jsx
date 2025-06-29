@@ -16,7 +16,7 @@ const BlogDetail = () => {
     const loadBlogDetail = async () => {
       try {
         setLoading(true);
-        console.log(`🔄 Loading blog detail for ID: ${id}`);
+        console.log(` Loading blog detail for ID: ${id}`);
 
         // Call API to get blog detail (this will auto-increment view count)
         const response = await fetchBlogDetail(id);
@@ -55,7 +55,7 @@ const BlogDetail = () => {
         );
         setRelatedArticles(related);
       } catch (error) {
-        console.error("❌ Error loading blog detail:", error);
+        console.error(" Error loading blog detail:", error);
 
         // Fallback to localStorage
         const sampleArticles = JSON.parse(
@@ -96,7 +96,7 @@ const BlogDetail = () => {
 
       console.log(` Liked blog ${article.id}`);
     } catch (error) {
-      console.error(`❌ Error liking blog ${article.id}:`, error);
+      console.error(` Error liking blog ${article.id}:`, error);
     } finally {
       setLiking(false);
     }
@@ -116,7 +116,7 @@ const BlogDetail = () => {
         <div className="blog-detail-container">
           <div className="text-center">
             <h2 className="text-xl font-semibold text-gray-500 mb-4">
-              🔄 Đang tải bài viết...
+              Đang tải bài viết...
             </h2>
           </div>
         </div>
