@@ -2,7 +2,6 @@
 import { NavLink, Outlet } from "react-router-dom";
 import { useSelector } from "react-redux";
 import "./userprofile.css";
-import Booking from "./Booking/Booking";
 
 const menuItems = [
   { path: "profile", label: "Hồ sơ", icon: "👤" },
@@ -52,7 +51,7 @@ export default function UserProfileLayout() {
 
       <main className="up-main">
         <div className="up-main-content">
-          <Booking />
+          <Outlet />
         </div>
       </main>
     </div>

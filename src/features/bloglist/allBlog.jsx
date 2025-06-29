@@ -1,199 +1,329 @@
 "use client";
 
 import { Link } from "react-router-dom";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import "./allBlog.css";
 import Breadcrumb from "../../components/Breadcrumb/Breadcrumb";
+import {
+  fetchBlogsByTag,
+  fetchTagById,
+  likeBlog,
+} from "../../api/consultantAPI";
 
 const AllBlog = () => {
   const [currentServiceSlide, setCurrentServiceSlide] = useState(0);
+  const [loading, setLoading] = useState(true);
+  const [allBlogs, setAllBlogs] = useState([]);
+  const [featuredArticle, setFeaturedArticle] = useState(null);
+  const [sidebarArticles, setSidebarArticles] = useState([]);
+  const [bottomFeaturedCards, setBottomFeaturedCards] = useState([]);
+  const [serviceArticles, setServiceArticles] = useState([]);
+  const [medicalArticles, setMedicalArticles] = useState([]);
+  const [medicalKnowledgeArticles, setMedicalKnowledgeArticles] = useState([]);
+  const [tagNames, setTagNames] = useState({});
+  const [likingBlogs, setLikingBlogs] = useState(new Set());
 
-  const featuredArticle = {
-    id: 0,
-    title: "Top 5 cơ sở chăm sóc sức khỏe giới tính uy tín tại TPHCM",
-    excerpt:
-      "Khám sức khỏe giới tính định kỳ là yếu tố quan trọng giúp phòng ngừa bệnh lây truyền qua đường tình dục và bảo vệ khả năng sinh sản. Dưới đây là 5 địa chỉ uy tín tại TPHCM.",
-    image:
-      "https://i.pinimg.com/736x/f6/f7/a8/f6f7a8c9d0e1f2a3b4c5d6e7f8a9b0c1.jpg",
-    author: "Tú Nguyên",
-    date: "09/06/2025, 10:22",
-    hotline: "1900 2115",
+  // Handle like blog
+  const handleLikeBlog = async (e, blogId) => {
+    e.preventDefault(); // Prevent navigation
+    e.stopPropagation();
+
+    if (likingBlogs.has(blogId)) return; // Prevent double clicking
+
+    try {
+      setLikingBlogs((prev) => new Set([...prev, blogId]));
+
+      await likeBlog(blogId);
+
+      // Update local state for all article arrays
+      const updateArticleArray = (articles) =>
+        articles.map((article) =>
+          article.id === blogId
+            ? { ...article, likeCount: (article.likeCount || 0) + 1 }
+            : article
+        );
+
+      setMedicalArticles(updateArticleArray);
+      setServiceArticles(updateArticleArray);
+      setMedicalKnowledgeArticles(updateArticleArray);
+
+      console.log(`✅ Liked blog ${blogId}`);
+    } catch (error) {
+      console.error(`❌ Error liking blog ${blogId}:`, error);
+    } finally {
+      setLikingBlogs((prev) => {
+        const newSet = new Set(prev);
+        newSet.delete(blogId);
+        return newSet;
+      });
+    }
   };
 
-  const sidebarArticles = [
-    {
-      id: 1,
-      title:
-        "Điều gì xảy ra khi bạn quên hạ trinh sau khi sinh và tháng hậu sản chấp dứt",
-      excerpt: "Nhiều phụ nữ lo lắng về việc quên hạ trinh sau khi sinh...",
-      image:
-        "https://i.pinimg.com/736x/41/37/30/413730c203226a65b5a72ec505b2399d.jpg",
-      category: "Tin Y tế",
-      author: { name: "Dr. Trần Thanh", avatar: "/placeholder.svg" },
-      date: "15/05/2023",
-      featured: true,
-    },
-    {
-      id: 2,
-      title: "Bệnh viêm nhiễm phụ khoa: nguyên nhân và cách phòng tránh",
-      excerpt: "Viêm nhiễm phụ khoa là một trong những vấn đề phổ biến...",
-      image:
-        "https://i.pinimg.com/736x/4b/5b/6f/4b5b6f26df0b61b28266ebf2605eae93.jpg",
-      category: "Tin Y tế",
-      author: { name: "Dr. Nguyễn Minh", avatar: "/placeholder.svg" },
-      date: "20/04/2023",
-    },
-    {
-      id: 3,
-      title: "Những điều cần biết về sức khỏe sinh sản nam giới",
-      excerpt: "Sức khỏe sinh sản nam giới là vấn đề quan trọng...",
-      image:
-        "https://i.pinimg.com/736x/08/89/51/088951e1a9cbf9ab9b12ebd7be30f0f9.jpg",
-      category: "Tin Y tế",
-      author: { name: "Dr. Lê Hùng", avatar: "/placeholder.svg" },
-      date: "05/03/2023",
-    },
-    {
-      id: 4,
-      title: "Phương pháp mang thai an toàn và khỏe mạnh",
-      excerpt: "Mang thai là giai đoạn quan trọng trong cuộc đời...",
-      image:
-        "https://i.pinimg.com/736x/b9/6a/9e/b96a9ec59995fbc5d0967ac34861d383.jpg",
-      category: "Tin Y tế",
-      author: { name: "Dr. Phạm Thảo", avatar: "/placeholder.svg" },
-      date: "10/02/2023",
-    },
-    {
-      id: 5,
-      title: "Các biện pháp tránh thai hiện đại và hiệu quả",
-      excerpt: "Tránh thai là một phần quan trọng trong kế hoạch...",
-      image:
-        "https://i.pinimg.com/736x/ca/9b/04/ca9b048a774ec168de6a4ff488c5ac2f.jpg",
-      category: "Tin Y tế",
-      author: { name: "Dr. Hoàng Anh", avatar: "/placeholder.svg" },
-      date: "25/01/2023",
-    },
-  ];
+  // Helper function to load blogs by tag with tag info
+  const loadBlogsByTag = async (tagId, size = 2) => {
+    try {
+      console.log(`🔄 Loading blogs for tag ${tagId}...`);
 
-  const bottomFeaturedCards = [
-    {
-      id: 6,
-      title: "Sức khỏe tình dục",
-      subtitle: "Khám sức khỏe tình dục ở đâu uy tín tại TPHCM?",
-      image:
-        "https://i.pinimg.com/736x/4e/d9/bf/4ed9bf9cd6f34e1ca721e90971a6eb70.jpg",
-      category: "Tin thường thức ",
-    },
-    {
-      id: 7,
-      title: "Bệnh lây đường tình dục",
-      subtitle: "Xét nghiệm và điều trị các bệnh xã hội an toàn, hiệu quả",
-      image:
-        "https://i.pinimg.com/736x/3b/ba/bd/3bbabda8a4b38bd72a9b4d4e590ca81a.jpg",
-      category: "Tin thường thức ",
-    },
-    {
-      id: 8,
-      title: "Khám phụ khoa",
-      subtitle: "Khám phụ khoa định kỳ có quan trọng không?",
-      image:
-        "https://i.pinimg.com/736x/eb/6d/42/eb6d4253eb5d58568572a15a8d79649f.jpg",
-      category: "Tin thường thức ",
-    },
-  ];
+      // Load tag info and blogs in parallel
+      const [tagResponse, blogsResponse] = await Promise.all([
+        fetchTagById(tagId),
+        fetchBlogsByTag(tagId, 0, size),
+      ]);
 
-  const serviceArticles = [
-    {
-      id: 33,
-      title: "Phòng khám sức khỏe sinh sản - Hồng Phúc",
-      category: "Tin dịch vụ",
-      date: "08/06/2024",
-      image:
-        "https://i.pinimg.com/736x/38/36/d9/3836d9090a259143ece1fca9e9ad1406.jpg",
-    },
-    {
-      id: 34,
-      title: "Trung tâm hỗ trợ sinh sản IVF TPHCM",
-      category: "Tin dịch vụ",
-      date: "06/06/2024",
-      image:
-        "https://i.pinimg.com/736x/05/9b/ac/059bac199052a4c974ef82690d8e4021.jpg",
-    },
-    {
-      id: 35,
-      title: "Xét nghiệm HPV và tầm soát ung thư cổ tử cung",
-      category: "Tin dịch vụ",
-      date: "05/06/2024",
-      image:
-        "https://i.pinimg.com/736x/5a/04/28/5a04287a9574b72eff9cf090e85fe714.jpg",
-    },
-    {
-      id: 36,
-      title: "Tư vấn sức khỏe tiền hôn nhân ",
-      category: "Tin dịch vụ",
-      date: "04/06/2024",
-      image:
-        "https://i.pinimg.com/736x/67/aa/fa/67aafad7e6dab629c1ba438f483cc6db.jpg",
-    },
-    {
-      id: 37,
-      title: "Địa chỉ phá thai an toàn & tư vấn tâm lý",
-      category: "Tin dịch vụ",
-      date: "03/06/2024",
-      image:
-        "https://i.pinimg.com/736x/54/d6/76/54d6769b3ce68365503b419457cbb2e3.jpg",
-    },
-    {
-      id: 38,
-      title: "Khám nam khoa – Phòng khám quốc tế Sài Gòn",
-      category: "Tin dịch vụ",
-      date: "02/06/2024",
-      image:
-        "https://i.pinimg.com/736x/ac/d8/d2/acd8d2eb1f0fdb9010691d094d8d440b.jpg",
-    },
-  ];
+      const tagInfo = tagResponse.data;
+      const blogs = blogsResponse.data?.content || [];
 
-  const medicalKnowledgeArticles = [
-    {
-      id: 18,
-      title: "Các biện pháp tránh thai hiện đại",
-      excerpt:
-        "Sử dụng bao cao su đúng cách để tránh mang thai ngoài ý muốn và phòng ngừa bệnh lây truyền qua đường tình dục.",
-      category: "Tin thường thức",
-      image:
-        "https://i.pinimg.com/736x/bc/de/f1/bcdef1234567890abcdef1234567890a.jpg",
-      featured: true,
-    },
-    {
-      id: 19,
-      title: "Chu kỳ kinh nguyệt và dấu hiệu bất thường",
-      excerpt:
-        "Hiểu đúng về chu kỳ kinh nguyệt giúp phụ nữ chủ động chăm sóc sức khỏe sinh sản.",
-      category: "Tin thường thức",
-      image:
-        "https://i.pinimg.com/736x/aa/bb/cc/aabbccddeeff00112233445566778899.jpg",
-    },
-    {
-      id: 20,
-      title: "Ung thư cổ tử cung: cách phòng và tầm soát sớm",
-      excerpt:
-        "Phụ nữ nên tầm soát ung thư cổ tử cung định kỳ, đặc biệt từ sau 25 tuổi.",
-      category: "Tin thường thức",
-      image:
-        "https://i.pinimg.com/736x/cc/dd/ee/ccddeeff00112233445566778899aabb.jpg",
-    },
-    {
-      id: 21,
-      title: "Xuất tinh sớm ở nam giới: nguyên nhân và điều trị",
-      excerpt:
-        "Tình trạng xuất tinh sớm ảnh hưởng đến tâm lý và chất lượng tình dục. Điều trị sớm giúp cải thiện đời sống hôn nhân.",
-      category: "Tin thường thức",
-      image:
-        "https://i.pinimg.com/736x/dd/ee/ff/ddeeff11223344556677889900aabbcc.jpg",
-    },
-  ];
+      console.log(`🏷️ Tag ${tagId} info:`, tagInfo);
+      console.log(`📋 Tag ${tagId} blogs:`, blogs);
 
+      // Store tag name for later use
+      setTagNames((prev) => ({
+        ...prev,
+        [tagId]: tagInfo.name,
+      }));
+
+      return {
+        tagInfo,
+        blogs: blogs.filter((blog) => blog.status === "PUBLISHED"),
+      };
+    } catch (error) {
+      console.error(`❌ Error loading blogs for tag ${tagId}:`, error);
+      return {
+        tagInfo: { name: `Tag ${tagId}`, description: "" },
+        blogs: [],
+      };
+    }
+  };
+
+  useEffect(() => {
+    const loadBlogsData = async () => {
+      try {
+        setLoading(true);
+        console.log("🔄 Loading all blogs data for /blog page...");
+
+        // Gọi API trực tiếp để tránh CORS
+        const response = await fetch(
+          "http://localhost:8080/api/blog?page=0&size=50",
+          {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+            },
+          }
+        );
+
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const data = await response.json();
+        console.log("📋 All blogs API response:", data);
+
+        let blogs = [];
+        if (data?.content) {
+          blogs = data.content;
+        } else if (Array.isArray(data)) {
+          blogs = data;
+        }
+
+        // Chỉ lấy blogs đã publish
+        const publishedBlogs = blogs.filter(
+          (blog) => blog.status === "PUBLISHED"
+        );
+        console.log("📊 Published blogs:", publishedBlogs.length);
+
+        setAllBlogs(publishedBlogs);
+
+        // Transform data cho từng section
+        const transformedBlogs = publishedBlogs.map((blog, index) => ({
+          id: blog.id,
+          title: blog.title,
+          excerpt: blog.content
+            ? blog.content.substring(0, 150) + "..."
+            : "Không có nội dung",
+          image:
+            blog.imgUrl ||
+            "https://i.pinimg.com/736x/f6/f7/a8/f6f7a8c9d0e1f2a3b4c5d6e7f8a9b0c1.jpg",
+          category: blog.tags?.[0]?.name || "Tin Y tế",
+          author: {
+            name: blog.author?.fullname || "Tác giả ẩn danh",
+            avatar: blog.author?.imageUrl || "/placeholder.svg",
+          },
+          date: blog.createdAt
+            ? new Date(blog.createdAt).toLocaleDateString("vi-VN")
+            : "Không có ngày",
+          viewCount: blog.viewCount || 0,
+          likeCount: blog.likeCount || 0,
+        }));
+
+        // Featured article - blog có lượt xem cao nhất
+        const sortedByViews = [...transformedBlogs].sort(
+          (a, b) => b.viewCount - a.viewCount
+        );
+        if (sortedByViews.length > 0) {
+          setFeaturedArticle({
+            ...sortedByViews[0],
+            subtitle: "Bài viết được xem nhiều nhất",
+            description: sortedByViews[0].excerpt,
+            hotline: "1900 2115",
+          });
+        }
+
+        // Sidebar articles - 3 bài mới nhất (trừ featured)
+        const recentBlogs = transformedBlogs
+          .filter((blog) => blog.id !== sortedByViews[0]?.id)
+          .slice(0, 3);
+        setSidebarArticles(recentBlogs);
+
+        // Phân loại theo tags chính xác
+        console.log("🏷️ Phân loại blogs theo tags...");
+
+        // 1. Load by tag ID 1 (Tin Y Tế from API) - chỉ lấy 2 blogs đại diện
+        const medicalTagData = await loadBlogsByTag(1, 2);
+        const medicalBlogs = medicalTagData.blogs.map((blog) => ({
+          id: blog.id,
+          title: blog.title,
+          excerpt: blog.content
+            ? blog.content.substring(0, 150) + "..."
+            : "Không có nội dung",
+          image:
+            blog.imgUrl ||
+            "https://i.pinimg.com/736x/f6/f7/a8/f6f7a8c9d0e1f2a3b4c5d6e7f8a9b0c1.jpg",
+          category: medicalTagData.tagInfo.name || "Tin Y tế",
+          author: {
+            name: blog.author?.fullname || "Tác giả ẩn danh",
+            avatar: blog.author?.imageUrl || "/placeholder.svg",
+          },
+          date: blog.createdAt
+            ? new Date(blog.createdAt).toLocaleDateString("vi-VN")
+            : "Không có ngày",
+          viewCount: blog.viewCount || 0,
+          likeCount: blog.likeCount || 0,
+        }));
+        console.log(
+          `🏥 ${medicalTagData.tagInfo.name} blogs:`,
+          medicalBlogs.length
+        );
+        setMedicalArticles(medicalBlogs);
+
+        // 2. Load by tag ID 2 (Tin dịch vụ) - chỉ lấy 2 blogs đại diện
+        const serviceTagData = await loadBlogsByTag(2, 2);
+        const serviceBlogs = serviceTagData.blogs.map((blog) => ({
+          id: blog.id,
+          title: blog.title,
+          excerpt: blog.content
+            ? blog.content.substring(0, 150) + "..."
+            : "Không có nội dung",
+          image:
+            blog.imgUrl ||
+            "https://i.pinimg.com/736x/f6/f7/a8/f6f7a8c9d0e1f2a3b4c5d6e7f8a9b0c1.jpg",
+          category: serviceTagData.tagInfo.name || "Tin dịch vụ",
+          author: {
+            name: blog.author?.fullname || "Tác giả ẩn danh",
+            avatar: blog.author?.imageUrl || "/placeholder.svg",
+          },
+          date: blog.createdAt
+            ? new Date(blog.createdAt).toLocaleDateString("vi-VN")
+            : "Không có ngày",
+          viewCount: blog.viewCount || 0,
+          likeCount: blog.likeCount || 0,
+        }));
+        console.log(
+          `🏢 ${serviceTagData.tagInfo.name} blogs:`,
+          serviceBlogs.length
+        );
+        setServiceArticles(serviceBlogs);
+
+        // 3. Load by tag ID 3 (Y học thường thức) - chỉ lấy 2 blogs đại diện
+        const knowledgeTagData = await loadBlogsByTag(3, 2);
+        const knowledgeBlogs = knowledgeTagData.blogs.map((blog) => ({
+          id: blog.id,
+          title: blog.title,
+          excerpt: blog.content
+            ? blog.content.substring(0, 150) + "..."
+            : "Không có nội dung",
+          image:
+            blog.imgUrl ||
+            "https://i.pinimg.com/736x/f6/f7/a8/f6f7a8c9d0e1f2a3b4c5d6e7f8a9b0c1.jpg",
+          category: knowledgeTagData.tagInfo.name || "Y học thường thức",
+          author: {
+            name: blog.author?.fullname || "Tác giả ẩn danh",
+            avatar: blog.author?.imageUrl || "/placeholder.svg",
+          },
+          date: blog.createdAt
+            ? new Date(blog.createdAt).toLocaleDateString("vi-VN")
+            : "Không có ngày",
+          viewCount: blog.viewCount || 0,
+          likeCount: blog.likeCount || 0,
+        }));
+        console.log(
+          `📚 ${knowledgeTagData.tagInfo.name} blogs:`,
+          knowledgeBlogs.length
+        );
+        setMedicalKnowledgeArticles(knowledgeBlogs);
+
+        // All sections now use API by-tag, no fallback needed
+
+        // Bottom featured cards - 3 bài có lượt thích cao nhất
+        const sortedByLikes = [...transformedBlogs]
+          .sort((a, b) => b.likeCount - a.likeCount)
+          .slice(0, 3)
+          .map((blog) => ({
+            ...blog,
+            subtitle: `${blog.likeCount} lượt thích`,
+            description: blog.excerpt,
+          }));
+        setBottomFeaturedCards(sortedByLikes);
+
+        console.log("✅ All blog sections loaded successfully");
+        console.log("🎯 Featured article will be:", sortedByViews[0]);
+        console.log("📋 Sidebar articles will be:", recentBlogs);
+        console.log("🏥 Medical articles will be:", medicalBlogs.slice(0, 6));
+        console.log("🏢 Service articles will be:", serviceBlogs.slice(0, 6));
+      } catch (error) {
+        console.error("❌ Error loading blogs:", error);
+        // Fallback to empty arrays
+        setAllBlogs([]);
+        setFeaturedArticle(null);
+        setSidebarArticles([]);
+        setServiceArticles([]);
+        setMedicalKnowledgeArticles([]);
+        setBottomFeaturedCards([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadBlogsData();
+  }, []);
+
+  // Loading state
+  if (loading) {
+    return (
+      <div className="medpro-all-blog-wrapper">
+        <header className="medpro-all-blog-header">
+          <div className="medpro-all-blog-container">
+            <div className="medpro-all-blog-header-content">
+              <Link to="/blog" className="medpro-all-blog-logo">
+                <span className="medpro-all-blog-logo-text">
+                  TIN TỨC Y KHOA
+                </span>
+              </Link>
+            </div>
+          </div>
+        </header>
+        <div style={{ textAlign: "center", padding: "100px 20px" }}>
+          <div style={{ fontSize: "18px", marginBottom: "10px" }}>
+            🔄 Đang tải dữ liệu blog...
+          </div>
+          <div style={{ color: "#666" }}>Vui lòng chờ trong giây lát</div>
+        </div>
+      </div>
+    );
+  }
+
+  // Slider navigation functions
   const nextServiceSlide = () => {
     setCurrentServiceSlide(
       (prev) => (prev + 1) % Math.ceil(serviceArticles.length / 3)
@@ -210,18 +340,13 @@ const AllBlog = () => {
 
   return (
     <div className="medpro-all-blog-wrapper">
-      {/* Header */}
+      {/* Header - chỉ có logo, không có navigation */}
       <header className="medpro-all-blog-header">
         <div className="medpro-all-blog-container">
           <div className="medpro-all-blog-header-content">
             <Link to="/blog" className="medpro-all-blog-logo">
               <span className="medpro-all-blog-logo-text">TIN TỨC Y KHOA</span>
             </Link>
-            <nav className="medpro-all-blog-main-nav">
-              <Link to="/tin-y-te">Tin Y tế </Link>
-              <Link to="/tin-dich-vu">Tin dịch vụ</Link>
-              <Link to="/y-hoc-thuong-thuc">Y học thường thức</Link>
-            </nav>
           </div>
         </div>
       </header>
@@ -234,253 +359,236 @@ const AllBlog = () => {
 
       <main className="medpro-all-blog-main">
         <div className="medpro-all-blog-container">
-          {/* Featured Section with Sidebar */}
-          <div className="medpro-all-blog-featured-section">
-            <div className="medpro-all-blog-featured-content-wrapper">
-              {/* Featured Article */}
-              <article className="medpro-all-blog-featured-article">
-                <div className="medpro-all-blog-featured-background">
-                  <img
-                    src="https://i.pinimg.com/736x/eb/c0/cd/ebc0cd83863f421e49e17f30bc778065.jpg"
-                    alt={featuredArticle.title}
-                    width={800}
-                    height={400}
-                    className="medpro-all-blog-featured-bg-image"
-                  />
-                </div>
-                <div className="medpro-all-blog-featured-text-content">
-                  <h2 className="medpro-all-blog-featured-subtitle">
-                    {featuredArticle.title}
-                  </h2>
-                  <p className="medpro-all-blog-featured-excerpt">
-                    {featuredArticle.excerpt}
-                  </p>
-                  <div className="medpro-all-blog-featured-meta">
-                    <span className="medpro-all-blog-featured-date">
-                      {featuredArticle.date} - {featuredArticle.author}
-                    </span>
-                  </div>
-                  <Link
-                    to={`/blog/${featuredArticle.id}`}
-                    className="medpro-all-blog-read-more-link"
-                  >
-                    Xem tiếp →
-                  </Link>
-                </div>
-              </article>
-
-              {/* Bottom Featured Cards */}
-              <div className="medpro-all-blog-bottom-featured-cards">
-                {bottomFeaturedCards.map((card) => (
+          {/* Main Content Sections */}
+          <div className="medpro-all-blog-main-sections">
+            {/* Medical News Section */}
+            <section className="medpro-all-blog-medical-section">
+              <div className="medpro-all-blog-section-header">
+                <h2 className="medpro-all-blog-section-title">
+                  {tagNames[1] || "Tin Y Tế"}
+                </h2>
+                <Link
+                  to={`/blog/tag/1`}
+                  className="medpro-all-blog-view-more-link"
+                >
+                  Xem thêm →
+                </Link>
+              </div>
+              <div className="medpro-all-blog-two-column-grid">
+                {medicalArticles.slice(0, 2).map((article) => (
                   <article
-                    key={card.id}
-                    className="medpro-all-blog-bottom-card"
+                    key={article.id}
+                    className="medpro-all-blog-preview-card"
                   >
-                    <div className="medpro-all-blog-bottom-card-image">
+                    <div className="medpro-all-blog-preview-card-image">
                       <img
-                        src={card.image || "/placeholder.svg"}
-                        alt={card.title}
-                        width={280}
-                        height={180}
-                        className="medpro-all-blog-card-image"
+                        src={article.image}
+                        alt={article.title}
+                        className="medpro-all-blog-preview-image"
                       />
-                      <div className="medpro-all-blog-card-overlay">
-                        <h3 className="medpro-all-blog-card-title">
-                          {card.title}
-                        </h3>
-                        <h4 className="medpro-all-blog-card-subtitle">
-                          {card.subtitle}
-                        </h4>
-                        <p className="medpro-all-blog-card-description">
-                          {card.description}
-                        </p>
-                        <Link
-                          to={`/blog/${card.id}`}
-                          className="medpro-all-blog-card-link"
-                        >
-                          Xem tiếp →
-                        </Link>
+                    </div>
+                    <div className="medpro-all-blog-preview-card-content">
+                      <span className="medpro-all-blog-preview-category">
+                        {article.category}
+                      </span>
+                      <h3 className="medpro-all-blog-preview-title">
+                        {article.title}
+                      </h3>
+                      <p className="medpro-all-blog-preview-excerpt">
+                        {article.excerpt}
+                      </p>
+                      <div className="medpro-all-blog-preview-meta">
+                        <span className="medpro-all-blog-preview-date">
+                          {article.date}
+                        </span>
+                        <div className="medpro-all-blog-preview-stats">
+                          <div className="stat-item">
+                            <span className="stat-icon">👁️</span>
+                            <span className="stat-count">
+                              {article.viewCount || 0}
+                            </span>
+                          </div>
+                          <button
+                            className={`stat-item like-button ${
+                              likingBlogs.has(article.id) ? "liking" : ""
+                            }`}
+                            onClick={(e) => handleLikeBlog(e, article.id)}
+                            disabled={likingBlogs.has(article.id)}
+                          >
+                            <span className="stat-icon">❤️</span>
+                            <span className="stat-count">
+                              {article.likeCount || 0}
+                            </span>
+                          </button>
+                          <div className="stat-item">
+                            <span className="stat-icon">💬</span>
+                            <span className="stat-count">0</span>
+                          </div>
+                        </div>
                       </div>
+                      <Link
+                        to={`/blog/${article.id}`}
+                        className="medpro-all-blog-preview-link"
+                      >
+                        Xem tiếp →
+                      </Link>
                     </div>
                   </article>
                 ))}
               </div>
-            </div>
+            </section>
 
-            {/* Sidebar */}
-            <aside className="medpro-all-blog-sidebar">
-              <div className="medpro-all-blog-sidebar-content">
-                {sidebarArticles.map((article) => (
-                  <Link
-                    to={`/blog/${article.id}`}
+            {/* Service Section */}
+            <section className="medpro-all-blog-service-section">
+              <div className="medpro-all-blog-section-header">
+                <h2 className="medpro-all-blog-section-title">
+                  {tagNames[2] || "Tin dịch vụ"}
+                </h2>
+                <Link
+                  to={`/blog/tag/2`}
+                  className="medpro-all-blog-view-more-link"
+                >
+                  Xem thêm →
+                </Link>
+              </div>
+              <div className="medpro-all-blog-two-column-grid">
+                {serviceArticles.slice(0, 2).map((article) => (
+                  <article
                     key={article.id}
-                    className="medpro-all-blog-sidebar-article"
+                    className="medpro-all-blog-preview-card"
                   >
-                    <div className="medpro-all-blog-sidebar-image">
+                    <div className="medpro-all-blog-preview-card-image">
                       <img
                         src={article.image || "/placeholder.svg"}
                         alt={article.title}
-                        width={80}
-                        height={60}
-                        className="medpro-all-blog-sidebar-article-image"
+                        className="medpro-all-blog-preview-image"
                       />
                     </div>
-                    <div className="medpro-all-blog-sidebar-text">
-                      <span className="medpro-all-blog-sidebar-category">
+                    <div className="medpro-all-blog-preview-card-content">
+                      <span className="medpro-all-blog-preview-category">
                         {article.category}
                       </span>
-                      <h4 className="medpro-all-blog-sidebar-title">
+                      <h3 className="medpro-all-blog-preview-title">
                         {article.title}
-                      </h4>
-                      <span className="medpro-all-blog-sidebar-date">
-                        {article.date}
-                      </span>
-                    </div>
-                  </Link>
-                ))}
-              </div>
-            </aside>
-          </div>
-
-          {/* Main Content Sections */}
-          <div className="medpro-all-blog-main-sections">
-            {/* Service Section */}
-            <section className="medpro-all-blog-service-section">
-              <h2 className="medpro-all-blog-section-title">Tin dịch vụ</h2>
-              <div className="medpro-all-blog-service-slider">
-                <button
-                  className="medpro-all-blog-slider-btn medpro-all-blog-prev"
-                  onClick={prevServiceSlide}
-                >
-                  <ChevronLeft size={20} />
-                </button>
-                <div className="medpro-all-blog-service-cards">
-                  {serviceArticles
-                    .slice(
-                      currentServiceSlide * 3,
-                      (currentServiceSlide + 1) * 3
-                    )
-                    .map((article) => (
-                      <article
-                        key={article.id}
-                        className="medpro-all-blog-service-card"
-                      >
-                        <div className="medpro-all-blog-service-card-image">
-                          <img
-                            src={article.image || "/placeholder.svg"}
-                            alt={article.title}
-                            width={250}
-                            height={160}
-                            className="medpro-all-blog-service-image"
-                          />
-                        </div>
-                        <div className="medpro-all-blog-service-card-content">
-                          <span className="medpro-all-blog-service-category">
-                            {article.category}
-                          </span>
-                          <h3 className="medpro-all-blog-service-title">
-                            {article.title}
-                          </h3>
-                          <span className="medpro-all-blog-service-date">
-                            {article.date}
-                          </span>
-                          <Link
-                            to={`/blog/${article.id}`}
-                            className="medpro-all-blog-service-link"
+                      </h3>
+                      <p className="medpro-all-blog-preview-excerpt">
+                        {article.excerpt}
+                      </p>
+                      <div className="medpro-all-blog-preview-meta">
+                        <span className="medpro-all-blog-preview-date">
+                          {article.date}
+                        </span>
+                        <div className="medpro-all-blog-preview-stats">
+                          <div className="stat-item">
+                            <span className="stat-icon">👁️</span>
+                            <span className="stat-count">
+                              {article.viewCount || 0}
+                            </span>
+                          </div>
+                          <button
+                            className={`stat-item like-button ${
+                              likingBlogs.has(article.id) ? "liking" : ""
+                            }`}
+                            onClick={(e) => handleLikeBlog(e, article.id)}
+                            disabled={likingBlogs.has(article.id)}
                           >
-                            Xem tiếp →
-                          </Link>
+                            <span className="stat-icon">❤️</span>
+                            <span className="stat-count">
+                              {article.likeCount || 0}
+                            </span>
+                          </button>
+                          <div className="stat-item">
+                            <span className="stat-icon">💬</span>
+                            <span className="stat-count">0</span>
+                          </div>
                         </div>
-                      </article>
-                    ))}
-                </div>
-                <button
-                  className="medpro-all-blog-slider-btn medpro-all-blog-next"
-                  onClick={nextServiceSlide}
-                >
-                  <ChevronRight size={20} />
-                </button>
-              </div>
-              <div className="medpro-all-blog-view-all-section">
-                <Link
-                  to="/tin-dich-vu"
-                  className="medpro-all-blog-view-all-btn"
-                >
-                  Xem tất cả →
-                </Link>
+                      </div>
+                      <Link
+                        to={`/blog/${article.id}`}
+                        className="medpro-all-blog-preview-link"
+                      >
+                        Xem tiếp →
+                      </Link>
+                    </div>
+                  </article>
+                ))}
               </div>
             </section>
 
             {/* Medical Knowledge Section */}
             <section className="medpro-all-blog-medical-knowledge-section">
-              <h2 className="medpro-all-blog-section-title">
-                Y học thường thức
-              </h2>
-              <div className="medpro-all-blog-knowledge-layout">
-                {/* Featured Medical Knowledge Article */}
-                <article className="medpro-all-blog-knowledge-featured">
-                  <div className="medpro-all-blog-knowledge-featured-image">
-                    <img
-                      src="https://i.pinimg.com/736x/01/d2/d9/01d2d9871c0218efff371def8f020418.jpg"
-                      alt="Các biện pháp tránh thai hiện đại"
-                      width={400}
-                      height={300}
-                      className="medpro-all-blog-knowledge-bg-image"
-                    />
-                    <div className="medpro-all-blog-knowledge-overlay">
-                      <span className="medpro-all-blog-knowledge-category">
-                        Tin thường thức
+              <div className="medpro-all-blog-section-header">
+                <h2 className="medpro-all-blog-section-title">
+                  {tagNames[3] || "Y học thường thức"}
+                </h2>
+                <Link
+                  to={`/blog/tag/3`}
+                  className="medpro-all-blog-view-more-link"
+                >
+                  Xem thêm →
+                </Link>
+              </div>
+              <div className="medpro-all-blog-two-column-grid">
+                {medicalKnowledgeArticles.slice(0, 2).map((article) => (
+                  <article
+                    key={article.id}
+                    className="medpro-all-blog-preview-card"
+                  >
+                    <div className="medpro-all-blog-preview-card-image">
+                      <img
+                        src={article.image}
+                        alt={article.title}
+                        className="medpro-all-blog-preview-image"
+                      />
+                    </div>
+                    <div className="medpro-all-blog-preview-card-content">
+                      <span className="medpro-all-blog-preview-category">
+                        {article.category}
                       </span>
-                      <h3 className="medpro-all-blog-knowledge-featured-title">
-                        Các biện pháp tránh thai hiện đại và hiệu quả
+                      <h3 className="medpro-all-blog-preview-title">
+                        {article.title}
                       </h3>
-                      <p className="medpro-all-blog-knowledge-featured-excerpt">
-                        Bạn đang phân vân lựa chọn biện pháp tránh thai phù hợp?
-                        Bài viết sẽ giúp bạn hiểu rõ ưu và nhược điểm của từng
-                        phương pháp để bảo vệ sức khỏe sinh sản.
+                      <p className="medpro-all-blog-preview-excerpt">
+                        {article.excerpt}
                       </p>
+                      <div className="medpro-all-blog-preview-meta">
+                        <span className="medpro-all-blog-preview-date">
+                          {article.date}
+                        </span>
+                        <div className="medpro-all-blog-preview-stats">
+                          <div className="stat-item">
+                            <span className="stat-icon">👁️</span>
+                            <span className="stat-count">
+                              {article.viewCount || 0}
+                            </span>
+                          </div>
+                          <button
+                            className={`stat-item like-button ${
+                              likingBlogs.has(article.id) ? "liking" : ""
+                            }`}
+                            onClick={(e) => handleLikeBlog(e, article.id)}
+                            disabled={likingBlogs.has(article.id)}
+                          >
+                            <span className="stat-icon">❤️</span>
+                            <span className="stat-count">
+                              {article.likeCount || 0}
+                            </span>
+                          </button>
+                          <div className="stat-item">
+                            <span className="stat-icon">💬</span>
+                            <span className="stat-count">0</span>
+                          </div>
+                        </div>
+                      </div>
                       <Link
-                        to={`/blog/${featuredArticle.id}`}
-                        className="medpro-all-blog-knowledge-link"
+                        to={`/blog/${article.id}`}
+                        className="medpro-all-blog-preview-link"
                       >
                         Xem tiếp →
                       </Link>
                     </div>
-                  </div>
-                </article>
-
-                {/* Medical Knowledge Cards */}
-                <div className="medpro-all-blog-knowledge-cards">
-                  {medicalKnowledgeArticles
-                    .filter((article) => !article.featured)
-                    .slice(0, 3)
-                    .map((article) => (
-                      <article
-                        key={article.id}
-                        className="medpro-all-blog-knowledge-card"
-                      >
-                        <div className="medpro-all-blog-knowledge-card-content">
-                          <span className="medpro-all-blog-knowledge-card-category">
-                            {article.category}
-                          </span>
-                          <h4 className="medpro-all-blog-knowledge-card-title">
-                            {article.title}
-                          </h4>
-                          <p className="medpro-all-blog-knowledge-card-excerpt">
-                            {article.excerpt}
-                          </p>
-                        </div>
-                      </article>
-                    ))}
-                </div>
-              </div>
-              <div className="medpro-all-blog-view-all-section">
-                <Link
-                  to="/y-hoc-thuong-thuc"
-                  className="medpro-all-blog-view-all-btn"
-                >
-                  Xem tất cả →
-                </Link>
+                  </article>
+                ))}
               </div>
             </section>
           </div>

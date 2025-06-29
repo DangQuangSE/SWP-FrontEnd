@@ -14,13 +14,13 @@ import {
   Popconfirm,
   message,
   theme,
+  Tabs,
 } from "antd";
 import {
   UserOutlined,
   SolutionOutlined,
   FileTextOutlined,
   BarChartOutlined,
-  SettingOutlined,
   TeamOutlined,
   PlusOutlined,
   EditOutlined,
@@ -58,12 +58,27 @@ function Admin() {
   //  Di chuyển selectedMenuItem lên đây để tránh lỗi hooks order
   const [selectedMenuItem, setSelectedMenuItem] = useState("manage_users");
 
+  // Function to get Vietnamese breadcrumb title
+  const getBreadcrumbTitle = (menuKey) => {
+    const titleMap = {
+      manage_users: "Quản lý Tài khoản & Vai trò",
+      manage_services: "Quản lý Dịch vụ Xét nghiệm & Giá cả",
+      manage_articles: "Quản lý Bài viết Blog",
+      dashboard_reports: "Xem Dashboard & Báo cáo",
+      handle_feedback: "Xử lý Phản hồi Dịch vụ/Tư vấn",
+      manage_payments: "Quản lý Thanh toán & Giao dịch",
+      manage_rooms: "Quản lý Phòng khám",
+      manage_specializations: "Quản lý Chuyên khoa",
+    };
+    return titleMap[menuKey] || menuKey;
+  };
+
   const {
     token: { colorBgContainer, borderRadiusLG },
   } = theme.useToken();
 
   // Menu items for the top navigation
-  const items1 = ["Dashboard", "Settings", "Reports"].map((label, key) => ({
+  const items1 = ["Dashboard", "Reports"].map((label, key) => ({
     key: String(key + 1),
     label,
   }));
@@ -161,42 +176,42 @@ function Admin() {
     {
       key: "manage_users",
       icon: React.createElement(UserOutlined),
-      label: "Manage User Accounts & Roles",
+      label: "Quản lý Tài khoản & Vai trò",
     },
     {
       key: "manage_services",
-      icon: React.createElement(SettingOutlined),
-      label: "Manage Testing Services & Pricing",
+      icon: React.createElement(SolutionOutlined),
+      label: "Quản lý Dịch vụ Xét nghiệm & Giá cả",
     },
     {
       key: "manage_articles",
       icon: React.createElement(FileTextOutlined),
-      label: "Manage Blog Articles",
+      label: "Quản lý Bài viết Blog",
     },
     {
       key: "dashboard_reports",
       icon: React.createElement(BarChartOutlined),
-      label: "View Dashboard & Reports",
+      label: "Xem Dashboard & Báo cáo",
     },
     {
       key: "handle_feedback",
       icon: React.createElement(EyeOutlined),
-      label: "Handle Service/Consultant Feedback",
+      label: "Xử lý Phản hồi Dịch vụ/Tư vấn",
     },
     {
       key: "manage_payments",
       icon: React.createElement(SolutionOutlined),
-      label: "Manage Payment & Transaction Records",
+      label: "Quản lý Thanh toán & Giao dịch",
     },
     {
       key: "manage_rooms",
       icon: React.createElement(TeamOutlined),
-      label: "Manage Medical Rooms",
+      label: "Quản lý Phòng khám",
     },
     {
       key: "manage_specializations",
       icon: React.createElement(SolutionOutlined),
-      label: "Manage Specializations",
+      label: "Quản lý Chuyên khoa",
     },
   ];
 
@@ -408,19 +423,108 @@ function Admin() {
     switch (selectedMenuItem) {
       case "manage_users":
         return (
-          <Card
-            title="Manage User Accounts & Roles"
-            extra={
-              <Button
-                type="primary"
-                icon={<PlusOutlined />}
-                onClick={() => setIsUserModalVisible(true)}
-              >
-                Add User
-              </Button>
-            }
-          >
-            <Table columns={userColumns} dataSource={users} rowKey="id" />
+          <Card title="Quản lý Tài khoản & Vai trò">
+            <Tabs
+              defaultActiveKey="customers"
+              items={[
+                {
+                  key: "customers",
+                  label: "Khách hàng",
+                  children: (
+                    <div>
+                      <div
+                        style={{
+                          marginBottom: 16,
+                          display: "flex",
+                          justifyContent: "space-between",
+                        }}
+                      >
+                        <h3>Danh sách Khách hàng</h3>
+                        <Button
+                          type="primary"
+                          icon={<PlusOutlined />}
+                          onClick={() => setIsUserModalVisible(true)}
+                        >
+                          Thêm Khách hàng
+                        </Button>
+                      </div>
+                      <Table
+                        columns={userColumns}
+                        dataSource={users.filter(
+                          (user) => user.role === "CUSTOMER"
+                        )}
+                        rowKey="id"
+                        pagination={{ pageSize: 10 }}
+                      />
+                    </div>
+                  ),
+                },
+                {
+                  key: "staff",
+                  label: "Nhân viên",
+                  children: (
+                    <div>
+                      <div
+                        style={{
+                          marginBottom: 16,
+                          display: "flex",
+                          justifyContent: "space-between",
+                        }}
+                      >
+                        <h3>Danh sách Nhân viên</h3>
+                        <Button
+                          type="primary"
+                          icon={<PlusOutlined />}
+                          onClick={() => setIsUserModalVisible(true)}
+                        >
+                          Thêm Nhân viên
+                        </Button>
+                      </div>
+                      <Table
+                        columns={userColumns}
+                        dataSource={users.filter(
+                          (user) => user.role === "STAFF"
+                        )}
+                        rowKey="id"
+                        pagination={{ pageSize: 10 }}
+                      />
+                    </div>
+                  ),
+                },
+                {
+                  key: "consultants",
+                  label: "Tư vấn viên",
+                  children: (
+                    <div>
+                      <div
+                        style={{
+                          marginBottom: 16,
+                          display: "flex",
+                          justifyContent: "space-between",
+                        }}
+                      >
+                        <h3>Danh sách Tư vấn viên</h3>
+                        <Button
+                          type="primary"
+                          icon={<PlusOutlined />}
+                          onClick={() => setIsUserModalVisible(true)}
+                        >
+                          Thêm Tư vấn viên
+                        </Button>
+                      </div>
+                      <Table
+                        columns={userColumns}
+                        dataSource={users.filter(
+                          (user) => user.role === "CONSULTANT"
+                        )}
+                        rowKey="id"
+                        pagination={{ pageSize: 10 }}
+                      />
+                    </div>
+                  ),
+                },
+              ]}
+            />
           </Card>
         );
       case "manage_services":
@@ -512,12 +616,10 @@ function Admin() {
         <Layout style={{ padding: "0 24px 24px" }}>
           <Breadcrumb
             items={[
-              { title: "Home" },
-              { title: "Admin" },
+              { title: "Trang chủ" },
+              { title: "Quản trị" },
               {
-                title: selectedMenuItem
-                  .replace(/_/g, " ")
-                  .replace(/\b\w/g, (c) => c.toUpperCase()),
+                title: getBreadcrumbTitle(selectedMenuItem),
               },
             ]}
             style={{ margin: "16px 0" }}

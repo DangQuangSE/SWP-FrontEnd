@@ -1,7 +1,7 @@
 /* ===== FOOTER STYLES ===== */
 .footer {
   background: #fff;
-  background-color: var(--background-color);
+  background-color: #0283f530;
   color: #fff; /* Màu chữ xanh đậm */
   padding: var(--spacing-3xl) 0 var(--spacing-lg);
   font-family: "Roboto", Arial, sans-serif;

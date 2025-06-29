@@ -422,7 +422,7 @@ const Servicenew = () => {
                     borderRadius: "6px",
                     border: "1px solid #e2e8f0",
                     background: "#fff",
-                    color: "#06b6d4",
+                    color: "#0283f5",
                     cursor: currentPage === 1 ? "not-allowed" : "pointer",
                     opacity: currentPage === 1 ? 0.5 : 1,
                   }}
@@ -439,10 +439,10 @@ const Servicenew = () => {
                       borderRadius: "6px",
                       border:
                         i + 1 === currentPage
-                          ? "2px solid #06b6d4"
+                          ? "2px solid #0283f5"
                           : "1px solid #e2e8f0",
-                      background: i + 1 === currentPage ? "#06b6d4" : "#fff",
-                      color: i + 1 === currentPage ? "#fff" : "#06b6d4",
+                      background: i + 1 === currentPage ? "#0283f5" : "#fff",
+                      color: i + 1 === currentPage ? "#fff" : "#0283f5",
                       fontWeight: i + 1 === currentPage ? 700 : 400,
                       cursor: "pointer",
                     }}
@@ -461,7 +461,7 @@ const Servicenew = () => {
                     borderRadius: "6px",
                     border: "1px solid #e2e8f0",
                     background: "#fff",
-                    color: "#06b6d4",
+                    color: "#0283f5",
                     cursor:
                       currentPage === totalPages ? "not-allowed" : "pointer",
                     opacity: currentPage === totalPages ? 0.5 : 1,
