@@ -40,7 +40,7 @@ const Services = () => {
               <li>Gặp chuyên gia theo yêu cầu</li>
               <li>Phù hợp mọi độ tuổi & giới</li>
             </ul>
-            <button className="home-service-button">Learn More</button>
+            <button className="home-service-button">Tìm hiểu thêm</button>
           </div>
 
           <div className="home-service-card">
@@ -62,7 +62,7 @@ const Services = () => {
               <li>Bảo mật tuyệt đối</li>
               <li>Lập kế hoạch điều trị</li>
             </ul>
-            <button className="home-service-button">Learn More</button>
+            <button className="home-service-button">Tìm hiểu thêm</button>
           </div>
 
           <div className="home-service-card">
@@ -88,7 +88,7 @@ const Services = () => {
               className="home-service-button"
               onClick={handleCycleTrackerClick}
             >
-              Learn More
+              Tìm hiểu thêm
             </button>
           </div>
         </div>

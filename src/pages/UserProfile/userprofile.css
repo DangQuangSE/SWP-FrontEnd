@@ -3,6 +3,11 @@
   display: flex;
   min-height: 100vh;
   background-color: #f8fafc;
+  max-width: 1200px; /* Giới hạn width tối đa */
+  margin: 20px auto; /* Căn giữa với margin 2 bên + top/bottom margin */
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.1); /* Thêm shadow để nổi bật */
+  border-radius: 12px; /* Bo góc cho đẹp */
+  overflow: hidden; /* Ẩn nội dung tràn ra ngoài border-radius */
 }
 
 /* Sidebar - BỎ POSITION FIXED */
@@ -15,6 +20,10 @@
   /* BỎ height: 100vh */
   box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
   flex-shrink: 0; /* Không cho sidebar co lại */
+  display: flex;
+  flex-direction: column;
+  align-items: center; /* Căn giữa theo chiều ngang */
+  text-align: center; /* Căn giữa text */
 }
 
 /* User profile section trong sidebar */
@@ -55,6 +64,8 @@
   display: flex;
   flex-direction: column;
   gap: 4px;
+  width: 100%; /* Đảm bảo full width */
+  align-items: center; /* Căn giữa menu items */
 }
 
 .up-menu-item {
@@ -67,6 +78,10 @@
   color: #64748b;
   font-weight: 500;
   transition: all 0.2s ease;
+  width: 100%; /* Full width để căn đều */
+  max-width: 220px; /* Giới hạn width tối đa */
+  justify-content: flex-start; /* Căn trái nội dung trong item */
+  cursor: pointer;
 }
 
 .up-menu-item:hover {
@@ -113,6 +128,10 @@
 
 /* Responsive design */
 @media (max-width: 1024px) {
+  .up-profile-container {
+    margin: 15px; /* Giảm margin trên tablet */
+  }
+
   .up-sidebar {
     width: 240px;
   }
@@ -125,6 +144,8 @@
 @media (max-width: 768px) {
   .up-profile-container {
     flex-direction: column;
+    margin: 10px; /* Giảm margin trên mobile */
+    border-radius: 8px; /* Giảm border-radius trên mobile */
   }
 
   .up-sidebar {

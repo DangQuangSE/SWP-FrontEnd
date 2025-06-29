@@ -1,11 +1,10 @@
 // pages/UserProfile/Booking.jsx
-import React, { useEffect, useState } from "react";
-import axios from "axios";
+import React, { useEffect, useState, useCallback } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import "./Booking.css";
 import { useSelector } from "react-redux";
 import { message } from "antd";
 import api from "../../../configs/api";
+import "./Booking.css";
 const TABS = [
   { key: "upcoming", label: "Lịch hẹn sắp đến" },
   { key: "completed", label: "Hoàn thành" },
@@ -13,59 +12,79 @@ const TABS = [
   { key: "combo", label: "Gói khám" },
 ];
 
+// API status mapping
+const STATUS_MAP = {
+  upcoming: ["CONFIRMED", "PENDING"],
+  completed: ["COMPLETED"],
+  history: ["CANCELED"],
+};
+
 const Booking = () => {
   const [appointments, setAppointments] = useState([]);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState("upcoming");
   const navigate = useNavigate();
   const { search } = useLocation();
-  const reduxToken = useSelector((state) => state.user.token);
-  const token = reduxToken || localStorage.getItem("token"); // fallback nếu Redux chưa có
-  // const token = useSelector((state) => state.user.token);
-  useEffect(() => {
-    console.log("Redux token:", token);
-    console.log("Token (final dùng gọi API):", token);
+  const token =
+    useSelector((state) => state.user.token) || localStorage.getItem("token");
 
-    const fetchAppointments = async () => {
-      setLoading(true);
+  // Function to verify VNPay payment with backend
+  const verifyVNPayPayment = useCallback(async (urlParams) => {
+    try {
+      console.log("🔄 Verifying VNPay payment with backend...");
 
-      try {
-        let data = [];
+      // Gọi API backend để verify payment
+      const response = await api.get("/payment/vnpay/vnpay-return", {
+        params: Object.fromEntries(urlParams.entries()),
+      });
 
-        if (activeTab === "upcoming") {
-          const [booked, pending] = await Promise.all([
-            api.get("/appointment/by-status?status=CONFIRMED"),
-            api.get("/appointment/by-status?status=PENDING"),
-          ]);
-          data = [...booked.data, ...pending.data];
-        } else if (activeTab === "completed") {
-          const res = await axios.get(
-            "/appointment/by-status?status=COMPLETED"
-          );
-          data = res.data;
-        } else if (activeTab === "history") {
-          const res = await api.get("/appointment/by-status?status=CANCELED");
-          data = res.data;
-        }
+      console.log(" VNPay verification response:", response.data);
+    } catch (error) {
+      console.error(" Error verifying VNPay payment:", error);
+      message.error("Có lỗi khi xác thực thanh toán với server.");
+    }
+  }, []);
 
-        data.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
-        setAppointments(data);
-      } catch (err) {
-        console.error(
-          "Lỗi khi lấy lịch hẹn:",
-          err.response?.data || err.message
+  // Fetch appointments based on active tab
+  const fetchAppointments = useCallback(async () => {
+    if (!token) {
+      console.warn("Không có token để gọi API!");
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const statuses = STATUS_MAP[activeTab];
+      let data = [];
+
+      if (activeTab === "upcoming") {
+        // Fetch multiple statuses for upcoming
+        const requests = statuses.map((status) =>
+          api.get(`/appointment/by-status?status=${status}`)
         );
-      } finally {
-        setLoading(false);
+        const responses = await Promise.all(requests);
+        data = responses.flatMap((res) => res.data);
+      } else {
+        // Fetch single status for other tabs
+        const res = await api.get(
+          `/appointment/by-status?status=${statuses[0]}`
+        );
+        data = res.data;
       }
-    };
 
-    if (token) {
-      fetchAppointments();
-    } else {
-      console.warn(" Không có token để gọi API!");
+      data.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+      setAppointments(data);
+    } catch (err) {
+      console.error("Lỗi khi lấy lịch hẹn:", err.response?.data || err.message);
+      setAppointments([]);
+    } finally {
+      setLoading(false);
     }
   }, [activeTab, token]);
+
+  useEffect(() => {
+    fetchAppointments();
+  }, [fetchAppointments]);
   const handleCancelAppointment = async (appointmentId) => {
     if (!window.confirm("Bạn chắc chắn muốn hủy lịch hẹn này?")) return;
 
@@ -79,31 +98,78 @@ const Booking = () => {
       );
     } catch (err) {
       console.error("Lỗi khi hủy lịch hẹn:", err.response?.data || err.message);
-      message.error("Không thể hủy lịch hẹn. Vui lòng thử lại sau.");
+
+      // Handle specific error cases
+      if (err.response?.status === 500) {
+        message.error(
+          "Lỗi hệ thống: Không thể hủy lịch hẹn này. Vui lòng liên hệ hỗ trợ."
+        );
+      } else if (err.response?.status === 404) {
+        message.error("Lịch hẹn không tồn tại hoặc đã được hủy.");
+        // Remove from UI if appointment doesn't exist
+        setAppointments((prev) =>
+          prev.filter((apt) => apt.id !== appointmentId)
+        );
+      } else if (err.response?.status === 400) {
+        message.error(
+          "Không thể hủy lịch hẹn này. Lịch hẹn có thể đã được xác nhận hoặc đã diễn ra."
+        );
+      } else {
+        message.error("Không thể hủy lịch hẹn. Vui lòng thử lại sau.");
+      }
     }
   };
-  // 2. Kiểm tra MoMo trả về resultCode
+  // Handle VNPay payment result from URL params
   useEffect(() => {
     const query = new URLSearchParams(search);
-    const resultCode = query.get("resultCode");
+    const vnpResponseCode = query.get("vnp_ResponseCode");
+    const vnpTransactionStatus = query.get("vnp_TransactionStatus");
+    const vnpTxnRef = query.get("vnp_TxnRef");
 
+    // Check for VNPay return parameters
+    if (vnpResponseCode) {
+      console.log("🔍 VNPay Return in Booking page:", {
+        vnpResponseCode,
+        vnpTransactionStatus,
+        vnpTxnRef,
+        fullURL: search,
+      });
+
+      localStorage.removeItem("pendingBooking");
+
+      if (vnpResponseCode === "00" && vnpTransactionStatus === "00") {
+        // Thanh toán VNPay thành công
+        message.success("Thanh toán thành công! Lịch hẹn đã được xác nhận.");
+
+        // Gọi API để verify payment với backend
+        verifyVNPayPayment(query);
+      } else {
+        // Thanh toán VNPay thất bại
+        message.error("Thanh toán thất bại hoặc đã bị hủy.");
+      }
+
+      // Clean URL sau khi xử lý và refresh appointments
+      window.history.replaceState({}, document.title, "/user/booking");
+      fetchAppointments(); // Refresh để thấy status mới
+      return;
+    }
+
+    // Handle legacy MoMo result (nếu có)
+    const resultCode = query.get("resultCode");
     if (resultCode) {
-      localStorage.removeItem("pendingBooking"); // Xoá dù thành công hay thất bại
+      localStorage.removeItem("pendingBooking");
 
       if (resultCode === "1000") {
         message.success("Thanh toán thành công!");
-        navigate("/"); // hoặc navigate đến trang cảm ơn / lịch sử
       } else {
         message.warning("Thanh toán thất bại hoặc đã bị hủy.");
-        const serviceId = JSON.parse(localStorage.getItem("lastServiceId"));
-        if (serviceId) {
-          navigate(`/service-detail/${serviceId}`);
-        } else {
-          navigate("/"); // fallback
-        }
       }
+
+      // Clean URL và refresh
+      window.history.replaceState({}, document.title, "/user/booking");
+      fetchAppointments();
     }
-  }, [search, navigate]);
+  }, [search, navigate, fetchAppointments, verifyVNPayPayment]);
   const renderAppointments = () => {
     if (loading) {
       return (

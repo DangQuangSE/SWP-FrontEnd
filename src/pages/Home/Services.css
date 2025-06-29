@@ -128,7 +128,7 @@
 
 /* Button */
 .home-service-button {
-  background: #00b5f1;
+  background: #0283f5;
   color: white;
   padding: 10px 16px;
   border: none;
@@ -142,6 +142,8 @@
 }
 
 .home-service-button:hover {
-  background: linear-gradient(to left, #3870ff, #ff5a7d);
+  background: linear-gradient(to top, #0283f5, #2753d0);
   filter: brightness(1.15);
+  transform: translateY(-1px);
+  box-shadow: rgba(0, 0, 0, 0.35) 0px -50px 36px -28px inset;
 }

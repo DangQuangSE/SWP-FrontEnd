@@ -28,6 +28,11 @@ const LoginForm = ({ onClose }) => {
 
       console.log("Login successful, response:", res.data);
       const token = res.data.jwt || res.data.accessToken || res.data.token;
+      const user = res.data.user || res.data;
+
+      console.log(" Extracted token:", token);
+      console.log(" Extracted user:", user);
+      //  Lưu vào localStorage
       localStorage.setItem("token", token);
       // Lưu cả user và jwt vào Redux
       const user = res.data.user || {};
@@ -86,10 +91,14 @@ const LoginForm = ({ onClose }) => {
 
       console.log(" FULL response từ backend:", res.data);
 
+
       const { user, jwt } = res.data;
       console.log("Google response user:", user);
       console.log("Google response token:", jwt);
 
+      const { user, jwt: token } = res.data;
+      console.log(" Google user:", user);
+      console.log(" Google token:", token);
       if (jwt) {
         localStorage.setItem("token", jwt);
         localStorage.setItem("user", JSON.stringify(user));

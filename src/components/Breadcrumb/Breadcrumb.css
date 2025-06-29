@@ -1,9 +1,9 @@
 .breadcrumb-nav {
   margin: 16px 0 0 0;
-  max-width: 1150px;         /* hoặc giá trị container của bạn */
+  max-width: 1150px; /* hoặc giá trị container của bạn */
   margin-left: auto;
   margin-right: auto;
-  padding-left: 0;           /* hoặc giá trị padding của container */
+  padding-left: 0; /* hoặc giá trị padding của container */
   padding-right: 0;
 }
 
@@ -32,17 +32,17 @@
 }
 
 .breadcrumb-link.active {
-  color: #06b6d4;
+  color: #0283f5;
   font-weight: 700;
 }
 
 .breadcrumb-link:hover {
-  color: #06b6d4;
+  color: #0283f5;
   text-decoration: underline;
 }
 
 .breadcrumb-current {
-  color: #06b6d4;
+  color: #0283f5;
   font-weight: 700;
   font-size: 18px;
   text-decoration: none;

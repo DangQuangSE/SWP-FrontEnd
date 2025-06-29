@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState, useCallback } from "react";
 import {
   Card,
   Button,
@@ -48,11 +48,13 @@ const BookingForm = ({ serviceIdProp, serviceDetail: detailProp }) => {
   const [activeTab, setActiveTab] = useState("morning");
   const [note, setNote] = useState("");
 
-  useEffect(() => {
+  // Function to fetch schedule data
+  const fetchScheduleData = useCallback(() => {
     if (defaultServiceId) {
       const from = dateRange[0].format("YYYY-MM-DD");
       const to = dateRange[1].format("YYYY-MM-DD");
 
+      console.log(" Fetching schedule data for service:", defaultServiceId);
       api
         .get("/schedules/slot-free-service", {
           params: { service_id: defaultServiceId, from, to },
@@ -60,16 +62,52 @@ const BookingForm = ({ serviceIdProp, serviceDetail: detailProp }) => {
         .then((res) => {
           const parsed =
             typeof res.data === "string" ? JSON.parse(res.data) : res.data;
-          console.log("Response nè đm:", parsed);
+          console.log(" Schedule data updated:", parsed);
           setServiceDetail(parsed.serviceDTO);
           setScheduleData(parsed.scheduleResponses || []);
         })
         .catch((err) => {
-          console.error("Lỗi khi gọi slot-free-service:", err);
+          console.error(" Lỗi khi gọi slot-free-service:", err);
           setScheduleData([]);
         });
     }
-  }, [defaultServiceId, dateRange, detailProp]);
+  }, [defaultServiceId, dateRange]);
+
+  useEffect(() => {
+    fetchScheduleData();
+  }, [fetchScheduleData, detailProp]);
+
+  // Listen for schedule refresh trigger
+  useEffect(() => {
+    const checkRefreshTrigger = () => {
+      const shouldRefresh = localStorage.getItem("shouldRefreshSchedule");
+      const lastBookedServiceId = localStorage.getItem("lastBookedServiceId");
+
+      if (
+        shouldRefresh === "true" &&
+        lastBookedServiceId === defaultServiceId
+      ) {
+        console.log(" Refreshing schedule data after booking...");
+        fetchScheduleData();
+
+        // Clear the trigger
+        localStorage.removeItem("shouldRefreshSchedule");
+        localStorage.removeItem("lastBookedServiceId");
+      }
+    };
+
+    // Check immediately
+    checkRefreshTrigger();
+
+    // Also listen for storage events (when user comes back from another tab)
+    window.addEventListener("storage", checkRefreshTrigger);
+    window.addEventListener("focus", checkRefreshTrigger);
+
+    return () => {
+      window.removeEventListener("storage", checkRefreshTrigger);
+      window.removeEventListener("focus", checkRefreshTrigger);
+    };
+  }, [defaultServiceId, fetchScheduleData]);
 
   const displayDays = useMemo(() => {
     if (!Array.isArray(scheduleData)) return [];

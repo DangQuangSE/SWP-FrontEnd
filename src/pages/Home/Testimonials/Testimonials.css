@@ -55,7 +55,7 @@
   left: 0;
   height: 4px;
   width: 100%;
-  background: linear-gradient(to right, #00bcd4, #0288d1);
+  /* background: linear-gradient(to right, #00bcd4, #0288d1); */
 }
 
 .doctor-card:hover {
@@ -147,23 +147,24 @@
 
 /* ========== BUTTON ========== */
 .consult-btn {
-  margin-top: auto;
-  background: linear-gradient(to right, #00bcd4, #0288d1);
-  border: none;
-  padding: 12px 16px;
+  background: #0283f5;
   color: white;
-  font-size: 14px;
-  font-weight: 600;
-  width: 100%;
-  border-radius: 8px;
+  padding: 10px 16px;
+  border: none;
+  border-radius: 6px;
+  font-weight: 500;
   cursor: pointer;
-  transition: all 0.25s ease;
+  font-size: 14px;
+  width: 100%;
+  text-align: center;
+  transition: background 0.3s ease;
 }
 
 .consult-btn:hover {
-  background: #0288d1;
+  background: linear-gradient(to top, #0283f5, #2753d0);
+  filter: brightness(1.15);
   transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(2, 136, 209, 0.3);
+  box-shadow: rgba(0, 0, 0, 0.35) 0px -50px 36px -28px inset;
 }
 
 /* ========== RESPONSIVE GRID (nếu dùng grid ngoài carousel) ========== */

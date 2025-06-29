@@ -5,7 +5,7 @@ const api = axios.create({
 });
 
 const upload = axios.create({
-  baseURL: "https://api.cloudinary.com/v1_1/dycwhc7sn/image/upload", 
+  baseURL: "https://api.cloudinary.com/v1_1/dycwhc7sn/image/upload",
 });
 
 api.interceptors.request.use(
@@ -15,7 +15,7 @@ api.interceptors.request.use(
       method: config.method,
       url: config.url,
       baseURL: config.baseURL,
-      fullURL: `${config.baseURL}${config.url}`
+      fullURL: `${config.baseURL}${config.url}`,
     });
 
     const token = localStorage.getItem("token");
@@ -36,7 +36,7 @@ api.interceptors.response.use(
     console.log("API Response:", {
       status: response.status,
       url: response.config.url,
-      data: response.data
+      data: response.data,
     });
     return response;
   },
@@ -45,7 +45,7 @@ api.interceptors.response.use(
       status: error.response?.status,
       url: error.config?.url,
       message: error.message,
-      code: error.code
+      code: error.code,
     });
     return Promise.reject(error);
   }

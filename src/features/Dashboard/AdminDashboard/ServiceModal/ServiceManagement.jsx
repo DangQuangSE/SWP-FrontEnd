@@ -211,11 +211,16 @@ const ServiceManagement = () => {
 
   const searchServiceByName = async (name) => {
     try {
-      const encodedName = encodeURIComponent(name);
-      const response = await api.get(`/services/name/${encodedName}`);
-      return response.data;
+      console.log(" Searching services with name:", name);
+      const response = await api.get("/services/search", {
+        params: { name: name },
+      });
+      console.log(" Search response:", response.data);
+      return Array.isArray(response.data) ? response.data : [response.data];
     } catch (error) {
-      console.error("Lỗi tìm kiếm service:", error);
+      console.error(" Lỗi tìm kiếm service:", error);
+      console.error(" Error response:", error.response?.data);
+      console.error(" Error status:", error.response?.status);
       throw error;
     }
   };

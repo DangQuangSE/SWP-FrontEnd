@@ -38,10 +38,10 @@ import BookingForm from "./features/Services/Booking/BookingForm";
 import ServiceDetail from "./features/Services/ServiceList/ServiceDetail/ServiceDetail";
 import Booking from "./pages/UserProfile/Booking/Booking";
 import UserProfileLayout from "./pages/UserProfile/userprofile";
+import Profile from "./pages/UserProfile/Profile";
 import Noti from "./features/NotificationCenter/Noti";
 import BookingConfirmation from "./features/Services/Booking/BookingConfirmation";
 import Payment from "./features/Services/Payment/Payment";
-import MomoReturn from "./features/Services/Payment/MomoReturn";
 import ProtectedRoute from "./components/ProtectedRoute";
 
 function App() {
@@ -122,14 +122,14 @@ function App() {
 
               <Route path="/settings" element={<Settings />} />
               <Route path="/user" element={<UserProfile />}>
-                {/* <Route index element={<Overview />} /> */}
+                <Route index element={<Profile />} />
+                <Route path="profile" element={<Profile />} />
                 <Route path="booking" element={<Booking />} />
                 {/* <Route path="health" element={<Health />} />
                 <Route path="saved" element={<Saved />} />
                 <Route path="attended" element={<Attended />} />
                 <Route path="settings" element={<Settings />} /> */}
               </Route>
-              <Route path="/payment/result" element={<MomoReturn />} />
               <Route path="/booking" element={<BookingForm />} />
               <Route path="/service-detail/:id" element={<ServiceDetail />} />
               <Route
