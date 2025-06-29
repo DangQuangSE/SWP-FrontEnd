@@ -1,5 +1,6 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { Modal, Form, Input, Select } from "antd";
+import api from "../../../../configs/api";
 
 const { Option } = Select;
 
@@ -27,6 +28,50 @@ const ServiceModal = ({
   availableServices,
   setAvailableServices,
 }) => {
+  const [specializations, setSpecializations] = useState([]);
+  const [loadingSpecializations, setLoadingSpecializations] = useState(false);
+
+  // Fetch specializations when modal opens
+  useEffect(() => {
+    if (visible) {
+      fetchSpecializations();
+    }
+  }, [visible]);
+
+  // Set form values when editing service
+  useEffect(() => {
+    if (editingService && visible) {
+      form.setFieldsValue({
+        name: editingService.name,
+        description: editingService.description,
+        duration: editingService.duration,
+        type: editingService.type,
+        price: editingService.price,
+        discountPercent: editingService.discountPercent || 0,
+        specializationIds: editingService.specializationIds || [],
+        subServiceIds: editingService.subServiceIds || [],
+      });
+    } else if (visible) {
+      // Reset form when adding new service
+      form.resetFields();
+    }
+  }, [editingService, visible, form]);
+
+  const fetchSpecializations = async () => {
+    setLoadingSpecializations(true);
+    try {
+      const response = await api.get("/specializations");
+      const data = response.data || [];
+      setSpecializations(data);
+      console.log("📋 Loaded specializations:", data);
+    } catch (error) {
+      console.error("Error fetching specializations:", error);
+      setSpecializations([]);
+    } finally {
+      setLoadingSpecializations(false);
+    }
+  };
+
   const handleCancel = () => {
     setIsComboService(false);
     setAvailableServices([]);
@@ -96,6 +141,26 @@ const ServiceModal = ({
             ))}
           </Select>
         </Form.Item>
+
+        <Form.Item
+          name="specializationIds"
+          label="Chuyên khoa"
+          rules={[{ required: true, message: "Vui lòng chọn chuyên khoa!" }]}
+        >
+          <Select
+            mode="multiple"
+            placeholder="Chọn chuyên khoa"
+            loading={loadingSpecializations}
+            allowClear
+          >
+            {specializations.map((specialization) => (
+              <Option key={specialization.id} value={specialization.id}>
+                {specialization.name}
+              </Option>
+            ))}
+          </Select>
+        </Form.Item>
+
         <Form.Item
           name="price"
           label="Giá (VND)"
@@ -112,16 +177,15 @@ const ServiceModal = ({
             <Input type="number" placeholder="Nhập giá" />
           )}
         </Form.Item>
-        {!isComboService && (
-          <Form.Item name="discountPercent" label="Phần trăm Giảm giá">
-            <Input
-              type="number"
-              min={0}
-              max={100}
-              placeholder="Nhập phần trăm giảm giá (0-100)"
-            />
-          </Form.Item>
-        )}
+
+        <Form.Item name="discountPercent" label="Phần trăm Giảm giá">
+          <Input
+            type="number"
+            min={0}
+            max={100}
+            placeholder="Nhập phần trăm giảm giá (0-100)"
+          />
+        </Form.Item>
 
         {/* Hiển thị trường sub-services khi isCombo = true */}
         {isComboService && (
@@ -197,7 +261,7 @@ const ServiceModal = ({
                 }}
               >
                 <div style={{ fontSize: "12px", color: "#666" }}>
-                  💰 Hệ thống sẽ tự động tính tổng giá từ các dịch vụ đã chọn
+                  Hệ thống sẽ tự động tính tổng giá từ các dịch vụ đã chọn
                 </div>
                 <div
                   style={{ fontSize: "11px", color: "#999", marginTop: "4px" }}

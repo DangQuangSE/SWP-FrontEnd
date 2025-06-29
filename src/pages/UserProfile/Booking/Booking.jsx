@@ -1,5 +1,5 @@
 // pages/UserProfile/Booking.jsx
-import React, { useEffect, useState, useCallback } from "react";
+import React, { useEffect, useState, useCallback, useRef } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { message } from "antd";
@@ -27,6 +27,9 @@ const Booking = () => {
   const { search } = useLocation();
   const token =
     useSelector((state) => state.user.token) || localStorage.getItem("token");
+
+  // Track if payment success message has been shown
+  const paymentMessageShown = useRef(false);
 
   // Function to verify VNPay payment with backend
   const verifyVNPayPayment = useCallback(async (urlParams) => {
@@ -119,7 +122,7 @@ const Booking = () => {
       }
     }
   };
-  // Handle VNPay payment result from URL params
+  // Handle VNPay payment result from URL params - only run once per URL change
   useEffect(() => {
     const query = new URLSearchParams(search);
     const vnpResponseCode = query.get("vnp_ResponseCode");
@@ -127,7 +130,7 @@ const Booking = () => {
     const vnpTxnRef = query.get("vnp_TxnRef");
 
     // Check for VNPay return parameters
-    if (vnpResponseCode) {
+    if (vnpResponseCode && !paymentMessageShown.current) {
       console.log(" VNPay Return in Booking page:", {
         vnpResponseCode,
         vnpTransactionStatus,
@@ -136,6 +139,7 @@ const Booking = () => {
       });
 
       localStorage.removeItem("pendingBooking");
+      paymentMessageShown.current = true; // Mark message as shown
 
       if (vnpResponseCode === "00" && vnpTransactionStatus === "00") {
         // Thanh toán VNPay thành công
@@ -148,16 +152,24 @@ const Booking = () => {
         message.error("Thanh toán thất bại hoặc đã bị hủy.");
       }
 
-      // Clean URL sau khi xử lý và refresh appointments
+      // Clean URL sau khi xử lý
       window.history.replaceState({}, document.title, "/user/booking");
-      fetchAppointments(); // Refresh để thấy status mới
+
+      // Refresh appointments after a short delay to ensure payment is processed
+      const refreshAppointments = () => {
+        if (token) {
+          fetchAppointments();
+        }
+      };
+      setTimeout(refreshAppointments, 500);
       return;
     }
 
     // Handle legacy MoMo result (nếu có)
     const resultCode = query.get("resultCode");
-    if (resultCode) {
+    if (resultCode && !paymentMessageShown.current) {
       localStorage.removeItem("pendingBooking");
+      paymentMessageShown.current = true; // Mark message as shown
 
       if (resultCode === "1000") {
         message.success("Thanh toán thành công!");
@@ -167,9 +179,11 @@ const Booking = () => {
 
       // Clean URL và refresh
       window.history.replaceState({}, document.title, "/user/booking");
-      fetchAppointments();
+      setTimeout(() => {
+        fetchAppointments();
+      }, 500);
     }
-  }, [search, navigate, fetchAppointments, verifyVNPayPayment]);
+  }, [search, verifyVNPayPayment, fetchAppointments, token]);
   const renderAppointments = () => {
     if (loading) {
       return (

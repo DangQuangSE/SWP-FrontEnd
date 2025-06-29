@@ -136,6 +136,7 @@ const ServiceManagement = () => {
           : 0,
         isActive: service.isActive !== undefined ? service.isActive : true,
         isCombo: service.isCombo || false,
+        specializationIds: service.specializationIds || [],
         ...(service.isCombo &&
           service.subServiceIds &&
           service.subServiceIds.length > 0 && {
@@ -166,6 +167,7 @@ const ServiceManagement = () => {
           : 0,
         isActive: service.isActive !== undefined ? service.isActive : true,
         isCombo: service.isCombo || false,
+        specializationIds: service.specializationIds || [],
         ...(service.isCombo &&
           service.subServiceIds &&
           service.subServiceIds.length > 0 && {
@@ -330,6 +332,7 @@ const ServiceManagement = () => {
             type: values.type,
             price: values.price ? parseFloat(values.price) : 0,
             isCombo: true,
+            specializationIds: values.specializationIds || [],
             subServiceIds: values.subServiceIds || [],
           };
           console.log(" Sending combo data:", comboData);
@@ -343,6 +346,7 @@ const ServiceManagement = () => {
             price: values.price ? parseFloat(values.price) : 0,
             isActive: values.isActive !== undefined ? values.isActive : true,
             isCombo: false,
+            specializationIds: values.specializationIds || [],
             discountPercent: values.discountPercent
               ? parseFloat(values.discountPercent)
               : 0,
@@ -435,6 +439,24 @@ const ServiceManagement = () => {
       key: "type",
       render: (type) => (
         <Tag color={getServiceTypeColor(type)}>{getServiceTypeLabel(type)}</Tag>
+      ),
+    },
+    {
+      title: "Chuyên khoa",
+      dataIndex: "specializations",
+      key: "specializations",
+      render: (specializations) => (
+        <div>
+          {specializations && specializations.length > 0 ? (
+            specializations.map((spec) => (
+              <Tag key={spec.id} color="blue" style={{ marginBottom: 4 }}>
+                {spec.name}
+              </Tag>
+            ))
+          ) : (
+            <span style={{ color: "#999" }}>Chưa có</span>
+          )}
+        </div>
       ),
     },
     {
