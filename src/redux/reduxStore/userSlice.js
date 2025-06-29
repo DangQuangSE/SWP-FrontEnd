@@ -67,12 +67,50 @@ export const userSlice = createSlice({
   reducers: {
     login: (state, action) => {
       console.log(" Redux login action:", action.payload);
-      state.user = action.payload.user;
-      state.token = action.payload.token;
+      // Handle both user object and direct user fields
+      if (action.payload.user) {
+        // Normalize user object fields
+        state.user = {
+          fullname:
+            action.payload.user.fullname || action.payload.user.name || "",
+          email: action.payload.user.email || "",
+          role: action.payload.user.role || "",
+          imageUrl:
+            action.payload.user.imageUrl ||
+            // action.payload.user.avatar ||
+            // action.payload.user.picture ||
+            // action.payload.user.photo ||
+            // action.payload.user.image ||
+            // action.payload.user.profilePicture ||
+            // action.payload.user.avatarUrl ||
+            // action.payload.user.photoUrl ||
+            "",
+        };
+      } else {
+        // If user fields are directly in payload
+        state.user = {
+          fullname: action.payload.fullname || action.payload.name || "",
+          email: action.payload.email || "",
+          role: action.payload.role || "",
+          imageUrl:
+            action.payload.imageUrl ||
+            // action.payload.avatar ||
+            // action.payload.picture ||
+            // action.payload.photo ||
+            // action.payload.image ||
+            // action.payload.profilePicture ||
+            // action.payload.avatarUrl ||
+            // action.payload.photoUrl ||
+            "",
+        };
+      }
+      // Handle both jwt and token fields
+      state.token = action.payload.jwt || action.payload.token || "";
       console.log(" Redux state updated:", {
         user: state.user,
-        token: state.token,
+        token: !!state.token,
       });
+      console.log(" Final imageUrl in Redux:", state.user.imageUrl);
     },
     logout: () => {
       console.log(" Redux logout action");

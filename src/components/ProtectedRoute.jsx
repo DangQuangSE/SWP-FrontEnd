@@ -18,7 +18,7 @@ const ProtectedRoute = ({ allowedRoles, children }) => {
     return <Navigate to="/" replace />;
   }
 
-  console.log("✅ Access granted");
+  console.log(" Access granted");
   return children;
 };
 

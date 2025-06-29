@@ -27,16 +27,15 @@ const LoginForm = ({ onClose }) => {
       });
 
       console.log("Login successful, response:", res.data);
-      const token = res.data.jwt || res.data.accessToken || res.data.token;
+      const jwt = res.data.jwt || res.data.accessToken || res.data.token;
       const user = res.data.user || res.data;
 
-      console.log(" Extracted token:", token);
+      console.log(" Extracted jwt:", jwt);
       console.log(" Extracted user:", user);
       //  Lưu vào localStorage
-      localStorage.setItem("token", token);
+      localStorage.setItem("token", jwt);
       // Lưu cả user và jwt vào Redux
-      const user = res.data.user || {};
-      dispatch(login({ ...user, jwt: token }));
+      dispatch(login({ ...user, jwt }));
       toast.success("Đăng nhập thành công!");
       if (onClose) onClose();
 
@@ -88,17 +87,28 @@ const LoginForm = ({ onClose }) => {
         { accessToken: credential },
         { headers: { "Content-Type": "application/json" } }
       );
-
+      //log để debug
       console.log(" FULL response từ backend:", res.data);
-
+      console.log(" Response structure:", JSON.stringify(res.data, null, 2));
 
       const { user, jwt } = res.data;
-      console.log("Google response user:", user);
-      console.log("Google response token:", jwt);
+      console.log(" Google response user:", user);
+      console.log(
+        " Google response user structure:",
+        JSON.stringify(user, null, 2)
+      );
+      console.log(" Google response token:", jwt);
+      console.log(" Google user avatar fields:", {
+        imageUrl: user?.imageUrl,
+        avatar: user?.avatar,
+        picture: user?.picture,
+        photo: user?.photo,
+        image: user?.image,
+        profilePicture: user?.profilePicture,
+        avatarUrl: user?.avatarUrl,
+        photoUrl: user?.photoUrl,
+      });
 
-      const { user, jwt: token } = res.data;
-      console.log(" Google user:", user);
-      console.log(" Google token:", token);
       if (jwt) {
         localStorage.setItem("token", jwt);
         localStorage.setItem("user", JSON.stringify(user));

@@ -89,17 +89,19 @@ export const likeBlog = async (id) => {
   if (LIKE_API_SIMULATION_MODE) {
     // Simulation mode for testing UI
     console.log(`⚠️ SIMULATION MODE: Simulating successful like for testing`);
-    console.log(`💡 To use real API, set LIKE_API_SIMULATION_MODE = false in consultantAPI.js`);
+    console.log(
+      `💡 To use real API, set LIKE_API_SIMULATION_MODE = false in consultantAPI.js`
+    );
 
     return new Promise((resolve) => {
       setTimeout(() => {
-        console.log(`✅ Simulated like success for blog ${id}`);
+        console.log(` Simulated like success for blog ${id}`);
         resolve({
           data: {
             success: true,
             message: `Blog ${id} liked successfully (simulated)`,
-            blogId: id
-          }
+            blogId: id,
+          },
         });
       }, 500);
     });
@@ -107,7 +109,9 @@ export const likeBlog = async (id) => {
 
   // Check if user is logged in
   if (!token) {
-    console.warn(`⚠️ No authentication token found. User needs to login to like blogs.`);
+    console.warn(
+      `⚠️ No authentication token found. User needs to login to like blogs.`
+    );
     throw new Error(`Bạn cần đăng nhập để thích bài viết`);
   }
 
@@ -115,16 +119,19 @@ export const likeBlog = async (id) => {
   try {
     console.log(`🔄 Attempting authenticated API call...`);
 
-    const response = await api.post(`/blog/${id}/like`, {}, {
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`
+    const response = await api.post(
+      `/blog/${id}/like`,
+      {},
+      {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
       }
-    });
+    );
 
-    console.log(`✅ Like API call success:`, response);
+    console.log(` Like API call success:`, response);
     return response;
-
   } catch (error) {
     console.error(`❌ likeBlog API error:`, error);
     console.error(`❌ Error response:`, error.response?.data);
@@ -160,7 +167,9 @@ export const deleteBlog = async (blogId) => {
 
   // Check if user is logged in
   if (!token) {
-    console.warn(`⚠️ No authentication token found. User needs to login to delete blogs.`);
+    console.warn(
+      `⚠️ No authentication token found. User needs to login to delete blogs.`
+    );
     throw new Error(`Bạn cần đăng nhập để xóa bài viết`);
   }
 
@@ -169,13 +178,12 @@ export const deleteBlog = async (blogId) => {
 
     const response = await api.delete(`/blog/${blogId}`, {
       headers: {
-        'Authorization': `Bearer ${token}`
-      }
+        Authorization: `Bearer ${token}`,
+      },
     });
 
-    console.log(`✅ Delete blog API success:`, response);
+    console.log(` Delete blog API success:`, response);
     return response;
-
   } catch (error) {
     console.error(`❌ deleteBlog API error:`, error);
     console.error(`❌ Error response:`, error.response?.data);

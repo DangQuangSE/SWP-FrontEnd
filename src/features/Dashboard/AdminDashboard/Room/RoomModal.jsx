@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Modal, Form, Input, Select, TimePicker, message } from "antd";
 import { fetchSpecializations } from "../Specialization/specializationAPI";
-import dayjs from "dayjs";
+// import dayjs from "dayjs";
 
 const { TextArea } = Input;
 const { Option } = Select;
@@ -39,7 +39,7 @@ const RoomModal = ({ visible, onOk, onCancel, form, editingRoom }) => {
   const handleOk = async () => {
     try {
       const values = await form.validateFields();
-      console.log("🔍 RoomModal form values:", values);
+      console.log(" RoomModal form values:", values);
 
       // Convert time to string format
       const roomData = {
