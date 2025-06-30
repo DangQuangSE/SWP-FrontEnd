@@ -1,0 +1,104 @@
+/* Schedule Modal Styles */
+.schedule-modal .ant-modal-body {
+  padding: 20px;
+}
+
+.schedule-modal .ant-card {
+  border: 1px solid #f0f0f0;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.schedule-modal .ant-card-head {
+  background-color: #fafafa;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.schedule-modal .ant-card-head-title {
+  font-weight: 600;
+  color: #262626;
+}
+
+.schedule-modal .ant-btn-dashed {
+  border-color: #1890ff;
+  color: #1890ff;
+  transition: all 0.3s ease;
+}
+
+.schedule-modal .ant-btn-dashed:hover {
+  border-color: #40a9ff;
+  color: #40a9ff;
+  background-color: #f6ffed;
+}
+
+.schedule-modal .ant-date-picker,
+.schedule-modal .ant-time-picker,
+.schedule-modal .ant-input-number {
+  border-radius: 6px;
+}
+
+.schedule-modal .ant-date-picker:hover,
+.schedule-modal .ant-time-picker:hover,
+.schedule-modal .ant-input-number:hover {
+  border-color: #40a9ff;
+}
+
+.schedule-modal .ant-date-picker:focus,
+.schedule-modal .ant-time-picker:focus,
+.schedule-modal .ant-input-number:focus {
+  border-color: #1890ff;
+  box-shadow: 0 0 0 2px rgba(24, 144, 255, 0.2);
+}
+
+/* Custom scrollbar for modal content */
+.schedule-modal .ant-modal-body > div:first-child::-webkit-scrollbar {
+  width: 6px;
+}
+
+.schedule-modal .ant-modal-body > div:first-child::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 3px;
+}
+
+.schedule-modal .ant-modal-body > div:first-child::-webkit-scrollbar-thumb {
+  background: #c1c1c1;
+  border-radius: 3px;
+}
+
+.schedule-modal .ant-modal-body > div:first-child::-webkit-scrollbar-thumb:hover {
+  background: #a8a8a8;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .schedule-modal .ant-modal {
+    width: 95% !important;
+    margin: 10px auto;
+  }
+  
+  .schedule-modal .ant-col {
+    margin-bottom: 12px;
+  }
+}
+
+/* Animation for adding/removing schedule items */
+.schedule-item-enter {
+  opacity: 0;
+  transform: translateY(-10px);
+}
+
+.schedule-item-enter-active {
+  opacity: 1;
+  transform: translateY(0);
+  transition: opacity 300ms, transform 300ms;
+}
+
+.schedule-item-exit {
+  opacity: 1;
+}
+
+.schedule-item-exit-active {
+  opacity: 0;
+  transform: translateY(-10px);
+  transition: opacity 300ms, transform 300ms;
+}

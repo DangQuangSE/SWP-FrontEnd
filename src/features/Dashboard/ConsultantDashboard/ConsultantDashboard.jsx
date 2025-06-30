@@ -31,7 +31,7 @@ const { Title } = Typography;
 function ConsultantDashboard() {
   const [selectedMenuItem, setSelectedMenuItem] = useState("personal_schedule");
   const token = useSelector((state) => state.user.jwt || state.user.token);
-  
+
   let userId;
   if (token) {
     try {
@@ -123,11 +123,13 @@ function ConsultantDashboard() {
 
   // Lấy tên menu item hiện tại cho breadcrumb
   const getCurrentMenuLabel = () => {
-    const flatItems = menuItems.flatMap(item => 
+    const flatItems = menuItems.flatMap((item) =>
       item.children ? item.children : item
     );
-    return flatItems.find(item => item.key === selectedMenuItem)?.label || 
-           menuItems.find(item => item.key === selectedMenuItem)?.label;
+    return (
+      flatItems.find((item) => item.key === selectedMenuItem)?.label ||
+      menuItems.find((item) => item.key === selectedMenuItem)?.label
+    );
   };
 
   return (
@@ -153,7 +155,7 @@ function ConsultantDashboard() {
           }}
         />
       </Header>
-      
+
       <Layout>
         <Sider width={250} style={{ background: colorBgContainer }}>
           <Menu
@@ -165,7 +167,7 @@ function ConsultantDashboard() {
             onSelect={({ key }) => setSelectedMenuItem(key)}
           />
         </Sider>
-        
+
         <Layout style={{ padding: "0 24px 24px" }}>
           <Breadcrumb
             items={[
@@ -175,7 +177,7 @@ function ConsultantDashboard() {
             ]}
             style={{ margin: "16px 0" }}
           />
-          
+
           <Content
             style={{
               padding: 24,

@@ -1,32 +1,64 @@
-import React from 'react';
-import { Card, Table, Button } from 'antd';
-import { ScheduleOutlined } from '@ant-design/icons';
-import './ManageSchedule.css';
+import React, { useState } from "react";
+import { Card, Button } from "antd";
+import { ScheduleOutlined } from "@ant-design/icons";
+import ScheduleModal from "./ScheduleModal";
+import ScheduleByDate from "./ScheduleByDate";
+import "./ManageSchedule.css";
 
-const ManageSchedule = ({ setIsScheduleModalVisible, consultationColumns, personalConsultations }) => {
+const ManageSchedule = ({ userId }) => {
+  const [isScheduleModalOpen, setIsScheduleModalOpen] = useState(false);
+
+  // Handle schedule modal success - will trigger refresh in ScheduleByDate component
+  const handleScheduleSuccess = () => {
+    // The ScheduleByDate component will handle its own data refresh
+    console.log("Schedule added successfully");
+  };
   return (
-    <Card
-      title={
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <span>Quản lý lịch làm việc</span>
+    <div>
+      {/* Header Card with Add Button */}
+      <Card style={{ marginBottom: 16 }}>
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+          }}
+        >
+          <div>
+            <h2 style={{ margin: 0 }}>Quản lý lịch làm việc</h2>
+            <p style={{ margin: "4px 0 0 0", color: "#666" }}>
+              Xem và quản lý lịch làm việc của bạn theo từng ngày
+            </p>
+          </div>
           <Button
             type="primary"
+            size="large"
             icon={<ScheduleOutlined />}
-            onClick={() => setIsScheduleModalVisible(true)}
+            onClick={() => setIsScheduleModalOpen(true)}
           >
-            Thêm/Sửa ca làm việc
+            Thêm ca làm việc
           </Button>
         </div>
-      }
-    >
-      <Table
-        columns={consultationColumns}
-        dataSource={personalConsultations}
-        rowKey="id"
-        style={{ marginTop: 16 }}
+      </Card>
+
+      {/* Schedule by Date Component */}
+      <ScheduleByDate
+        userId={userId}
+        onEditSchedule={(slot, workDate) => {
+          console.log("Edit schedule:", slot, workDate);
+          setIsScheduleModalOpen(true);
+        }}
       />
-    </Card>
+
+      {/* Schedule Modal */}
+      <ScheduleModal
+        visible={isScheduleModalOpen}
+        onCancel={() => setIsScheduleModalOpen(false)}
+        onSuccess={handleScheduleSuccess}
+        userId={userId}
+      />
+    </div>
   );
 };
 
-export default ManageSchedule; 
+export default ManageSchedule;

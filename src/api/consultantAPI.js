@@ -159,6 +159,16 @@ export const registerSchedule = (requestBody) => {
   return api.post("/schedules/register", requestBody);
 };
 
+// Get consultant schedules with date range
+export const getConsultantSchedules = (consultantId, from, to) => {
+  const params = new URLSearchParams();
+  params.append("consultant_id", consultantId);
+  if (from) params.append("from", from);
+  if (to) params.append("to", to);
+
+  return api.get(`/schedules/view?${params.toString()}`);
+};
+
 export const deleteBlog = async (blogId) => {
   console.log(`🗑️ deleteBlog API call for blog ID: ${blogId}`);
   const token = localStorage.getItem("token");
