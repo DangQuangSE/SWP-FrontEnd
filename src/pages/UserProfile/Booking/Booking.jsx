@@ -14,7 +14,7 @@ const TABS = [
 
 // API status mapping
 const STATUS_MAP = {
-  upcoming: ["CONFIRMED", "PENDING"],
+  upcoming: ["CONFIRMED", "PENDING", "CHECKED"],
   completed: ["COMPLETED"],
   history: ["CANCELED"],
 };
@@ -54,7 +54,7 @@ const Booking = () => {
   // Function to get and cache Zoom URL
   const getZoomUrl = useCallback(async (appointmentId) => {
     try {
-      console.log("🔄 Getting Zoom URL for appointment:", appointmentId);
+      console.log(" Getting Zoom URL for appointment:", appointmentId);
 
       const response = await api.get(
         `/zoom/test-create-meeting?appointmentId=${appointmentId}`
@@ -299,7 +299,9 @@ const Booking = () => {
             {new Date(appointment.created_at).toLocaleString()}
           </p>
           <div className="appointment-actions">
-            {["CONFIRMED", "PENDING"].includes(appointment.status) && (
+            {["CONFIRMED", "PENDING", "CHEKED"].includes(
+              appointment.status
+            ) && (
               <button
                 className="cancel-button-profile"
                 onClick={() => handleCancelAppointment(appointment.id)}
@@ -349,7 +351,6 @@ const Booking = () => {
       </div>
     ));
   };
-
   const renderTabContent = () => renderAppointments();
 
   return (

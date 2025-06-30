@@ -42,6 +42,9 @@ import ServiceManagement from "./ServiceModal/ServiceManagement";
 // Import Room Management component
 import { RoomManagement } from "./Room";
 
+// Import User Management component
+import { UserManagement } from "./UserManagement";
+
 // Import Booking Dashboard component
 import BookingDashboard from "./BookingDashboard/BookingDashboard";
 
@@ -70,7 +73,7 @@ function Admin() {
       manage_articles: "Quản lý Bài viết Blog",
       manage_bookings: "Quản lý Lịch hẹn",
       dashboard_reports: "Xem Dashboard & Báo cáo",
-      handle_feedback: "Xử lý Phản hồi Dịch vụ/Tư vấn",
+      // handle_feedback: "Xử lý Phản hồi Dịch vụ/Tư vấn",
       manage_payments: "Quản lý Thanh toán & Giao dịch",
       manage_rooms: "Quản lý Phòng khám",
       manage_specializations: "Quản lý Chuyên khoa",
@@ -120,13 +123,35 @@ function Admin() {
     }
   }, [selectedMenuItem]);
 
-  // Lấy danh sách user từ API
+  // Lấy danh sách tất cả user từ API với tất cả các role
   const fetchUsers = async () => {
     try {
-      const response = await api.get("/auth/users");
-      return response.data;
+      console.log("🔄 Fetching all users from all roles...");
+      const roles = ["CUSTOMER", "STAFF", "CONSULTANT"];
+      const allUsers = [];
+
+      // Gọi API cho từng role
+      for (const role of roles) {
+        try {
+          const response = await api.get(`/admin/users?role=${role}`);
+          const users = Array.isArray(response.data)
+            ? response.data
+            : [response.data];
+          allUsers.push(...users);
+          console.log(`✅ Fetched ${users.length} users with role ${role}`);
+        } catch (roleError) {
+          console.warn(
+            `⚠️ Không thể lấy users với role ${role}:`,
+            roleError.message
+          );
+        }
+      }
+
+      console.log(`✅ Total fetched users: ${allUsers.length}`);
+      return allUsers;
     } catch (error) {
-      console.error("Lỗi lấy danh sách user:", error);
+      console.error("❌ Lỗi lấy danh sách user:", error);
+      console.error("Error details:", error.response?.data);
       return [];
     }
   };
@@ -142,10 +167,13 @@ function Admin() {
   // Thêm user
   const addUser = async (user) => {
     try {
-      const response = await api.post("/auth/users", user);
+      console.log("🔄 Adding user:", user);
+      const response = await api.post("/admin/user", user);
+      console.log("✅ User added successfully:", response.data);
       return response.data;
     } catch (error) {
-      console.error("Lỗi thêm user:", error);
+      console.error("❌ Lỗi thêm user:", error);
+      console.error("Error details:", error.response?.data);
       throw error;
     }
   };
@@ -153,10 +181,13 @@ function Admin() {
   // Sửa user
   const updateUser = async (id, user) => {
     try {
-      const response = await api.put(`/auth/users/${id}`, user);
+      console.log("🔄 Updating user:", id, user);
+      const response = await api.put(`/admin/user/${id}`, user);
+      console.log("✅ User updated successfully:", response.data);
       return response.data;
     } catch (error) {
-      console.error("Lỗi sửa user:", error);
+      console.error("❌ Lỗi sửa user:", error);
+      console.error("Error details:", error.response?.data);
       throw error;
     }
   };
@@ -164,9 +195,12 @@ function Admin() {
   // Xóa user
   const deleteUser = async (id) => {
     try {
-      await api.delete(`/auth/users/${id}`);
+      console.log("🔄 Deleting user:", id);
+      await api.delete(`/users/${id}`);
+      console.log("✅ User deleted successfully");
     } catch (error) {
-      console.error("Lỗi xóa user:", error);
+      console.error("❌ Lỗi xóa user:", error);
+      console.error("Error details:", error.response?.data);
       throw error;
     }
   };
@@ -203,11 +237,11 @@ function Admin() {
       icon: React.createElement(BarChartOutlined),
       label: "Xem Dashboard & Báo cáo",
     },
-    {
-      key: "handle_feedback",
-      icon: React.createElement(EyeOutlined),
-      label: "Xử lý Phản hồi Dịch vụ/Tư vấn",
-    },
+    // {
+    //   key: "handle_feedback",
+    //   icon: React.createElement(EyeOutlined),
+    //   label: "Xử lý Phản hồi Dịch vụ/Tư vấn",
+    // },
     {
       key: "manage_payments",
       icon: React.createElement(SolutionOutlined),
@@ -372,11 +406,6 @@ function Admin() {
   ];
 
   const paymentColumns = [
-    {
-      title: "Transaction ID",
-      dataIndex: "transactionId",
-      key: "transactionId",
-    },
     { title: "User", dataIndex: "user", key: "user" },
     { title: "Amount", dataIndex: "amount", key: "amount" },
     { title: "Date", dataIndex: "date", key: "date" },
@@ -402,18 +431,37 @@ function Admin() {
   const handleUserModalOk = async () => {
     try {
       const values = await form.validateFields();
+      console.log("📝 Form values:", values);
+
       if (editingUser) {
+        console.log("🔄 Updating existing user:", editingUser.id);
         await updateUser(editingUser.id, values);
+        message.success("Cập nhật người dùng thành công!");
       } else {
+        console.log("🔄 Adding new user");
         await addUser(values);
+        message.success("Thêm người dùng thành công!");
       }
+
       setIsUserModalVisible(false);
       form.resetFields();
       setEditingUser(null);
+
+      // Refresh user list
       const data = await fetchUsers();
       setUsers(data);
     } catch (error) {
-      console.error("Lỗi cập nhật người dùng:", error);
+      console.error("❌ Lỗi cập nhật người dùng:", error);
+
+      if (error.response?.status === 404) {
+        message.error("Không tìm thấy API endpoint. Vui lòng kiểm tra server!");
+      } else if (error.response?.status === 400) {
+        message.error("Dữ liệu không hợp lệ. Vui lòng kiểm tra lại!");
+      } else if (error.response?.status === 500) {
+        message.error("Lỗi server. Vui lòng thử lại sau!");
+      } else {
+        message.error("Có lỗi xảy ra. Vui lòng thử lại!");
+      }
     }
   };
 
@@ -432,111 +480,7 @@ function Admin() {
   const renderContent = () => {
     switch (selectedMenuItem) {
       case "manage_users":
-        return (
-          <Card title="Quản lý Tài khoản & Vai trò">
-            <Tabs
-              defaultActiveKey="customers"
-              items={[
-                {
-                  key: "customers",
-                  label: "Khách hàng",
-                  children: (
-                    <div>
-                      <div
-                        style={{
-                          marginBottom: 16,
-                          display: "flex",
-                          justifyContent: "space-between",
-                        }}
-                      >
-                        <h3>Danh sách Khách hàng</h3>
-                        <Button
-                          type="primary"
-                          icon={<PlusOutlined />}
-                          onClick={() => setIsUserModalVisible(true)}
-                        >
-                          Thêm Khách hàng
-                        </Button>
-                      </div>
-                      <Table
-                        columns={userColumns}
-                        dataSource={users.filter(
-                          (user) => user.role === "CUSTOMER"
-                        )}
-                        rowKey="id"
-                        pagination={{ pageSize: 10 }}
-                      />
-                    </div>
-                  ),
-                },
-                {
-                  key: "staff",
-                  label: "Nhân viên",
-                  children: (
-                    <div>
-                      <div
-                        style={{
-                          marginBottom: 16,
-                          display: "flex",
-                          justifyContent: "space-between",
-                        }}
-                      >
-                        <h3>Danh sách Nhân viên</h3>
-                        <Button
-                          type="primary"
-                          icon={<PlusOutlined />}
-                          onClick={() => setIsUserModalVisible(true)}
-                        >
-                          Thêm Nhân viên
-                        </Button>
-                      </div>
-                      <Table
-                        columns={userColumns}
-                        dataSource={users.filter(
-                          (user) => user.role === "STAFF"
-                        )}
-                        rowKey="id"
-                        pagination={{ pageSize: 10 }}
-                      />
-                    </div>
-                  ),
-                },
-                {
-                  key: "consultants",
-                  label: "Tư vấn viên",
-                  children: (
-                    <div>
-                      <div
-                        style={{
-                          marginBottom: 16,
-                          display: "flex",
-                          justifyContent: "space-between",
-                        }}
-                      >
-                        <h3>Danh sách Tư vấn viên</h3>
-                        <Button
-                          type="primary"
-                          icon={<PlusOutlined />}
-                          onClick={() => setIsUserModalVisible(true)}
-                        >
-                          Thêm Tư vấn viên
-                        </Button>
-                      </div>
-                      <Table
-                        columns={userColumns}
-                        dataSource={users.filter(
-                          (user) => user.role === "CONSULTANT"
-                        )}
-                        rowKey="id"
-                        pagination={{ pageSize: 10 }}
-                      />
-                    </div>
-                  ),
-                },
-              ]}
-            />
-          </Card>
-        );
+        return <UserManagement form={form} />;
       case "manage_services":
         return <ServiceManagement />;
       case "manage_bookings":

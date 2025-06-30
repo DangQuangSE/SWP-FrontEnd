@@ -22,7 +22,7 @@ const APPOINTMENT_STATUSES = [
   { key: "ALL", label: "Tất cả", color: "default" },
   { key: "PENDING", label: "Chờ xác nhận", color: "orange" },
   { key: "CONFIRMED", label: "Đã xác nhận", color: "blue" },
-  { key: "CHECKED", label: "Đã khám", color: "green" },
+  { key: "CHECKING", label: "Đã khám", color: "green" },
   { key: "COMPLETED", label: "Hoàn thành", color: "success" },
   { key: "CANCELED", label: "Đã hủy", color: "red" },
   { key: "ABSENT", label: "Vắng mặt", color: "volcano" },
@@ -45,7 +45,7 @@ const BookingDashboard = () => {
         const statusList = [
           "PENDING",
           "CONFIRMED",
-          "CHECKED",
+          "CHECKING",
           "COMPLETED",
           "CANCELED",
           "ABSENT",
@@ -313,7 +313,7 @@ const BookingDashboard = () => {
                 <strong>Thông tin chi tiết:</strong>
               </p>
               <p>
-                • <strong>Tư vấn viên:</strong>{" "}
+                • <strong>Tư vấn viên - Bác sĩ:</strong>{" "}
                 {record.appointmentDetails[0].consultantName ||
                   "Chưa phân công"}
               </p>

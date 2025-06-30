@@ -9,19 +9,26 @@ import {
   message,
   Modal,
   Input,
+  Popconfirm,
 } from "antd";
-import { EyeOutlined, EditOutlined, CheckOutlined } from "@ant-design/icons";
+import {
+  EyeOutlined,
+  EditOutlined,
+  CheckOutlined,
+  CloseOutlined,
+} from "@ant-design/icons";
 import api from "../../../../configs/api";
 import "../../AdminDashboard/BookingDashboard/BookingDashboard.css";
 
 const { Search } = Input;
 
-// Định nghĩa status cho Staff (chỉ 3 trạng thái)
+// Định nghĩa status cho Staff (bao gồm cả CANCELED)
 const APPOINTMENT_STATUSES = [
   { key: "ALL", label: "Tất cả", color: "default" },
   { key: "PENDING", label: "Chờ xác nhận", color: "orange" },
   { key: "CONFIRMED", label: "Đã xác nhận", color: "blue" },
   { key: "CHECKED", label: "Có mặt", color: "green" },
+  { key: "CANCELED", label: "Đã hủy", color: "red" },
 ];
 
 const StaffBookingDashboard = () => {
@@ -37,8 +44,8 @@ const StaffBookingDashboard = () => {
       let allAppointments = [];
 
       if (status === "ALL") {
-        // Gọi API cho 3 status của Staff và merge lại
-        const statusList = ["PENDING", "CONFIRMED", "CHECKED"];
+        // Gọi API cho tất cả status của Staff và merge lại
+        const statusList = ["PENDING", "CONFIRMED", "CHECKED", "CANCELED"];
 
         console.log(" Fetching staff appointments for statuses:", statusList);
 
@@ -221,6 +228,37 @@ const StaffBookingDashboard = () => {
     message.info("Chức năng chỉnh sửa đang được phát triển");
   };
 
+  // Hủy lịch hẹn
+  const handleCancelAppointment = async (record) => {
+    try {
+      console.log("🔄 Canceling appointment:", record.id);
+
+      // Gọi API để hủy lịch hẹn (cập nhật status thành CANCELED)
+      const response = await api.put(`/appointment/${record.id}`, {
+        ...record,
+        status: "CANCELED",
+      });
+
+      console.log("✅ Appointment canceled successfully:", response.data);
+      message.success(
+        "Hủy lịch hẹn thành công! Trạng thái đã chuyển sang CANCELED."
+      );
+
+      // Refresh danh sách appointments
+      await fetchAppointments(activeTab);
+    } catch (error) {
+      console.error("❌ Error canceling appointment:", error);
+      console.error("Error details:", error.response?.data);
+
+      const errorMessage =
+        error.response?.data?.message ||
+        error.response?.data?.error ||
+        error.message ||
+        "Có lỗi xảy ra khi hủy lịch hẹn!";
+      message.error(errorMessage);
+    }
+  };
+
   // Table columns
   const columns = [
     {
@@ -314,7 +352,7 @@ const StaffBookingDashboard = () => {
     {
       title: "Thao tác",
       key: "actions",
-      width: 120,
+      width: 180,
       fixed: "right",
       render: (_, record) => (
         <Space size="small" className="booking-dashboard__action-space">
@@ -337,7 +375,7 @@ const StaffBookingDashboard = () => {
               title="Đánh dấu đã khám"
               className="booking-dashboard__checkin-btn"
             >
-              Checked
+              Checking
             </Button>
           )}
           <Button
@@ -349,6 +387,29 @@ const StaffBookingDashboard = () => {
           >
             Sửa
           </Button>
+          {(record.status === "PENDING" ||
+            record.status === "CONFIRMED" ||
+            record.status === "CHECKED") &&
+            record.status !== "CANCELED" && (
+              <Popconfirm
+                title="Hủy lịch hẹn"
+                description="Bạn có chắc chắn muốn hủy lịch hẹn này?"
+                onConfirm={() => handleCancelAppointment(record)}
+                okText="Có"
+                cancelText="Không"
+                okType="danger"
+              >
+                <Button
+                  size="small"
+                  danger
+                  icon={<CloseOutlined />}
+                  className="booking-dashboard__cancel-btn"
+                  title="Hủy lịch hẹn"
+                >
+                  Hủy
+                </Button>
+              </Popconfirm>
+            )}
         </Space>
       ),
     },

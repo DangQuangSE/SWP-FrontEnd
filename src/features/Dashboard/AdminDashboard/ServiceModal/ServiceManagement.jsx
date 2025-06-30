@@ -417,7 +417,6 @@ const ServiceManagement = () => {
 
   // Table columns definition
   const serviceColumns = [
-    { title: "ID", dataIndex: "id", key: "id" },
     { title: "Tên Dịch vụ", dataIndex: "name", key: "name" },
     { title: "Mô tả", dataIndex: "description", key: "description" },
     {

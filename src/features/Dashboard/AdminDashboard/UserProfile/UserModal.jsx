@@ -3,13 +3,7 @@ import { Modal, Form, Input, Select } from "antd";
 
 const { Option } = Select;
 
-const UserModal = ({
-  visible,
-  onOk,
-  onCancel,
-  form,
-  editingUser,
-}) => {
+const UserModal = ({ visible, onOk, onCancel, form, editingUser }) => {
   return (
     <Modal
       title={editingUser ? "Edit User" : "Add User"}
@@ -45,8 +39,9 @@ const UserModal = ({
           rules={[{ required: true, message: "Please select a role!" }]}
         >
           <Select placeholder="Select a role">
-            <Option value="User">User</Option>
+            <Option value="User">Customer</Option>
             <Option value="Consultant">Consultant</Option>
+            <Option value="Admin">Staff</Option>
             <Option value="Admin">Admin</Option>
           </Select>
         </Form.Item>
