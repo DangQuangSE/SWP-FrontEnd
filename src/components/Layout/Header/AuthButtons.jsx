@@ -7,8 +7,9 @@ import {
   UserOutlined,
   SettingOutlined,
   LogoutOutlined,
+  BellFilled
 } from "@ant-design/icons";
-import { Avatar, Dropdown } from "antd";
+import { Avatar, Dropdown, Badge } from "antd";
 import { logout } from "../../../redux/reduxStore/userSlice.js";
 import { useNavigate } from "react-router-dom";
 
@@ -37,6 +38,7 @@ const AuthButtons = () => {
     setOpen(true);
   };
 
+
   const items = [
     {
       key: "1",
@@ -62,6 +64,11 @@ const AuthButtons = () => {
     },
   ];
 
+  const notifications = [
+    { id: 1, message: "Có tin nhắn mới" },
+    { id: 2, message: "Bạn có thông báo mới" },
+  ];
+
   return (
     <div className="header-buttons">
       {!isLoggedIn ? (
@@ -69,16 +76,30 @@ const AuthButtons = () => {
           <span className="login-btn">Đăng nhập</span>
         </GradientButton>
       ) : (
-        <Dropdown menu={{ items }} trigger={["click"]}>
-          <div
-            style={{ display: "flex", alignItems: "center", cursor: "pointer" }}
-          >
-            <Avatar src={user?.imageUrl || "/placeholder.svg"} />
-            <span style={{ marginLeft: "8px" }}>
-              {user?.fullname || "User"}
-            </span>
+        <div className="auth-buttons">
+          {/* Biểu tương thông báo */}
+          <div className="notification-icon">
+            {/* <BellFilled /> */}
+            <Badge count={notifications.length} size="large">
+              <div className="notification-circle">
+                <BellFilled />
+              </div>
+            </Badge>
+
           </div>
-        </Dropdown>
+          {/* User dropdown */}
+          <Dropdown menu={{ items }} trigger={["click"]}>
+            <div
+              style={{ display: "flex", alignItems: "center", cursor: "pointer" }}
+            >
+              <Avatar src={user?.imageUrl || "/placeholder.svg"} />
+              <span style={{ marginLeft: "8px" }}>
+                {user?.fullname || "User"}
+              </span>
+            </div>
+          </Dropdown>
+        </div>
+
       )}
 
       <AuthModal open={open} onClose={() => setOpen(false)} />
