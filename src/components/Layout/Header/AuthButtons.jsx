@@ -1,6 +1,6 @@
 import "./AuthButtons.css";
 import GradientButton from "../../common/GradientButton.jsx";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import AuthModal from "../../../features/authentication/AuthModal";
 import { useDispatch, useSelector } from "react-redux";
 import {
@@ -12,6 +12,22 @@ import {
 import { Avatar, Dropdown, Badge } from "antd";
 import { logout } from "../../../redux/reduxStore/userSlice.js";
 import { useNavigate } from "react-router-dom";
+import api from "../../../configs/api";
+import { formatDistanceToNow, parseISO } from 'date-fns'
+import { vi } from 'date-fns/locale';
+
+const formatDateTime = (dateTimeString) => {
+  if (!dateTimeString) return 'Vừa xong';
+
+  try {
+    const date = parseISO(dateTimeString);
+    return formatDistanceToNow(date, { addSuffix: true, locale: vi });
+    // Kết quả: "5 phút trước", "2 giờ trước", "3 ngày trước", v.v.
+  } catch (e) {
+    console.error('Error parsing date:', e);
+    return 'Vừa xong';
+  }
+};
 
 const AuthButtons = () => {
   const [open, setOpen] = useState(false);
@@ -33,6 +49,11 @@ const AuthButtons = () => {
   //  Cải thiện logic kiểm tra đăng nhập
   const isLoggedIn = user && user.email && user.email.trim() !== "";
   console.log("isLoggedIn:", isLoggedIn);
+  const [showNotifications, setShowNotifications] = useState(false);
+
+  // const toggleNotifications = () => {
+  //   setShowNotifications(!showNotifications);
+  // };
 
   const onLoginClick = () => {
     setOpen(true);
@@ -64,10 +85,46 @@ const AuthButtons = () => {
     },
   ];
 
-  const notifications = [
-    { id: 1, message: "Có tin nhắn mới" },
-    { id: 2, message: "Bạn có thông báo mới" },
-  ];
+  // const notifications = [
+  //   { id: 1, message: "Có tin nhắn mới" },
+  //   { id: 2, message: "Bạn có thông báo mới" },
+  // ];
+
+  const [notifications, setNotifications] = useState([]);
+  const [loading, setLoading] = useState(false);
+
+  const fetchNotifications = async () => {
+    try {
+      setLoading(true);
+      const response = await api.get("/notifications");
+      console.log("Notifications API response:", response.data);
+      setNotifications(response.data || []);
+    } catch (error) {
+      console.error("Error fetching notifications:", error);
+      // Nếu API lỗi, sử dụng dữ liệu mẫu
+      setNotifications([
+        { id: 1, message: "Bạn có lịch hẹn mới", createdAt: new Date().toISOString() },
+        { id: 2, message: "Kết quả xét nghiệm đã có", createdAt: new Date().toISOString() }
+      ]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    if (isLoggedIn) {
+      fetchNotifications();
+    }
+  }, [isLoggedIn]);
+
+  const toggleNotifications = () => {
+    setShowNotifications(!showNotifications);
+
+    // Nếu đang mở thông báo, refresh dữ liệu
+    if (!showNotifications && isLoggedIn) {
+      fetchNotifications();
+    }
+  };
 
   return (
     <div className="header-buttons">
@@ -81,11 +138,42 @@ const AuthButtons = () => {
           <div className="notification-icon">
             {/* <BellFilled /> */}
             <Badge count={notifications.length} size="large">
-              <div className="notification-circle">
+              <div className="notification-circle"
+                onClick={toggleNotifications}>
                 <BellFilled />
               </div>
             </Badge>
+            {showNotifications && (
+              <div className="simple-notification-dropdown">
+                {/* Bảng trắng đơn giản */}
+                <div className="notification-header">
+                  <h3>Thông báo</h3>
+                </div>
 
+                {loading ? (
+                  <div className="notification-loading">Đang tải...</div>
+                ) : notifications.length === 0 ? (
+                  <div className="notification-empty">Không có thông báo mới</div>
+                ) : (
+                  <div className="notification-list">
+                    {notifications.map((notification) => (
+                      <div
+                        key={notification.id}
+                        className={`notification-item ${!notification.isRead ? 'unread' : ''}`}
+                      >
+                        <div className="notification-content">
+                          <h4 className="notification-title">{notification.title}</h4>
+                          <p className="notification-message">{notification.content}</p>
+                          <span className="notification-time">
+                            {formatDateTime(notification.createdAt)}
+                          </span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
           </div>
           {/* User dropdown */}
           <Dropdown menu={{ items }} trigger={["click"]}>
