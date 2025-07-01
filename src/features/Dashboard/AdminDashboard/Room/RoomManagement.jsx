@@ -1,8 +1,23 @@
 import React, { useState, useEffect } from "react";
-import { Card, Table, Button, Space, Popconfirm, message, Form } from "antd";
-import { PlusOutlined, EditOutlined, DeleteOutlined } from "@ant-design/icons";
+import {
+  Card,
+  Table,
+  Button,
+  Space,
+  Popconfirm,
+  message,
+  Form,
+  Tag,
+} from "antd";
+import {
+  PlusOutlined,
+  EditOutlined,
+  DeleteOutlined,
+  UserOutlined,
+} from "@ant-design/icons";
 import { fetchRooms, addRoom, updateRoom, deleteRoom } from "./roomAPI";
 import RoomModal from "./RoomModal";
+import ConsultantRoomModal from "./ConsultantRoomModal";
 import dayjs from "dayjs";
 
 const RoomManagement = () => {
@@ -10,6 +25,9 @@ const RoomManagement = () => {
   const [rooms, setRooms] = useState([]);
   const [editingRoom, setEditingRoom] = useState(null);
   const [isRoomModalVisible, setIsRoomModalVisible] = useState(false);
+  const [isConsultantModalVisible, setIsConsultantModalVisible] =
+    useState(false);
+  const [selectedRoom, setSelectedRoom] = useState(null);
   const [loading, setLoading] = useState(false);
   const [form] = Form.useForm();
 
@@ -99,6 +117,26 @@ const RoomManagement = () => {
     setEditingRoom(null);
   };
 
+  // Handle manage consultants
+  const handleManageConsultants = (room) => {
+    setSelectedRoom(room);
+    setIsConsultantModalVisible(true);
+  };
+
+  // Handle consultant modal cancel
+  const handleConsultantModalCancel = () => {
+    setIsConsultantModalVisible(false);
+    setSelectedRoom(null);
+  };
+
+  // Helper function to get specialization name (không cần thiết nữa vì API trả về object)
+  // const getSpecializationName = (specializationId) => {
+  //   const specialization = specializations.find(
+  //     (spec) => spec.id === specializationId
+  //   );
+  //   return specialization ? specialization.name : `ID: ${specializationId}`;
+  // };
+
   // Table columns definition
   const roomColumns = [
     {
@@ -106,12 +144,23 @@ const RoomManagement = () => {
       dataIndex: "name",
       key: "name",
       ellipsis: true,
+      width: 150,
     },
     {
       title: "Mô tả",
       dataIndex: "description",
       key: "description",
       ellipsis: true,
+      width: 200,
+    },
+    {
+      title: "Chuyên khoa",
+      dataIndex: "specialization",
+      key: "specialization",
+      width: 150,
+      render: (specialization) => (
+        <Tag color="blue">{specialization?.name || "Chưa có"}</Tag>
+      ),
     },
     {
       title: "Ngày tạo",
@@ -124,9 +173,17 @@ const RoomManagement = () => {
     {
       title: "Thao tác",
       key: "action",
-      width: 150,
+      width: 200,
       render: (_, record) => (
         <Space size="small">
+          <Button
+            icon={<UserOutlined />}
+            size="small"
+            onClick={() => handleManageConsultants(record)}
+            title="Quản lý bác sĩ"
+          >
+            Bác sĩ
+          </Button>
           <Button
             icon={<EditOutlined />}
             size="small"
@@ -182,6 +239,12 @@ const RoomManagement = () => {
         onCancel={handleRoomModalCancel}
         form={form}
         editingRoom={editingRoom}
+      />
+
+      <ConsultantRoomModal
+        visible={isConsultantModalVisible}
+        onCancel={handleConsultantModalCancel}
+        room={selectedRoom}
       />
     </>
   );
