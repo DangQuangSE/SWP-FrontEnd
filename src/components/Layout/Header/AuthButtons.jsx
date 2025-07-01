@@ -50,6 +50,8 @@ const AuthButtons = () => {
   const isLoggedIn = user && user.email && user.email.trim() !== "";
   console.log("isLoggedIn:", isLoggedIn);
   const [showNotifications, setShowNotifications] = useState(false);
+  const [selectedNotification, setSelectedNotification] = useState(null);
+  const [notificationDetailVisible, setNotificationDetailVisible] = useState(false);
 
   // const toggleNotifications = () => {
   //   setShowNotifications(!showNotifications);
@@ -111,6 +113,36 @@ const AuthButtons = () => {
     }
   };
 
+  const handleNotificationClick = async (notification) => {
+    console.log("Notification clicked:", notification);
+    try {
+      // Nếu thông báo chưa đọc, gọi API đánh dấu đã đọc
+      if (!notification.isRead) {
+        await api.patch(`/notifications/${notification.id}/read`);
+
+        // Cập nhật state để hiển thị thông báo đã đọc
+        setNotifications(prevNotifications =>
+          prevNotifications.map(item =>
+            item.id === notification.id
+              ? { ...item, isRead: true }
+              : item
+          )
+        );
+      }
+
+      // Hiển thị chi tiết thông báo
+      setSelectedNotification(notification);
+      setNotificationDetailVisible(true);
+    } catch (error) {
+      console.error("Error marking notification as read:", error);
+    }
+  };
+
+  const closeNotificationDetail = () => {
+    setNotificationDetailVisible(false);
+    setSelectedNotification(null);
+  };
+
   useEffect(() => {
     if (isLoggedIn) {
       fetchNotifications();
@@ -160,6 +192,7 @@ const AuthButtons = () => {
                       <div
                         key={notification.id}
                         className={`notification-item ${!notification.isRead ? 'unread' : ''}`}
+                        onClick={() => handleNotificationClick(notification)}
                       >
                         <div className="notification-content">
                           <h4 className="notification-title">{notification.title}</h4>
@@ -191,6 +224,45 @@ const AuthButtons = () => {
       )}
 
       <AuthModal open={open} onClose={() => setOpen(false)} />
+
+      {/* Modal chi tiết thông báo */}
+      {notificationDetailVisible && selectedNotification && (
+        <div className="notification-detail-modal" onClick={closeNotificationDetail}>
+          <div className="notification-detail-content" onClick={(e) => e.stopPropagation()}>
+            <div className="notification-detail-header">
+              <h3>{selectedNotification.title}</h3>
+              <button className="close-button" onClick={closeNotificationDetail}>×</button>
+            </div>
+            <div className="notification-detail-body">
+              <p className="notification-detail-message">{selectedNotification.content}</p>
+
+              {/* Hiển thị thông tin liên quan đến cuộc hẹn nếu có */}
+              {selectedNotification.appointment && (
+                <div className="notification-appointment-info">
+                  <h4>Thông tin cuộc hẹn</h4>
+                  <p>Dịch vụ: {selectedNotification.appointment.serviceName}</p>
+                  <p>Thời gian: {new Date(selectedNotification.appointment.appointmentTime).toLocaleString('vi-VN')}</p>
+                  <p>Trạng thái: {selectedNotification.appointment.status}</p>
+                </div>
+              )}
+
+              {/* Hiển thị thông tin liên quan đến chu kỳ nếu có */}
+              {selectedNotification.cycleTracking && (
+                <div className="notification-cycle-info">
+                  <h4>Thông tin chu kỳ</h4>
+                  <p>Ngày dự kiến: {new Date(selectedNotification.cycleTracking.expectedDate).toLocaleDateString('vi-VN')}</p>
+                </div>
+              )}
+
+              <div className="notification-detail-footer">
+                <span className="notification-time">
+                  {formatDateTime(selectedNotification.createdAt)}
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
