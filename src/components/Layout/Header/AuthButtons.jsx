@@ -7,27 +7,13 @@ import {
   UserOutlined,
   SettingOutlined,
   LogoutOutlined,
-  BellFilled
 } from "@ant-design/icons";
 import { Avatar, Dropdown, Badge } from "antd";
 import { logout } from "../../../redux/reduxStore/userSlice.js";
 import { useNavigate } from "react-router-dom";
 import api from "../../../configs/api";
-import { formatDistanceToNow, parseISO } from 'date-fns'
-import { vi } from 'date-fns/locale';
-
-const formatDateTime = (dateTimeString) => {
-  if (!dateTimeString) return 'Vừa xong';
-
-  try {
-    const date = parseISO(dateTimeString);
-    return formatDistanceToNow(date, { addSuffix: true, locale: vi });
-    // Kết quả: "5 phút trước", "2 giờ trước", "3 ngày trước", v.v.
-  } catch (e) {
-    console.error('Error parsing date:', e);
-    return 'Vừa xong';
-  }
-};
+import NotificationDropdown from "./Notification.jsx";
+import NotificationDetail from "./NotificationDetail.jsx";
 
 const AuthButtons = () => {
   const [open, setOpen] = useState(false);
@@ -52,10 +38,8 @@ const AuthButtons = () => {
   const [showNotifications, setShowNotifications] = useState(false);
   const [selectedNotification, setSelectedNotification] = useState(null);
   const [notificationDetailVisible, setNotificationDetailVisible] = useState(false);
-
-  // const toggleNotifications = () => {
-  //   setShowNotifications(!showNotifications);
-  // };
+  const [notifications, setNotifications] = useState([]);
+  const [loading, setLoading] = useState(false);
 
   const onLoginClick = () => {
     setOpen(true);
@@ -86,14 +70,6 @@ const AuthButtons = () => {
       },
     },
   ];
-
-  // const notifications = [
-  //   { id: 1, message: "Có tin nhắn mới" },
-  //   { id: 2, message: "Bạn có thông báo mới" },
-  // ];
-
-  const [notifications, setNotifications] = useState([]);
-  const [loading, setLoading] = useState(false);
 
   const fetchNotifications = async () => {
     try {
@@ -130,11 +106,18 @@ const AuthButtons = () => {
         );
       }
 
-      // Hiển thị chi tiết thông báo
-      setSelectedNotification(notification);
+      // Lấy chi tiết thông báo từ API khi người dùng nhấn vào thông báo
+      const detailResponse = await api.get(`/notifications/${notification.id}`);
+      console.log("Notification detail response:", detailResponse.data);
+
+      // Hiển thị chi tiết thông báo từ API
+      setSelectedNotification(detailResponse.data);
       setNotificationDetailVisible(true);
     } catch (error) {
-      console.error("Error marking notification as read:", error);
+      console.error("Error handling notification:", error);
+      // Nếu có lỗi, vẫn hiển thị thông báo với dữ liệu hiện có
+      setSelectedNotification(notification);
+      setNotificationDetailVisible(true);
     }
   };
 
@@ -167,47 +150,13 @@ const AuthButtons = () => {
       ) : (
         <div className="auth-buttons">
           {/* Biểu tương thông báo */}
-          <div className="notification-icon">
-            {/* <BellFilled /> */}
-            <Badge count={notifications.length} size="large">
-              <div className="notification-circle"
-                onClick={toggleNotifications}>
-                <BellFilled />
-              </div>
-            </Badge>
-            {showNotifications && (
-              <div className="simple-notification-dropdown">
-                {/* Bảng trắng đơn giản */}
-                <div className="notification-header">
-                  <h3>Thông báo</h3>
-                </div>
-
-                {loading ? (
-                  <div className="notification-loading">Đang tải...</div>
-                ) : notifications.length === 0 ? (
-                  <div className="notification-empty">Không có thông báo mới</div>
-                ) : (
-                  <div className="notification-list">
-                    {notifications.map((notification) => (
-                      <div
-                        key={notification.id}
-                        className={`notification-item ${!notification.isRead ? 'unread' : ''}`}
-                        onClick={() => handleNotificationClick(notification)}
-                      >
-                        <div className="notification-content">
-                          <h4 className="notification-title">{notification.title}</h4>
-                          <p className="notification-message">{notification.content}</p>
-                          <span className="notification-time">
-                            {formatDateTime(notification.createdAt)}
-                          </span>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
-            )}
-          </div>
+          <NotificationDropdown
+            notifications={notifications}
+            loading={loading}
+            show={showNotifications}
+            toggle={toggleNotifications}
+            onClickNotification={handleNotificationClick}
+          />
           {/* User dropdown */}
           <Dropdown menu={{ items }} trigger={["click"]}>
             <div
@@ -226,43 +175,11 @@ const AuthButtons = () => {
       <AuthModal open={open} onClose={() => setOpen(false)} />
 
       {/* Modal chi tiết thông báo */}
-      {notificationDetailVisible && selectedNotification && (
-        <div className="notification-detail-modal" onClick={closeNotificationDetail}>
-          <div className="notification-detail-content" onClick={(e) => e.stopPropagation()}>
-            <div className="notification-detail-header">
-              <h3>{selectedNotification.title}</h3>
-              <button className="close-button" onClick={closeNotificationDetail}>×</button>
-            </div>
-            <div className="notification-detail-body">
-              <p className="notification-detail-message">{selectedNotification.content}</p>
-
-              {/* Hiển thị thông tin liên quan đến cuộc hẹn nếu có */}
-              {selectedNotification.appointment && (
-                <div className="notification-appointment-info">
-                  <h4>Thông tin cuộc hẹn</h4>
-                  <p>Dịch vụ: {selectedNotification.appointment.serviceName}</p>
-                  <p>Thời gian: {new Date(selectedNotification.appointment.appointmentTime).toLocaleString('vi-VN')}</p>
-                  <p>Trạng thái: {selectedNotification.appointment.status}</p>
-                </div>
-              )}
-
-              {/* Hiển thị thông tin liên quan đến chu kỳ nếu có */}
-              {selectedNotification.cycleTracking && (
-                <div className="notification-cycle-info">
-                  <h4>Thông tin chu kỳ</h4>
-                  <p>Ngày dự kiến: {new Date(selectedNotification.cycleTracking.expectedDate).toLocaleDateString('vi-VN')}</p>
-                </div>
-              )}
-
-              <div className="notification-detail-footer">
-                <span className="notification-time">
-                  {formatDateTime(selectedNotification.createdAt)}
-                </span>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
+      <NotificationDetail
+        visible={notificationDetailVisible}
+        notification={selectedNotification}
+        onClose={closeNotificationDetail}
+      />
     </div>
   );
 };
