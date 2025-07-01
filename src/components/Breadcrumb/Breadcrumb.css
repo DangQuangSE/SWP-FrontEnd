@@ -27,8 +27,7 @@
   color: #222;
   font-weight: 700;
   text-decoration: none;
-  font-size: 18px;
-  transition: color 0.2s;
+  transition: color 0.3s ease;
 }
 
 .breadcrumb-link.active {

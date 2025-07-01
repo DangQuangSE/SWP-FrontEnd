@@ -20,11 +20,7 @@ const Articles = () => {
     try {
       setLikingBlogs((prev) => new Set([...prev, blogId]));
 
-      console.log(` Attempting to like blog ${blogId}...`);
-      console.log(`🔑 Token available:`, !!localStorage.getItem("token"));
-
       const response = await likeBlog(blogId);
-      console.log(` Like API response:`, response);
 
       // Update local state optimistically
       setArticles((prevArticles) =>
@@ -38,8 +34,6 @@ const Articles = () => {
       // Reload all articles to get updated data from server
       setTimeout(async () => {
         try {
-          console.log(` Reloading all articles to verify like count...`);
-
           // Reload the articles data from API
           const response = await fetch(
             "http://localhost:8080/api/blog?page=0&size=20",
@@ -89,30 +83,20 @@ const Articles = () => {
             }));
 
             setArticles(transformedArticles);
-            console.log(` Articles reloaded successfully`);
           }
         } catch (reloadError) {
-          console.error(` Error reloading articles:`, reloadError);
+          console.error(`Error reloading articles:`, reloadError);
         }
       }, 2000);
 
-      console.log(` Successfully liked blog ${blogId}`);
     } catch (error) {
-      console.error(` Error liking blog ${blogId}:`, error);
-      console.error(` Error details:`, {
-        message: error.message,
-        status: error.response?.status,
-        data: error.response?.data,
-        config: error.config,
-      });
-
       // Show user-friendly error message with login prompt
       const errorMessage =
         error.message || "Không thể thích bài viết. Vui lòng thử lại sau.";
 
       if (errorMessage.includes("đăng nhập")) {
         const shouldLogin = confirm(
-          ` ${errorMessage}\n\n🔑 Bạn có muốn đăng nhập ngay không?`
+          ` ${errorMessage}\n\n Bạn có muốn đăng nhập ngay không?`
         );
         if (shouldLogin) {
           // Redirect to login page
@@ -146,13 +130,7 @@ const Articles = () => {
     const loadTopBlogs = async () => {
       try {
         setLoading(true);
-        console.log(" Loading top 5 blogs by view count...");
-        console.log("🌐 Current URL:", window.location.href);
-        console.log("🔑 Token available:", !!localStorage.getItem("token"));
-
         // Lấy nhiều blogs để có thể sort theo viewCount
-        console.log("📡 Calling public API directly...");
-
         // Gọi API trực tiếp không qua api instance để tránh CORS
         const response = await fetch(
           "http://localhost:8080/api/blog?page=0&size=20",
@@ -164,15 +142,12 @@ const Articles = () => {
             },
           }
         );
-        console.log("📋 Response status:", response.status);
-        console.log("📋 Response ok:", response.ok);
 
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
         }
 
         const data = await response.json();
-        console.log("📋 Parsed response data:", data);
 
         let blogs = [];
         if (data?.content) {
@@ -181,15 +156,11 @@ const Articles = () => {
           blogs = data;
         }
 
-        console.log("📊 Total blogs loaded:", blogs.length);
-
         // Sort theo viewCount giảm dần và lấy top 5
         const topBlogs = blogs
           .filter((blog) => blog.status === "PUBLISHED") // Chỉ lấy blog đã publish
           .sort((a, b) => (b.viewCount || 0) - (a.viewCount || 0))
           .slice(0, 5);
-
-        console.log("🏆 Top 5 blogs by view count:", topBlogs);
 
         // Transform data để phù hợp với UI
         const transformedArticles = topBlogs.map((blog, index) => ({
@@ -213,7 +184,6 @@ const Articles = () => {
           featured: index === 0, // Blog có lượt xem cao nhất làm featured
         }));
 
-        console.log("✨ Transformed articles:", transformedArticles);
         setArticles(transformedArticles);
 
         // Lưu vào localStorage để dùng ở BlogDetail
@@ -222,7 +192,6 @@ const Articles = () => {
           JSON.stringify(transformedArticles)
         );
       } catch (error) {
-        console.error(" Error loading blogs:", error);
         // Fallback to empty array if API fails
         setArticles([]);
       } finally {

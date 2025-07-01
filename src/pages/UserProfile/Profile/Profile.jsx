@@ -18,7 +18,6 @@ import {
   EditOutlined,
   SaveOutlined,
 } from "@ant-design/icons";
-import { useSelector } from "react-redux";
 import dayjs from "dayjs";
 import api from "../../../configs/api";
 import "./Profile.css";
@@ -27,26 +26,47 @@ const Profile = () => {
   const [form] = Form.useForm();
   const [loading, setLoading] = useState(false);
   const [editing, setEditing] = useState(false);
-  const [profileData, setProfileData] = useState(null);
-  const [imageUrl, setImageUrl] = useState("");
+  const [user, setUser] = useState(null);
+  const [fetchingUser, setFetchingUser] = useState(true);
 
-  const user = useSelector((state) => state.user.user);
-
-  // Load profile data from Redux
+  // Fetch user data from API /api/me
   useEffect(() => {
-    if (user) {
-      setProfileData(user);
-      setImageUrl(user.imageUrl || "");
+    const fetchUserData = async () => {
+      const token = localStorage.getItem("token");
 
-      // Set form values from Redux user data
-      form.setFieldsValue({
-        fullname: user.fullname || "",
-        phone: user.phone || "",
-        address: user.address || "",
-        dateOfBirth: user.dateOfBirth ? dayjs(user.dateOfBirth) : null,
-      });
-    }
-  }, [user, form]);
+      if (!token) {
+        setFetchingUser(false);
+        message.error("Bạn chưa đăng nhập. Vui lòng đăng nhập để xem hồ sơ.");
+        return;
+      }
+
+      try {
+        setFetchingUser(true);
+        const response = await api.get("/me");
+        console.log("✅ User data from /api/me:", response.data);
+        setUser(response.data);
+
+        // Set form values from API user data
+        form.setFieldsValue({
+          fullname: response.data.fullname || "",
+          phone: response.data.phone || "",
+          address: response.data.address || "",
+          dateOfBirth: response.data.dateOfBirth
+            ? dayjs(response.data.dateOfBirth)
+            : null,
+        });
+      } catch (error) {
+        console.error("❌ Error fetching user data:", error);
+        const errorMessage =
+          error.response?.data?.message || "Không thể lấy thông tin người dùng";
+        message.error(errorMessage);
+      } finally {
+        setFetchingUser(false);
+      }
+    };
+
+    fetchUserData();
+  }, [form]);
 
   // Update profile
   const handleUpdateProfile = async (values) => {
@@ -70,14 +90,63 @@ const Profile = () => {
       message.success("Cập nhật hồ sơ thành công!");
       setEditing(false);
 
-      // Profile data will be updated from Redux after API response
+      // Refresh user data after successful update
+      const updatedResponse = await api.get("/me");
+      setUser(updatedResponse.data);
+
+      // Update form with fresh data
+      form.setFieldsValue({
+        fullname: updatedResponse.data.fullname || "",
+        phone: updatedResponse.data.phone || "",
+        address: updatedResponse.data.address || "",
+        dateOfBirth: updatedResponse.data.dateOfBirth
+          ? dayjs(updatedResponse.data.dateOfBirth)
+          : null,
+      });
     } catch (error) {
       console.error("Error updating profile:", error);
-      message.error("Cập nhật hồ sơ thất bại!");
+      const errorMessage =
+        error.response?.data?.message || "Cập nhật hồ sơ thất bại!";
+      message.error(errorMessage);
     } finally {
       setLoading(false);
     }
   };
+
+  // Show loading when fetching user data
+  if (fetchingUser) {
+    return (
+      <div className="profile-container">
+        <Card loading={true}>
+          <div style={{ textAlign: "center", padding: "40px" }}>
+            <p>Đang tải thông tin hồ sơ...</p>
+          </div>
+        </Card>
+      </div>
+    );
+  }
+
+  // Show error state if no user data
+  if (!user) {
+    return (
+      <div className="profile-container">
+        <Card>
+          <div style={{ textAlign: "center", padding: "40px" }}>
+            <p style={{ color: "#ff4d4f", fontSize: "16px" }}>
+              Không thể tải thông tin hồ sơ. Vui lòng thử lại.
+            </p>
+            <Button
+              type="primary"
+              onClick={() => window.location.reload()}
+              style={{ marginTop: "16px" }}
+            >
+              Tải lại trang
+            </Button>
+          </div>
+        </Card>
+      </div>
+    );
+  }
 
   return (
     <div className="profile-container">
@@ -96,6 +165,7 @@ const Profile = () => {
                 }
               }}
               loading={loading}
+              disabled={!user}
             >
               {editing ? "Lưu thay đổi" : "Chỉnh sửa"}
             </Button>
@@ -109,16 +179,19 @@ const Profile = () => {
             <div className="avatar-section">
               <Avatar
                 size={120}
-                src={imageUrl || user?.imageUrl}
+                src={user?.imageUrl}
                 icon={<UserOutlined />}
                 className="profile-avatar"
               />
 
               <div className="user-basic-info">
-                <h3>
-                  {profileData?.fullname || user?.fullname || "Chưa có tên"}
-                </h3>
+                <h3>{user?.fullname || "Chưa có tên"}</h3>
                 <p>{user?.email}</p>
+                {user?.role && (
+                  <p style={{ color: "#1890ff", fontWeight: "500" }}>
+                    Vai trò: {user.role}
+                  </p>
+                )}
               </div>
             </div>
           </Col>
@@ -212,7 +285,7 @@ const Profile = () => {
                     <Button
                       onClick={() => {
                         setEditing(false);
-                        // Reset form to original user data from Redux
+                        // Reset form to original user data from API
                         form.setFieldsValue({
                           fullname: user?.fullname || "",
                           phone: user?.phone || "",

@@ -20,9 +20,9 @@ import {
   deleteBlog,
   uploadImage,
 } from "../../../../api/consultantAPI";
-import "./WriteBlogs.css";
+import "./BlogManagement.css";
 
-const WriteBlogs = ({ userId, selectedTab }) => {
+const BlogManagement = ({ userId, selectedTab }) => {
   // Form instances
   const [createBlogForm] = Form.useForm();
   const [editBlogForm] = Form.useForm();
@@ -1047,7 +1047,7 @@ const WriteBlogs = ({ userId, selectedTab }) => {
                 <Select.Option value="PENDING">⏳ Chờ duyệt</Select.Option>
                 <Select.Option value="APPROVED"> Đã duyệt</Select.Option>
                 <Select.Option value="PUBLISHED">🌐 Đã đăng</Select.Option>
-                <Select.Option value="REJECTED"> Bị từ chối</Select.Option>
+                <Select.Option value="REJECTED">❌ Bị từ chối</Select.Option>
                 <Select.Option value="ARCHIVED">📦 Đã lưu trữ</Select.Option>
               </Select>
             </Form.Item>
@@ -1232,4 +1232,4 @@ const WriteBlogs = ({ userId, selectedTab }) => {
   return <div>Chọn tab để bắt đầu</div>;
 };
 
-export default WriteBlogs;
+export default BlogManagement;

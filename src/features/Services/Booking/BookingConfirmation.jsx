@@ -2,29 +2,44 @@
 import { useLocation, useNavigate } from "react-router-dom";
 import { message, Avatar } from "antd";
 import "./BookingConfirmation.css";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import api from "../../../configs/api";
 
 const BookingConfirmation = () => {
   const navigate = useNavigate();
   const { state: booking } = useLocation();
-  const user = JSON.parse(localStorage.getItem("user")) || {};
   const token = localStorage.getItem("token");
   const [paymentMethod, setPaymentMethod] = useState("direct");
+  const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
   const fullBooking = {
     ...booking,
     price: booking.price,
     serviceName: booking.serviceName,
   };
 
-  // useEffect(() => {
-  //   if (!token) {
-  //     message.error(
-  //       "Bạn chưa đăng nhập. Vui lòng đăng nhập để tiếp tục đặt lịch."
-  //     );
-  //     setTimeout(() => navigate("/"), 3000);
-  //   }
-  // }, [token, navigate]);
+  // Fetch user data from API /api/me
+  useEffect(() => {
+    const fetchUserData = async () => {
+      if (!token) {
+        setLoading(false);
+        return;
+      }
+
+      try {
+        const response = await api.get("/me");
+        console.log("✅ User data from /api/me:", response.data);
+        setUser(response.data);
+      } catch (error) {
+        console.error("❌ Error fetching user data:", error);
+        message.error("Không thể lấy thông tin người dùng");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchUserData();
+  }, [token]);
   if (!token) {
     return (
       <div className="booking-confirmation-container">
@@ -38,6 +53,24 @@ const BookingConfirmation = () => {
           }}
         >
           Bạn chưa đăng nhập. Vui lòng đăng nhập để tiếp tục đặt lịch.
+        </p>
+      </div>
+    );
+  }
+
+  if (loading) {
+    return (
+      <div className="booking-confirmation-container">
+        <p
+          style={{
+            padding: 40,
+            color: "#2753d0",
+            fontWeight: "bold",
+            fontSize: "18px",
+            textAlign: "center",
+          }}
+        >
+          Đang tải thông tin người dùng...
         </p>
       </div>
     );
@@ -130,38 +163,32 @@ const BookingConfirmation = () => {
           <div className="booking-user-profile">
             <Avatar
               size={48}
-              src={user.picture}
+              src={user?.imageUrl}
               className="booking-user-avatar"
             >
-              {user.name?.charAt(0) || "U"}
+              {user?.fullname?.charAt(0) || "U"}
             </Avatar>
             <div className="booking-user-info">
-              <h3>{user.name || "Không có tên"}</h3>
-              <p>{user.email || "Không có email"}</p>
+              <h3>{user?.fullname || "Không có tên"}</h3>
+              <p>{user?.email || "Không có email"}</p>
             </div>
           </div>
           <div className="booking-info-item">
-            <span className="booking-info-label">Giới tính:</span>
+            <span className="booking-info-label">Vai trò:</span>
             <span className="booking-info-value">
-              {user.gender || "Chưa cung cấp"}
-            </span>
-          </div>
-          <div className="booking-info-item">
-            <span className="booking-info-label">Ngày sinh:</span>
-            <span className="booking-info-value">
-              {user.dob || "Chưa cung cấp"}
+              {user?.role || "Chưa cung cấp"}
             </span>
           </div>
           <div className="booking-info-item">
             <span className="booking-info-label">Số điện thoại:</span>
             <span className="booking-info-value">
-              {user.phone || "Chưa cung cấp"}
+              {user?.phone || "Chưa cung cấp"}
             </span>
           </div>
           <div className="booking-info-item">
             <span className="booking-info-label">Địa chỉ:</span>
             <span className="booking-info-value">
-              {booking.address || "(Không có)"}
+              {user?.address || "Chưa cung cấp"}
             </span>
           </div>
           <div className="booking-info-item">
