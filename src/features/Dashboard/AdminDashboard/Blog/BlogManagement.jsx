@@ -20,9 +20,9 @@ import {
   deleteBlog,
   uploadImage,
 } from "../../../../api/consultantAPI";
-import "./WriteBlogs.css";
+import "./BlogManagement.css";
 
-const WriteBlogs = ({ userId, selectedTab }) => {
+const BlogManagement = ({ userId, selectedTab }) => {
   // Form instances
   const [createBlogForm] = Form.useForm();
   const [editBlogForm] = Form.useForm();
@@ -1232,4 +1232,4 @@ const WriteBlogs = ({ userId, selectedTab }) => {
   return <div>Chọn tab để bắt đầu</div>;
 };
 
-export default WriteBlogs;
+export default BlogManagement;

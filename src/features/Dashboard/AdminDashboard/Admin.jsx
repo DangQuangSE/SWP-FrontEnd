@@ -29,9 +29,6 @@ import {
 } from "@ant-design/icons";
 import api from "../../../configs/api";
 
-// Import modals
-import { UserModal, BlogModal } from "./index";
-
 // Import Specialization components
 import { SpecializationManagement } from "./Specialization";
 
@@ -41,17 +38,18 @@ import ServiceManagement from "./ServiceModal/ServiceManagement";
 // Import Room Management component
 import { RoomManagement } from "./Room";
 
+// Import Blog Management component
+import BlogManagement from "./Blog/BlogManagement";
+
+import { UserModal } from "./index";
+
 const { Header, Content, Sider } = Layout;
 const { Title } = Typography;
 
 function Admin() {
   const [imageUrl, setImageUrl] = useState("");
-  const [blogForm] = Form.useForm();
-  const [articles, setArticles] = useState([]);
-  const [editingArticle, setEditingArticle] = useState(null);
   const [editingUser, setEditingUser] = useState(null);
   const [isUserModalVisible, setIsUserModalVisible] = useState(false);
-  const [isBlogModalVisible, setIsBlogModalVisible] = useState(false);
 
   const [form] = Form.useForm();
 
@@ -82,38 +80,6 @@ function Admin() {
     key: String(key + 1),
     label,
   }));
-
-  // Lấy danh sách bài viết từ backend
-  const fetchArticles = async () => {
-    try {
-      const response = await api.get("/blog/summary");
-      // Đảm bảo trả về array
-      const data = Array.isArray(response.data)
-        ? response.data
-        : [response.data];
-      return data;
-    } catch (error) {
-      message.error("Lỗi lấy danh sách bài viết!");
-      return [];
-    }
-  };
-
-  // Xóa bài viết
-  const deleteArticle = async (id) => {
-    try {
-      await api.delete(`/blog/${id}`);
-      message.success("Xóa bài viết thành công!");
-    } catch (error) {
-      message.error("Xóa bài viết thất bại!");
-    }
-  };
-
-  // Lấy danh sách bài viết khi vào tab manage_articles
-  useEffect(() => {
-    if (selectedMenuItem === "manage_articles") {
-      fetchArticles().then(setArticles);
-    }
-  }, [selectedMenuItem]);
 
   // Lấy danh sách user từ API
   const fetchUsers = async () => {
@@ -298,48 +264,6 @@ function Admin() {
     },
   ];
 
-  const articleColumns = [
-    { title: "Title", dataIndex: "title", key: "title" },
-    {
-      title: "Author",
-      dataIndex: "author",
-      key: "author",
-      render: (author) =>
-        author && author.fullname ? author.fullname : "Không rõ",
-    },
-    {
-      title: "Status",
-      dataIndex: "status",
-      key: "status",
-      render: (status) => (
-        <Tag color={status === "PUBLISHED" ? "green" : "orange"}>{status}</Tag>
-      ),
-    },
-    {
-      title: "Action",
-      key: "action",
-      render: (_, record) => (
-        <Space size="middle">
-          <Button
-            icon={<EditOutlined />}
-            size="small"
-            onClick={() => handleEditArticle(record)}
-          >
-            Edit
-          </Button>
-          <Popconfirm
-            title="Sure to delete?"
-            onConfirm={() => handleDeleteArticle(record.id)}
-          >
-            <Button icon={<DeleteOutlined />} size="small" danger>
-              Delete
-            </Button>
-          </Popconfirm>
-        </Space>
-      ),
-    },
-  ];
-
   const feedbackColumns = [
     { title: "Type", dataIndex: "type", key: "type" },
     { title: "Subject", dataIndex: "subject", key: "subject" },
@@ -405,18 +329,6 @@ function Admin() {
     } catch (error) {
       console.error("Lỗi cập nhật người dùng:", error);
     }
-  };
-
-  const handleEditArticle = (record) => {
-    setEditingArticle(record);
-    blogForm.setFieldsValue(record);
-    setIsBlogModalVisible(true);
-  };
-
-  const handleDeleteArticle = async (id) => {
-    await deleteArticle(id);
-    const data = await fetchArticles();
-    setArticles(data);
   };
 
   const renderContent = () => {
@@ -530,26 +442,7 @@ function Admin() {
       case "manage_services":
         return <ServiceManagement />;
       case "manage_articles":
-        return (
-          <Card
-            title="Manage Blog Articles"
-            extra={
-              <Button
-                type="primary"
-                icon={<PlusOutlined />}
-                onClick={() => {
-                  setEditingArticle(null);
-                  blogForm.resetFields();
-                  setIsBlogModalVisible(true);
-                }}
-              >
-                Create Article
-              </Button>
-            }
-          >
-            <Table columns={articleColumns} dataSource={articles} rowKey="id" />
-          </Card>
-        );
+        return <BlogManagement userId={null} selectedTab="write_blogs" />;
       case "dashboard_reports":
         return (
           <Card title="Dashboard & Reports">
@@ -645,16 +538,6 @@ function Admin() {
         onCancel={() => setIsUserModalVisible(false)}
         form={form}
         editingUser={editingUser}
-      />
-
-      <BlogModal
-        visible={isBlogModalVisible}
-        onOk={() => {}}
-        onCancel={() => setIsBlogModalVisible(false)}
-        form={blogForm}
-        editingArticle={editingArticle}
-        imageUrl={imageUrl}
-        handleUpload={() => {}}
       />
     </Layout>
   );
