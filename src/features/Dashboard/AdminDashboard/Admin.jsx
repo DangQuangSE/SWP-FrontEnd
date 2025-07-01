@@ -1,35 +1,18 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import "./Admin.css";
-import {
-  Layout,
-  Menu,
-  Card,
-  Table,
-  Button,
-  Form,
-  Typography,
-  Space,
-  Breadcrumb,
-  Tag,
-  Popconfirm,
-  message,
-  theme,
-  Tabs,
-} from "antd";
+import { Layout, Menu, Card, Form, Typography, Breadcrumb, theme } from "antd";
 import {
   UserOutlined,
   SolutionOutlined,
   FileTextOutlined,
   BarChartOutlined,
   TeamOutlined,
-  PlusOutlined,
-  EditOutlined,
-  DeleteOutlined,
-  EyeOutlined,
   CalendarOutlined,
 } from "@ant-design/icons";
 import api from "../../../configs/api";
 
+// Import modals
+import { BlogModal } from "./index";
 // Import Specialization components
 import { SpecializationManagement } from "./Specialization";
 
@@ -42,18 +25,16 @@ import { RoomManagement } from "./Room";
 // Import Blog Management component
 import BlogManagement from "./Blog/BlogManagement";
 
-import { UserModal } from "./index";
 import { UserManagement } from "./UserManagement";
-    
+
 import BookingDashboard from "./BookingDashboard/BookingDashboard";
 
 const { Header, Content, Sider } = Layout;
 const { Title } = Typography;
 
 function Admin() {
-  const [imageUrl, setImageUrl] = useState("");
-  const [editingUser, setEditingUser] = useState(null);
-  const [isUserModalVisible, setIsUserModalVisible] = useState(false);
+  const [blogForm] = Form.useForm();
+  const [isBlogModalVisible, setIsBlogModalVisible] = useState(false);
 
   const [form] = Form.useForm();
 
@@ -85,93 +66,6 @@ function Admin() {
     key: String(key + 1),
     label,
   }));
-
-  // Lấy danh sách user từ API
-  const fetchUsers = async () => {
-    try {
-      console.log("🔄 Fetching all users from all roles...");
-      const roles = ["CUSTOMER", "STAFF", "CONSULTANT"];
-      const allUsers = [];
-
-      // Gọi API cho từng role
-      for (const role of roles) {
-        try {
-          const response = await api.get(`/admin/users?role=${role}`);
-          const users = Array.isArray(response.data)
-            ? response.data
-            : [response.data];
-          allUsers.push(...users);
-          console.log(`✅ Fetched ${users.length} users with role ${role}`);
-        } catch (roleError) {
-          console.warn(
-            `⚠️ Không thể lấy users với role ${role}:`,
-            roleError.message
-          );
-        }
-      }
-
-      console.log(`✅ Total fetched users: ${allUsers.length}`);
-      return allUsers;
-    } catch (error) {
-      console.error("❌ Lỗi lấy danh sách user:", error);
-      console.error("Error details:", error.response?.data);
-      return [];
-    }
-  };
-  const [users, setUsers] = useState([]);
-  useEffect(() => {
-    const getUsers = async () => {
-      const data = await fetchUsers();
-      setUsers(data);
-    };
-    getUsers();
-  }, []);
-
-  // Thêm user
-  const addUser = async (user) => {
-    try {
-      console.log("🔄 Adding user:", user);
-      const response = await api.post("/admin/user", user);
-      console.log("✅ User added successfully:", response.data);
-      return response.data;
-    } catch (error) {
-      console.error("❌ Lỗi thêm user:", error);
-      console.error("Error details:", error.response?.data);
-      throw error;
-    }
-  };
-
-  // Sửa user
-  const updateUser = async (id, user) => {
-    try {
-      console.log("🔄 Updating user:", id, user);
-      const response = await api.put(`/admin/user/${id}`, user);
-      console.log("✅ User updated successfully:", response.data);
-      return response.data;
-    } catch (error) {
-      console.error("❌ Lỗi sửa user:", error);
-      console.error("Error details:", error.response?.data);
-      throw error;
-    }
-  };
-
-  // Xóa user
-  const deleteUser = async (id) => {
-    try {
-      console.log("🔄 Deleting user:", id);
-      await api.delete(`/users/${id}`);
-      console.log("✅ User deleted successfully");
-    } catch (error) {
-      console.error("❌ Lỗi xóa user:", error);
-      console.error("Error details:", error.response?.data);
-      throw error;
-    }
-  };
-  const handleDeleteUser = async (id) => {
-    await deleteUser(id);
-    const data = await fetchUsers();
-    setUsers(data);
-  };
 
   // Menu items for the side navigation
   const items2 = [
@@ -222,170 +116,6 @@ function Admin() {
     },
   ];
 
-  const feedbacks = [
-    {
-      id: 1,
-      type: "Service",
-      subject: "Appointment Booking",
-      message: "Difficulty with booking.",
-      status: "Pending",
-    },
-    {
-      id: 2,
-      type: "Consultant",
-      subject: "Dr. Jane Doe",
-      message: "Very helpful consultation.",
-      status: "Resolved",
-    },
-  ];
-
-  const payments = [
-    {
-      id: 1,
-      transactionId: "TXN001",
-      user: "John Doe",
-      amount: "500,000đ",
-      date: "2024-03-20",
-      status: "Completed",
-    },
-    {
-      id: 2,
-      transactionId: "TXN002",
-      user: "Jane Smith",
-      amount: "1,500,000đ",
-      date: "2024-03-21",
-      status: "Pending",
-    },
-  ];
-
-  // Column Definitions
-  const userColumns = [
-    { title: "Name", dataIndex: "name", key: "name" },
-    { title: "Email", dataIndex: "email", key: "email" },
-    {
-      title: "Role",
-      dataIndex: "role",
-      key: "role",
-      render: (role) => (
-        <Tag
-          color={
-            role === "Admin"
-              ? "volcano"
-              : role === "Consultant"
-              ? "geekblue"
-              : "green"
-          }
-        >
-          {role.toUpperCase()}
-        </Tag>
-      ),
-    },
-    {
-      title: "Action",
-      key: "action",
-      render: (text, record) => (
-        <Space size="middle">
-          <Button
-            icon={<EditOutlined />}
-            size="small"
-            onClick={() => handleEditUser(record)}
-          >
-            Edit
-          </Button>
-          <Popconfirm
-            title="Sure to delete?"
-            onConfirm={() => handleDeleteUser(record.id)}
-          >
-            <Button icon={<DeleteOutlined />} size="small" danger>
-              Delete
-            </Button>
-          </Popconfirm>
-        </Space>
-      ),
-    },
-  ];
-
-  const feedbackColumns = [
-    { title: "Type", dataIndex: "type", key: "type" },
-    { title: "Subject", dataIndex: "subject", key: "subject" },
-    { title: "Message", dataIndex: "message", key: "message" },
-    { title: "Status", dataIndex: "status", key: "status" },
-    {
-      title: "Action",
-      key: "action",
-      render: (_, record) => (
-        <Space size="middle">
-          <Button icon={<EyeOutlined />} size="small">
-            View
-          </Button>
-          <Button icon={<SolutionOutlined />} size="small">
-            Resolve
-          </Button>
-        </Space>
-      ),
-    },
-  ];
-
-  const paymentColumns = [
-    { title: "User", dataIndex: "user", key: "user" },
-    { title: "Amount", dataIndex: "amount", key: "amount" },
-    { title: "Date", dataIndex: "date", key: "date" },
-    { title: "Status", dataIndex: "status", key: "status" },
-    {
-      title: "Action",
-      key: "action",
-      render: (_, record) => (
-        <Button icon={<EyeOutlined />} size="small">
-          View Details
-        </Button>
-      ),
-    },
-  ];
-
-  const handleEditUser = (record) => {
-    setEditingUser(record);
-    form.setFieldsValue(record);
-    setIsUserModalVisible(true);
-  };
-
-  // Modal handlers
-  const handleUserModalOk = async () => {
-    try {
-      const values = await form.validateFields();
-      console.log("📝 Form values:", values);
-
-      if (editingUser) {
-        console.log("🔄 Updating existing user:", editingUser.id);
-        await updateUser(editingUser.id, values);
-        message.success("Cập nhật người dùng thành công!");
-      } else {
-        console.log("🔄 Adding new user");
-        await addUser(values);
-        message.success("Thêm người dùng thành công!");
-      }
-
-      setIsUserModalVisible(false);
-      form.resetFields();
-      setEditingUser(null);
-
-      // Refresh user list
-      const data = await fetchUsers();
-      setUsers(data);
-    } catch (error) {
-      console.error("❌ Lỗi cập nhật người dùng:", error);
-
-      if (error.response?.status === 404) {
-        message.error("Không tìm thấy API endpoint. Vui lòng kiểm tra server!");
-      } else if (error.response?.status === 400) {
-        message.error("Dữ liệu không hợp lệ. Vui lòng kiểm tra lại!");
-      } else if (error.response?.status === 500) {
-        message.error("Lỗi server. Vui lòng thử lại sau!");
-      } else {
-        message.error("Có lỗi xảy ra. Vui lòng thử lại!");
-      }
-    }
-  };
-
   const renderContent = () => {
     switch (selectedMenuItem) {
       case "manage_users":
@@ -407,17 +137,13 @@ function Admin() {
       case "handle_feedback":
         return (
           <Card title="Handle Service/Consultant Feedback">
-            <Table
-              columns={feedbackColumns}
-              dataSource={feedbacks}
-              rowKey="id"
-            />
+            <p>Feedback management will be implemented here.</p>
           </Card>
         );
       case "manage_payments":
         return (
           <Card title="Manage Payment & Transaction Records">
-            <Table columns={paymentColumns} dataSource={payments} rowKey="id" />
+            <p>Payment management will be implemented here.</p>
           </Card>
         );
       case "manage_rooms":
@@ -485,12 +211,15 @@ function Admin() {
       </Layout>
 
       {/* Modals for Admin Actions */}
-      <UserModal
-        visible={isUserModalVisible}
-        onOk={handleUserModalOk}
-        onCancel={() => setIsUserModalVisible(false)}
-        form={form}
-        editingUser={editingUser}
+
+      <BlogModal
+        visible={isBlogModalVisible}
+        onOk={() => {}}
+        onCancel={() => setIsBlogModalVisible(false)}
+        form={blogForm}
+        editingArticle={editingArticle}
+        imageUrl=""
+        handleUpload={() => {}}
       />
     </Layout>
   );
