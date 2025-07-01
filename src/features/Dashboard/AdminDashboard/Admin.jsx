@@ -9,7 +9,6 @@ import {
   TeamOutlined,
   CalendarOutlined,
 } from "@ant-design/icons";
-import api from "../../../configs/api";
 
 // Import modals
 import { BlogModal } from "./index";
@@ -217,7 +216,7 @@ function Admin() {
         onOk={() => {}}
         onCancel={() => setIsBlogModalVisible(false)}
         form={blogForm}
-        editingArticle={editingArticle}
+        editingArticle={null}
         imageUrl=""
         handleUpload={() => {}}
       />
