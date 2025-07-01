@@ -24,22 +24,18 @@ const SpecializationManagement = ({ form }) => {
   // Table columns definition
   const specializationColumns = [
     {
-      title: "ID",
-      dataIndex: "id",
-      key: "id",
-      width: 80,
-    },
-    {
       title: "Tên",
       dataIndex: "name",
       key: "name",
       ellipsis: true,
+      width: 150,
     },
     {
       title: "Mô tả",
       dataIndex: "description",
       key: "description",
       ellipsis: true,
+      width: 200,
     },
     {
       title: "Trạng thái",

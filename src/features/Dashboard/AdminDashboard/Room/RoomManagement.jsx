@@ -102,12 +102,6 @@ const RoomManagement = () => {
   // Table columns definition
   const roomColumns = [
     {
-      title: "ID",
-      dataIndex: "id",
-      key: "id",
-      width: 80,
-    },
-    {
       title: "Tên Phòng",
       dataIndex: "name",
       key: "name",

@@ -1,5 +1,5 @@
 // pages/UserProfile/Booking.jsx
-import React, { useEffect, useState, useCallback } from "react";
+import React, { useEffect, useState, useCallback, useRef } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { message } from "antd";
@@ -14,7 +14,7 @@ const TABS = [
 
 // API status mapping
 const STATUS_MAP = {
-  upcoming: ["CONFIRMED", "PENDING"],
+  upcoming: ["CONFIRMED", "PENDING", "CHECKED"],
   completed: ["COMPLETED"],
   history: ["CANCELED"],
 };
@@ -23,15 +23,21 @@ const Booking = () => {
   const [appointments, setAppointments] = useState([]);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState("upcoming");
+  const [zoomUrls, setZoomUrls] = useState({}); // Cache Zoom URLs by appointment ID
+  const [blinkingButtons, setBlinkingButtons] = useState({}); // Track which buttons are blinking
+
   const navigate = useNavigate();
   const { search } = useLocation();
   const token =
     useSelector((state) => state.user.token) || localStorage.getItem("token");
 
+  // Track if payment success message has been shown
+  const paymentMessageShown = useRef(false);
+
   // Function to verify VNPay payment with backend
   const verifyVNPayPayment = useCallback(async (urlParams) => {
     try {
-      console.log("🔄 Verifying VNPay payment with backend...");
+      console.log(" Verifying VNPay payment with backend...");
 
       // Gọi API backend để verify payment
       const response = await api.get("/payment/vnpay/vnpay-return", {
@@ -44,6 +50,70 @@ const Booking = () => {
       message.error("Có lỗi khi xác thực thanh toán với server.");
     }
   }, []);
+
+  // Function to get and cache Zoom URL
+  const getZoomUrl = useCallback(async (appointmentId) => {
+    try {
+      console.log(" Getting Zoom URL for appointment:", appointmentId);
+
+      const response = await api.get(
+        `/zoom/test-create-meeting?appointmentId=${appointmentId}`
+      );
+      const meetingData = response.data;
+
+      console.log(" Zoom meeting data:", meetingData);
+
+      if (meetingData.join_url) {
+        // Cache the URL
+        setZoomUrls((prev) => ({
+          ...prev,
+          [appointmentId]: meetingData.join_url,
+        }));
+        return meetingData.join_url;
+      }
+      return null;
+    } catch (error) {
+      console.error(" Error getting Zoom URL:", error);
+      return null;
+    }
+  }, []);
+
+  // Function to join Zoom meeting
+  const joinZoomMeeting = useCallback(
+    async (appointment) => {
+      // Check if URL is already cached
+      let joinUrl = zoomUrls[appointment.id];
+
+      if (!joinUrl) {
+        // Show loading and fetch URL
+        message.loading("Đang kết nối phòng tư vấn...", 0.5);
+        joinUrl = await getZoomUrl(appointment.id);
+        message.destroy();
+      }
+
+      if (joinUrl) {
+        window.open(joinUrl, "_blank");
+        message.success("Đã mở phòng tư vấn online!", 1);
+
+        // Start blinking animation
+        setBlinkingButtons((prev) => ({
+          ...prev,
+          [appointment.id]: true,
+        }));
+
+        // Stop blinking after 3 seconds
+        setTimeout(() => {
+          setBlinkingButtons((prev) => ({
+            ...prev,
+            [appointment.id]: false,
+          }));
+        }, 3000);
+      } else {
+        message.error("Không thể kết nối phòng tư vấn. Vui lòng thử lại!");
+      }
+    },
+    [zoomUrls, getZoomUrl]
+  );
 
   // Fetch appointments based on active tab
   const fetchAppointments = useCallback(async () => {
@@ -119,7 +189,7 @@ const Booking = () => {
       }
     }
   };
-  // Handle VNPay payment result from URL params
+  // Handle VNPay payment result from URL params - only run once per URL change
   useEffect(() => {
     const query = new URLSearchParams(search);
     const vnpResponseCode = query.get("vnp_ResponseCode");
@@ -127,7 +197,7 @@ const Booking = () => {
     const vnpTxnRef = query.get("vnp_TxnRef");
 
     // Check for VNPay return parameters
-    if (vnpResponseCode) {
+    if (vnpResponseCode && !paymentMessageShown.current) {
       console.log(" VNPay Return in Booking page:", {
         vnpResponseCode,
         vnpTransactionStatus,
@@ -136,6 +206,7 @@ const Booking = () => {
       });
 
       localStorage.removeItem("pendingBooking");
+      paymentMessageShown.current = true; // Mark message as shown
 
       if (vnpResponseCode === "00" && vnpTransactionStatus === "00") {
         // Thanh toán VNPay thành công
@@ -148,16 +219,24 @@ const Booking = () => {
         message.error("Thanh toán thất bại hoặc đã bị hủy.");
       }
 
-      // Clean URL sau khi xử lý và refresh appointments
+      // Clean URL sau khi xử lý
       window.history.replaceState({}, document.title, "/user/booking");
-      fetchAppointments(); // Refresh để thấy status mới
+
+      // Refresh appointments after a short delay to ensure payment is processed
+      const refreshAppointments = () => {
+        if (token) {
+          fetchAppointments();
+        }
+      };
+      setTimeout(refreshAppointments, 500);
       return;
     }
 
     // Handle legacy MoMo result (nếu có)
     const resultCode = query.get("resultCode");
-    if (resultCode) {
+    if (resultCode && !paymentMessageShown.current) {
       localStorage.removeItem("pendingBooking");
+      paymentMessageShown.current = true; // Mark message as shown
 
       if (resultCode === "1000") {
         message.success("Thanh toán thành công!");
@@ -167,9 +246,11 @@ const Booking = () => {
 
       // Clean URL và refresh
       window.history.replaceState({}, document.title, "/user/booking");
-      fetchAppointments();
+      setTimeout(() => {
+        fetchAppointments();
+      }, 500);
     }
-  }, [search, navigate, fetchAppointments, verifyVNPayPayment]);
+  }, [search, verifyVNPayPayment, fetchAppointments, token]);
   const renderAppointments = () => {
     if (loading) {
       return (
@@ -217,19 +298,59 @@ const Booking = () => {
             <strong>Thời gian tạo:</strong>{" "}
             {new Date(appointment.created_at).toLocaleString()}
           </p>
-          {["CONFIRMED", "PENDING"].includes(appointment.status) && (
-            <button
-              className="cancel-button-profile"
-              onClick={() => handleCancelAppointment(appointment.id)}
-            >
-              Hủy lịch hẹn
-            </button>
-          )}
+          <div className="appointment-actions">
+            {["CONFIRMED", "PENDING", "CHEKED"].includes(
+              appointment.status
+            ) && (
+              <button
+                className="cancel-button-profile"
+                onClick={() => handleCancelAppointment(appointment.id)}
+              >
+                Hủy lịch hẹn
+              </button>
+            )}
+
+            {/* Zoom consultation button for CONSULTING_ON services with CONFIRMED status */}
+            {(() => {
+              // Debug log to check appointment structure
+              console.log(" Appointment debug:", {
+                id: appointment.id,
+                serviceType: appointment.serviceType,
+                type: appointment.type,
+                serviceName: appointment.serviceName,
+                status: appointment.status,
+              });
+
+              // Check for CONSULTING_ON service type and CONFIRMED status
+              const isConsultingOnline =
+                appointment.serviceType === "CONSULTING_ON" ||
+                appointment.type === "CONSULTING_ON" ||
+                appointment.serviceName
+                  ?.toLowerCase()
+                  .includes("tư vấn online");
+              const isConfirmed = appointment.status === "CONFIRMED";
+
+              return isConsultingOnline && isConfirmed;
+            })() && (
+              <button
+                className={`zoom-button-profile ${
+                  blinkingButtons[appointment.id] ? "blinking" : ""
+                }`}
+                onClick={() => joinZoomMeeting(appointment)}
+                title={
+                  zoomUrls[appointment.id]
+                    ? "Click để tham gia ngay"
+                    : "Click để kết nối phòng tư vấn"
+                }
+              >
+                {zoomUrls[appointment.id] ? "Tham gia ngay" : "Tư vấn Online"}
+              </button>
+            )}
+          </div>
         </div>
       </div>
     ));
   };
-
   const renderTabContent = () => renderAppointments();
 
   return (

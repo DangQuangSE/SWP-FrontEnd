@@ -14,7 +14,7 @@ const ProtectedRoute = ({ allowedRoles, children }) => {
   });
 
   if (!user?.role || !allowedRoles.includes(user.role)) {
-    console.log("❌ Access denied, redirecting to home");
+    console.log(" Access denied, redirecting to home");
     return <Navigate to="/" replace />;
   }
 

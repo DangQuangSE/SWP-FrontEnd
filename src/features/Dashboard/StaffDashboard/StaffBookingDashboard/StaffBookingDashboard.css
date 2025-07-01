@@ -1,0 +1,209 @@
+/* Staff Booking Dashboard Styles */
+.staff-booking-dashboard {
+  margin: 0;
+  padding: 0;
+}
+
+.staff-booking-dashboard .ant-card-head {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border-radius: 8px 8px 0 0;
+}
+
+.staff-booking-dashboard .ant-card-head-title {
+  color: white;
+  font-weight: 600;
+  font-size: 18px;
+}
+
+/* Search Section */
+.staff-booking-dashboard__search {
+  margin-bottom: 16px;
+}
+
+.staff-booking-dashboard__search-input {
+  max-width: 400px;
+}
+
+/* Table Styles */
+.staff-booking-dashboard__table {
+  margin-top: 16px;
+}
+
+.staff-booking-dashboard__table .ant-table-thead > tr > th {
+  background-color: #f8f9fa;
+  font-weight: 600;
+  color: #495057;
+  border-bottom: 2px solid #dee2e6;
+}
+
+.staff-booking-dashboard__table .ant-table-tbody > tr:hover > td {
+  background-color: #f8f9fa;
+}
+
+/* Customer Name */
+.staff-booking-dashboard__customer-name {
+  font-weight: 500;
+  color: #2c3e50;
+}
+
+/* Service */
+.staff-booking-dashboard__service {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.staff-booking-dashboard__service-name {
+  font-weight: 500;
+  color: #2c3e50;
+  font-size: 13px;
+}
+
+.staff-booking-dashboard__service-price {
+  font-size: 12px;
+  color: #27ae60;
+  font-weight: 600;
+}
+
+/* DateTime */
+.staff-booking-dashboard__datetime {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.staff-booking-dashboard__date {
+  font-weight: 500;
+  color: #2c3e50;
+  font-size: 13px;
+}
+
+.staff-booking-dashboard__time {
+  font-size: 12px;
+  color: #7f8c8d;
+  font-weight: 500;
+}
+
+/* Action Buttons */
+.staff-booking-dashboard__action-space {
+  display: flex;
+  gap: 4px;
+  flex-wrap: wrap;
+}
+
+.staff-booking-dashboard__action-space .ant-btn {
+  font-size: 12px;
+  height: 28px;
+  padding: 0 8px;
+}
+
+/* View Button - White/Black */
+.staff-booking-dashboard__action-space .ant-btn-primary:first-child {
+  background-color: white !important;
+  color: #333 !important;
+  border: 1px solid #d9d9d9 !important;
+}
+
+.staff-booking-dashboard__action-space .ant-btn-primary:first-child:hover {
+  background-color: #f5f5f5 !important;
+  color: #333 !important;
+  border-color: #b3b3b3 !important;
+}
+
+/* Checked Button - Green */
+.staff-booking-dashboard__action-space .ant-btn[title="Đánh dấu đã khám"] {
+  background-color: #52c41a !important;
+  border-color: #52c41a !important;
+  color: white !important;
+}
+
+.staff-booking-dashboard__action-space
+  .ant-btn[title="Đánh dấu đã khám"]:hover {
+  background-color: #73d13d !important;
+  border-color: #73d13d !important;
+  color: white !important;
+}
+
+/* Edit Button */
+.staff-booking-dashboard__action-space .ant-btn:last-child {
+  background-color: #f8f9fa;
+  color: #6c757d;
+  border: 1px solid #dee2e6;
+}
+
+.staff-booking-dashboard__action-space .ant-btn:last-child:hover {
+  background-color: #e9ecef;
+  color: #495057;
+  border-color: #adb5bd;
+}
+
+/* Tabs */
+.staff-booking-dashboard__tabs {
+  margin-bottom: 16px;
+}
+
+.staff-booking-dashboard__tabs .ant-tabs-tab {
+  font-weight: 500;
+}
+
+.staff-booking-dashboard__tabs .ant-tabs-tab-active {
+  font-weight: 600;
+}
+
+.staff-booking-dashboard__tab-label {
+  font-size: 14px;
+}
+
+/* Status Tags */
+.staff-booking-dashboard__table .ant-tag {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  border-radius: 12px;
+  padding: 2px 8px;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .staff-booking-dashboard__action-space {
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .staff-booking-dashboard__action-space .ant-btn {
+    width: 100%;
+    margin-bottom: 2px;
+  }
+
+  .staff-booking-dashboard__search-input {
+    max-width: 100%;
+  }
+}
+
+/* Loading State */
+.staff-booking-dashboard__table .ant-spin-container {
+  min-height: 200px;
+}
+
+/* Empty State */
+.staff-booking-dashboard__table .ant-empty {
+  padding: 40px 0;
+}
+
+.staff-booking-dashboard__table .ant-empty-description {
+  color: #8c8c8c;
+  font-size: 14px;
+}
+
+/* Pagination */
+.staff-booking-dashboard__table .ant-pagination {
+  margin-top: 16px;
+  text-align: right;
+}
+
+.staff-booking-dashboard__table .ant-pagination-total-text {
+  font-size: 13px;
+  color: #666;
+}

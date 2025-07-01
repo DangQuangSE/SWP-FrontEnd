@@ -310,46 +310,6 @@ function Admin() {
     setUsers(data);
   };
 
-  // Specialization API functions
-  const fetchSpecializations = async () => {
-    try {
-      const response = await api.get("/specializations");
-      return Array.isArray(response.data) ? response.data : [response.data];
-    } catch (error) {
-      console.error("Lỗi lấy danh sách specializations:", error);
-      return [];
-    }
-  };
-
-  const addSpecialization = async (specialization) => {
-    try {
-      const response = await api.post("/specializations", specialization);
-      return response.data;
-    } catch (error) {
-      console.error("Lỗi thêm specialization:", error);
-      throw error;
-    }
-  };
-
-  const updateSpecialization = async (id, specialization) => {
-    try {
-      const response = await api.put(`/specializations/${id}`, specialization);
-      return response.data;
-    } catch (error) {
-      console.error("Lỗi sửa specialization:", error);
-      throw error;
-    }
-  };
-
-  const deleteSpecialization = async (id) => {
-    try {
-      await api.delete(`/specializations/${id}`);
-    } catch (error) {
-      console.error("Lỗi xóa specialization:", error);
-      throw error;
-    }
-  };
-
   // Menu items for the side navigation
   const items2 = [
     {
@@ -480,7 +440,6 @@ function Admin() {
   ];
 
   const serviceColumns = [
-    { title: "ID", dataIndex: "id", key: "id" },
     { title: "Service Name", dataIndex: "name", key: "name" },
     { title: "Description", dataIndex: "description", key: "description" },
     {
@@ -608,11 +567,6 @@ function Admin() {
   ];
 
   const paymentColumns = [
-    {
-      title: "Transaction ID",
-      dataIndex: "transactionId",
-      key: "transactionId",
-    },
     { title: "User", dataIndex: "user", key: "user" },
     { title: "Amount", dataIndex: "amount", key: "amount" },
     { title: "Date", dataIndex: "date", key: "date" },
@@ -658,7 +612,6 @@ function Admin() {
   ];
 
   const specializationColumns = [
-    { title: "ID", dataIndex: "id", key: "id" },
     { title: "Name", dataIndex: "name", key: "name" },
     { title: "Description", dataIndex: "description", key: "description" },
     {

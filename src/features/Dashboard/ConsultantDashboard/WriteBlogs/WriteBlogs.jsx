@@ -1047,7 +1047,7 @@ const WriteBlogs = ({ userId, selectedTab }) => {
                 <Select.Option value="PENDING">⏳ Chờ duyệt</Select.Option>
                 <Select.Option value="APPROVED"> Đã duyệt</Select.Option>
                 <Select.Option value="PUBLISHED">🌐 Đã đăng</Select.Option>
-                <Select.Option value="REJECTED">❌ Bị từ chối</Select.Option>
+                <Select.Option value="REJECTED"> Bị từ chối</Select.Option>
                 <Select.Option value="ARCHIVED">📦 Đã lưu trữ</Select.Option>
               </Select>
             </Form.Item>
