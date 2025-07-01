@@ -217,3 +217,131 @@ export const fetchAvailableSlots = (serviceId, from, to) => {
   const params = { service_id: serviceId, from, to };
   return api.get("/schedules/slot-free-service", { params });
 };
+
+/**
+ * Get today's appointments for consultant
+ * @param {number} consultantId - Consultant ID
+ * @returns {Promise} API response with today's appointments
+ */
+export const getTodayAppointments = (consultantId) => {
+  const today = new Date().toISOString().slice(0, 10);
+  console.log(
+    `📅 Fetching today's appointments for consultant ${consultantId} on ${today}`
+  );
+
+  return api.get(`/schedules/view`, {
+    params: {
+      consultant_id: consultantId,
+      from: today,
+      to: today,
+    },
+  });
+};
+
+/**
+ * Get appointments for specific date
+ * @param {number} consultantId - Consultant ID
+ * @param {string} date - Date in YYYY-MM-DD format
+ * @returns {Promise} API response with appointments for the date
+ */
+export const getAppointmentsByDate = (consultantId, date) => {
+  console.log(
+    `📅 Fetching appointments for consultant ${consultantId} on ${date}`
+  );
+
+  return api.get(`/schedules/view`, {
+    params: {
+      consultant_id: consultantId,
+      from: date,
+      to: date,
+    },
+  });
+};
+
+/**
+ * Get upcoming appointments (next 7 days)
+ * @param {number} consultantId - Consultant ID
+ * @returns {Promise} API response with upcoming appointments
+ */
+export const getUpcomingAppointments = (consultantId) => {
+  const today = new Date().toISOString().slice(0, 10);
+  const nextWeek = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)
+    .toISOString()
+    .slice(0, 10);
+
+  console.log(
+    `📅 Fetching upcoming appointments for consultant ${consultantId} from ${today} to ${nextWeek}`
+  );
+
+  return api.get(`/schedules/view`, {
+    params: {
+      consultant_id: consultantId,
+      from: today,
+      to: nextWeek,
+    },
+  });
+};
+
+/**
+ * Get my schedule appointments
+ * @param {string} date - Date in YYYY-MM-DD format (REQUIRED by BE)
+ * @param {string} status - Appointment status (optional)
+ * @returns {Promise} API response with appointments
+ */
+export const getMySchedule = async (date, status = null) => {
+  try {
+    console.log(`📅 Fetching my schedule - Date: ${date}, Status: ${status}`);
+
+    // BE requires date parameter
+    if (!date) {
+      throw new Error("Date parameter is required by backend API");
+    }
+
+    const params = { date };
+    if (status) params.status = status;
+
+    console.log("📡 API Request params:", params);
+    const response = await api.get("/appointment/my-schedule", { params });
+
+    console.log("✅ My schedule fetched successfully:", response.data);
+    return response;
+  } catch (error) {
+    console.error("❌ Error fetching my schedule:", error);
+    console.error("❌ Error details:", {
+      message: error.message,
+      status: error.response?.status,
+      data: error.response?.data,
+    });
+    throw error;
+  }
+};
+
+/**
+ * Update appointment detail status
+ * @param {number} detailId - Appointment detail ID
+ * @param {string} status - New status (IN_PROGRESS, WAITING_RESULT, etc.)
+ * @returns {Promise} API response
+ */
+export const updateAppointmentDetailStatus = async (detailId, status) => {
+  try {
+    console.log(
+      `📝 Updating appointment detail ${detailId} to status: ${status}`
+    );
+
+    // Use PATCH method as per backend API definition (@PatchMapping)
+    const response = await api.patch(
+      `/appointment/detail/${detailId}/status?status=${status}`
+    );
+
+    console.log("✅ Status updated successfully:", response.data);
+    return response;
+  } catch (error) {
+    console.error("❌ Error updating status:", error);
+    console.error("❌ Error details:", {
+      message: error.message,
+      status: error.response?.status,
+      data: error.response?.data,
+    });
+    throw error;
+  }
+};
