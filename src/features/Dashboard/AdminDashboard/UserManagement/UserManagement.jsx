@@ -236,43 +236,6 @@ const UserManagement = ({ form }) => {
     }
   };
 
-  // Xóa chuyên khoa của tư vấn viên
-  const handleRemoveSpecialization = async (user, specialization) => {
-    try {
-      console.log(
-        "🔄 Removing specialization:",
-        specialization.id,
-        "from user:",
-        user.id
-      );
-
-      const response = await api.delete(
-        `/admin/user/${user.id}/specializations/${specialization.id}`
-      );
-
-      console.log("✅ Specialization removed successfully:", response.data);
-      message.success(
-        `Đã xóa chuyên khoa "${specialization.name}" thành công!`
-      );
-
-      // Trigger refresh cho SpecializationCell
-      setRefreshTrigger((prev) => prev + 1);
-
-      // Refresh toàn bộ user list
-      await loadUsers();
-    } catch (error) {
-      console.error("❌ Error removing specialization:", error);
-      console.error("Error details:", error.response?.data);
-
-      const errorMessage =
-        error.response?.data?.message ||
-        error.response?.data?.error ||
-        error.message ||
-        "Có lỗi xảy ra khi xóa chuyên khoa!";
-      message.error(errorMessage);
-    }
-  };
-
   // Hủy modal thêm chuyên khoa
   const handleCancelSpecializationModal = () => {
     setIsSpecializationModalVisible(false);
