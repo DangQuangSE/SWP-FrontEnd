@@ -43,6 +43,9 @@ import { RoomManagement } from "./Room";
 import BlogManagement from "./Blog/BlogManagement";
 
 import { UserModal } from "./index";
+import { UserManagement } from "./UserManagement";
+    
+import BookingDashboard from "./BookingDashboard/BookingDashboard";
 
 const { Header, Content, Sider } = Layout;
 const { Title } = Typography;
