@@ -217,3 +217,19 @@ export const fetchAvailableSlots = (serviceId, from, to) => {
   const params = { service_id: serviceId, from, to };
   return api.get("/schedules/slot-free-service", { params });
 };
+
+// Get my schedule (for current logged-in consultant)
+export const getMySchedule = (from, to) => {
+  const params = new URLSearchParams();
+  if (from) params.append("from", from);
+  if (to) params.append("to", to);
+
+  return api.get(`/schedules/my-schedule?${params.toString()}`);
+};
+
+// Update appointment detail status
+export const updateAppointmentDetailStatus = (appointmentDetailId, status) => {
+  return api.put(`/appointment-details/${appointmentDetailId}/status`, {
+    status: status,
+  });
+};
