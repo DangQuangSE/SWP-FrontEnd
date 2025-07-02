@@ -4,7 +4,6 @@ import {
   Button,
   Space,
   Tag,
-  Popconfirm,
   Modal,
   Form,
   Input,
@@ -30,7 +29,9 @@ import {
   getMySchedule,
   updateAppointmentDetailStatus,
 } from "../../../../api/consultantAPI";
-import dayjs from "dayjs";
+import dayjs from "dayjs"; // Only for DatePicker component, not used in MedicalResultForm
+import MedicalResultViewer from "../../../../components/MedicalResult/MedicalResultViewer";
+import MedicalResultFormWrapper from "../../../../components/MedicalResult/MedicalResultFormWrapper";
 import "./PersonalSchedule.css";
 
 const PersonalSchedule = ({ userId }) => {
@@ -50,7 +51,7 @@ const PersonalSchedule = ({ userId }) => {
   });
   const [lastApiResponse, setLastApiResponse] = useState(null);
   const [showDebugPanel, setShowDebugPanel] = useState(false); // Hide by default
-  const [selectedDate, setSelectedDate] = useState(dayjs());
+  const [selectedDate, setSelectedDate] = useState(new Date());
   const [activeTab, setActiveTab] = useState("checked");
   const [isConsultationModalVisible, setIsConsultationModalVisible] =
     useState(false);
@@ -62,45 +63,54 @@ const PersonalSchedule = ({ userId }) => {
   const [resultForm] = Form.useForm();
 
   // Cache utilities
-  const getCacheKey = (date, status) => `schedule_${userId}_${date}_${status}`;
+  const getCacheKey = useCallback(
+    (date, status) => `schedule_${userId}_${date}_${status}`,
+    [userId]
+  );
 
-  const saveToCache = (date, status, data) => {
-    try {
-      const cacheKey = getCacheKey(date, status);
-      const cacheData = {
-        data,
-        timestamp: Date.now(),
-        expiry: Date.now() + 5 * 60 * 1000, // 5 minutes cache
-      };
-      localStorage.setItem(cacheKey, JSON.stringify(cacheData));
-      console.log(`� [CACHE] Saved data for ${status} on ${date}`);
-    } catch (error) {
-      console.warn("⚠️ [CACHE] Failed to save to localStorage:", error);
-    }
-  };
+  const saveToCache = useCallback(
+    (date, status, data) => {
+      try {
+        const cacheKey = getCacheKey(date, status);
+        const cacheData = {
+          data,
+          timestamp: Date.now(),
+          expiry: Date.now() + 5 * 60 * 1000, // 5 minutes cache
+        };
+        localStorage.setItem(cacheKey, JSON.stringify(cacheData));
+        console.log(`💾 [CACHE] Saved data for ${status} on ${date}`);
+      } catch (error) {
+        console.warn("⚠️ [CACHE] Failed to save to localStorage:", error);
+      }
+    },
+    [getCacheKey]
+  );
 
-  const getFromCache = (date, status) => {
-    try {
-      const cacheKey = getCacheKey(date, status);
-      const cached = localStorage.getItem(cacheKey);
-      if (!cached) return null;
+  const getFromCache = useCallback(
+    (date, status) => {
+      try {
+        const cacheKey = getCacheKey(date, status);
+        const cached = localStorage.getItem(cacheKey);
+        if (!cached) return null;
 
-      const cacheData = JSON.parse(cached);
-      if (Date.now() > cacheData.expiry) {
-        localStorage.removeItem(cacheKey);
-        console.log(
-          `�️ [CACHE] Expired cache removed for ${status} on ${date}`
-        );
+        const cacheData = JSON.parse(cached);
+        if (Date.now() > cacheData.expiry) {
+          localStorage.removeItem(cacheKey);
+          console.log(
+            `🗑️ [CACHE] Expired cache removed for ${status} on ${date}`
+          );
+          return null;
+        }
+
+        console.log(`📦 [CACHE] Retrieved data for ${status} on ${date}`);
+        return cacheData.data;
+      } catch (error) {
+        console.warn("⚠️ [CACHE] Failed to read from localStorage:", error);
         return null;
       }
-
-      console.log(`� [CACHE] Retrieved data for ${status} on ${date}`);
-      return cacheData.data;
-    } catch (error) {
-      console.warn("⚠️ [CACHE] Failed to read from localStorage:", error);
-      return null;
-    }
-  };
+    },
+    [getCacheKey]
+  );
 
   // Load appointments for specific status
   const loadAppointmentsByStatus = useCallback(
@@ -169,21 +179,8 @@ const PersonalSchedule = ({ userId }) => {
         }));
       }
     },
-    [userId]
+    [userId, getFromCache, saveToCache]
   );
-
-  // Refresh current tab data (used by other functions)
-  const refreshCurrentTab = () => {
-    const date = selectedDate.format("YYYY-MM-DD");
-    const statusMap = {
-      checked: "CHECKED",
-      in_progress: "IN_PROGRESS",
-      waiting_result: "WAITING_RESULT",
-      completed: "COMPLETED",
-    };
-    const currentStatus = statusMap[activeTab] || "CHECKED";
-    loadAppointmentsByStatus(date, currentStatus, false);
-  };
 
   // Load all tabs data in parallel
   const loadAllTabsData = useCallback(
@@ -240,7 +237,7 @@ const PersonalSchedule = ({ userId }) => {
   // Handle tab change - always call API
   const handleTabChange = (key) => {
     setActiveTab(key);
-    const date = selectedDate.format("YYYY-MM-DD");
+    const date = selectedDate.toISOString().split("T")[0];
 
     const statusMap = {
       checked: "CHECKED",
@@ -258,8 +255,10 @@ const PersonalSchedule = ({ userId }) => {
 
   // Handle date change
   const handleDateChange = (date) => {
-    setSelectedDate(date);
-    const dateStr = date.format("YYYY-MM-DD");
+    // Convert dayjs object to native Date for internal state
+    const nativeDate = date ? date.toDate() : new Date();
+    setSelectedDate(nativeDate);
+    const dateStr = nativeDate.toISOString().split("T")[0]; // Convert to YYYY-MM-DD format
     console.log("📅 [DATE] Date changed, loading all data for:", dateStr);
 
     // Load all tabs data for new date
@@ -272,7 +271,7 @@ const PersonalSchedule = ({ userId }) => {
     console.log("👤 [MOUNT] Current userId:", userId);
 
     if (userId) {
-      const today = selectedDate.format("YYYY-MM-DD");
+      const today = selectedDate.toISOString().split("T")[0];
       // Load all tabs data in parallel on mount
       loadAllTabsData(today, true);
     }
@@ -334,39 +333,6 @@ const PersonalSchedule = ({ userId }) => {
     );
   };
 
-  // Handle submit medical result
-  const handleSubmitResult = async (appointmentDetailId, result) => {
-    try {
-      console.log("Submitting medical result:", {
-        appointmentDetailId,
-        result,
-      });
-      // TODO: Call API to submit medical result
-      // await submitMedicalResult(appointmentDetailId, result);
-
-      toast.success("Đã lưu kết quả khám thành công!");
-      setIsResultModalVisible(false);
-      setSelectedAppointmentDetail(null);
-      resultForm.resetFields();
-
-      // Reload current tab data
-      const date = selectedDate.format("YYYY-MM-DD");
-      const statusMap = {
-        checked: "CHECKED",
-        in_progress: "IN_PROGRESS",
-        waiting_result: "WAITING_RESULT",
-        completed: "COMPLETED",
-      };
-      const currentStatus = statusMap[activeTab] || "CHECKED";
-
-      // Refetch current tab data
-      loadAppointmentsByStatus(date, currentStatus, false);
-    } catch (error) {
-      console.error("Error submitting result:", error);
-      toast.error("Lỗi khi lưu kết quả khám!");
-    }
-  };
-
   // Check if current user is the consultant for this appointment detail
   const isMyAppointmentDetail = (detail) => {
     return detail.consultantId === userId;
@@ -403,7 +369,7 @@ const PersonalSchedule = ({ userId }) => {
       toast.success("Cập nhật trạng thái thành công!");
 
       // Smart refetch: Update both current tab and new status tab
-      const date = selectedDate.format("YYYY-MM-DD");
+      const date = selectedDate.toISOString().split("T")[0];
 
       console.log(` [STATUS UPDATE] Refetching data after status change:`);
       console.log(`   - Current tab status: ${currentStatus}`);
@@ -447,311 +413,167 @@ const PersonalSchedule = ({ userId }) => {
     );
   };
 
-  // Columns for appointment details table (each detail is a row)
-  const detailColumns = [
-    {
-      title: "Mã dịch vụ",
-      dataIndex: "id",
-      key: "detailId",
-      width: 100,
-      render: (id) => <strong>#{id}</strong>,
-    },
-    {
-      title: "Thông tin bệnh nhân",
-      key: "patientInfo",
-      width: 200,
-      render: (_, detail) => (
-        <div>
-          <div
-            style={{ fontWeight: "bold", color: "#1890ff", fontSize: "14px" }}
-          >
-            <UserOutlined /> {detail.customerName || "Chưa có tên"}
-          </div>
-          <div style={{ fontSize: "12px", color: "#666", marginTop: "4px" }}>
-            📅 Ngày hẹn: {dayjs(detail.preferredDate).format("DD/MM/YYYY")}
-          </div>
-          <div style={{ fontSize: "12px", color: "#666" }}>
-            🆔 Lịch hẹn: #{detail.appointmentId}
-          </div>
-        </div>
-      ),
-    },
-    {
-      title: "Trạng thái",
-      dataIndex: "status",
-      key: "status",
-      width: 150,
-      render: (status) => {
-        const statusInfo = getStatusInfo(status);
-        return (
+  // Get columns based on current tab - hide medical result column for non-completed tabs
+  const getDetailColumns = () => {
+    const baseColumns = [
+      {
+        title: "Mã dịch vụ",
+        dataIndex: "id",
+        key: "detailId",
+        width: 100,
+        render: (id) => <strong>#{id}</strong>,
+      },
+      {
+        title: "Thông tin bệnh nhân",
+        key: "patientInfo",
+        width: 200,
+        render: (_, detail) => (
           <div>
-            <Tag color={statusInfo.color} icon={statusInfo.icon}>
-              {statusInfo.text}
-            </Tag>
-            <div style={{ fontSize: "11px", color: "#999", marginTop: "2px" }}>
-              {statusInfo.description}
+            <div
+              style={{ fontWeight: "bold", color: "#1890ff", fontSize: "14px" }}
+            >
+              <UserOutlined /> {detail.customerName || "Chưa có tên"}
+            </div>
+            <div style={{ fontSize: "12px", color: "#666", marginTop: "4px" }}>
+              📅 Ngày hẹn:{" "}
+              {new Date(detail.preferredDate).toLocaleDateString("vi-VN")}
+            </div>
+            <div style={{ fontSize: "12px", color: "#666" }}>
+              🆔 Lịch hẹn: #{detail.appointmentId}
             </div>
           </div>
-        );
+        ),
       },
-    },
-    {
-      title: "Dịch vụ khám",
-      key: "serviceInfo",
-      width: 200,
-      render: (_, detail) => (
-        <div>
-          <div
-            style={{ fontWeight: "bold", fontSize: "14px", color: "#52c41a" }}
-          >
-            🏥 {detail.serviceName}
-          </div>
-          <div style={{ fontSize: "12px", color: "#666", marginTop: "4px" }}>
-            ⏰ {dayjs(detail.slotTime).format("HH:mm DD/MM/YYYY")}
-          </div>
-          <div style={{ fontSize: "12px", color: "#666" }}>
-            👨‍⚕️ {detail.consultantName || `Bác sĩ #${detail.consultantId}`}
-          </div>
-        </div>
-      ),
-    },
-    {
-      title: "Thao tác",
-      key: "actions",
-      width: 150,
-      render: (_, detail) => {
-        const { status, id } = detail;
-
-        return (
-          <Space direction="vertical" size="small">
-            {status === "CHECKED" && (
-              <Button
-                type="primary"
-                size="small"
-                icon={<ClockCircleOutlined />}
-                onClick={() => handleStartExamination(id)}
-                loading={statusUpdateLoading}
-              >
-                Bắt đầu khám
-              </Button>
-            )}
-
-            {status === "IN_PROGRESS" && (
-              <Button
-                type="primary"
-                size="small"
-                icon={<ExclamationCircleOutlined />}
-                onClick={() => handleWaitForResult(id)}
-                loading={statusUpdateLoading}
-                style={{ backgroundColor: "#fa8c16", borderColor: "#fa8c16" }}
-              >
-                Chờ kết quả
-              </Button>
-            )}
-
-            {status === "WAITING_RESULT" && (
-              <Button
-                type="primary"
-                size="small"
-                icon={<EditOutlined />}
-                onClick={() => {
-                  setSelectedAppointmentDetail(detail);
-                  setIsResultModalVisible(true);
-                }}
-                style={{ backgroundColor: "#52c41a", borderColor: "#52c41a" }}
-              >
-                Nhập kết quả
-              </Button>
-            )}
-
-            {status === "COMPLETED" && (
+      {
+        title: "Trạng thái",
+        dataIndex: "status",
+        key: "status",
+        width: 150,
+        render: (status) => {
+          const statusInfo = getStatusInfo(status);
+          return (
+            <div>
+              <Tag color={statusInfo.color} icon={statusInfo.icon}>
+                {statusInfo.text}
+              </Tag>
               <div
-                style={{
-                  color: "#52c41a",
-                  fontSize: "12px",
-                  fontWeight: "bold",
-                }}
+                style={{ fontSize: "11px", color: "#999", marginTop: "2px" }}
               >
-                Đã hoàn thành
+                {statusInfo.description}
               </div>
-            )}
-          </Space>
-        );
+            </div>
+          );
+        },
       },
-    },
-    {
-      title: "Kết quả khám",
-      dataIndex: "medicalResult",
-      key: "medicalResult",
-      ellipsis: true,
-      width: 300,
-      render: (result) => (
-        <div style={{ fontSize: "12px" }}>
-          {result ? (
+      {
+        title: "Dịch vụ khám",
+        key: "serviceInfo",
+        width: 200,
+        render: (_, detail) => (
+          <div>
             <div
-              style={{
-                padding: "12px",
-                backgroundColor: "#f6ffed",
-                border: "1px solid #b7eb8f",
-                borderRadius: "6px",
-                maxHeight: "200px",
-                overflowY: "auto",
-              }}
+              style={{ fontWeight: "bold", fontSize: "14px", color: "#52c41a" }}
             >
-              <div style={{ marginBottom: "8px" }}>
-                <strong style={{ color: "#52c41a" }}>🏥 Loại kết quả:</strong>{" "}
-                <span style={{ color: "#1890ff" }}>
-                  {result.resultType === "LAB_TEST"
-                    ? "Xét nghiệm"
-                    : result.resultType === "IMAGING"
-                    ? "Chẩn đoán hình ảnh"
-                    : result.resultType === "CONSULTATION"
-                    ? "Tư vấn"
-                    : result.resultType || "Không xác định"}
-                </span>
-              </div>
+              🏥 {detail.serviceName}
+            </div>
+            <div style={{ fontSize: "12px", color: "#666", marginTop: "4px" }}>
+              ⏰{" "}
+              {new Date(detail.slotTime).toLocaleString("vi-VN", {
+                hour: "2-digit",
+                minute: "2-digit",
+                day: "2-digit",
+                month: "2-digit",
+                year: "numeric",
+              })}
+            </div>
+            <div style={{ fontSize: "12px", color: "#666" }}>
+              👨‍⚕️ {detail.consultantName || `Bác sĩ #${detail.consultantId}`}
+            </div>
+          </div>
+        ),
+      },
+      {
+        title: "Thao tác",
+        key: "actions",
+        width: 150,
+        render: (_, detail) => {
+          const { status, id } = detail;
 
-              {result.diagnosis && (
-                <div style={{ marginBottom: "8px" }}>
-                  <strong style={{ color: "#52c41a" }}> Chẩn đoán:</strong>
-                  <div style={{ marginTop: "4px", color: "#262626" }}>
-                    {result.diagnosis}
-                  </div>
-                </div>
+          return (
+            <Space direction="vertical" size="small">
+              {status === "CHECKED" && (
+                <Button
+                  type="primary"
+                  size="small"
+                  icon={<ClockCircleOutlined />}
+                  onClick={() => handleStartExamination(id)}
+                  loading={statusUpdateLoading}
+                >
+                  Bắt đầu khám
+                </Button>
               )}
 
-              {result.treatmentPlan && (
-                <div style={{ marginBottom: "8px" }}>
-                  <strong style={{ color: "#52c41a" }}>
-                    💊 Kế hoạch điều trị:
-                  </strong>
-                  <div style={{ marginTop: "4px", color: "#262626" }}>
-                    {result.treatmentPlan}
-                  </div>
-                </div>
+              {status === "IN_PROGRESS" && (
+                <Button
+                  type="primary"
+                  size="small"
+                  icon={<ExclamationCircleOutlined />}
+                  onClick={() => handleWaitForResult(id)}
+                  loading={statusUpdateLoading}
+                  style={{ backgroundColor: "#fa8c16", borderColor: "#fa8c16" }}
+                >
+                  Chờ kết quả
+                </Button>
               )}
 
-              {result.testName && (
-                <div style={{ marginBottom: "8px" }}>
-                  <strong style={{ color: "#52c41a" }}>
-                    🧪 Tên xét nghiệm:
-                  </strong>
-                  <div style={{ marginTop: "4px", color: "#262626" }}>
-                    {result.testName}
-                  </div>
-                </div>
+              {status === "WAITING_RESULT" && (
+                <Button
+                  type="primary"
+                  size="small"
+                  icon={<EditOutlined />}
+                  onClick={() => {
+                    setSelectedAppointmentDetail(detail);
+                    setIsResultModalVisible(true);
+                  }}
+                  style={{ backgroundColor: "#52c41a", borderColor: "#52c41a" }}
+                >
+                  Nhập kết quả
+                </Button>
               )}
 
-              {result.testResult && (
-                <div style={{ marginBottom: "8px" }}>
-                  <strong style={{ color: "#52c41a" }}> Kết quả:</strong>
-                  <div
-                    style={{
-                      marginTop: "4px",
-                      color: "#262626",
-                      backgroundColor: "#fff",
-                      padding: "6px",
-                      borderRadius: "4px",
-                      border: "1px solid #d9d9d9",
-                    }}
-                  >
-                    {result.testResult}
-                  </div>
-                </div>
-              )}
-
-              {result.normalRange && (
-                <div style={{ marginBottom: "8px" }}>
-                  <strong style={{ color: "#52c41a" }}>
-                    📏 Giá trị bình thường:
-                  </strong>
-                  <div
-                    style={{
-                      marginTop: "4px",
-                      color: "#595959",
-                      fontSize: "11px",
-                    }}
-                  >
-                    {result.normalRange}
-                  </div>
-                </div>
-              )}
-
-              {result.testStatus && (
-                <div style={{ marginBottom: "8px" }}>
-                  <strong style={{ color: "#52c41a" }}>Trạng thái:</strong>{" "}
-                  <span
-                    style={{
-                      color:
-                        result.testStatus === "NORMAL"
-                          ? "#52c41a"
-                          : result.testStatus === "ABNORMAL"
-                          ? "#ff4d4f"
-                          : "#fa8c16",
-                      fontWeight: "bold",
-                    }}
-                  >
-                    {result.testStatus === "NORMAL"
-                      ? "Bình thường"
-                      : result.testStatus === "ABNORMAL"
-                      ? "Bất thường"
-                      : result.testStatus === "PENDING"
-                      ? "Đang chờ"
-                      : result.testStatus || "Không xác định"}
-                  </span>
-                </div>
-              )}
-
-              {result.description && (
-                <div style={{ marginBottom: "8px" }}>
-                  <strong style={{ color: "#52c41a" }}> Mô tả:</strong>
-                  <div style={{ marginTop: "4px", color: "#262626" }}>
-                    {result.description}
-                  </div>
-                </div>
-              )}
-
-              {result.labNotes && (
-                <div style={{ marginBottom: "8px" }}>
-                  <strong style={{ color: "#52c41a" }}>
-                    🔬 Ghi chú phòng lab:
-                  </strong>
-                  <div
-                    style={{
-                      marginTop: "4px",
-                      color: "#595959",
-                      fontSize: "11px",
-                    }}
-                  >
-                    {result.labNotes}
-                  </div>
-                </div>
-              )}
-
-              {result.createdAt && (
+              {status === "COMPLETED" && (
                 <div
                   style={{
-                    marginTop: "12px",
-                    paddingTop: "8px",
-                    borderTop: "1px solid #d9d9d9",
-                    color: "#8c8c8c",
-                    fontSize: "11px",
+                    color: "#52c41a",
+                    fontSize: "12px",
+                    fontWeight: "bold",
                   }}
                 >
-                  📅 Ngày tạo:{" "}
-                  {new Date(result.createdAt).toLocaleString("vi-VN")}
+                  ✅ Đã hoàn thành
                 </div>
               )}
-            </div>
-          ) : (
-            <span style={{ color: "#ccc", fontStyle: "italic" }}>
-              Chưa có kết quả
-            </span>
-          )}
-        </div>
-      ),
-    },
-  ];
+            </Space>
+          );
+        },
+      },
+    ];
+
+    // Only show medical result column for completed tab
+    if (activeTab === "completed") {
+      baseColumns.push({
+        title: "Kết quả khám",
+        dataIndex: "medicalResult",
+        key: "medicalResult",
+        ellipsis: true,
+        width: 300,
+        render: (result) => (
+          <MedicalResultViewer result={result} compact={true} />
+        ),
+      });
+    }
+
+    return baseColumns;
+  };
 
   // Get current tab data
   const getCurrentTabData = () => {
@@ -933,7 +755,7 @@ const PersonalSchedule = ({ userId }) => {
             <CalendarOutlined /> Chọn ngày:
           </span>
           <DatePicker
-            value={selectedDate}
+            value={dayjs(selectedDate)}
             onChange={handleDateChange}
             format="DD/MM/YYYY"
             placeholder="Chọn ngày"
@@ -941,7 +763,7 @@ const PersonalSchedule = ({ userId }) => {
             allowClear={false}
           />
           <span style={{ color: "#666" }}>
-            Hiển thị lịch hẹn ngày {selectedDate.format("DD/MM/YYYY")}
+            Hiển thị lịch hẹn ngày {selectedDate.toLocaleDateString("vi-VN")}
           </span>
           {!showDebugPanel && (
             <Button
@@ -1018,7 +840,7 @@ const PersonalSchedule = ({ userId }) => {
         />
 
         <Table
-          columns={detailColumns}
+          columns={getDetailColumns()}
           dataSource={currentTabDetails}
           rowKey="id"
           loading={
@@ -1044,7 +866,7 @@ const PersonalSchedule = ({ userId }) => {
                 />
                 <div style={{ color: "#999" }}>
                   Không có dịch vụ nào trong tab này cho ngày{" "}
-                  {selectedDate.format("DD/MM/YYYY")}
+                  {selectedDate.toLocaleDateString("vi-VN")}
                 </div>
                 <div
                   style={{ color: "#ccc", fontSize: "12px", marginTop: "8px" }}
@@ -1089,136 +911,38 @@ const PersonalSchedule = ({ userId }) => {
         </Form>
       </Modal>
 
-      {/* Modal nhập kết quả khám */}
-      <Modal
-        title={
-          <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-            <EditOutlined />
-            Nhập kết quả khám bệnh
-          </div>
-        }
-        open={isResultModalVisible}
-        onOk={() => {
-          resultForm.validateFields().then((values) => {
-            handleSubmitResult(
-              selectedAppointmentDetail?.id,
-              values.medicalResult
-            );
-          });
+      {/* Medical Result Form Modal */}
+      <MedicalResultFormWrapper
+        visible={isResultModalVisible}
+        appointmentDetail={selectedAppointmentDetail}
+        onSuccess={(result) => {
+          console.log("✅ Medical result submitted successfully:", result);
+          toast.success("Đã lưu kết quả khám thành công!");
+
+          // Close modal
+          setIsResultModalVisible(false);
+          setSelectedAppointmentDetail(null);
+          resultForm.resetFields();
+
+          // Reload current tab data
+          const date = selectedDate.toISOString().split("T")[0];
+          const statusMap = {
+            checked: "CHECKED",
+            in_progress: "IN_PROGRESS",
+            waiting_result: "WAITING_RESULT",
+            completed: "COMPLETED",
+          };
+          const currentStatus = statusMap[activeTab] || "CHECKED";
+
+          // Refetch current tab data
+          loadAppointmentsByStatus(date, currentStatus, false);
         }}
-        onCancel={() => {
+        onClose={() => {
           setIsResultModalVisible(false);
           setSelectedAppointmentDetail(null);
           resultForm.resetFields();
         }}
-        okText="Lưu kết quả"
-        cancelText="Hủy"
-        width={600}
-      >
-        {selectedAppointmentDetail && (
-          <div>
-            {/* Thông tin dịch vụ */}
-            <Card
-              size="small"
-              style={{ marginBottom: "16px", backgroundColor: "#f0f9ff" }}
-            >
-              <div
-                style={{
-                  display: "flex",
-                  justifyContent: "space-between",
-                  alignItems: "center",
-                }}
-              >
-                <div>
-                  <div
-                    style={{
-                      fontWeight: "bold",
-                      fontSize: "14px",
-                      color: "#1890ff",
-                    }}
-                  >
-                    🏥 {selectedAppointmentDetail.serviceName}
-                  </div>
-                  <div
-                    style={{
-                      fontSize: "12px",
-                      color: "#666",
-                      marginTop: "4px",
-                    }}
-                  >
-                    ⏰ Thời gian:{" "}
-                    {dayjs(selectedAppointmentDetail.slotTime).format(
-                      "HH:mm DD/MM/YYYY"
-                    )}
-                  </div>
-                  <div style={{ fontSize: "12px", color: "#666" }}>
-                    👨‍⚕️ Bác sĩ:{" "}
-                    {selectedAppointmentDetail.consultantName ||
-                      `ID: ${selectedAppointmentDetail.consultantId}`}
-                  </div>
-                </div>
-                <Tag
-                  color={getStatusInfo(selectedAppointmentDetail.status).color}
-                >
-                  {getStatusInfo(selectedAppointmentDetail.status).text}
-                </Tag>
-              </div>
-            </Card>
-
-            {/* Form nhập kết quả */}
-            <Form form={resultForm} layout="vertical">
-              <Form.Item
-                name="medicalResult"
-                label={
-                  <span style={{ fontWeight: "bold", fontSize: "14px" }}>
-                    Kết quả khám bệnh
-                  </span>
-                }
-                rules={[
-                  {
-                    required: true,
-                    message: "Vui lòng nhập kết quả khám bệnh!",
-                  },
-                  {
-                    min: 10,
-                    message: "Kết quả khám phải có ít nhất 10 ký tự!",
-                  },
-                ]}
-              >
-                <Input.TextArea
-                  rows={8}
-                  placeholder="Nhập kết quả khám bệnh chi tiết...
-
-Ví dụ:
-- Triệu chứng: ...
-- Chẩn đoán: ...
-- Hướng điều trị: ...
-- Lưu ý: ..."
-                  style={{ fontSize: "13px" }}
-                />
-              </Form.Item>
-
-              <div
-                style={{
-                  padding: "12px",
-                  backgroundColor: "#fff7e6",
-                  borderRadius: "6px",
-                  border: "1px solid #ffd591",
-                }}
-              >
-                <div style={{ fontSize: "12px", color: "#d46b08" }}>
-                  <strong>💡 Lưu ý:</strong>
-                  <ul style={{ margin: "4px 0 0 16px", paddingLeft: 0 }}>
-                    <li>Nhập kết quả khám chi tiết và rõ ràng</li>
-                    <li>Bao gồm chẩn đoán và hướng điều trị</li>
-                    <li>Kết quả sẽ được gửi cho bệnh nhân</li>
-                  </ul>
-                </div>
-              </div>
-            </Form>
-          </div>
-        )}
-      </Modal>
+      />
     </div>
   );
 };
