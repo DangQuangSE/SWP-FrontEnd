@@ -6,15 +6,13 @@ const { Option } = Select;
 
 // Service Type Options
 const SERVICE_TYPE_OPTIONS = [
-  { value: "CONSULTING", label: "CONSULTING" },
-  { value: "CONSULTING_ON", label: "CONSULTING_ON" },
-  { value: "TREATMENT", label: "TREATMENT" },
-  { value: "TESTING_ON", label: "TESTING ON" },
-  { value: "TESTING_OFF", label: "TESTING OFF" },
-  // { value: "EXAMINATION", label: "EXAMINATION" },
-  // { value: "PREVENTION", label: "PREVENTION" },
-  // { value: "REHABILITATION", label: "REHABILITATION" },
-  { value: "OTHER", label: "OTHER" },
+  { value: "CONSULTING", label: "Tư Vấn" },
+  { value: "CONSULTING_ON", label: "Tư vấn trực tuyến" },
+
+  { value: "TESTING_OFF", label: "Xét nghiệm" },
+  { value: "EXAMINATION", label: "Khám bệnh" },
+
+  { value: "OTHER", label: "Khác" },
 ];
 
 const ServiceModal = ({

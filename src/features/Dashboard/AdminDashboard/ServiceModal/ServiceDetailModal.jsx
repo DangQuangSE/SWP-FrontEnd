@@ -4,12 +4,12 @@ import { Modal, Button, Tag } from "antd";
 const ServiceDetailModal = ({ visible, onCancel, serviceDetail }) => {
   return (
     <Modal
-      title="Service Details"
+      title="Chi tiết Dịch vụ"
       open={visible}
       onCancel={onCancel}
       footer={[
         <Button key="close" onClick={onCancel}>
-          Close
+          Đóng
         </Button>,
       ]}
       width={600}
@@ -17,23 +17,20 @@ const ServiceDetailModal = ({ visible, onCancel, serviceDetail }) => {
       {serviceDetail && (
         <div>
           <p>
-            <strong>ID:</strong> {serviceDetail.id}
+            <strong>Tên:</strong> {serviceDetail.name}
           </p>
           <p>
-            <strong>Name:</strong> {serviceDetail.name}
+            <strong>Mô tả:</strong> {serviceDetail.description}
           </p>
           <p>
-            <strong>Description:</strong> {serviceDetail.description}
-          </p>
-          <p>
-            <strong>Duration:</strong>{" "}
+            <strong>Thời gian:</strong>{" "}
             {serviceDetail.duration
               ? Math.floor(serviceDetail.duration / 60)
               : "N/A"}{" "}
-            minutes
+            phút
           </p>
           <p>
-            <strong>Type:</strong>
+            <strong>Loại:</strong>
             <Tag
               color={
                 serviceDetail.type === "CONSULTING" ||
@@ -47,38 +44,37 @@ const ServiceDetailModal = ({ visible, onCancel, serviceDetail }) => {
             </Tag>
           </p>
           <p>
-            <strong>Price:</strong> {serviceDetail.price?.toLocaleString() || 0}
-            đ
+            <strong>Giá:</strong> {serviceDetail.price?.toLocaleString() || 0}đ
           </p>
           <p>
-            <strong>Discount:</strong> {serviceDetail.discountPercent || 0}%
+            <strong>Giảm giá:</strong> {serviceDetail.discountPercent || 0}%
           </p>
           <p>
-            <strong>Is Combo:</strong>
+            <strong>Là Gói:</strong>
             <Tag
               color={serviceDetail.isCombo ? "orange" : "default"}
               style={{ marginLeft: 8 }}
             >
-              {serviceDetail.isCombo ? "Yes" : "No"}
+              {serviceDetail.isCombo ? "Có" : "Không"}
             </Tag>
           </p>
           <p>
-            <strong>Status:</strong>
+            <strong>Trạng thái:</strong>
             <Tag
               color={serviceDetail.isActive ? "green" : "red"}
               style={{ marginLeft: 8 }}
             >
-              {serviceDetail.isActive ? "Active" : "Inactive"}
+              {serviceDetail.isActive ? "Hoạt động" : "Không hoạt động"}
             </Tag>
           </p>
           <p>
-            <strong>Created At:</strong>{" "}
+            <strong>Ngày tạo:</strong>{" "}
             {new Date(serviceDetail.createdAt).toLocaleString("vi-VN")}
           </p>
           {serviceDetail.subServiceIds &&
             serviceDetail.subServiceIds.length > 0 && (
               <p>
-                <strong>Sub Service IDs:</strong>{" "}
+                <strong>ID Dịch vụ Con:</strong>{" "}
                 {serviceDetail.subServiceIds.join(", ")}
               </p>
             )}
@@ -86,7 +82,7 @@ const ServiceDetailModal = ({ visible, onCancel, serviceDetail }) => {
             serviceDetail.subServices.length > 0 && (
               <div>
                 <p>
-                  <strong>Sub Services:</strong>
+                  <strong>Dịch vụ Con:</strong>
                 </p>
                 <div style={{ marginLeft: 16 }}>
                   {serviceDetail.subServices.map((subService, index) => (
@@ -108,12 +104,12 @@ const ServiceDetailModal = ({ visible, onCancel, serviceDetail }) => {
                         {subService.description}
                       </p>
                       <p style={{ margin: 0, fontSize: "12px" }}>
-                        Price: {subService.price?.toLocaleString() || 0}đ |
-                        Duration:{" "}
+                        Giá: {subService.price?.toLocaleString() || 0}đ | Thời
+                        gian:{" "}
                         {subService.duration
                           ? Math.floor(subService.duration / 60)
                           : "N/A"}{" "}
-                        minutes | Type:{" "}
+                        phút | Loại:{" "}
                         <Tag
                           size="small"
                           color={

@@ -32,14 +32,6 @@ const Profile = () => {
   // Fetch user data from API /api/me
   useEffect(() => {
     const fetchUserData = async () => {
-      const token = localStorage.getItem("token");
-
-      if (!token) {
-        setFetchingUser(false);
-        message.error("Bạn chưa đăng nhập. Vui lòng đăng nhập để xem hồ sơ.");
-        return;
-      }
-
       try {
         setFetchingUser(true);
         const response = await api.get("/me");
@@ -57,9 +49,7 @@ const Profile = () => {
         });
       } catch (error) {
         console.error("❌ Error fetching user data:", error);
-        const errorMessage =
-          error.response?.data?.message || "Không thể lấy thông tin người dùng";
-        message.error(errorMessage);
+        message.error("Không thể lấy thông tin người dùng");
       } finally {
         setFetchingUser(false);
       }
@@ -93,60 +83,13 @@ const Profile = () => {
       // Refresh user data after successful update
       const updatedResponse = await api.get("/me");
       setUser(updatedResponse.data);
-
-      // Update form with fresh data
-      form.setFieldsValue({
-        fullname: updatedResponse.data.fullname || "",
-        phone: updatedResponse.data.phone || "",
-        address: updatedResponse.data.address || "",
-        dateOfBirth: updatedResponse.data.dateOfBirth
-          ? dayjs(updatedResponse.data.dateOfBirth)
-          : null,
-      });
     } catch (error) {
       console.error("Error updating profile:", error);
-      const errorMessage =
-        error.response?.data?.message || "Cập nhật hồ sơ thất bại!";
-      message.error(errorMessage);
+      message.error("Cập nhật hồ sơ thất bại!");
     } finally {
       setLoading(false);
     }
   };
-
-  // Show loading when fetching user data
-  if (fetchingUser) {
-    return (
-      <div className="profile-container">
-        <Card loading={true}>
-          <div style={{ textAlign: "center", padding: "40px" }}>
-            <p>Đang tải thông tin hồ sơ...</p>
-          </div>
-        </Card>
-      </div>
-    );
-  }
-
-  // Show error state if no user data
-  if (!user) {
-    return (
-      <div className="profile-container">
-        <Card>
-          <div style={{ textAlign: "center", padding: "40px" }}>
-            <p style={{ color: "#ff4d4f", fontSize: "16px" }}>
-              Không thể tải thông tin hồ sơ. Vui lòng thử lại.
-            </p>
-            <Button
-              type="primary"
-              onClick={() => window.location.reload()}
-              style={{ marginTop: "16px" }}
-            >
-              Tải lại trang
-            </Button>
-          </div>
-        </Card>
-      </div>
-    );
-  }
 
   return (
     <div className="profile-container">
@@ -165,13 +108,12 @@ const Profile = () => {
                 }
               }}
               loading={loading}
-              disabled={!user}
             >
               {editing ? "Lưu thay đổi" : "Chỉnh sửa"}
             </Button>
           </div>
         }
-        loading={loading}
+        loading={loading || fetchingUser}
       >
         <Row gutter={24}>
           {/* Avatar Section */}
@@ -187,11 +129,6 @@ const Profile = () => {
               <div className="user-basic-info">
                 <h3>{user?.fullname || "Chưa có tên"}</h3>
                 <p>{user?.email}</p>
-                {user?.role && (
-                  <p style={{ color: "#1890ff", fontWeight: "500" }}>
-                    Vai trò: {user.role}
-                  </p>
-                )}
               </div>
             </div>
           </Col>

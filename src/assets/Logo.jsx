@@ -9,7 +9,7 @@ const Logo = () => {
           src="logostc.png"
           alt="Gender Healthcare Logo"
           className="logo-img"
-          style={{ height: 55 }}
+          style={{ height: 60 }}
         />
       </Link>
     </div>
