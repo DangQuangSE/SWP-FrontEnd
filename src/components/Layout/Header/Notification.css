@@ -1,0 +1,245 @@
+.notification-icon {
+    position: relative;
+}
+
+.notification-circle {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background-color: #f0f2f5;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.simple-notification-dropdown {
+    position: absolute;
+    top: 50px;
+    right: -150px;
+    width: 360px;
+    max-height: 600px;
+    background-color: white;
+    border-radius: 12px;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.2);
+    z-index: 1000;
+    overflow: hidden;
+    padding-bottom: 8px;
+}
+
+.notification-circle:hover {
+    background-color: #e4e6eb;
+}
+
+.notification-circle .anticon-bell {
+    font-size: 15px;
+}
+
+/* Thêm style cho tabs */
+.notification-tabs {
+    display: flex;
+    margin: 8px 16px 16px;
+    background-color: #f0f2f5;
+    border-radius: 20px;
+    padding: 4px;
+}
+
+.tab-button {
+    flex: 1;
+    background: none;
+    border: none;
+    padding: 8px 0;
+    font-size: 14px;
+    font-weight: 500;
+    color: #65676b;
+    cursor: pointer;
+    border-radius: 16px;
+    transition: all 0.2s;
+}
+
+.tab-button:hover {
+    color: #1877f2;
+}
+
+.tab-button.active {
+    color: #1877f2;
+    background-color: white;
+    font-weight: 600;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+/* Cập nhật style cho header */
+.notification-header {
+    padding: 16px 16px 8px;
+    border-bottom: none;
+}
+
+.notification-header h3 {
+    margin: 0;
+    font-size: 20px;
+    font-weight: 600;
+    color: #050505;
+}
+
+/* Cập nhật style cho notification-list */
+.notification-list {
+    max-height: 400px;
+    overflow-y: auto;
+    padding: 0 8px;
+    scrollbar-width: thin;
+    scrollbar-color: #c2c2c2 transparent;
+}
+
+.notification-list::-webkit-scrollbar {
+    width: 6px;
+}
+
+.notification-list::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.notification-list::-webkit-scrollbar-thumb {
+    background-color: #c2c2c2;
+    border-radius: 6px;
+}
+
+/* Style cho nút load more */
+.notification-load-more {
+    text-align: center;
+    padding: 8px 0;
+}
+
+.load-more-button {
+    background: none;
+    border: none;
+    color: #1877f2;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    padding: 8px 16px;
+    border-radius: 4px;
+    transition: background-color 0.2s;
+}
+
+.load-more-button:hover {
+    background-color: #f0f2f5;
+    text-decoration: underline;
+}
+
+/* Style cho footer */
+.notification-footer {
+    padding: 8px 16px;
+    border-top: 1px solid #e4e6eb;
+    text-align: center;
+}
+
+.view-all-button {
+    background: none;
+    border: none;
+    color: #1877f2;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    padding: 8px 16px;
+    width: 100%;
+    border-radius: 4px;
+    transition: background-color 0.2s;
+}
+
+.view-all-button:hover {
+    background-color: #f0f2f5;
+    text-decoration: underline;
+}
+
+/* Cập nhật style cho notification-item */
+.notification-item {
+    padding: 12px 16px;
+    margin: 8px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    background-color: #f0f2f5;
+    /* Màu xám nhạt cho thông báo đã đọc */
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+}
+
+.notification-item:hover {
+    background-color: #e4e6eb;
+}
+
+.notification-item.unread {
+    background-color: #ffffff;
+    /* Màu trắng cho thông báo chưa đọc */
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    /* Thêm đổ bóng nhẹ để nổi bật */
+}
+
+.notification-item.unread:hover {
+    background-color: #f8f9fa;
+}
+
+/* Style cho nội dung thông báo */
+.notification-content {
+    flex: 1;
+    padding-right: 8px;
+}
+
+/* Cập nhật style cho title và message */
+.notification-title {
+    margin: 0 0 4px;
+    font-size: 15px;
+    font-weight: 600;
+    color: #65676b;
+    /* Màu nhạt hơn cho title của thông báo đã đọc */
+}
+
+.notification-item.unread .notification-title {
+    color: #050505;
+    /* Màu đậm hơn cho title của thông báo chưa đọc */
+}
+
+.notification-message {
+    margin: 0 0 4px;
+    font-size: 14px;
+    color: #65676b;
+    line-height: 1.4;
+}
+
+.notification-item.unread .notification-message {
+    color: #1c1e21;
+    /* Màu đậm hơn một chút cho nội dung thông báo chưa đọc */
+}
+
+/* Style cho nút action */
+.notification-actions {
+    display: flex;
+    align-items: center;
+}
+
+.notification-action-button {
+    background: none;
+    border: none;
+    color: #65676b;
+    cursor: pointer;
+    padding: 4px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background-color 0.2s;
+}
+
+.notification-action-button:hover {
+    background-color: rgba(0, 0, 0, 0.05);
+    color: #1c1e21;
+}
+
+/* Style cho thời gian */
+.notification-time {
+    font-size: 12px;
+    color: #65676b;
+    display: block;
+}
