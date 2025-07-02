@@ -126,14 +126,12 @@ const PersonalSchedule = ({ userId }) => {
       }));
 
       try {
-        console.log(
-          `🔄 [API] Loading ${status} appointments for ${targetDate}`
-        );
+        console.log(` [API] Loading ${status} appointments for ${targetDate}`);
         const response = await getMySchedule(targetDate, status);
         const appointments = response.data || [];
 
         console.log(
-          `✅ [API] Loaded ${appointments.length} ${status} appointments`
+          `[API] Loaded ${appointments.length} ${status} appointments`
         );
 
         // Update cache
@@ -157,7 +155,7 @@ const PersonalSchedule = ({ userId }) => {
 
         return appointments;
       } catch (error) {
-        console.error(`❌ [API] Error loading ${status} appointments:`, error);
+        console.error(` [API] Error loading ${status} appointments:`, error);
         toast.error(
           `Lỗi tải dữ liệu ${status}: ${
             error.response?.data?.message || error.message
@@ -216,10 +214,10 @@ const PersonalSchedule = ({ userId }) => {
           const status = statuses[index];
           if (result.status === "fulfilled") {
             console.log(
-              `✅ [PARALLEL] ${status}: ${result.value.length} appointments`
+              `[PARALLEL] ${status}: ${result.value.length} appointments`
             );
           } else {
-            console.error(`❌ [PARALLEL] ${status} failed:`, result.reason);
+            console.error(` [PARALLEL] ${status} failed:`, result.reason);
           }
         });
 
@@ -230,7 +228,7 @@ const PersonalSchedule = ({ userId }) => {
           `Đã tải ${successCount}/${statuses.length} tab thành công`
         );
       } catch (error) {
-        console.error("❌ [PARALLEL] Error during parallel loading:", error);
+        console.error(" [PARALLEL] Error during parallel loading:", error);
         toast.error("Lỗi khi tải dữ liệu song song");
       } finally {
         setAppointmentsLoading(false);
@@ -252,7 +250,7 @@ const PersonalSchedule = ({ userId }) => {
     };
 
     const status = statusMap[key] || "CHECKED";
-    console.log(`🔄 [TAB] Switching to ${key} tab, reloading ${status} data`);
+    console.log(` [TAB] Switching to ${key} tab, reloading ${status} data`);
 
     // Always call API when switching tabs (useCache = false)
     loadAppointmentsByStatus(date, status, false);
@@ -407,7 +405,7 @@ const PersonalSchedule = ({ userId }) => {
       // Smart refetch: Update both current tab and new status tab
       const date = selectedDate.format("YYYY-MM-DD");
 
-      console.log(`🔄 [STATUS UPDATE] Refetching data after status change:`);
+      console.log(` [STATUS UPDATE] Refetching data after status change:`);
       console.log(`   - Current tab status: ${currentStatus}`);
       console.log(`   - New status: ${newStatus}`);
 
@@ -421,7 +419,7 @@ const PersonalSchedule = ({ userId }) => {
 
       await Promise.allSettled(refetchPromises);
       console.log(
-        `✅ [STATUS UPDATE] Refetched ${statusesToRefetch.length} tab(s) successfully`
+        `[STATUS UPDATE] Refetched ${statusesToRefetch.length} tab(s) successfully`
       );
     } catch (error) {
       console.error("Error updating status:", error);
@@ -574,7 +572,7 @@ const PersonalSchedule = ({ userId }) => {
                   fontWeight: "bold",
                 }}
               >
-                ✅ Đã hoàn thành
+                Đã hoàn thành
               </div>
             )}
           </Space>
@@ -615,7 +613,7 @@ const PersonalSchedule = ({ userId }) => {
 
               {result.diagnosis && (
                 <div style={{ marginBottom: "8px" }}>
-                  <strong style={{ color: "#52c41a" }}>🔍 Chẩn đoán:</strong>
+                  <strong style={{ color: "#52c41a" }}> Chẩn đoán:</strong>
                   <div style={{ marginTop: "4px", color: "#262626" }}>
                     {result.diagnosis}
                   </div>
@@ -646,7 +644,7 @@ const PersonalSchedule = ({ userId }) => {
 
               {result.testResult && (
                 <div style={{ marginBottom: "8px" }}>
-                  <strong style={{ color: "#52c41a" }}>📊 Kết quả:</strong>
+                  <strong style={{ color: "#52c41a" }}> Kết quả:</strong>
                   <div
                     style={{
                       marginTop: "4px",
@@ -681,7 +679,7 @@ const PersonalSchedule = ({ userId }) => {
 
               {result.testStatus && (
                 <div style={{ marginBottom: "8px" }}>
-                  <strong style={{ color: "#52c41a" }}>✅ Trạng thái:</strong>{" "}
+                  <strong style={{ color: "#52c41a" }}>Trạng thái:</strong>{" "}
                   <span
                     style={{
                       color:
@@ -706,7 +704,7 @@ const PersonalSchedule = ({ userId }) => {
 
               {result.description && (
                 <div style={{ marginBottom: "8px" }}>
-                  <strong style={{ color: "#52c41a" }}>📝 Mô tả:</strong>
+                  <strong style={{ color: "#52c41a" }}> Mô tả:</strong>
                   <div style={{ marginTop: "4px", color: "#262626" }}>
                     {result.description}
                   </div>
@@ -951,7 +949,7 @@ const PersonalSchedule = ({ userId }) => {
               onClick={() => setShowDebugPanel(true)}
               style={{ marginLeft: "auto" }}
             >
-              🔍 Debug
+              Debug
             </Button>
           )}
         </div>
@@ -968,7 +966,7 @@ const PersonalSchedule = ({ userId }) => {
               marginBottom: "12px",
             }}
           >
-            <h4 style={{ margin: 0, color: "#1890ff" }}>🔍 Debug Panel</h4>
+            <h4 style={{ margin: 0, color: "#1890ff" }}> Debug Panel</h4>
             <Button size="small" onClick={() => setShowDebugPanel(false)}>
               Ẩn
             </Button>
@@ -1173,7 +1171,7 @@ const PersonalSchedule = ({ userId }) => {
                 name="medicalResult"
                 label={
                   <span style={{ fontWeight: "bold", fontSize: "14px" }}>
-                    📋 Kết quả khám bệnh
+                    Kết quả khám bệnh
                   </span>
                 }
                 rules={[

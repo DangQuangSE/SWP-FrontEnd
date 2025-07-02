@@ -61,7 +61,7 @@ const ServiceModal = ({
       const response = await api.get("/specializations");
       const data = response.data || [];
       setSpecializations(data);
-      console.log("📋 Loaded specializations:", data);
+      console.log(" Loaded specializations:", data);
     } catch (error) {
       console.error("Error fetching specializations:", error);
       setSpecializations([]);
@@ -159,22 +159,16 @@ const ServiceModal = ({
           </Select>
         </Form.Item>
 
-        <Form.Item
-          name="price"
-          label="Giá (VND)"
-          rules={[{ required: !isComboService, message: "Vui lòng nhập giá!" }]}
-        >
-          {isComboService ? (
-            <Input
-              type="number"
-              placeholder="Sẽ được tính tự động từ các dịch vụ đã chọn"
-              disabled
-              style={{ backgroundColor: "#f5f5f5" }}
-            />
-          ) : (
+        {/* Chỉ hiển thị trường giá khi KHÔNG phải là combo service */}
+        {!isComboService && (
+          <Form.Item
+            name="price"
+            label="Giá (VND)"
+            rules={[{ required: true, message: "Vui lòng nhập giá!" }]}
+          >
             <Input type="number" placeholder="Nhập giá" />
-          )}
-        </Form.Item>
+          </Form.Item>
+        )}
 
         <Form.Item name="discountPercent" label="Phần trăm Giảm giá">
           <Input

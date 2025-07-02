@@ -35,7 +35,7 @@ const Profile = () => {
       try {
         setFetchingUser(true);
         const response = await api.get("/me");
-        console.log("✅ User data from /api/me:", response.data);
+        console.log("User data from /api/me:", response.data);
         setUser(response.data);
 
         // Set form values from API user data
@@ -48,7 +48,7 @@ const Profile = () => {
             : null,
         });
       } catch (error) {
-        console.error("❌ Error fetching user data:", error);
+        console.error(" Error fetching user data:", error);
         message.error("Không thể lấy thông tin người dùng");
       } finally {
         setFetchingUser(false);

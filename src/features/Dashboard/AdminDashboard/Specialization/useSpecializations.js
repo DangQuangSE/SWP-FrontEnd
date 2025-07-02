@@ -55,16 +55,16 @@ export const useSpecializations = () => {
   const handleSpecializationModalOk = async (form) => {
     try {
       const values = await form.validateFields();
-      console.log("📝 Form values:", values);
+      console.log(" Form values:", values);
 
       if (editingSpecialization) {
         // Update existing specialization
-        console.log("🔄 Updating specialization:", editingSpecialization.id);
+        console.log(" Updating specialization:", editingSpecialization.id);
         await updateSpecialization(editingSpecialization.id, values);
         message.success("Cập nhật specialization thành công!");
       } else {
         // Add new specialization
-        console.log("🔄 Adding new specialization");
+        console.log(" Adding new specialization");
         const specializationData = {
           ...values,
           isActive: true, // Thêm isActive mặc định
@@ -81,7 +81,7 @@ export const useSpecializations = () => {
       // Reload data
       await loadSpecializations();
     } catch (error) {
-      console.error("❌ Lỗi cập nhật specialization:", error);
+      console.error(" Lỗi cập nhật specialization:", error);
       console.error("Error details:", error.response?.data);
 
       // Hiển thị lỗi chi tiết hơn

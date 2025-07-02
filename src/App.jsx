@@ -113,7 +113,7 @@ function App() {
                   </ProtectedRoute>
                 }
               /> */}
-
+              <Route path="/admin" element={<Admin />} />
               <Route path="/settings" element={<Settings />} />
               <Route path="/user" element={<UserProfile />}>
                 <Route index element={<Profile />} />

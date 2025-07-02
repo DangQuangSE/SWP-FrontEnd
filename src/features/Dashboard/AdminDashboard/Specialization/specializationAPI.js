@@ -18,12 +18,12 @@ export const fetchSpecializations = async () => {
 // Thêm specialization mới
 export const addSpecialization = async (specialization) => {
   try {
-    console.log("🔄 Adding specialization:", specialization);
+    console.log(" Adding specialization:", specialization);
     const response = await api.post("/specializations", specialization);
-    console.log("✅ Specialization added successfully:", response.data);
+    console.log("Specialization added successfully:", response.data);
     return response.data;
   } catch (error) {
-    console.error("❌ Lỗi thêm specialization:", error);
+    console.error(" Lỗi thêm specialization:", error);
     console.error("Error details:", error.response?.data);
     console.error("Status:", error.response?.status);
     console.error("Request data:", specialization);

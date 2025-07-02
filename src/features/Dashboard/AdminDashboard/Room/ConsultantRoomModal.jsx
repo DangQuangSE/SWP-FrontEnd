@@ -53,10 +53,10 @@ const ConsultantRoomModal = ({ visible, onCancel, room }) => {
     try {
       setLoadingConsultants(true);
       const response = await api.get("/admin/users?role=CONSULTANT");
-      console.log("✅ All consultants loaded:", response.data);
+      console.log("All consultants loaded:", response.data);
       setConsultants(response.data || []);
     } catch (error) {
-      console.error("❌ Error loading consultants:", error);
+      console.error(" Error loading consultants:", error);
       message.error("Không thể tải danh sách bác sĩ!");
     } finally {
       setLoadingConsultants(false);
@@ -72,13 +72,13 @@ const ConsultantRoomModal = ({ visible, onCancel, room }) => {
 
     try {
       setLoading(true);
-      console.log("🔄 Loading consultants for room:", room.id, room.name);
+      console.log(" Loading consultants for room:", room.id, room.name);
       const data = await fetchRoomConsultants(room.id);
-      console.log("✅ Room consultants loaded:", data);
-      console.log("📊 Total consultants in room:", data?.length || 0);
+      console.log("Room consultants loaded:", data);
+      console.log(" Total consultants in room:", data?.length || 0);
       setRoomConsultants(data || []);
     } catch (error) {
-      console.error("❌ Error loading room consultants:", error);
+      console.error(" Error loading room consultants:", error);
       // fetchRoomConsultants đã xử lý 404, nên chỉ hiển thị error cho các lỗi khác
       message.error("Không thể tải danh sách bác sĩ trong phòng!");
       setRoomConsultants([]);
@@ -118,7 +118,7 @@ const ConsultantRoomModal = ({ visible, onCancel, room }) => {
         endTime: values.endTime.format("HH:mm:ss"),
       };
 
-      console.log("🔄 Adding consultant with data:", consultantData);
+      console.log(" Adding consultant with data:", consultantData);
       await addConsultantToRoom(room.id, consultantData);
       message.success("Thêm bác sĩ vào phòng thành công!");
 
@@ -132,7 +132,7 @@ const ConsultantRoomModal = ({ visible, onCancel, room }) => {
         return;
       }
 
-      console.error("❌ Error adding consultant to room:", error);
+      console.error(" Error adding consultant to room:", error);
       const errorMessage =
         error.response?.data?.message ||
         error.response?.data?.error ||
@@ -149,7 +149,7 @@ const ConsultantRoomModal = ({ visible, onCancel, room }) => {
 
     try {
       setLoading(true);
-      console.log("🔄 Removing consultant assignment:", {
+      console.log(" Removing consultant assignment:", {
         roomId: room.id,
         assignmentId,
       });
@@ -157,7 +157,7 @@ const ConsultantRoomModal = ({ visible, onCancel, room }) => {
       message.success("Xóa bác sĩ khỏi phòng thành công!");
       await loadRoomConsultants();
     } catch (error) {
-      console.error("❌ Error removing consultant from room:", error);
+      console.error(" Error removing consultant from room:", error);
       const errorMessage =
         error.response?.data?.message ||
         error.response?.data?.error ||
