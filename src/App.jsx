@@ -113,9 +113,7 @@ function App() {
                   </ProtectedRoute>
                 }
               /> */}
-              <Route path="/consultant" element={<Consultant />}></Route>
-              <Route path="/staff" element={<Staff />}></Route>
-              <Route path="/admin" element={<Admin />}></Route>
+
               <Route path="/settings" element={<Settings />} />
               <Route path="/user" element={<UserProfile />}>
                 <Route index element={<Profile />} />
