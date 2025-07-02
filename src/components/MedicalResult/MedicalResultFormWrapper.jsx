@@ -1,35 +1,39 @@
-import React, { useState } from 'react';
-import { Modal, Button, Alert, Space } from 'antd';
-import { ExperimentOutlined } from '@ant-design/icons';
-import MedicalResultForm from './MedicalResultForm';
-import dayjs from 'dayjs';
+import React, { useState } from "react";
+import { Modal, Button, Alert, Space } from "antd";
+import { ExperimentOutlined } from "@ant-design/icons";
+import MedicalResultForm from "./MedicalResultForm";
+import dayjs from "dayjs";
 
 /**
  * Wrapper component to handle MedicalResultForm with proper error handling
  * This component ensures dayjs compatibility and prevents validation errors
  */
-const MedicalResultFormWrapper = ({ 
-  visible, 
-  onClose, 
-  appointmentDetail, 
-  onSuccess 
+const MedicalResultFormWrapper = ({
+  visible,
+  onClose,
+  appointmentDetail,
+  onSuccess,
 }) => {
   const [formError, setFormError] = useState(null);
 
   // Ensure appointmentDetail has required fields
-  const safeAppointmentDetail = appointmentDetail ? {
-    id: appointmentDetail.id,
-    serviceName: appointmentDetail.serviceName || 'Dịch vụ khám',
-    customerName: appointmentDetail.customerName || 'Bệnh nhân',
-    consultantId: appointmentDetail.consultantId,
-    consultantName: appointmentDetail.consultantName || `Bác sĩ #${appointmentDetail.consultantId}`,
-    slotTime: appointmentDetail.slotTime || new Date().toISOString(),
-    status: appointmentDetail.status || 'WAITING_RESULT'
-  } : null;
+  const safeAppointmentDetail = appointmentDetail
+    ? {
+        id: appointmentDetail.id,
+        serviceName: appointmentDetail.serviceName || "Dịch vụ khám",
+        customerName: appointmentDetail.customerName || "Bệnh nhân",
+        consultantId: appointmentDetail.consultantId,
+        consultantName:
+          appointmentDetail.consultantName ||
+          `Bác sĩ #${appointmentDetail.consultantId}`,
+        slotTime: appointmentDetail.slotTime || new Date().toISOString(),
+        status: appointmentDetail.status || "WAITING_RESULT",
+      }
+    : null;
 
   const handleSuccess = (result) => {
     try {
-      console.log('✅ Form submission successful:', result);
+      console.log("✅ Form submission successful:", result);
       setFormError(null);
       if (onSuccess) {
         onSuccess(result);
@@ -38,25 +42,29 @@ const MedicalResultFormWrapper = ({
         onClose();
       }
     } catch (error) {
-      console.error('Error in success handler:', error);
-      setFormError('Có lỗi xảy ra sau khi lưu thành công');
+      console.error("Error in success handler:", error);
+      setFormError("Có lỗi xảy ra sau khi lưu thành công");
     }
   };
 
   const handleCancel = () => {
     try {
+      console.log("🔄 Modal cancel button clicked");
       setFormError(null);
       if (onClose) {
+        console.log("🔄 Calling onClose function");
         onClose();
+      } else {
+        console.warn("⚠️ onClose function not provided");
       }
     } catch (error) {
-      console.error('Error in cancel handler:', error);
+      console.error("Error in cancel handler:", error);
     }
   };
 
   const handleFormError = (error) => {
-    console.error('Form error:', error);
-    setFormError(error.message || 'Có lỗi xảy ra trong form');
+    console.error("Form error:", error);
+    setFormError(error.message || "Có lỗi xảy ra trong form");
   };
 
   if (!visible) {
@@ -72,7 +80,7 @@ const MedicalResultFormWrapper = ({
         footer={[
           <Button key="close" onClick={handleCancel}>
             Đóng
-          </Button>
+          </Button>,
         ]}
       >
         <Alert
@@ -87,13 +95,34 @@ const MedicalResultFormWrapper = ({
 
   return (
     <Modal
-      title={null}
+      title={
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+          }}
+        >
+          <Space>
+            <ExperimentOutlined />
+            <span>Nhập kết quả khám bệnh</span>
+          </Space>
+          <Button
+            type="text"
+            onClick={handleCancel}
+            style={{ marginRight: -8 }}
+          >
+            ✕ Đóng
+          </Button>
+        </div>
+      }
       open={visible}
       onCancel={handleCancel}
       footer={null}
       width={1200}
       style={{ top: 20 }}
       maskClosable={false}
+      closable={true}
     >
       {formError && (
         <Alert
@@ -106,8 +135,8 @@ const MedicalResultFormWrapper = ({
           style={{ marginBottom: 16 }}
         />
       )}
-      
-      <div style={{ padding: '0 8px' }}>
+
+      <div style={{ padding: "0 8px" }}>
         <MedicalResultForm
           appointmentDetail={safeAppointmentDetail}
           onSuccess={handleSuccess}
@@ -128,21 +157,21 @@ export const useMedicalResultModal = () => {
 
   const openModal = (detail) => {
     try {
-      console.log('🔄 Opening medical result modal for:', detail);
+      console.log("🔄 Opening medical result modal for:", detail);
       setAppointmentDetail(detail);
       setVisible(true);
     } catch (error) {
-      console.error('Error opening modal:', error);
+      console.error("Error opening modal:", error);
     }
   };
 
   const closeModal = () => {
     try {
-      console.log('🔄 Closing medical result modal');
+      console.log("🔄 Closing medical result modal");
       setVisible(false);
       setAppointmentDetail(null);
     } catch (error) {
-      console.error('Error closing modal:', error);
+      console.error("Error closing modal:", error);
     }
   };
 
@@ -150,18 +179,18 @@ export const useMedicalResultModal = () => {
     visible,
     appointmentDetail,
     openModal,
-    closeModal
+    closeModal,
   };
 };
 
 /**
  * Simple button component to trigger medical result form
  */
-export const MedicalResultButton = ({ 
-  appointmentDetail, 
-  onSuccess, 
+export const MedicalResultButton = ({
+  appointmentDetail,
+  onSuccess,
   children,
-  ...buttonProps 
+  ...buttonProps
 }) => {
   const { visible, openModal, closeModal } = useMedicalResultModal();
 
@@ -184,9 +213,9 @@ export const MedicalResultButton = ({
         onClick={handleClick}
         {...buttonProps}
       >
-        {children || 'Nhập kết quả'}
+        {children || "Nhập kết quả"}
       </Button>
-      
+
       <MedicalResultFormWrapper
         visible={visible}
         onClose={closeModal}

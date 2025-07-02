@@ -397,40 +397,33 @@ const MedicalResultViewer = ({ result, compact = false, onClose }) => {
                 setDetailModalVisible(true);
               }}
             >
-              Xem chi tiết
+              Chi tiết
             </Button>
           </Space>
         </div>
 
-        {labData && (
+        {(result.testResult || result.normalRange) && (
           <div className="result-compact-value">
             <Row gutter={16}>
               <Col span={12}>
                 <Statistic
                   title="Kết quả"
-                  value={labData.value}
-                  precision={2}
+                  value={result.testResult || "N/A"}
                   valueStyle={{
                     color: severity.color,
                     fontSize: "16px",
+                    fontWeight: "bold",
                   }}
                 />
               </Col>
               <Col span={12}>
                 <div className="result-range-indicator">
                   <Text type="secondary" style={{ fontSize: "12px" }}>
-                    Bình thường: {result.normalRange}
+                    Tham chiếu: {result.normalRange || "N/A"}
                   </Text>
-                  {labData.percentage !== undefined && (
-                    <Progress
-                      percent={labData.percentage}
-                      size="small"
-                      status={
-                        labData.status === "normal" ? "success" : "exception"
-                      }
-                      showInfo={false}
-                    />
-                  )}
+                  <div style={{ marginTop: 4 }}>
+                    <Badge status={severity.level} text={severity.label} />
+                  </div>
                 </div>
               </Col>
             </Row>
@@ -459,32 +452,30 @@ const MedicalResultViewer = ({ result, compact = false, onClose }) => {
                 {result.testName || result.serviceName}
               </Title>
               <Tag color={severity.level}>{severity.label}</Tag>
+              {result.createdAt && (
+                <Text type="secondary" style={{ fontSize: "12px" }}>
+                  {new Date(result.createdAt).toLocaleDateString("vi-VN")}
+                </Text>
+              )}
             </Space>
           </Col>
           <Col>
             <Space>
               <Button
-                icon={<DownloadOutlined />}
-                size="small"
-                onClick={() => generatePDF(result)}
-                type="primary"
-                ghost
-              >
-                Tải xuống
-              </Button>
-              <Button
                 icon={<PrinterOutlined />}
                 size="small"
                 onClick={() => handlePrint(result)}
+                type="primary"
+                ghost
               >
-                In
+                In kết quả
               </Button>
               {onClose && (
                 <Button
                   icon={<CloseOutlined />}
                   size="small"
                   onClick={onClose}
-                  danger
+                  type="text"
                 >
                   Đóng
                 </Button>
@@ -497,11 +488,111 @@ const MedicalResultViewer = ({ result, compact = false, onClose }) => {
       <Divider />
 
       <Row gutter={24}>
-        <Col span={16}>
+        <Col span={24}>
           <div className="result-content">
+            {/* Thông tin bệnh nhân */}
+            {(result.customerName || result.appointmentId) && (
+              <Card size="small" style={{ marginBottom: 16 }}>
+                <Row gutter={16}>
+                  <Col span={12}>
+                    <Text strong>Bệnh nhân: </Text>
+                    <Text>{result.customerName || "N/A"}</Text>
+                  </Col>
+                  <Col span={12}>
+                    <Text strong>Mã phiếu khám: </Text>
+                    <Text>#{result.appointmentId || "N/A"}</Text>
+                  </Col>
+                </Row>
+              </Card>
+            )}
+
+            {/* Kết quả xét nghiệm */}
+            {(result.testResult || result.normalRange) && (
+              <Card
+                size="small"
+                title={
+                  <Space>
+                    <ExperimentOutlined />
+                    <span>Kết quả xét nghiệm</span>
+                  </Space>
+                }
+                className="lab-values-card"
+                style={{ marginBottom: 16 }}
+              >
+                <Row gutter={16}>
+                  <Col span={8}>
+                    <Statistic
+                      title="Kết quả đo được"
+                      value={result.testResult || "Chưa có"}
+                      valueStyle={{
+                        color: severity.color,
+                        fontSize: "20px",
+                        fontWeight: "bold",
+                      }}
+                    />
+                  </Col>
+                  <Col span={8}>
+                    <Statistic
+                      title="Giá trị tham chiếu"
+                      value={result.normalRange || "N/A"}
+                      valueStyle={{ fontSize: "16px", color: "#666" }}
+                    />
+                  </Col>
+                  <Col span={8}>
+                    <div className="result-status-indicator">
+                      <Text strong>Đánh giá</Text>
+                      <div style={{ marginTop: 8 }}>
+                        <Badge
+                          status={severity.level}
+                          text={
+                            <Text
+                              style={{
+                                color: severity.color,
+                                fontWeight: "bold",
+                              }}
+                            >
+                              {severity.label}
+                            </Text>
+                          }
+                        />
+                      </div>
+                    </div>
+                  </Col>
+                </Row>
+
+                {/* Thông tin phương pháp và mẫu xét nghiệm */}
+                {(result.testMethod || result.specimenType) && (
+                  <div
+                    style={{
+                      marginTop: 16,
+                      padding: 12,
+                      backgroundColor: "#f8f9fa",
+                      borderRadius: 6,
+                    }}
+                  >
+                    <Row gutter={16}>
+                      {result.testMethod && (
+                        <Col span={12}>
+                          <Text type="secondary">Phương pháp: </Text>
+                          <Text>{result.testMethod}</Text>
+                        </Col>
+                      )}
+                      {result.specimenType && (
+                        <Col span={12}>
+                          <Text type="secondary">Loại mẫu: </Text>
+                          <Text>{result.specimenType}</Text>
+                        </Col>
+                      )}
+                    </Row>
+                  </div>
+                )}
+              </Card>
+            )}
+
+            {/* Chẩn đoán */}
             {result.diagnosis && (
               <Alert
-                message="Chẩn đoán"
+                message="Chẩn đoán của bác sĩ"
                 description={result.diagnosis}
                 type={severity.level}
                 showIcon
@@ -509,92 +600,68 @@ const MedicalResultViewer = ({ result, compact = false, onClose }) => {
               />
             )}
 
-            {labData && (
-              <Card
-                size="small"
-                title="Chỉ số xét nghiệm"
-                className="lab-values-card"
-              >
-                <Row gutter={16}>
-                  <Col span={8}>
-                    <Statistic
-                      title="Kết quả"
-                      value={labData.value}
-                      precision={2}
-                      valueStyle={{ color: severity.color, fontSize: "24px" }}
-                    />
-                  </Col>
-                  <Col span={8}>
-                    <Statistic
-                      title="Giá trị bình thường"
-                      value={result.normalRange}
-                      valueStyle={{ fontSize: "16px" }}
-                    />
-                  </Col>
-                  <Col span={8}>
-                    <div className="result-status-indicator">
-                      <Text>Trạng thái</Text>
-                      <div style={{ marginTop: 8 }}>
-                        <Badge status={severity.level} text={severity.label} />
-                      </div>
-                    </div>
-                  </Col>
-                </Row>
-
-                {labData.percentage !== undefined && (
-                  <div style={{ marginTop: 16 }}>
-                    <Text type="secondary">
-                      Vị trí trong khoảng bình thường:
-                    </Text>
-                    <Progress
-                      percent={labData.percentage}
-                      status={
-                        labData.status === "normal" ? "success" : "exception"
-                      }
-                      strokeColor={severity.color}
-                    />
-                  </div>
-                )}
-              </Card>
-            )}
-
+            {/* Kế hoạch điều trị */}
             {result.treatmentPlan && (
               <Card
                 size="small"
-                title="Kế hoạch điều trị"
-                style={{ marginTop: 16 }}
+                title={
+                  <Space>
+                    <HeartOutlined />
+                    <span>Kế hoạch điều trị</span>
+                  </Space>
+                }
+                style={{ marginBottom: 16 }}
               >
-                <Paragraph>{result.treatmentPlan}</Paragraph>
+                <Paragraph style={{ margin: 0 }}>
+                  {result.treatmentPlan}
+                </Paragraph>
               </Card>
             )}
+
+            {/* Thông tin bổ sung */}
+            <Card size="small" title="Thông tin chi tiết">
+              <Descriptions column={1} size="small">
+                <Descriptions.Item label="Loại kết quả">
+                  {result.resultType === "LAB_TEST" ? "Xét nghiệm" : "Tư vấn"}
+                </Descriptions.Item>
+                {result.sampleCollectedAt && (
+                  <Descriptions.Item label="Thời gian lấy mẫu">
+                    {new Date(result.sampleCollectedAt).toLocaleString("vi-VN")}
+                  </Descriptions.Item>
+                )}
+                <Descriptions.Item label="Ngày có kết quả">
+                  {result.createdAt
+                    ? new Date(result.createdAt).toLocaleDateString("vi-VN")
+                    : "N/A"}
+                </Descriptions.Item>
+                {result.doctorName && (
+                  <Descriptions.Item label="Bác sĩ thực hiện">
+                    {result.doctorName}
+                  </Descriptions.Item>
+                )}
+              </Descriptions>
+
+              {result.labNotes && (
+                <div
+                  style={{
+                    marginTop: 16,
+                    padding: 12,
+                    backgroundColor: "#f0f8ff",
+                    borderRadius: 6,
+                  }}
+                >
+                  <Text strong style={{ color: "#1890ff" }}>
+                    Ghi chú từ phòng lab:
+                  </Text>
+                  <Paragraph
+                    style={{ marginTop: 8, marginBottom: 0, fontSize: "13px" }}
+                  >
+                    {result.labNotes}
+                  </Paragraph>
+                </div>
+              )}
+            </Card>
           </div>
-        </Col>
-
-        <Col span={8}>
-          <Card size="small" title="Thông tin bổ sung">
-            <Descriptions column={1} size="small">
-              <Descriptions.Item label="Loại xét nghiệm">
-                {getTestTypeDisplay(result.resultType)}
-              </Descriptions.Item>
-              <Descriptions.Item label="Ngày thực hiện">
-                {result.createdAt
-                  ? new Date(result.createdAt).toLocaleDateString("vi-VN")
-                  : "N/A"}
-              </Descriptions.Item>
-              <Descriptions.Item label="Bác sĩ thực hiện">
-                {result.doctorName || "N/A"}
-              </Descriptions.Item>
-            </Descriptions>
-
-            {result.labNotes && (
-              <div style={{ marginTop: 16 }}>
-                <Text strong>Ghi chú từ phòng lab:</Text>
-                <Paragraph style={{ marginTop: 8, fontSize: "12px" }}>
-                  {result.labNotes}
-                </Paragraph>
-              </div>
-            )}
-          </Card>
         </Col>
       </Row>
     </Card>
@@ -642,28 +709,22 @@ const DetailModal = ({ visible, onClose, result, severity, labData }) => (
     onCancel={onClose}
     footer={[
       <Button
-        key="download"
-        icon={<DownloadOutlined />}
-        type="primary"
-        onClick={() => generatePDF(result)}
-      >
-        Tải xuống PDF
-      </Button>,
-      <Button
         key="print"
         icon={<PrinterOutlined />}
+        type="primary"
         onClick={() => handlePrint(result)}
       >
-        In
+        In kết quả
       </Button>,
-      <Button key="close" onClick={onClose} icon={<CloseOutlined />}>
+      <Button key="close" onClick={onClose} type="default">
         Đóng
       </Button>,
     ]}
     width={900}
     style={{ top: 20 }}
+    destroyOnClose
   >
-    <MedicalResultViewer result={result} compact={false} onClose={onClose} />
+    <MedicalResultViewer result={result} compact={false} />
   </Modal>
 );
 
