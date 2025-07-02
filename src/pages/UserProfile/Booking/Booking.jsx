@@ -2,7 +2,7 @@
 import React, { useEffect, useState, useCallback, useRef } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
-import { message } from "antd";
+import { message, Modal } from "antd";
 import api from "../../../configs/api";
 import "./Booking.css";
 const TABS = [
@@ -25,6 +25,10 @@ const Booking = () => {
   const [activeTab, setActiveTab] = useState("upcoming");
   const [zoomUrls, setZoomUrls] = useState({}); // Cache Zoom URLs by appointment ID
   const [blinkingButtons, setBlinkingButtons] = useState({}); // Track which buttons are blinking
+
+  // Modal chi tiết lịch hẹn
+  const [detailModalVisible, setDetailModalVisible] = useState(false);
+  const [selectedAppointment, setSelectedAppointment] = useState(null);
 
   const navigate = useNavigate();
   const { search } = useLocation();
@@ -189,6 +193,20 @@ const Booking = () => {
       }
     }
   };
+
+  // Handle xem chi tiết lịch hẹn
+  const handleViewDetail = (appointment) => {
+    console.log("📋 Viewing appointment detail:", appointment);
+    setSelectedAppointment(appointment);
+    setDetailModalVisible(true);
+  };
+
+  // Handle đóng modal chi tiết
+  const handleCloseDetailModal = () => {
+    setDetailModalVisible(false);
+    setSelectedAppointment(null);
+  };
+
   // Handle VNPay payment result from URL params - only run once per URL change
   useEffect(() => {
     const query = new URLSearchParams(search);
@@ -299,6 +317,14 @@ const Booking = () => {
             {new Date(appointment.created_at).toLocaleString()}
           </p>
           <div className="appointment-actions">
+            {/* Nút xem chi tiết - luôn hiển thị */}
+            <button
+              className="detail-button-profile"
+              onClick={() => handleViewDetail(appointment)}
+            >
+              Xem chi tiết
+            </button>
+
             {["CONFIRMED", "PENDING", "CHEKED"].includes(
               appointment.status
             ) && (
@@ -372,6 +398,91 @@ const Booking = () => {
       </div>
 
       <div className="booking-tab-content-profile">{renderTabContent()}</div>
+
+      {/* Modal chi tiết lịch hẹn */}
+      <Modal
+        title="Chi tiết lịch hẹn"
+        open={detailModalVisible}
+        onCancel={handleCloseDetailModal}
+        footer={[
+          <button
+            key="close"
+            className="modal-close-button"
+            onClick={handleCloseDetailModal}
+          >
+            Đóng
+          </button>,
+        ]}
+        width={800}
+        style={{ top: 20 }}
+      >
+        {selectedAppointment && (
+          <div className="appointment-detail-content">
+            <h3>📋 Thông tin đầy đủ từ API Response</h3>
+
+            {/* Hiển thị tất cả dữ liệu dưới dạng JSON formatted */}
+            <div className="json-display">
+              <pre
+                style={{
+                  background: "#f5f5f5",
+                  padding: "15px",
+                  borderRadius: "8px",
+                  fontSize: "12px",
+                  lineHeight: "1.4",
+                  overflow: "auto",
+                  maxHeight: "500px",
+                  border: "1px solid #ddd",
+                }}
+              >
+                {JSON.stringify(selectedAppointment, null, 2)}
+              </pre>
+            </div>
+
+            {/* Hiển thị thông tin quan trọng dễ đọc */}
+            <div className="appointment-summary" style={{ marginTop: "20px" }}>
+              <h4>📝 Thông tin tóm tắt:</h4>
+              <div
+                style={{
+                  display: "grid",
+                  gridTemplateColumns: "1fr 1fr",
+                  gap: "10px",
+                }}
+              >
+                <div>
+                  <strong>ID:</strong> {selectedAppointment.id}
+                </div>
+                <div>
+                  <strong>Trạng thái:</strong> {selectedAppointment.status}
+                </div>
+                <div>
+                  <strong>Dịch vụ:</strong> {selectedAppointment.serviceName}
+                </div>
+                <div>
+                  <strong>Ngày hẹn:</strong> {selectedAppointment.preferredDate}
+                </div>
+                <div>
+                  <strong>Giá:</strong>{" "}
+                  {selectedAppointment.price?.toLocaleString()} VND
+                </div>
+                <div>
+                  <strong>Loại dịch vụ:</strong>{" "}
+                  {selectedAppointment.serviceType ||
+                    selectedAppointment.type ||
+                    "N/A"}
+                </div>
+                <div>
+                  <strong>Ghi chú:</strong>{" "}
+                  {selectedAppointment.note || "Không có"}
+                </div>
+                <div>
+                  <strong>Ngày tạo:</strong>{" "}
+                  {new Date(selectedAppointment.created_at).toLocaleString()}
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+      </Modal>
     </div>
   );
 };
