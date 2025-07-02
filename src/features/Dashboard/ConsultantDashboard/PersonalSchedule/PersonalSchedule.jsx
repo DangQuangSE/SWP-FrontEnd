@@ -4,7 +4,6 @@ import {
   Button,
   Space,
   Tag,
-  Popconfirm,
   Modal,
   Form,
   Input,
@@ -173,19 +172,6 @@ const PersonalSchedule = ({ userId }) => {
     },
     [userId]
   );
-
-  // Refresh current tab data (used by other functions)
-  const refreshCurrentTab = () => {
-    const date = selectedDate.format("YYYY-MM-DD");
-    const statusMap = {
-      checked: "CHECKED",
-      in_progress: "IN_PROGRESS",
-      waiting_result: "WAITING_RESULT",
-      completed: "COMPLETED",
-    };
-    const currentStatus = statusMap[activeTab] || "CHECKED";
-    loadAppointmentsByStatus(date, currentStatus, false);
-  };
 
   // Load all tabs data in parallel
   const loadAllTabsData = useCallback(
@@ -449,311 +435,321 @@ const PersonalSchedule = ({ userId }) => {
     );
   };
 
-  // Columns for appointment details table (each detail is a row)
-  const detailColumns = [
-    {
-      title: "Mã dịch vụ",
-      dataIndex: "id",
-      key: "detailId",
-      width: 100,
-      render: (id) => <strong>#{id}</strong>,
-    },
-    {
-      title: "Thông tin bệnh nhân",
-      key: "patientInfo",
-      width: 200,
-      render: (_, detail) => (
-        <div>
-          <div
-            style={{ fontWeight: "bold", color: "#1890ff", fontSize: "14px" }}
-          >
-            <UserOutlined /> {detail.customerName || "Chưa có tên"}
-          </div>
-          <div style={{ fontSize: "12px", color: "#666", marginTop: "4px" }}>
-            📅 Ngày hẹn: {dayjs(detail.preferredDate).format("DD/MM/YYYY")}
-          </div>
-          <div style={{ fontSize: "12px", color: "#666" }}>
-            🆔 Lịch hẹn: #{detail.appointmentId}
-          </div>
-        </div>
-      ),
-    },
-    {
-      title: "Trạng thái",
-      dataIndex: "status",
-      key: "status",
-      width: 150,
-      render: (status) => {
-        const statusInfo = getStatusInfo(status);
-        return (
+  // Get columns based on current tab - hide medical result column for non-completed tabs
+  const getDetailColumns = () => {
+    const baseColumns = [
+      {
+        title: "Mã dịch vụ",
+        dataIndex: "id",
+        key: "detailId",
+        width: 100,
+        render: (id) => <strong>#{id}</strong>,
+      },
+      {
+        title: "Thông tin bệnh nhân",
+        key: "patientInfo",
+        width: 200,
+        render: (_, detail) => (
           <div>
-            <Tag color={statusInfo.color} icon={statusInfo.icon}>
-              {statusInfo.text}
-            </Tag>
-            <div style={{ fontSize: "11px", color: "#999", marginTop: "2px" }}>
-              {statusInfo.description}
+            <div
+              style={{ fontWeight: "bold", color: "#1890ff", fontSize: "14px" }}
+            >
+              <UserOutlined /> {detail.customerName || "Chưa có tên"}
+            </div>
+            <div style={{ fontSize: "12px", color: "#666", marginTop: "4px" }}>
+              📅 Ngày hẹn: {dayjs(detail.preferredDate).format("DD/MM/YYYY")}
+            </div>
+            <div style={{ fontSize: "12px", color: "#666" }}>
+              🆔 Lịch hẹn: #{detail.appointmentId}
             </div>
           </div>
-        );
+        ),
       },
-    },
-    {
-      title: "Dịch vụ khám",
-      key: "serviceInfo",
-      width: 200,
-      render: (_, detail) => (
-        <div>
-          <div
-            style={{ fontWeight: "bold", fontSize: "14px", color: "#52c41a" }}
-          >
-            🏥 {detail.serviceName}
-          </div>
-          <div style={{ fontSize: "12px", color: "#666", marginTop: "4px" }}>
-            ⏰ {dayjs(detail.slotTime).format("HH:mm DD/MM/YYYY")}
-          </div>
-          <div style={{ fontSize: "12px", color: "#666" }}>
-            👨‍⚕️ {detail.consultantName || `Bác sĩ #${detail.consultantId}`}
-          </div>
-        </div>
-      ),
-    },
-    {
-      title: "Thao tác",
-      key: "actions",
-      width: 150,
-      render: (_, detail) => {
-        const { status, id } = detail;
-
-        return (
-          <Space direction="vertical" size="small">
-            {status === "CHECKED" && (
-              <Button
-                type="primary"
-                size="small"
-                icon={<ClockCircleOutlined />}
-                onClick={() => handleStartExamination(id)}
-                loading={statusUpdateLoading}
-              >
-                Bắt đầu khám
-              </Button>
-            )}
-
-            {status === "IN_PROGRESS" && (
-              <Button
-                type="primary"
-                size="small"
-                icon={<ExclamationCircleOutlined />}
-                onClick={() => handleWaitForResult(id)}
-                loading={statusUpdateLoading}
-                style={{ backgroundColor: "#fa8c16", borderColor: "#fa8c16" }}
-              >
-                Chờ kết quả
-              </Button>
-            )}
-
-            {status === "WAITING_RESULT" && (
-              <Button
-                type="primary"
-                size="small"
-                icon={<EditOutlined />}
-                onClick={() => {
-                  setSelectedAppointmentDetail(detail);
-                  setIsResultModalVisible(true);
-                }}
-                style={{ backgroundColor: "#52c41a", borderColor: "#52c41a" }}
-              >
-                Nhập kết quả
-              </Button>
-            )}
-
-            {status === "COMPLETED" && (
+      {
+        title: "Trạng thái",
+        dataIndex: "status",
+        key: "status",
+        width: 150,
+        render: (status) => {
+          const statusInfo = getStatusInfo(status);
+          return (
+            <div>
+              <Tag color={statusInfo.color} icon={statusInfo.icon}>
+                {statusInfo.text}
+              </Tag>
               <div
-                style={{
-                  color: "#52c41a",
-                  fontSize: "12px",
-                  fontWeight: "bold",
-                }}
+                style={{ fontSize: "11px", color: "#999", marginTop: "2px" }}
               >
-                ✅ Đã hoàn thành
+                {statusInfo.description}
               </div>
-            )}
-          </Space>
-        );
+            </div>
+          );
+        },
       },
-    },
-    {
-      title: "Kết quả khám",
-      dataIndex: "medicalResult",
-      key: "medicalResult",
-      ellipsis: true,
-      width: 300,
-      render: (result) => (
-        <div style={{ fontSize: "12px" }}>
-          {result ? (
+      {
+        title: "Dịch vụ khám",
+        key: "serviceInfo",
+        width: 200,
+        render: (_, detail) => (
+          <div>
             <div
-              style={{
-                padding: "12px",
-                backgroundColor: "#f6ffed",
-                border: "1px solid #b7eb8f",
-                borderRadius: "6px",
-                maxHeight: "200px",
-                overflowY: "auto",
-              }}
+              style={{ fontWeight: "bold", fontSize: "14px", color: "#52c41a" }}
             >
-              <div style={{ marginBottom: "8px" }}>
-                <strong style={{ color: "#52c41a" }}>🏥 Loại kết quả:</strong>{" "}
-                <span style={{ color: "#1890ff" }}>
-                  {result.resultType === "LAB_TEST"
-                    ? "Xét nghiệm"
-                    : result.resultType === "IMAGING"
-                    ? "Chẩn đoán hình ảnh"
-                    : result.resultType === "CONSULTATION"
-                    ? "Tư vấn"
-                    : result.resultType || "Không xác định"}
-                </span>
-              </div>
+              🏥 {detail.serviceName}
+            </div>
+            <div style={{ fontSize: "12px", color: "#666", marginTop: "4px" }}>
+              ⏰ {dayjs(detail.slotTime).format("HH:mm DD/MM/YYYY")}
+            </div>
+            <div style={{ fontSize: "12px", color: "#666" }}>
+              👨‍⚕️ {detail.consultantName || `Bác sĩ #${detail.consultantId}`}
+            </div>
+          </div>
+        ),
+      },
+      {
+        title: "Thao tác",
+        key: "actions",
+        width: 150,
+        render: (_, detail) => {
+          const { status, id } = detail;
 
-              {result.diagnosis && (
-                <div style={{ marginBottom: "8px" }}>
-                  <strong style={{ color: "#52c41a" }}>🔍 Chẩn đoán:</strong>
-                  <div style={{ marginTop: "4px", color: "#262626" }}>
-                    {result.diagnosis}
-                  </div>
-                </div>
+          return (
+            <Space direction="vertical" size="small">
+              {status === "CHECKED" && (
+                <Button
+                  type="primary"
+                  size="small"
+                  icon={<ClockCircleOutlined />}
+                  onClick={() => handleStartExamination(id)}
+                  loading={statusUpdateLoading}
+                >
+                  Bắt đầu khám
+                </Button>
               )}
 
-              {result.treatmentPlan && (
-                <div style={{ marginBottom: "8px" }}>
-                  <strong style={{ color: "#52c41a" }}>
-                    💊 Kế hoạch điều trị:
-                  </strong>
-                  <div style={{ marginTop: "4px", color: "#262626" }}>
-                    {result.treatmentPlan}
-                  </div>
-                </div>
+              {status === "IN_PROGRESS" && (
+                <Button
+                  type="primary"
+                  size="small"
+                  icon={<ExclamationCircleOutlined />}
+                  onClick={() => handleWaitForResult(id)}
+                  loading={statusUpdateLoading}
+                  style={{ backgroundColor: "#fa8c16", borderColor: "#fa8c16" }}
+                >
+                  Chờ kết quả
+                </Button>
               )}
 
-              {result.testName && (
-                <div style={{ marginBottom: "8px" }}>
-                  <strong style={{ color: "#52c41a" }}>
-                    🧪 Tên xét nghiệm:
-                  </strong>
-                  <div style={{ marginTop: "4px", color: "#262626" }}>
-                    {result.testName}
-                  </div>
-                </div>
+              {status === "WAITING_RESULT" && (
+                <Button
+                  type="primary"
+                  size="small"
+                  icon={<EditOutlined />}
+                  onClick={() => {
+                    setSelectedAppointmentDetail(detail);
+                    setIsResultModalVisible(true);
+                  }}
+                  style={{ backgroundColor: "#52c41a", borderColor: "#52c41a" }}
+                >
+                  Nhập kết quả
+                </Button>
               )}
 
-              {result.testResult && (
-                <div style={{ marginBottom: "8px" }}>
-                  <strong style={{ color: "#52c41a" }}>📊 Kết quả:</strong>
-                  <div
-                    style={{
-                      marginTop: "4px",
-                      color: "#262626",
-                      backgroundColor: "#fff",
-                      padding: "6px",
-                      borderRadius: "4px",
-                      border: "1px solid #d9d9d9",
-                    }}
-                  >
-                    {result.testResult}
-                  </div>
-                </div>
-              )}
-
-              {result.normalRange && (
-                <div style={{ marginBottom: "8px" }}>
-                  <strong style={{ color: "#52c41a" }}>
-                    📏 Giá trị bình thường:
-                  </strong>
-                  <div
-                    style={{
-                      marginTop: "4px",
-                      color: "#595959",
-                      fontSize: "11px",
-                    }}
-                  >
-                    {result.normalRange}
-                  </div>
-                </div>
-              )}
-
-              {result.testStatus && (
-                <div style={{ marginBottom: "8px" }}>
-                  <strong style={{ color: "#52c41a" }}>✅ Trạng thái:</strong>{" "}
-                  <span
-                    style={{
-                      color:
-                        result.testStatus === "NORMAL"
-                          ? "#52c41a"
-                          : result.testStatus === "ABNORMAL"
-                          ? "#ff4d4f"
-                          : "#fa8c16",
-                      fontWeight: "bold",
-                    }}
-                  >
-                    {result.testStatus === "NORMAL"
-                      ? "Bình thường"
-                      : result.testStatus === "ABNORMAL"
-                      ? "Bất thường"
-                      : result.testStatus === "PENDING"
-                      ? "Đang chờ"
-                      : result.testStatus || "Không xác định"}
-                  </span>
-                </div>
-              )}
-
-              {result.description && (
-                <div style={{ marginBottom: "8px" }}>
-                  <strong style={{ color: "#52c41a" }}>📝 Mô tả:</strong>
-                  <div style={{ marginTop: "4px", color: "#262626" }}>
-                    {result.description}
-                  </div>
-                </div>
-              )}
-
-              {result.labNotes && (
-                <div style={{ marginBottom: "8px" }}>
-                  <strong style={{ color: "#52c41a" }}>
-                    🔬 Ghi chú phòng lab:
-                  </strong>
-                  <div
-                    style={{
-                      marginTop: "4px",
-                      color: "#595959",
-                      fontSize: "11px",
-                    }}
-                  >
-                    {result.labNotes}
-                  </div>
-                </div>
-              )}
-
-              {result.createdAt && (
+              {status === "COMPLETED" && (
                 <div
                   style={{
-                    marginTop: "12px",
-                    paddingTop: "8px",
-                    borderTop: "1px solid #d9d9d9",
-                    color: "#8c8c8c",
-                    fontSize: "11px",
+                    color: "#52c41a",
+                    fontSize: "12px",
+                    fontWeight: "bold",
                   }}
                 >
-                  📅 Ngày tạo:{" "}
-                  {new Date(result.createdAt).toLocaleString("vi-VN")}
+                  ✅ Đã hoàn thành
                 </div>
               )}
-            </div>
-          ) : (
-            <span style={{ color: "#ccc", fontStyle: "italic" }}>
-              Chưa có kết quả
-            </span>
-          )}
-        </div>
-      ),
-    },
-  ];
+            </Space>
+          );
+        },
+      },
+    ];
+
+    // Only show medical result column for completed tab
+    if (activeTab === "completed") {
+      baseColumns.push({
+        title: "Kết quả khám",
+        dataIndex: "medicalResult",
+        key: "medicalResult",
+        ellipsis: true,
+        width: 300,
+        render: (result) => (
+          <div style={{ fontSize: "12px" }}>
+            {result ? (
+              <div
+                style={{
+                  padding: "12px",
+                  backgroundColor: "#f6ffed",
+                  border: "1px solid #b7eb8f",
+                  borderRadius: "6px",
+                  maxHeight: "200px",
+                  overflowY: "auto",
+                }}
+              >
+                <div style={{ marginBottom: "8px" }}>
+                  <strong style={{ color: "#52c41a" }}>🏥 Loại kết quả:</strong>{" "}
+                  <span style={{ color: "#1890ff" }}>
+                    {result.resultType === "LAB_TEST"
+                      ? "Xét nghiệm"
+                      : result.resultType === "IMAGING"
+                      ? "Chẩn đoán hình ảnh"
+                      : result.resultType === "CONSULTATION"
+                      ? "Tư vấn"
+                      : result.resultType || "Không xác định"}
+                  </span>
+                </div>
+
+                {result.diagnosis && (
+                  <div style={{ marginBottom: "8px" }}>
+                    <strong style={{ color: "#52c41a" }}>🔍 Chẩn đoán:</strong>
+                    <div style={{ marginTop: "4px", color: "#262626" }}>
+                      {result.diagnosis}
+                    </div>
+                  </div>
+                )}
+
+                {result.treatmentPlan && (
+                  <div style={{ marginBottom: "8px" }}>
+                    <strong style={{ color: "#52c41a" }}>
+                      💊 Kế hoạch điều trị:
+                    </strong>
+                    <div style={{ marginTop: "4px", color: "#262626" }}>
+                      {result.treatmentPlan}
+                    </div>
+                  </div>
+                )}
+
+                {result.testName && (
+                  <div style={{ marginBottom: "8px" }}>
+                    <strong style={{ color: "#52c41a" }}>
+                      🧪 Tên xét nghiệm:
+                    </strong>
+                    <div style={{ marginTop: "4px", color: "#262626" }}>
+                      {result.testName}
+                    </div>
+                  </div>
+                )}
+
+                {result.testResult && (
+                  <div style={{ marginBottom: "8px" }}>
+                    <strong style={{ color: "#52c41a" }}>📊 Kết quả:</strong>
+                    <div
+                      style={{
+                        marginTop: "4px",
+                        color: "#262626",
+                        backgroundColor: "#fff",
+                        padding: "6px",
+                        borderRadius: "4px",
+                        border: "1px solid #d9d9d9",
+                      }}
+                    >
+                      {result.testResult}
+                    </div>
+                  </div>
+                )}
+
+                {result.normalRange && (
+                  <div style={{ marginBottom: "8px" }}>
+                    <strong style={{ color: "#52c41a" }}>
+                      📏 Giá trị bình thường:
+                    </strong>
+                    <div
+                      style={{
+                        marginTop: "4px",
+                        color: "#595959",
+                        fontSize: "11px",
+                      }}
+                    >
+                      {result.normalRange}
+                    </div>
+                  </div>
+                )}
+
+                {result.testStatus && (
+                  <div style={{ marginBottom: "8px" }}>
+                    <strong style={{ color: "#52c41a" }}>✅ Trạng thái:</strong>{" "}
+                    <span
+                      style={{
+                        color:
+                          result.testStatus === "NORMAL"
+                            ? "#52c41a"
+                            : result.testStatus === "ABNORMAL"
+                            ? "#ff4d4f"
+                            : "#fa8c16",
+                        fontWeight: "bold",
+                      }}
+                    >
+                      {result.testStatus === "NORMAL"
+                        ? "Bình thường"
+                        : result.testStatus === "ABNORMAL"
+                        ? "Bất thường"
+                        : result.testStatus === "PENDING"
+                        ? "Đang chờ"
+                        : result.testStatus || "Không xác định"}
+                    </span>
+                  </div>
+                )}
+
+                {result.description && (
+                  <div style={{ marginBottom: "8px" }}>
+                    <strong style={{ color: "#52c41a" }}>📝 Mô tả:</strong>
+                    <div style={{ marginTop: "4px", color: "#262626" }}>
+                      {result.description}
+                    </div>
+                  </div>
+                )}
+
+                {result.labNotes && (
+                  <div style={{ marginBottom: "8px" }}>
+                    <strong style={{ color: "#52c41a" }}>
+                      🔬 Ghi chú phòng lab:
+                    </strong>
+                    <div
+                      style={{
+                        marginTop: "4px",
+                        color: "#595959",
+                        fontSize: "11px",
+                      }}
+                    >
+                      {result.labNotes}
+                    </div>
+                  </div>
+                )}
+
+                {result.createdAt && (
+                  <div
+                    style={{
+                      marginTop: "12px",
+                      paddingTop: "8px",
+                      borderTop: "1px solid #d9d9d9",
+                      color: "#8c8c8c",
+                      fontSize: "11px",
+                    }}
+                  >
+                    📅 Ngày tạo:{" "}
+                    {new Date(result.createdAt).toLocaleString("vi-VN")}
+                  </div>
+                )}
+              </div>
+            ) : (
+              <span style={{ color: "#ccc", fontStyle: "italic" }}>
+                Chưa có kết quả
+              </span>
+            )}
+          </div>
+        ),
+      });
+    }
+
+    return baseColumns;
+  };
 
   // Get current tab data
   const getCurrentTabData = () => {
@@ -1020,7 +1016,7 @@ const PersonalSchedule = ({ userId }) => {
         />
 
         <Table
-          columns={detailColumns}
+          columns={getDetailColumns()}
           dataSource={currentTabDetails}
           rowKey="id"
           loading={
