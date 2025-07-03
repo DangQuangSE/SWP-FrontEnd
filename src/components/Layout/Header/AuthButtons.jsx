@@ -174,7 +174,7 @@ const AuthButtons = () => {
 
       <AuthModal open={open} onClose={() => setOpen(false)} />
 
-      {/* Modal chi tiết thông báo */}
+      {/* Modal chi tiết thông báo */ tao them dữ lie}
       <NotificationDetail
         visible={notificationDetailVisible}
         notification={selectedNotification}
