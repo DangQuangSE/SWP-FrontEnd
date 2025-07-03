@@ -56,7 +56,7 @@ const WriteBlogs = ({ userId, selectedTab }) => {
     try {
       const token = localStorage.getItem("token");
       // Consultant: lấy tất cả blog của mình (mọi trạng thái)
-      const res = await api.get(`/blog/my-blogs?page=${page}&size=${size}`, {
+      const res = await api.get(`/blog?page=${page}&size=${size}`, {
         headers: token ? { Authorization: `Bearer ${token}` } : {},
       });
       let blogData = [];
@@ -158,7 +158,9 @@ const WriteBlogs = ({ userId, selectedTab }) => {
       setBlogs(processedBlogs);
     } catch (error) {
       toast.error(
-        `Không thể tải blog theo trạng thái: ${error.message || "Lỗi không xác định"}`
+        `Không thể tải blog theo trạng thái: ${
+          error.message || "Lỗi không xác định"
+        }`
       );
       setBlogs([]);
     } finally {
@@ -368,7 +370,7 @@ const WriteBlogs = ({ userId, selectedTab }) => {
       const blogData = {
         title: values.title.trim(),
         content: values.content.trim(),
-        status: values.status || "DRAFT",
+        status: "DRAFT", // luôn là DRAFT khi tạo mới
         imgFile: imgFile,
         tagNames: tagNames,
       };
@@ -376,27 +378,9 @@ const WriteBlogs = ({ userId, selectedTab }) => {
       try {
         const response = await createBlog(blogData);
         toast.success("Tạo blog thành công!");
-
-        // Gửi blog để admin duyệt nếu tạo thành công
-        if (response.data && response.data.id) {
-          try {
-            const token = localStorage.getItem("token");
-            await api.post(`/blog/${response.data.id}/submit`, null, {
-              headers: token ? { Authorization: `Bearer ${token}` } : {},
-            });
-            toast.success("Đã gửi blog để admin duyệt!");
-          } catch (submitError) {
-            toast.error(
-              "Không thể gửi blog để duyệt: " +
-                (submitError.response?.data?.message || submitError.message)
-            );
-          }
-        }
-
+        // KHÔNG tự động gửi duyệt ở đây nữa
         setIsCreateBlogModalVisible(false);
         createBlogForm.resetFields();
-
-        console.log(" Reloading blogs after create...");
         if (response.data) {
           const newBlog = {
             ...response.data,
@@ -409,11 +393,8 @@ const WriteBlogs = ({ userId, selectedTab }) => {
             author: response.data.author || { fullname: "Bạn" },
             tags: Array.isArray(response.data.tags) ? response.data.tags : [],
           };
-
-          console.log(" Adding new blog to state immediately:", newBlog);
           setBlogs((prevBlogs) => [newBlog, ...prevBlogs]);
         }
-
         await loadBlogs(0, 20);
       } catch (error) {
         console.error(" Create blog failed:", error);

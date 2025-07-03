@@ -165,7 +165,9 @@ const BlogManagement = ({ userId, selectedTab }) => {
       setBlogs(processedBlogs);
     } catch (error) {
       toast.error(
-        `Không thể tải blog theo trạng thái: ${error.message || "Lỗi không xác định"}`
+        `Không thể tải blog theo trạng thái: ${
+          error.message || "Lỗi không xác định"
+        }`
       );
       setBlogs([]);
     } finally {
@@ -771,44 +773,8 @@ const BlogManagement = ({ userId, selectedTab }) => {
           );
         }
 
-        // Always show Edit
-        actions.push(
-          <Button
-            key="edit"
-            icon={<EditOutlined />}
-            size="small"
-            onClick={() => {
-              editBlogForm.setFieldsValue({
-                title: record.title,
-                content: record.content,
-                tags: record.tags?.map((tag) => tag.id),
-                status: record.status,
-              });
-              setIsEditBlogModalVisible(true);
-              setEditingBlogId(record.id);
-            }}
-            block
-          >
-            Sửa
-          </Button>
-        );
-
-        // Always show Delete
-        actions.push(
-          <Popconfirm
-            key="delete"
-            title="Xóa blog"
-            description={`Bạn có chắc chắn muốn xóa blog "${record.title}"?`}
-            onConfirm={() => handleDeleteBlog(record.id)}
-            okText="Xóa"
-            cancelText="Hủy"
-            okButtonProps={{ danger: true }}
-          >
-            <Button danger size="small" block>
-              Xóa
-            </Button>
-          </Popconfirm>
-        );
+        // ADMIN: Remove Edit and Delete actions
+        // (No Edit/Delete for admin)
 
         return (
           <Space direction="vertical" size="small">

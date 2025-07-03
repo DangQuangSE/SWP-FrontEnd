@@ -87,7 +87,7 @@ function App() {
               <Route path="/blog/:id" element={<BlogDetail />} />
 
               {/* Protected routes */}
-              {/* <Route
+               <Route
                 path="/consultant"
                 element={
                   <ProtectedRoute
@@ -112,7 +112,7 @@ function App() {
                     <Admin />
                   </ProtectedRoute>
                 }
-              /> */}
+              /> 
               <Route path="/admin" element={<Admin />} />
               <Route path="/settings" element={<Settings />} />
               <Route path="/user" element={<UserProfile />}>
