@@ -32,6 +32,7 @@ import {
 import dayjs from "dayjs"; // Only for DatePicker component, not used in MedicalResultForm
 import MedicalResultViewer from "../../../../components/MedicalResult/MedicalResultViewer";
 import MedicalResultFormWrapper from "../../../../components/MedicalResult/MedicalResultFormWrapper";
+import PatientDetailButton from "../PatientHistory/PatientDetailButton";
 import "./PersonalSchedule.css";
 
 const PersonalSchedule = ({ userId }) => {
@@ -452,22 +453,68 @@ const PersonalSchedule = ({ userId }) => {
         title: "Thông tin bệnh nhân",
         key: "patientInfo",
         width: 200,
-        render: (_, detail) => (
-          <div>
-            <div
-              style={{ fontWeight: "bold", color: "#1890ff", fontSize: "14px" }}
-            >
-              <UserOutlined /> {detail.customerName || "Chưa có tên"}
+        render: (_, detail) => {
+          // Debug: Log detail object and parent appointment
+          console.log("🔍 [PERSONAL_SCHEDULE] Detail object:", detail);
+          console.log(
+            "🔍 [PERSONAL_SCHEDULE] detail.customerId:",
+            detail.customerId
+          );
+          console.log(
+            "🔍 [PERSONAL_SCHEDULE] detail keys:",
+            Object.keys(detail)
+          );
+
+          // Check if customerId is in parent appointment
+          const appointment = getCurrentTabData().find((apt) =>
+            apt.appointmentDetails?.some((d) => d.id === detail.id)
+          );
+          console.log(
+            "🔍 [PERSONAL_SCHEDULE] Parent appointment:",
+            appointment
+          );
+          console.log(
+            "🔍 [PERSONAL_SCHEDULE] appointment.customerId:",
+            appointment?.customerId
+          );
+
+          return (
+            <div>
+              <div
+                style={{
+                  fontWeight: "bold",
+                  color: "#1890ff",
+                  fontSize: "14px",
+                }}
+              >
+                <UserOutlined /> {detail.customerName || "Chưa có tên"}
+              </div>
+              <div
+                style={{ fontSize: "12px", color: "#666", marginTop: "4px" }}
+              >
+                📅 Ngày hẹn:{" "}
+                {new Date(detail.preferredDate).toLocaleDateString("vi-VN")}
+              </div>
+              <div style={{ fontSize: "12px", color: "#666" }}>
+                🆔 Lịch hẹn: #{detail.appointmentId}
+              </div>
+              {/* Patient Detail Button */}
+              <div style={{ marginTop: "6px" }}>
+                <PatientDetailButton
+                  patientId={detail.customerId || appointment?.customerId}
+                  patientName={
+                    detail.customerName ||
+                    appointment?.customerName ||
+                    "Bệnh nhân"
+                  }
+                  buttonText="Chi tiết"
+                  buttonType="link"
+                  buttonSize="small"
+                />
+              </div>
             </div>
-            <div style={{ fontSize: "12px", color: "#666", marginTop: "4px" }}>
-              📅 Ngày hẹn:{" "}
-              {new Date(detail.preferredDate).toLocaleDateString("vi-VN")}
-            </div>
-            <div style={{ fontSize: "12px", color: "#666" }}>
-              🆔 Lịch hẹn: #{detail.appointmentId}
-            </div>
-          </div>
-        ),
+          );
+        },
       },
       {
         title: "Trạng thái",
