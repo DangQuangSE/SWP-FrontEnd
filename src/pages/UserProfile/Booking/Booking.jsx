@@ -19,6 +19,15 @@ const STATUS_MAP = {
   history: ["CANCELED"],
 };
 
+// Status display mapping (Vietnamese)
+const STATUS_DISPLAY = {
+  CONFIRMED: "Đã xác nhận",
+  PENDING: "Chờ xác nhận",
+  CHECKED: "Đã check in",
+  COMPLETED: "Hoàn thành",
+  CANCELED: "Đã hủy",
+};
+
 const Booking = () => {
   const [appointments, setAppointments] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -285,7 +294,7 @@ const Booking = () => {
           <p>
             <strong>Trạng thái:</strong>{" "}
             <span className={`status ${appointment.status.toLowerCase()}`}>
-              {appointment.status}
+              {STATUS_DISPLAY[appointment.status] || appointment.status}
             </span>
           </p>
           <p>
@@ -299,7 +308,7 @@ const Booking = () => {
             {new Date(appointment.created_at).toLocaleString()}
           </p>
           <div className="appointment-actions">
-            {["CONFIRMED", "PENDING", "CHEKED"].includes(
+            {["CONFIRMED", "PENDING", "CHECKED"].includes(
               appointment.status
             ) && (
               <button
