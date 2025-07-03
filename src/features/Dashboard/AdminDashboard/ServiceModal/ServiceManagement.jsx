@@ -27,17 +27,10 @@ const getServiceTypeColor = (serviceType) => {
     case "CONSULTING":
     case "CONSULTING_ON":
       return "blue";
-    case "TREATMENT":
-      return "red";
-    case "TESTING_ON":
-    case "TESTING_OFF":
+    case "TESTING":
       return "green";
     case "EXAMINATION":
       return "orange";
-    case "PREVENTION":
-      return "cyan";
-    case "REHABILITATION":
-      return "magenta";
     case "OTHER":
     default:
       return "default";
@@ -45,7 +38,20 @@ const getServiceTypeColor = (serviceType) => {
 };
 
 const getServiceTypeLabel = (serviceType) => {
-  return serviceType?.replace(/_/g, " ") || "N/A";
+  switch (serviceType) {
+    case "CONSULTING":
+      return "Tư Vấn";
+    case "CONSULTING_ON":
+      return "Tư vấn trực tuyến";
+    case "TESTING":
+      return "Xét nghiệm";
+    case "EXAMINATION":
+      return "Khám bệnh";
+    case "COMBO":
+      return "Gói khám";
+    default:
+      return serviceType?.replace(/_/g, " ") || "N/A";
+  }
 };
 
 /**
@@ -315,62 +321,109 @@ const ServiceManagement = () => {
     }
   };
 
-  const handleServiceModalOk = async () => {
+  // Handle adding regular service
+  const handleAddRegularService = async () => {
     try {
       const values = await form.validateFields();
-      console.log(" Form values:", values);
-      console.log(" isComboService:", isComboService);
+      console.log("🔵 Adding regular service with values:", values);
 
-      if (editingService) {
-        await updateService(editingService.id, values);
-      } else {
-        if (isComboService) {
-          const comboData = {
-            name: values.name,
-            description: values.description,
-            duration: values.duration ? parseInt(values.duration) * 60 : null,
-            type: values.type,
-            price: values.price ? parseFloat(values.price) : 0,
-            isCombo: true,
-            specializationIds: values.specializationIds || [],
-            subServiceIds: values.subServiceIds || [],
-          };
-          console.log(" Sending combo data:", comboData);
-          await createComboService(comboData);
-        } else {
-          const serviceData = {
-            name: values.name,
-            description: values.description,
-            duration: values.duration ? parseInt(values.duration) * 60 : null,
-            type: values.type,
-            price: values.price ? parseFloat(values.price) : 0,
-            isActive: values.isActive !== undefined ? values.isActive : true,
-            isCombo: false,
-            specializationIds: values.specializationIds || [],
-            discountPercent: values.discountPercent
-              ? parseFloat(values.discountPercent)
-              : 0,
-          };
-          console.log(" Sending service data:", serviceData);
-          await addService(serviceData);
-        }
-      }
+      const serviceData = {
+        name: values.name,
+        description: values.description,
+        duration: values.duration ? parseInt(values.duration) * 60 : null,
+        type: values.type,
+        price: values.price ? parseFloat(values.price) : 0,
+        isActive: values.isActive !== undefined ? values.isActive : true,
+        isCombo: false,
+        specializationIds: values.specializationIds || [],
+        discountPercent: values.discountPercent
+          ? parseFloat(values.discountPercent)
+          : 0,
+      };
 
+      console.log("🔵 Sending regular service data:", serviceData);
+      await addService(serviceData);
+
+      // Close modal and reset
       setIsServiceModalVisible(false);
       form.resetFields();
       setEditingService(null);
       setIsComboService(false);
 
       await loadServices();
-
-      message.success(
-        editingService
-          ? "Cập nhật dịch vụ thành công!"
-          : "Tạo dịch vụ thành công!"
-      );
+      message.success("Tạo dịch vụ thành công!");
     } catch (error) {
-      console.error("Lỗi cập nhật dịch vụ:", error);
-      message.error("Có lỗi xảy ra khi xử lý dịch vụ!");
+      console.error(" Lỗi tạo dịch vụ thường:", error);
+      message.error("Có lỗi xảy ra khi tạo dịch vụ!");
+    }
+  };
+
+  // Handle submitting combo service form
+  const handleSubmitComboService = async () => {
+    try {
+      const values = await form.validateFields();
+      console.log("🟠 Adding combo service with values:", values);
+
+      const comboData = {
+        name: values.name,
+        description: values.description,
+        duration: values.duration ? parseInt(values.duration) * 60 : null,
+        type: values.type,
+        isCombo: true,
+        specializationIds: values.specializationIds || [],
+        subServiceIds: values.subServiceIds || [],
+        discountPercent: values.discountPercent
+          ? parseFloat(values.discountPercent)
+          : 0,
+      };
+
+      console.log("🟠 Sending combo service data:", comboData);
+      await createComboService(comboData);
+
+      // Close modal and reset
+      setIsServiceModalVisible(false);
+      form.resetFields();
+      setEditingService(null);
+      setIsComboService(false);
+
+      await loadServices();
+      message.success("Tạo gói dịch vụ thành công!");
+    } catch (error) {
+      console.error(" Lỗi tạo gói dịch vụ:", error);
+      message.error("Có lỗi xảy ra khi tạo gói dịch vụ!");
+    }
+  };
+
+  // Handle updating existing service
+  const handleUpdateService = async () => {
+    try {
+      const values = await form.validateFields();
+      console.log("🟡 Updating service with values:", values);
+
+      await updateService(editingService.id, values);
+
+      // Close modal and reset
+      setIsServiceModalVisible(false);
+      form.resetFields();
+      setEditingService(null);
+      setIsComboService(false);
+
+      await loadServices();
+      message.success("Cập nhật dịch vụ thành công!");
+    } catch (error) {
+      console.error(" Lỗi cập nhật dịch vụ:", error);
+      message.error("Có lỗi xảy ra khi cập nhật dịch vụ!");
+    }
+  };
+
+  // Main handler that routes to appropriate function
+  const handleServiceModalOk = async () => {
+    if (editingService) {
+      await handleUpdateService();
+    } else if (isComboService) {
+      await handleSubmitComboService();
+    } else {
+      await handleAddRegularService();
     }
   };
 

@@ -40,7 +40,7 @@ const SpecializationCell = ({
   const loadUserSpecializations = useCallback(async () => {
     try {
       setLoading(true);
-      console.log("🔄 Loading specializations for user:", record.id);
+      console.log(" Loading specializations for user:", record.id);
 
       const response = await api.get(
         `/admin/user/${record.id}/specializations`
@@ -49,7 +49,7 @@ const SpecializationCell = ({
         ? response.data
         : [];
 
-      console.log("✅ Loaded specializations:", userSpecializations);
+      console.log("Loaded specializations:", userSpecializations);
       setSpecializations(userSpecializations);
     } catch (error) {
       console.warn("⚠️ Could not load specializations:", error);
@@ -133,9 +133,9 @@ const UserManagement = ({ form }) => {
   // Lấy danh sách chuyên khoa hiện tại của user
   const fetchUserSpecializations = async (userId) => {
     try {
-      console.log("🔄 Fetching current specializations for user:", userId);
+      console.log(" Fetching current specializations for user:", userId);
       const response = await api.get(`/admin/user/${userId}/specializations`);
-      console.log("✅ Current specializations response:", response.data);
+      console.log("Current specializations response:", response.data);
 
       // Xử lý response data
       const specializations = Array.isArray(response.data) ? response.data : [];
@@ -163,7 +163,7 @@ const UserManagement = ({ form }) => {
       setSelectedSpecializations(currentSpecializationIds);
       setIsSpecializationModalVisible(true);
     } catch (error) {
-      console.error("❌ Error loading specializations:", error);
+      console.error(" Error loading specializations:", error);
       message.error("Không thể tải danh sách chuyên khoa!");
     } finally {
       setLoadingSpecializations(false);
@@ -173,7 +173,7 @@ const UserManagement = ({ form }) => {
   // Lưu chuyên khoa cho tư vấn viên
   const handleSaveSpecializations = async () => {
     try {
-      console.log("🔄 Updating specializations for user:", selectedUser.id);
+      console.log(" Updating specializations for user:", selectedUser.id);
       console.log("Selected specializations:", selectedSpecializations);
 
       // Lấy danh sách chuyên khoa hiện tại
@@ -200,7 +200,7 @@ const UserManagement = ({ form }) => {
         await api.post(`/admin/user/${selectedUser.id}/specializations`, {
           specializationIds: toAdd,
         });
-        console.log("✅ Added specializations:", toAdd);
+        console.log("Added specializations:", toAdd);
       }
 
       // Xóa chuyên khoa không còn được chọn
@@ -208,7 +208,7 @@ const UserManagement = ({ form }) => {
         await api.delete(
           `/admin/user/${selectedUser.id}/specializations/${specId}`
         );
-        console.log("✅ Removed specialization:", specId);
+        console.log("Removed specialization:", specId);
       }
 
       message.success("Cập nhật chuyên khoa thành công!");
@@ -224,7 +224,7 @@ const UserManagement = ({ form }) => {
       // Refresh toàn bộ user list
       await loadUsers();
     } catch (error) {
-      console.error("❌ Error updating specializations:", error);
+      console.error(" Error updating specializations:", error);
       console.error("Error details:", error.response?.data);
 
       const errorMessage =

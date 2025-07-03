@@ -28,10 +28,10 @@ const BookingConfirmation = () => {
 
       try {
         const response = await api.get("/me");
-        console.log("✅ User data from /api/me:", response.data);
+        console.log("User data from /api/me:", response.data);
         setUser(response.data);
       } catch (error) {
-        console.error("❌ Error fetching user data:", error);
+        console.error(" Error fetching user data:", error);
         message.error("Không thể lấy thông tin người dùng");
       } finally {
         setLoading(false);

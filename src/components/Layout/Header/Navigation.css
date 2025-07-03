@@ -33,6 +33,7 @@
   transition: all var(--transition-fast);
   position: relative;
   display: block;
+  font-size: 16px;
 }
 
 .nav-link.active {
@@ -46,7 +47,7 @@
   bottom: -8px;
   left: 50%;
   transform: translateX(-50%);
-  width: 30px;
+  width: 65px;
   height: 3px;
   background: linear-gradient(90deg, #2753d0 0%, #086ce4 50%, #0283f5 100%);
   border-radius: var(--radius-sm);

@@ -1114,11 +1114,11 @@ const BlogManagement = ({ userId, selectedTab }) => {
               rules={[{ required: true, message: "Vui lòng chọn trạng thái!" }]}
             >
               <Select placeholder="Chọn trạng thái bài viết">
-                <Select.Option value="DRAFT">📝 Bản nháp</Select.Option>
+                <Select.Option value="DRAFT"> Bản nháp</Select.Option>
                 <Select.Option value="PENDING">⏳ Chờ duyệt</Select.Option>
                 <Select.Option value="APPROVED"> Đã duyệt</Select.Option>
                 <Select.Option value="PUBLISHED">🌐 Đã đăng</Select.Option>
-                <Select.Option value="REJECTED">❌ Bị từ chối</Select.Option>
+                <Select.Option value="REJECTED"> Bị từ chối</Select.Option>
                 <Select.Option value="ARCHIVED">📦 Đã lưu trữ</Select.Option>
               </Select>
             </Form.Item>

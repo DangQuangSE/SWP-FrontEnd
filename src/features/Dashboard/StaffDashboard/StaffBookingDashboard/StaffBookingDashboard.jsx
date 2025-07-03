@@ -70,7 +70,7 @@ const StaffBookingDashboard = () => {
         allAppointments = responses.flat();
       } else {
         // Gọi API với status cụ thể
-        console.log(`📋 Fetching appointments for status: ${status}`);
+        console.log(` Fetching appointments for status: ${status}`);
         const response = await api.get(
           `/appointment/by-status?status=${status}`
         );
@@ -84,9 +84,9 @@ const StaffBookingDashboard = () => {
 
       setAppointments(sortedData);
       console.log(
-        `📋 Loaded ${sortedData.length} appointments for status: ${status}`
+        ` Loaded ${sortedData.length} appointments for status: ${status}`
       );
-      console.log("📋 Sample appointment data:", sortedData[0]);
+      console.log(" Sample appointment data:", sortedData[0]);
     } catch (error) {
       console.error("Error fetching appointments:", error);
       message.error("Không thể tải danh sách lịch hẹn");
@@ -116,9 +116,9 @@ const StaffBookingDashboard = () => {
   // Handle checked (check-in)
   const handleChecked = async (record) => {
     try {
-      console.log("🔄 Checking appointment:", record.id);
+      console.log(" Checking appointment:", record.id);
 
-      await api.put(`/appointment/${record.id}/checkin`);
+      await api.path(`/appointment/${record.id}/checkin`);
 
       message.success("Đã đánh dấu checked thành công!");
 
@@ -132,7 +132,7 @@ const StaffBookingDashboard = () => {
 
   // Handle view detail
   const handleViewDetail = (record) => {
-    console.log("🔍 Showing appointment detail for:", record.id);
+    console.log(" Showing appointment detail for:", record.id);
 
     Modal.info({
       title: "Chi tiết lịch hẹn",
@@ -231,7 +231,7 @@ const StaffBookingDashboard = () => {
   // Hủy lịch hẹn
   const handleCancelAppointment = async (record) => {
     try {
-      console.log("🔄 Canceling appointment:", record.id);
+      console.log(" Canceling appointment:", record.id);
 
       // Gọi API để hủy lịch hẹn (cập nhật status thành CANCELED)
       const response = await api.put(`/appointment/${record.id}`, {
@@ -239,7 +239,7 @@ const StaffBookingDashboard = () => {
         status: "CANCELED",
       });
 
-      console.log("✅ Appointment canceled successfully:", response.data);
+      console.log("Appointment canceled successfully:", response.data);
       message.success(
         "Hủy lịch hẹn thành công! Trạng thái đã chuyển sang CANCELED."
       );
@@ -247,7 +247,7 @@ const StaffBookingDashboard = () => {
       // Refresh danh sách appointments
       await fetchAppointments(activeTab);
     } catch (error) {
-      console.error("❌ Error canceling appointment:", error);
+      console.error(" Error canceling appointment:", error);
       console.error("Error details:", error.response?.data);
 
       const errorMessage =
