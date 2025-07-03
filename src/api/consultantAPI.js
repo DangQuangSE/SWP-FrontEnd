@@ -224,7 +224,7 @@ export const getMySchedule = (from, to) => {
   if (from) params.append("from", from);
   if (to) params.append("to", to);
 
-  return api.get(`/schedules/my-schedule?${params.toString()}`);
+  return api.get(`/appointment/my-schedule?${params.toString()}`);
 };
 
 // Update appointment detail status

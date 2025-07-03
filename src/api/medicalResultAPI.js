@@ -13,14 +13,14 @@ import api from "../configs/api";
 export const submitMedicalResult = async (resultData) => {
   try {
     console.log("🔄 [API] Submitting medical result:", resultData);
-    
+
     const response = await api.post("/result", resultData);
-    
-    console.log("✅ [API] Medical result submitted successfully:", response.data);
+
+    console.log(" [API] Medical result submitted successfully:", response.data);
     return response;
   } catch (error) {
-    console.error("❌ [API] Error submitting medical result:", error);
-    console.error("❌ [API] Error details:", {
+    console.error(" [API] Error submitting medical result:", error);
+    console.error(" [API] Error details:", {
       message: error.message,
       status: error.response?.status,
       data: error.response?.data,
@@ -37,13 +37,13 @@ export const submitMedicalResult = async (resultData) => {
 export const getMedicalResult = async (resultId) => {
   try {
     console.log(`🔄 [API] Fetching medical result ID: ${resultId}`);
-    
+
     const response = await api.get(`/result/${resultId}`);
-    
-    console.log("✅ [API] Medical result fetched successfully:", response.data);
+
+    console.log(" [API] Medical result fetched successfully:", response.data);
     return response;
   } catch (error) {
-    console.error("❌ [API] Error fetching medical result:", error);
+    console.error(" [API] Error fetching medical result:", error);
     throw error;
   }
 };
@@ -57,13 +57,13 @@ export const getMedicalResult = async (resultId) => {
 export const updateMedicalResult = async (resultId, updateData) => {
   try {
     console.log(`🔄 [API] Updating medical result ID: ${resultId}`, updateData);
-    
+
     const response = await api.put(`/result/${resultId}`, updateData);
-    
-    console.log("✅ [API] Medical result updated successfully:", response.data);
+
+    console.log(" [API] Medical result updated successfully:", response.data);
     return response;
   } catch (error) {
-    console.error("❌ [API] Error updating medical result:", error);
+    console.error(" [API] Error updating medical result:", error);
     throw error;
   }
 };
@@ -76,13 +76,13 @@ export const updateMedicalResult = async (resultId, updateData) => {
 export const deleteMedicalResult = async (resultId) => {
   try {
     console.log(`🔄 [API] Deleting medical result ID: ${resultId}`);
-    
+
     const response = await api.delete(`/result/${resultId}`);
-    
-    console.log("✅ [API] Medical result deleted successfully");
+
+    console.log(" [API] Medical result deleted successfully");
     return response;
   } catch (error) {
-    console.error("❌ [API] Error deleting medical result:", error);
+    console.error(" [API] Error deleting medical result:", error);
     throw error;
   }
 };
@@ -92,16 +92,22 @@ export const deleteMedicalResult = async (resultId) => {
  * @param {number} appointmentDetailId - Appointment detail ID
  * @returns {Promise} API response
  */
-export const getMedicalResultsByAppointmentDetail = async (appointmentDetailId) => {
+export const getMedicalResultsByAppointmentDetail = async (
+  appointmentDetailId
+) => {
   try {
-    console.log(`🔄 [API] Fetching medical results for appointment detail: ${appointmentDetailId}`);
-    
-    const response = await api.get(`/result/appointment-detail/${appointmentDetailId}`);
-    
-    console.log("✅ [API] Medical results fetched successfully:", response.data);
+    console.log(
+      `🔄 [API] Fetching medical results for appointment detail: ${appointmentDetailId}`
+    );
+
+    const response = await api.get(
+      `/result/appointment-detail/${appointmentDetailId}`
+    );
+
+    console.log(" [API] Medical results fetched successfully:", response.data);
     return response;
   } catch (error) {
-    console.error("❌ [API] Error fetching medical results:", error);
+    console.error(" [API] Error fetching medical results:", error);
     throw error;
   }
 };
@@ -113,43 +119,43 @@ export const getMedicalResultsByAppointmentDetail = async (appointmentDetailId) 
  */
 export const validateMedicalResultData = (resultData) => {
   const errors = {};
-  
+
   // Required fields validation
   if (!resultData.appointmentDetailId) {
     errors.appointmentDetailId = "Appointment Detail ID là bắt buộc";
   }
-  
+
   if (!resultData.resultType) {
     errors.resultType = "Loại kết quả là bắt buộc";
   }
-  
+
   if (!resultData.testName) {
     errors.testName = "Tên xét nghiệm là bắt buộc";
   }
-  
+
   if (!resultData.testResult) {
     errors.testResult = "Kết quả xét nghiệm là bắt buộc";
   }
-  
+
   if (!resultData.testStatus) {
     errors.testStatus = "Trạng thái xét nghiệm là bắt buộc";
   }
-  
+
   // Optional but recommended fields
   const warnings = {};
-  
+
   if (!resultData.diagnosis) {
     warnings.diagnosis = "Nên có chẩn đoán";
   }
-  
+
   if (!resultData.treatmentPlan) {
     warnings.treatmentPlan = "Nên có kế hoạch điều trị";
   }
-  
+
   return {
     isValid: Object.keys(errors).length === 0,
     errors,
-    warnings
+    warnings,
   };
 };
 
@@ -172,6 +178,6 @@ export const formatMedicalResultForAPI = (formData) => {
     specimenType: formData.specimenType || "",
     testStatus: formData.testStatus || "PENDING",
     sampleCollectedAt: formData.sampleCollectedAt || new Date().toISOString(),
-    labNotes: formData.labNotes || ""
+    labNotes: formData.labNotes || "",
   };
 };

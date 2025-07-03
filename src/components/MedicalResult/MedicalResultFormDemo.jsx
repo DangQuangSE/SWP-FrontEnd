@@ -1,9 +1,13 @@
-import React, { useState } from 'react';
-import { Card, Button, Space, Typography, Row, Col, Alert, Tag } from 'antd';
-import { ExperimentOutlined, UserOutlined, CalendarOutlined } from '@ant-design/icons';
-import MedicalResultForm from './MedicalResultForm';
-import MedicalResultViewer from './MedicalResultViewer';
-import dayjs from 'dayjs';
+import React, { useState } from "react";
+import { Card, Button, Space, Typography, Row, Col, Alert, Tag } from "antd";
+import {
+  ExperimentOutlined,
+  UserOutlined,
+  CalendarOutlined,
+} from "@ant-design/icons";
+import MedicalResultForm from "./MedicalResultForm";
+import MedicalResultViewer from "./MedicalResultViewer";
+import dayjs from "dayjs";
 
 const { Title, Text } = Typography;
 
@@ -22,12 +26,12 @@ const MedicalResultFormDemo = () => {
     consultantId: 2,
     consultantName: "BS. Trần Thị B",
     slotTime: "2025-01-15T10:30:00",
-    status: "WAITING_RESULT"
+    status: "WAITING_RESULT",
   };
 
   const handleFormSuccess = (result) => {
-    console.log('✅ Form submitted successfully:', result);
-    setSubmittedResults(prev => [result, ...prev]);
+    console.log(" Form submitted successfully:", result);
+    setSubmittedResults((prev) => [result, ...prev]);
     setShowForm(false);
   };
 
@@ -36,9 +40,9 @@ const MedicalResultFormDemo = () => {
   };
 
   return (
-    <div style={{ padding: '24px', background: '#f5f5f5', minHeight: '100vh' }}>
+    <div style={{ padding: "24px", background: "#f5f5f5", minHeight: "100vh" }}>
       <Title level={2}>🧪 Medical Result Form - Demo</Title>
-      
+
       <Alert
         message="Demo hệ thống nhập kết quả khám"
         description="Thử nghiệm form nhập kết quả khám chuyên nghiệp với API integration"
@@ -48,15 +52,14 @@ const MedicalResultFormDemo = () => {
       />
 
       {/* Mock Appointment Detail */}
-      <Card 
-        title="📋 Thông tin cuộc hẹn mẫu"
-        style={{ marginBottom: 24 }}
-      >
+      <Card title="📋 Thông tin cuộc hẹn mẫu" style={{ marginBottom: 24 }}>
         <Row gutter={16}>
           <Col span={8}>
             <Card size="small">
               <Space direction="vertical">
-                <Text strong><UserOutlined /> Bệnh nhân</Text>
+                <Text strong>
+                  <UserOutlined /> Bệnh nhân
+                </Text>
                 <Text>{mockAppointmentDetail.customerName}</Text>
               </Space>
             </Card>
@@ -64,7 +67,9 @@ const MedicalResultFormDemo = () => {
           <Col span={8}>
             <Card size="small">
               <Space direction="vertical">
-                <Text strong><ExperimentOutlined /> Dịch vụ</Text>
+                <Text strong>
+                  <ExperimentOutlined /> Dịch vụ
+                </Text>
                 <Text>{mockAppointmentDetail.serviceName}</Text>
               </Space>
             </Card>
@@ -72,16 +77,22 @@ const MedicalResultFormDemo = () => {
           <Col span={8}>
             <Card size="small">
               <Space direction="vertical">
-                <Text strong><CalendarOutlined /> Thời gian</Text>
-                <Text>{dayjs(mockAppointmentDetail.slotTime).format('DD/MM/YYYY HH:mm')}</Text>
+                <Text strong>
+                  <CalendarOutlined /> Thời gian
+                </Text>
+                <Text>
+                  {dayjs(mockAppointmentDetail.slotTime).format(
+                    "DD/MM/YYYY HH:mm"
+                  )}
+                </Text>
               </Space>
             </Card>
           </Col>
         </Row>
-        
-        <div style={{ marginTop: 16, textAlign: 'center' }}>
-          <Button 
-            type="primary" 
+
+        <div style={{ marginTop: 16, textAlign: "center" }}>
+          <Button
+            type="primary"
             size="large"
             icon={<ExperimentOutlined />}
             onClick={() => setShowForm(true)}
@@ -121,8 +132,15 @@ const MedicalResultFormDemo = () => {
         <Row gutter={16}>
           <Col span={12}>
             <Card size="small" title="Request Format">
-              <pre style={{ fontSize: '12px', background: '#f6f6f6', padding: '12px', borderRadius: '4px' }}>
-{`{
+              <pre
+                style={{
+                  fontSize: "12px",
+                  background: "#f6f6f6",
+                  padding: "12px",
+                  borderRadius: "4px",
+                }}
+              >
+                {`{
   "appointmentDetailId": 3,
   "resultType": "LAB_TEST",
   "description": "Mô tả triệu chứng...",
@@ -142,7 +160,7 @@ const MedicalResultFormDemo = () => {
           </Col>
           <Col span={12}>
             <Card size="small" title="API Endpoint">
-              <Space direction="vertical" style={{ width: '100%' }}>
+              <Space direction="vertical" style={{ width: "100%" }}>
                 <div>
                   <Tag color="green">POST</Tag>
                   <Text code>http://localhost:8080/api/result</Text>
@@ -151,12 +169,12 @@ const MedicalResultFormDemo = () => {
                   message="Tính năng"
                   description={
                     <ul style={{ margin: 0, paddingLeft: 20 }}>
-                      <li>✅ Validation dữ liệu đầu vào</li>
-                      <li>✅ Error handling chuyên nghiệp</li>
-                      <li>✅ Loading states</li>
-                      <li>✅ Success callbacks</li>
-                      <li>✅ Form reset sau submit</li>
-                      <li>✅ Toast notifications</li>
+                      <li> Validation dữ liệu đầu vào</li>
+                      <li> Error handling chuyên nghiệp</li>
+                      <li> Loading states</li>
+                      <li> Success callbacks</li>
+                      <li> Form reset sau submit</li>
+                      <li> Toast notifications</li>
                     </ul>
                   }
                   type="success"
@@ -173,8 +191,10 @@ const MedicalResultFormDemo = () => {
         <Row gutter={16}>
           <Col span={8}>
             <Card size="small" title="🔧 API Layer">
-              <ul style={{ margin: 0, paddingLeft: 20, fontSize: '12px' }}>
-                <li><Text code>src/api/medicalResultAPI.js</Text></li>
+              <ul style={{ margin: 0, paddingLeft: 20, fontSize: "12px" }}>
+                <li>
+                  <Text code>src/api/medicalResultAPI.js</Text>
+                </li>
                 <li>• submitMedicalResult()</li>
                 <li>• validateMedicalResultData()</li>
                 <li>• formatMedicalResultForAPI()</li>
@@ -183,8 +203,10 @@ const MedicalResultFormDemo = () => {
           </Col>
           <Col span={8}>
             <Card size="small" title="🎣 Custom Hooks">
-              <ul style={{ margin: 0, paddingLeft: 20, fontSize: '12px' }}>
-                <li><Text code>src/hooks/useMedicalResult.js</Text></li>
+              <ul style={{ margin: 0, paddingLeft: 20, fontSize: "12px" }}>
+                <li>
+                  <Text code>src/hooks/useMedicalResult.js</Text>
+                </li>
                 <li>• useMedicalResult()</li>
                 <li>• useMedicalResultForm()</li>
                 <li>• State management</li>
@@ -193,8 +215,10 @@ const MedicalResultFormDemo = () => {
           </Col>
           <Col span={8}>
             <Card size="small" title="🎨 UI Components">
-              <ul style={{ margin: 0, paddingLeft: 20, fontSize: '12px' }}>
-                <li><Text code>MedicalResultForm.jsx</Text></li>
+              <ul style={{ margin: 0, paddingLeft: 20, fontSize: "12px" }}>
+                <li>
+                  <Text code>MedicalResultForm.jsx</Text>
+                </li>
                 <li>• Professional form UI</li>
                 <li>• Validation & error handling</li>
                 <li>• Responsive design</li>
@@ -212,10 +236,20 @@ const MedicalResultFormDemo = () => {
               message="Architecture Patterns"
               description={
                 <ul style={{ margin: 0, paddingLeft: 20 }}>
-                  <li><strong>Separation of Concerns:</strong> API, Hooks, UI riêng biệt</li>
-                  <li><strong>Custom Hooks:</strong> Logic tái sử dụng</li>
-                  <li><strong>Controlled Components:</strong> Form state management</li>
-                  <li><strong>Error Boundaries:</strong> Graceful error handling</li>
+                  <li>
+                    <strong>Separation of Concerns:</strong> API, Hooks, UI
+                    riêng biệt
+                  </li>
+                  <li>
+                    <strong>Custom Hooks:</strong> Logic tái sử dụng
+                  </li>
+                  <li>
+                    <strong>Controlled Components:</strong> Form state
+                    management
+                  </li>
+                  <li>
+                    <strong>Error Boundaries:</strong> Graceful error handling
+                  </li>
                 </ul>
               }
               type="info"
@@ -227,10 +261,18 @@ const MedicalResultFormDemo = () => {
               message="Performance & UX"
               description={
                 <ul style={{ margin: 0, paddingLeft: 20 }}>
-                  <li><strong>useCallback:</strong> Prevent unnecessary re-renders</li>
-                  <li><strong>Loading States:</strong> User feedback</li>
-                  <li><strong>Optimistic Updates:</strong> Instant UI response</li>
-                  <li><strong>Form Validation:</strong> Real-time feedback</li>
+                  <li>
+                    <strong>useCallback:</strong> Prevent unnecessary re-renders
+                  </li>
+                  <li>
+                    <strong>Loading States:</strong> User feedback
+                  </li>
+                  <li>
+                    <strong>Optimistic Updates:</strong> Instant UI response
+                  </li>
+                  <li>
+                    <strong>Form Validation:</strong> Real-time feedback
+                  </li>
                 </ul>
               }
               type="success"

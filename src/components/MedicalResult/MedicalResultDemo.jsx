@@ -264,12 +264,12 @@ const MedicalResultDemo = () => {
           <Col span={12}>
             <Title level={4}>🔧 Tính năng tiện ích - ĐÃ HOẠT ĐỘNG</Title>
             <ul>
-              <li>✅ Export HTML/PDF hoạt động</li>
-              <li>✅ Print với layout tối ưu</li>
-              <li>✅ Modal xem chi tiết</li>
-              <li>✅ Đóng tab thông minh</li>
-              <li>✅ Toast notifications</li>
-              <li>✅ Loading states</li>
+              <li> Export HTML/PDF hoạt động</li>
+              <li> Print với layout tối ưu</li>
+              <li> Modal xem chi tiết</li>
+              <li> Đóng tab thông minh</li>
+              <li> Toast notifications</li>
+              <li> Loading states</li>
             </ul>
           </Col>
           <Col span={12}>

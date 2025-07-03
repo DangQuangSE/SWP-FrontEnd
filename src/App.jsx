@@ -114,6 +114,8 @@ function App() {
                 }
               /> */}
               <Route path="/admin" element={<Admin />} />
+              <Route path="/staff" element={<Staff />} />
+              <Route path="/consultant" element={<Consultant />} />
               <Route path="/settings" element={<Settings />} />
               <Route path="/user" element={<UserProfile />}>
                 <Route index element={<Profile />} />

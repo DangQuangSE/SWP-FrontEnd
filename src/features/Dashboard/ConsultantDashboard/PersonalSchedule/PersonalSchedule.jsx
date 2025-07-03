@@ -11,7 +11,6 @@ import {
   Card,
   Row,
   Col,
-  Statistic,
   Tabs,
 } from "antd";
 import {
@@ -694,9 +693,9 @@ const PersonalSchedule = ({ userId }) => {
   ];
 
   return (
-    <div style={{ padding: "24px" }}>
+    <div style={{ padding: "10px" }}>
       <div style={{ marginBottom: "24px" }}>
-        <h1 style={{ margin: 0, color: "#1890ff" }}>
+        <h1 style={{ margin: 0, fontSize: "19px", color: "#1890ff" }}>
           <CalendarOutlined /> Lịch Tư Vấn Cá Nhân
         </h1>
         <p style={{ color: "#666", margin: "8px 0 0 0" }}>
@@ -704,46 +703,122 @@ const PersonalSchedule = ({ userId }) => {
         </p>
       </div>
 
-      {/* Statistics Cards */}
-      <Row gutter={16} style={{ marginBottom: "24px" }}>
+      {/* Statistics Cards - Compact Version */}
+      <Row gutter={12} style={{ marginBottom: "16px" }}>
         <Col span={6}>
-          <Card>
-            <Statistic
-              title="Tổng dịch vụ"
-              value={totalDetails}
-              prefix={<CalendarOutlined />}
-              valueStyle={{ color: "#1890ff" }}
-            />
+          <Card
+            size="small"
+            styles={{ body: { padding: "12px" } }}
+            style={{ textAlign: "center" }}
+          >
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                gap: "8px",
+              }}
+            >
+              <CalendarOutlined
+                style={{ color: "#1890ff", fontSize: "18px" }}
+              />
+              <span
+                style={{
+                  fontSize: "16px",
+                  color: "#1890ff",
+                  fontWeight: "500",
+                }}
+              >
+                Tổng dịch vụ ({totalDetails})
+              </span>
+            </div>
           </Card>
         </Col>
         <Col span={6}>
-          <Card>
-            <Statistic
-              title="Đã check in"
-              value={checkedCount}
-              prefix={<CheckCircleOutlined />}
-              valueStyle={{ color: "#52c41a" }}
-            />
+          <Card
+            size="small"
+            styles={{ body: { padding: "12px" } }}
+            style={{ textAlign: "center" }}
+          >
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                gap: "8px",
+              }}
+            >
+              <CheckCircleOutlined
+                style={{ color: "#F4AF24", fontSize: "18px" }}
+              />
+              <span
+                style={{
+                  fontSize: "16px",
+                  color: "#F4AF24",
+                  fontWeight: "500",
+                }}
+              >
+                Đã check in ({checkedCount})
+              </span>
+            </div>
           </Card>
         </Col>
         <Col span={6}>
-          <Card>
-            <Statistic
-              title="Chờ kết quả"
-              value={waitingResultCount}
-              prefix={<ExclamationCircleOutlined />}
-              valueStyle={{ color: "#fa8c16" }}
-            />
+          <Card
+            size="small"
+            styles={{ body: { padding: "12px" } }}
+            style={{ textAlign: "center" }}
+          >
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                gap: "8px",
+              }}
+            >
+              <ExclamationCircleOutlined
+                style={{ color: "#F46D0B", fontSize: "18px" }}
+              />
+              <span
+                style={{
+                  fontSize: "16px",
+                  color: "#F46D0B",
+                  fontWeight: "500",
+                }}
+              >
+                Chờ kết quả ({waitingResultCount})
+              </span>
+            </div>
           </Card>
         </Col>
         <Col span={6}>
-          <Card>
-            <Statistic
-              title="Hoàn thành"
-              value={completedCount}
-              prefix={<CheckCircleOutlined />}
-              valueStyle={{ color: "#52c41a" }}
-            />
+          <Card
+            size="small"
+            styles={{ body: { padding: "12px" } }}
+            style={{ textAlign: "center" }}
+          >
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                gap: "8px",
+              }}
+            >
+              <CheckCircleOutlined
+                style={{ color: "#52c41a", fontSize: "18px" }}
+              />
+              <span
+                style={{
+                  fontSize: "16px",
+                  color: "#52c41a",
+                  fontWeight: "500",
+                }}
+              >
+                Hoàn thành ({completedCount})
+              </span>
+            </div>
           </Card>
         </Col>
       </Row>
