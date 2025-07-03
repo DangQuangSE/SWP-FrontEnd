@@ -165,11 +165,11 @@ const PersonalSchedule = ({ userId }) => {
         return appointments;
       } catch (error) {
         console.error(` [API] Error loading ${status} appointments:`, error);
-        toast.error(
-          `Lỗi tải dữ liệu ${status}: ${
-            error.response?.data?.message || error.message
-          }`
-        );
+        // toast.error(
+        //   `Lỗi tải dữ liệu ${status}: ${
+        //     error.response?.data?.message || error.message
+        //   }`
+        // );
         return [];
       } finally {
         setTabLoadingStates((prev) => ({
@@ -225,7 +225,7 @@ const PersonalSchedule = ({ userId }) => {
         );
       } catch (error) {
         console.error(" [PARALLEL] Error during parallel loading:", error);
-        toast.error("Lỗi khi tải dữ liệu song song");
+        // toast.error("Lỗi khi tải dữ liệu song song");
       } finally {
         setAppointmentsLoading(false);
       }
@@ -388,7 +388,7 @@ const PersonalSchedule = ({ userId }) => {
       );
     } catch (error) {
       console.error("Error updating status:", error);
-      toast.error("Lỗi khi cập nhật trạng thái!");
+      // toast.error("Lỗi khi cập nhật trạng thái!");
     } finally {
       setStatusUpdateLoading(false);
     }
