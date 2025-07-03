@@ -1,14 +1,26 @@
 import React, { useState, useEffect, useCallback } from "react";
-import { Card, Collapse, Tag, Button, Space, Popconfirm, Empty, Spin } from "antd";
-import { 
-  CalendarOutlined, 
-  ClockCircleOutlined, 
+import {
+  Card,
+  Collapse,
+  Tag,
+  Button,
+  Space,
+  Popconfirm,
+  Empty,
+  Spin,
+} from "antd";
+import {
+  CalendarOutlined,
+  ClockCircleOutlined,
   UserOutlined,
   EditOutlined,
-  DeleteOutlined 
+  DeleteOutlined,
 } from "@ant-design/icons";
 import { toast } from "react-toastify";
-import { getConsultantSchedules, cancelSchedule } from "../../../../api/consultantAPI";
+import {
+  getConsultantSchedules,
+  cancelSchedule,
+} from "../../../../api/consultantAPI";
 import dayjs from "dayjs";
 
 const { Panel } = Collapse;
@@ -23,18 +35,16 @@ const ScheduleByDate = ({ userId, onEditSchedule }) => {
 
     setLoading(true);
     try {
-      const today = new Date().toISOString().slice(0, 10);
-      const oneMonthLater = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000)
-        .toISOString()
-        .slice(0, 10);
-      
+      const today = dayjs().format("YYYY-MM-DD");
+      const oneMonthLater = dayjs().add(30, "day").format("YYYY-MM-DD");
+
       const res = await getConsultantSchedules(userId, today, oneMonthLater);
       console.log("Schedule data from API:", res.data);
-      
+
       if (res.data && Array.isArray(res.data)) {
         // Sort by date
-        const sortedData = res.data.sort((a, b) => 
-          new Date(a.workDate) - new Date(b.workDate)
+        const sortedData = res.data.sort(
+          (a, b) => new Date(a.workDate) - new Date(b.workDate)
         );
         setScheduleData(sortedData);
       } else {
@@ -59,7 +69,7 @@ const ScheduleByDate = ({ userId, onEditSchedule }) => {
         endTime: slot.endTime.substring(0, 5),
         reason: "Hủy lịch làm việc",
       };
-      
+
       await cancelSchedule(scheduleData);
       toast.success("Hủy ca làm việc thành công!");
       loadScheduleData(); // Reload data
@@ -92,7 +102,7 @@ const ScheduleByDate = ({ userId, onEditSchedule }) => {
   if (loading) {
     return (
       <Card>
-        <div style={{ textAlign: 'center', padding: '50px 0' }}>
+        <div style={{ textAlign: "center", padding: "50px 0" }}>
           <Spin size="large" />
           <div style={{ marginTop: 16 }}>Đang tải dữ liệu...</div>
         </div>
@@ -103,7 +113,7 @@ const ScheduleByDate = ({ userId, onEditSchedule }) => {
   if (scheduleData.length === 0) {
     return (
       <Card>
-        <Empty 
+        <Empty
           description="Chưa có lịch làm việc nào"
           image={Empty.PRESENTED_IMAGE_SIMPLE}
         />
@@ -112,22 +122,30 @@ const ScheduleByDate = ({ userId, onEditSchedule }) => {
   }
 
   return (
-    <Card title={
-      <div style={{ display: 'flex', alignItems: 'center' }}>
-        <CalendarOutlined style={{ marginRight: 8 }} />
-        Lịch làm việc theo ngày
-      </div>
-    }>
-      <Collapse 
-        defaultActiveKey={[scheduleData[0]?.workDate]} 
+    <Card
+      title={
+        <div style={{ display: "flex", alignItems: "center" }}>
+          <CalendarOutlined style={{ marginRight: 8 }} />
+          Lịch làm việc theo ngày
+        </div>
+      }
+    >
+      <Collapse
+        defaultActiveKey={[scheduleData[0]?.workDate]}
         ghost
         size="small"
       >
         {scheduleData.map((daySchedule) => (
           <Panel
             header={
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <span style={{ fontWeight: 600, fontSize: '16px' }}>
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "center",
+                }}
+              >
+                <span style={{ fontWeight: 600, fontSize: "16px" }}>
                   {formatDate(daySchedule.workDate)}
                 </span>
                 <Tag color="blue">
@@ -137,7 +155,7 @@ const ScheduleByDate = ({ userId, onEditSchedule }) => {
             }
             key={daySchedule.workDate}
           >
-            <div style={{ display: 'grid', gap: '12px' }}>
+            <div style={{ display: "grid", gap: "12px" }}>
               {daySchedule.slots && daySchedule.slots.length > 0 ? (
                 daySchedule.slots
                   .sort((a, b) => a.startTime.localeCompare(b.startTime))
@@ -147,49 +165,72 @@ const ScheduleByDate = ({ userId, onEditSchedule }) => {
                       <Card
                         key={slot.slotId}
                         size="small"
-                        style={{ 
-                          border: '1px solid #f0f0f0',
-                          borderRadius: '8px',
-                          backgroundColor: '#fafafa'
+                        style={{
+                          border: "1px solid #f0f0f0",
+                          borderRadius: "8px",
+                          backgroundColor: "#fafafa",
                         }}
                       >
-                        <div style={{ 
-                          display: 'flex', 
-                          justifyContent: 'space-between', 
-                          alignItems: 'center' 
-                        }}>
-                          <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-                            <div style={{ display: 'flex', alignItems: 'center' }}>
-                              <ClockCircleOutlined style={{ marginRight: 4, color: '#1890ff' }} />
+                        <div
+                          style={{
+                            display: "flex",
+                            justifyContent: "space-between",
+                            alignItems: "center",
+                          }}
+                        >
+                          <div
+                            style={{
+                              display: "flex",
+                              alignItems: "center",
+                              gap: "16px",
+                            }}
+                          >
+                            <div
+                              style={{ display: "flex", alignItems: "center" }}
+                            >
+                              <ClockCircleOutlined
+                                style={{ marginRight: 4, color: "#1890ff" }}
+                              />
                               <span style={{ fontWeight: 500 }}>
-                                {slot.startTime.substring(0, 5)} - {slot.endTime.substring(0, 5)}
+                                {slot.startTime.substring(0, 5)} -{" "}
+                                {slot.endTime.substring(0, 5)}
                               </span>
                             </div>
-                            
-                            <div style={{ display: 'flex', alignItems: 'center' }}>
-                              <UserOutlined style={{ marginRight: 4, color: '#52c41a' }} />
+
+                            <div
+                              style={{ display: "flex", alignItems: "center" }}
+                            >
+                              <UserOutlined
+                                style={{ marginRight: 4, color: "#52c41a" }}
+                              />
                               <span>
-                                {slot.currentBooking}/{slot.maxBooking} bệnh nhân
+                                {slot.currentBooking}/{slot.maxBooking} bệnh
+                                nhân
                               </span>
                             </div>
-                            
+
                             <Tag color={statusInfo.color}>
                               {statusInfo.text}
                             </Tag>
                           </div>
-                          
+
                           <Space>
                             <Button
                               size="small"
                               icon={<EditOutlined />}
-                              onClick={() => onEditSchedule && onEditSchedule(slot, daySchedule.workDate)}
+                              onClick={() =>
+                                onEditSchedule &&
+                                onEditSchedule(slot, daySchedule.workDate)
+                              }
                             >
                               Sửa
                             </Button>
                             <Popconfirm
                               title="Bạn chắc chắn muốn hủy ca làm việc này?"
                               description="Hành động này không thể hoàn tác"
-                              onConfirm={() => handleCancelSlot(slot, daySchedule.workDate)}
+                              onConfirm={() =>
+                                handleCancelSlot(slot, daySchedule.workDate)
+                              }
                               okText="Đồng ý"
                               cancelText="Hủy"
                             >
@@ -207,10 +248,10 @@ const ScheduleByDate = ({ userId, onEditSchedule }) => {
                     );
                   })
               ) : (
-                <Empty 
+                <Empty
                   description="Không có ca làm việc nào trong ngày này"
                   image={Empty.PRESENTED_IMAGE_SIMPLE}
-                  style={{ margin: '20px 0' }}
+                  style={{ margin: "20px 0" }}
                 />
               )}
             </div>

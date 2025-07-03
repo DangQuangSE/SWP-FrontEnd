@@ -1,6 +1,7 @@
-import { useState, useEffect, useCallback } from 'react';
-import { toast } from 'react-toastify';
-import { getMySchedule } from '../../../../api/consultantAPI';
+import { useState, useEffect, useCallback } from "react";
+import { toast } from "react-toastify";
+import { getMySchedule } from "../../../../api/consultantAPI";
+import dayjs from "dayjs";
 
 /**
  * Custom hook for managing my schedule appointments
@@ -19,16 +20,19 @@ export const useMySchedule = () => {
     try {
       setLoading(true);
       setError(null);
-      
+
       const response = await getMySchedule(date, status);
       setAppointments(response.data || []);
-      
+
       return response.data;
     } catch (err) {
-      const errorMessage = err.response?.data?.message || err.message || 'Failed to fetch appointments';
+      const errorMessage =
+        err.response?.data?.message ||
+        err.message ||
+        "Failed to fetch appointments";
       setError(errorMessage);
       toast.error(`Error: ${errorMessage}`);
-      console.error('Error fetching appointments:', err);
+      console.error("Error fetching appointments:", err);
       throw err;
     } finally {
       setLoading(false);
@@ -38,69 +42,88 @@ export const useMySchedule = () => {
   /**
    * Fetch today's appointments
    */
-  const fetchTodayAppointments = useCallback((status = null) => {
-    const today = new Date().toISOString().slice(0, 10);
-    return fetchAppointments(today, status);
-  }, [fetchAppointments]);
+  const fetchTodayAppointments = useCallback(
+    (status = null) => {
+      const today = dayjs().format("YYYY-MM-DD");
+      return fetchAppointments(today, status);
+    },
+    [fetchAppointments]
+  );
 
   /**
    * Fetch confirmed appointments
    */
-  const fetchConfirmedAppointments = useCallback((date = null) => {
-    return fetchAppointments(date, 'CONFIRMED');
-  }, [fetchAppointments]);
+  const fetchConfirmedAppointments = useCallback(
+    (date = null) => {
+      return fetchAppointments(date, "CONFIRMED");
+    },
+    [fetchAppointments]
+  );
 
   /**
    * Fetch pending appointments
    */
-  const fetchPendingAppointments = useCallback((date = null) => {
-    return fetchAppointments(date, 'PENDING');
-  }, [fetchAppointments]);
+  const fetchPendingAppointments = useCallback(
+    (date = null) => {
+      return fetchAppointments(date, "PENDING");
+    },
+    [fetchAppointments]
+  );
 
   /**
    * Fetch cancelled appointments
    */
-  const fetchCancelledAppointments = useCallback((date = null) => {
-    return fetchAppointments(date, 'CANCELLED');
-  }, [fetchAppointments]);
+  const fetchCancelledAppointments = useCallback(
+    (date = null) => {
+      return fetchAppointments(date, "CANCELLED");
+    },
+    [fetchAppointments]
+  );
 
   /**
    * Get all appointment details from appointments array
    */
   const getAllAppointmentDetails = useCallback(() => {
-    return appointments.flatMap(appointment => 
-      appointment.appointmentDetails?.map(detail => ({
-        ...detail,
-        appointmentId: appointment.id,
-        appointmentPrice: appointment.price,
-        appointmentNote: appointment.note,
-        preferredDate: appointment.preferredDate,
-        appointmentStatus: appointment.status,
-        customerName: appointment.customerName,
-        isPaid: appointment.isPaid,
-        paymentStatus: appointment.paymentStatus,
-        created_at: appointment.created_at
-      })) || []
+    return appointments.flatMap(
+      (appointment) =>
+        appointment.appointmentDetails?.map((detail) => ({
+          ...detail,
+          appointmentId: appointment.id,
+          appointmentPrice: appointment.price,
+          appointmentNote: appointment.note,
+          preferredDate: appointment.preferredDate,
+          appointmentStatus: appointment.status,
+          customerName: appointment.customerName,
+          isPaid: appointment.isPaid,
+          paymentStatus: appointment.paymentStatus,
+          created_at: appointment.created_at,
+        })) || []
     );
   }, [appointments]);
 
   /**
    * Get appointments by service name
    */
-  const getAppointmentsByService = useCallback((serviceName) => {
-    return getAllAppointmentDetails().filter(detail => 
-      detail.serviceName?.toLowerCase().includes(serviceName.toLowerCase())
-    );
-  }, [getAllAppointmentDetails]);
+  const getAppointmentsByService = useCallback(
+    (serviceName) => {
+      return getAllAppointmentDetails().filter((detail) =>
+        detail.serviceName?.toLowerCase().includes(serviceName.toLowerCase())
+      );
+    },
+    [getAllAppointmentDetails]
+  );
 
   /**
    * Get appointments by consultant
    */
-  const getAppointmentsByConsultant = useCallback((consultantId) => {
-    return getAllAppointmentDetails().filter(detail => 
-      detail.consultantId === consultantId
-    );
-  }, [getAllAppointmentDetails]);
+  const getAppointmentsByConsultant = useCallback(
+    (consultantId) => {
+      return getAllAppointmentDetails().filter(
+        (detail) => detail.consultantId === consultantId
+      );
+    },
+    [getAllAppointmentDetails]
+  );
 
   /**
    * Clear error
@@ -139,7 +162,7 @@ export const useMySchedule = () => {
 
     // Utility
     setAppointments,
-    setError
+    setError,
   };
 };
 
