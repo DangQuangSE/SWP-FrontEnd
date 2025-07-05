@@ -7,8 +7,9 @@ import {
   UserOutlined,
   SettingOutlined,
   LogoutOutlined,
+  CalendarOutlined,
 } from "@ant-design/icons";
-import { Avatar, Dropdown, Badge } from "antd";
+import { Avatar, Dropdown, Badge, Calendar } from "antd";
 import { logout } from "../../../redux/reduxStore/userSlice.js";
 import { useNavigate } from "react-router-dom";
 import api from "../../../configs/api";
@@ -74,6 +75,14 @@ const AuthButtons = () => {
     },
     {
       key: "3",
+      label: "Lịch sử đặt chỗ",
+      icon: <CalendarOutlined />,
+      onClick: () => {
+        navigate("/user/booking");
+      },
+    },
+    {
+      key: "4",
       label: "Đăng xuất",
       icon: <LogoutOutlined />,
       onClick: () => {
