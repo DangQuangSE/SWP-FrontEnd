@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import "./Staff.css";
 import StaffBookingDashboard from "./StaffBookingDashboard/StaffBookingDashboard";
+import StaffChatInterface from "./ChatDashboard/StaffChatInterface";
 import {
   Layout,
   Menu,
@@ -42,9 +43,21 @@ function Staff() {
     useState(false);
   const [isQAModalVisible, setIsQAModalVisible] = useState(false);
   const [form] = Form.useForm();
-  const [selectedMenuItem, setSelectedMenuItem] = useState(
-    "appointments_view_all"
-  ); // Default selected item
+  const [selectedMenuItem, setSelectedMenuItem] = useState(() => {
+    // Check if there's a saved menu item from chat widget navigation
+    const savedMenuItem = localStorage.getItem("staffSelectedMenuItem");
+    console.log(
+      "🔍 [STAFF] Checking localStorage staffSelectedMenuItem:",
+      savedMenuItem
+    );
+    if (savedMenuItem) {
+      console.log("✅ [STAFF] Found saved menu item:", savedMenuItem);
+      localStorage.removeItem("staffSelectedMenuItem"); // Clear after use
+      return savedMenuItem;
+    }
+    console.log("🔍 [STAFF] No saved menu item, using default");
+    return "appointments_view_all"; // Default selected item
+  });
 
   const {
     token: { colorBgContainer, borderRadiusLG },
@@ -85,10 +98,10 @@ function Staff() {
       key: "qa",
       icon: React.createElement(QuestionCircleOutlined),
       label: "Q&A",
-      children: [
-        { key: "qa_questions", label: "Questions" },
-        { key: "qa_responses", label: "Responses" },
-      ],
+      // children: [
+      //   { key: "qa_waiting", label: "Đang chờ" },
+      //   { key: "qa_active", label: "Đang hoạt động" },
+      // ],
     },
   ];
 
@@ -145,6 +158,10 @@ function Staff() {
   };
 
   const renderContent = () => {
+    console.log(
+      "🔍 [STAFF] Rendering content for selectedMenuItem:",
+      selectedMenuItem
+    );
     switch (selectedMenuItem) {
       case "appointments_view_all":
         return <StaffBookingDashboard />;
@@ -198,58 +215,24 @@ function Staff() {
             )}
           />
         );
-      case "qa_questions":
+      case "qa":
         return (
-          <Card
-            title="Customer Q&A"
-            extra={
-              <Button
-                type="primary"
-                icon={<PlusOutlined />}
-                onClick={handleCreateQA}
-              >
-                New Q&A
-              </Button>
-            }
-          >
-            <List
-              itemLayout="horizontal"
-              dataSource={[
-                {
-                  title: "Question about appointment scheduling",
-                  customer: "John Doe",
-                  status: "Pending",
-                },
-              ]}
-              renderItem={(item) => (
-                <List.Item
-                  actions={[
-                    <Button type="primary" size="small">
-                      Respond
-                    </Button>,
-                  ]}
-                >
-                  <List.Item.Meta
-                    title={item.title}
-                    description={`Customer: ${item.customer} | Status: ${item.status}`}
-                  />
-                </List.Item>
-              )}
-            />
-          </Card>
+          <StaffChatInterface
+            defaultTab="waiting"
+            hideTabs={false}
+            key={`qa-${Date.now()}`} // Force re-render to trigger API calls
+          />
         );
+      case "qa_waiting":
+        return <StaffChatInterface defaultTab="waiting" hideTabs={false} />;
       case "customers_history":
         return (
           <Card title="Customer History">
             <p>Customer history details will be displayed here.</p>
           </Card>
         );
-      case "qa_responses":
-        return (
-          <Card title="Q&A Responses">
-            <p>Q&A responses will be displayed here.</p>
-          </Card>
-        );
+      case "qa_active":
+        return <StaffChatInterface defaultTab="active" hideTabs={false} />;
       default:
         return null;
     }
@@ -271,11 +254,18 @@ function Staff() {
         <Sider width={200} style={{ background: colorBgContainer }}>
           <Menu
             mode="inline"
-            defaultSelectedKeys={["appointments_view_all"]}
-            defaultOpenKeys={["appointments"]}
+            selectedKeys={[selectedMenuItem]}
+            defaultOpenKeys={
+              selectedMenuItem.startsWith("qa_") || selectedMenuItem === "qa"
+                ? ["qa"]
+                : ["appointments"]
+            }
             style={{ height: "100%", borderRight: 0 }}
             items={items2}
-            onSelect={({ key }) => setSelectedMenuItem(key)}
+            onSelect={({ key }) => {
+              console.log("🔍 [STAFF] Menu item selected:", key);
+              setSelectedMenuItem(key);
+            }}
           />
         </Sider>
         <Layout style={{ padding: "0 24px 24px" }}>
