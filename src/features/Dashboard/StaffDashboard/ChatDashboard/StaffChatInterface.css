@@ -3,6 +3,9 @@
 .staff-chat-interface {
   height: calc(100vh - 200px);
   min-height: 600px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
 }
 
 /* Sessions Card */
@@ -13,7 +16,35 @@
 .sessions-card .ant-card-body {
   padding: 0;
   height: calc(100% - 57px);
+  overflow: hidden; /* Remove default overflow */
+}
+
+/* Sessions List Container with Custom Scroll */
+.sessions-list-container {
+  height: 100%;
+  max-height: 500px;
   overflow-y: auto;
+  overflow-x: hidden;
+  /* Custom scrollbar styling */
+  scrollbar-width: thin;
+  scrollbar-color: #d9d9d9 transparent;
+}
+
+.sessions-list-container::-webkit-scrollbar {
+  width: 6px;
+}
+
+.sessions-list-container::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.sessions-list-container::-webkit-scrollbar-thumb {
+  background-color: #d9d9d9;
+  border-radius: 3px;
+}
+
+.sessions-list-container::-webkit-scrollbar-thumb:hover {
+  background-color: #bfbfbf;
 }
 
 .session-item {
@@ -21,6 +52,8 @@
   transition: all 0.3s ease;
   border-bottom: 1px solid #f0f0f0;
   padding: 12px 16px !important;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
 }
 
 .session-item:hover {
@@ -36,11 +69,93 @@
   border-bottom: none;
 }
 
+/* Session Content Styling for Better Text Handling */
+.session-item .ant-list-item-meta-title {
+  font-size: 14px;
+  font-weight: 600;
+  margin-bottom: 4px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 220px;
+}
+
+.session-item .ant-list-item-meta-description {
+  font-size: 12px;
+  color: #8c8c8c;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 280px;
+  line-height: 1.4;
+}
+
+.session-item .ant-list-item-action {
+  margin-left: 8px;
+  flex-shrink: 0;
+}
+
+.session-item .ant-badge {
+  white-space: nowrap;
+}
+
+/* Session Meta Info */
+.session-meta-info {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 4px;
+  gap: 8px;
+}
+
+.session-time {
+  font-size: 11px;
+  color: #999;
+  white-space: nowrap;
+}
+
+.session-status-badge {
+  font-size: 10px;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+/* Session Item Content */
+.session-item .ant-list-item-meta-title {
+  font-size: 14px;
+  font-weight: 600;
+  margin-bottom: 4px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 200px;
+}
+
+.session-item .ant-list-item-meta-description {
+  font-size: 12px;
+  color: #8c8c8c;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 250px;
+}
+
+.session-item .ant-list-item-action {
+  margin-left: 8px;
+}
+
+.session-item .ant-badge {
+  white-space: nowrap;
+}
+
 /* Chat Card */
 .chat-card {
   height: 100%;
   display: flex;
   flex-direction: column;
+  overflow: hidden;
 }
 
 .chat-card .ant-card-body {
@@ -49,6 +164,18 @@
   flex-direction: column;
   padding: 16px;
   height: calc(100% - 57px);
+  overflow: hidden;
+}
+
+/* Chat Input Container */
+.chat-input-container {
+  display: flex;
+  gap: 8px;
+  align-items: flex-end;
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid #f0f0f0;
+  flex-shrink: 0; /* Prevent input from shrinking */
 }
 
 /* Messages Container */
@@ -169,16 +296,16 @@
     height: auto;
     min-height: auto;
   }
-  
+
   .sessions-card {
     margin-bottom: 16px;
     height: 300px;
   }
-  
+
   .chat-card {
     height: 500px;
   }
-  
+
   .messages-container {
     max-height: 300px;
     min-height: 200px;
@@ -189,13 +316,13 @@
   .message-text {
     max-width: 90% !important;
   }
-  
+
   .message-header {
     flex-direction: column;
     align-items: flex-start !important;
     gap: 2px;
   }
-  
+
   .message-item.staff .message-header {
     align-items: flex-end !important;
   }

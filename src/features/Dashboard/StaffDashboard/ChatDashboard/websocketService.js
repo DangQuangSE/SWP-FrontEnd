@@ -1,5 +1,6 @@
-import SockJS from 'sockjs-client';
-import { Stomp } from '@stomp/stompjs';
+import SockJS from "sockjs-client";
+import { Stomp } from "@stomp/stompjs";
+import { chatNotificationService } from "./ChatNotification";
 
 /**
  * WebSocket Service for Chat Dashboard
@@ -30,14 +31,36 @@ class ChatWebSocketService {
       }
 
       this.connecting = true;
-      
+
       try {
+        console.log(
+          "🔌 [WEBSOCKET] Creating SockJS connection to: http://localhost:8080/ws/chat"
+        );
+
         // Tạo SockJS connection đến endpoint /ws/chat
-        const socket = new SockJS('http://localhost:8080/ws/chat');
+        const socket = new SockJS("http://localhost:8080/ws/chat");
+
+        // Log SockJS events
+        socket.onopen = () => {
+          console.log("🔌 [SOCKJS] Connection opened");
+        };
+
+        socket.onclose = (event) => {
+          console.log("🔌 [SOCKJS] Connection closed:", event);
+        };
+
+        socket.onerror = (error) => {
+          console.error("❌ [SOCKJS] Error:", error);
+        };
+
         this.stompClient = Stomp.over(socket);
 
-        // Disable debug logs
-        this.stompClient.debug = () => {};
+        // Enable debug logs để xem chi tiết
+        this.stompClient.debug = (str) => {
+          console.log("🔍 [STOMP DEBUG]:", str);
+        };
+
+        console.log("🔌 [WEBSOCKET] Attempting STOMP connection...");
 
         // Connect với headers
         this.stompClient.connect(
@@ -45,23 +68,24 @@ class ChatWebSocketService {
             // Có thể thêm auth headers nếu cần
           },
           (frame) => {
-            console.log('WebSocket connected:', frame);
+            console.log("✅ [WEBSOCKET] Connected successfully!");
+            console.log("✅ [WEBSOCKET] Frame:", frame);
+            console.log("✅ [WEBSOCKET] Session ID:", frame.headers["session"]);
             this.connected = true;
             this.connecting = false;
             this.reconnectAttempts = 0;
             resolve();
           },
           (error) => {
-            console.error('WebSocket connection error:', error);
+            console.error("❌ [WEBSOCKET] Connection error:", error);
             this.connected = false;
             this.connecting = false;
             this.handleReconnect();
             reject(error);
           }
         );
-
       } catch (error) {
-        console.error('Failed to create WebSocket connection:', error);
+        console.error("Failed to create WebSocket connection:", error);
         this.connecting = false;
         reject(error);
       }
@@ -80,9 +104,9 @@ class ChatWebSocketService {
       this.subscriptions.clear();
 
       this.stompClient.disconnect(() => {
-        console.log('WebSocket disconnected');
+        console.log("WebSocket disconnected");
       });
-      
+
       this.connected = false;
       this.stompClient = null;
     }
@@ -94,27 +118,72 @@ class ChatWebSocketService {
    */
   subscribe(destination, callback) {
     if (!this.connected || !this.stompClient) {
-      console.error('WebSocket not connected');
+      console.error("❌ [SUBSCRIPTION] WebSocket not connected");
+      console.error("❌ [SUBSCRIPTION] Connection state:", {
+        connected: this.connected,
+        stompClient: !!this.stompClient,
+        connecting: this.connecting,
+      });
       return null;
     }
 
     try {
-      const subscription = this.stompClient.subscribe(destination, (message) => {
-        try {
-          const data = JSON.parse(message.body);
-          callback(data);
-        } catch (error) {
-          console.error('Error parsing message:', error);
-          callback(message.body);
+      console.log(`📡 [SUBSCRIPTION] Subscribing to: ${destination}`);
+
+      const subscription = this.stompClient.subscribe(
+        destination,
+        (message) => {
+          try {
+            console.log(`📨 [MESSAGE] Received on ${destination}:`, message);
+            console.log(`📨 [MESSAGE] Raw body:`, message.body);
+
+            const data = JSON.parse(message.body);
+            console.log(`📨 [MESSAGE] Parsed data:`, data);
+
+            // Xử lý thông báo session mới
+            if (destination === "/topic/staff/new-session") {
+              console.log(
+                "🔔 [NEW SESSION] Displaying notification for:",
+                data
+              );
+              chatNotificationService.showNewSessionNotification(data);
+            }
+
+            if (callback) {
+              console.log(`📨 [MESSAGE] Calling callback for ${destination}`);
+              callback(data);
+            } else {
+              console.warn(`⚠️ [MESSAGE] No callback for ${destination}`);
+            }
+          } catch (error) {
+            console.error(
+              `❌ [MESSAGE] Error parsing message from ${destination}:`,
+              error
+            );
+            console.error(`❌ [MESSAGE] Raw body:`, message.body);
+            if (callback) {
+              callback(message.body);
+            }
+          }
         }
-      });
+      );
 
       this.subscriptions.set(destination, subscription);
-      console.log(`Subscribed to: ${destination}`);
+      console.log(
+        `✅ [SUBSCRIPTION] Successfully subscribed to: ${destination}`
+      );
+      console.log(`✅ [SUBSCRIPTION] Subscription object:`, subscription);
+      console.log(
+        `✅ [SUBSCRIPTION] Total subscriptions:`,
+        this.subscriptions.size
+      );
       return subscription;
-
     } catch (error) {
-      console.error('Error subscribing to destination:', destination, error);
+      console.error(
+        "❌ [SUBSCRIPTION] Error subscribing to destination:",
+        destination,
+        error
+      );
       return null;
     }
   }
@@ -137,7 +206,7 @@ class ChatWebSocketService {
    */
   sendMessage(destination, payload) {
     if (!this.connected || !this.stompClient) {
-      console.error('WebSocket not connected');
+      console.error("WebSocket not connected");
       return false;
     }
 
@@ -146,7 +215,7 @@ class ChatWebSocketService {
       console.log(`Message sent to ${destination}:`, payload);
       return true;
     } catch (error) {
-      console.error('Error sending message:', error);
+      console.error("Error sending message:", error);
       return false;
     }
   }
@@ -154,22 +223,22 @@ class ChatWebSocketService {
   /**
    * Gửi chat message - tương ứng với @MessageMapping("/chat.send")
    */
-  sendChatMessage(sessionId, message, senderName, senderType = 'STAFF') {
+  sendChatMessage(sessionId, message, senderName, senderType = "STAFF") {
     const payload = {
       sessionId,
       message,
       senderName,
-      senderType
+      senderType,
     };
-    
-    return this.sendMessage('/app/chat.send', payload);
+
+    return this.sendMessage("/app/chat.send", payload);
   }
 
   /**
    * Join chat session - tương ứng với @MessageMapping("/chat.join")
    */
   joinChatSession(sessionId) {
-    return this.sendMessage('/app/chat.join', sessionId);
+    return this.sendMessage("/app/chat.join", sessionId);
   }
 
   /**
@@ -178,10 +247,10 @@ class ChatWebSocketService {
   markMessagesAsRead(sessionId, readerName) {
     const payload = {
       sessionId,
-      readerName
+      readerName,
     };
-    
-    return this.sendMessage('/app/chat.markRead', payload);
+
+    return this.sendMessage("/app/chat.markRead", payload);
   }
 
   /**
@@ -195,14 +264,14 @@ class ChatWebSocketService {
    * Subscribe to staff messages - /topic/staff/messages
    */
   subscribeToStaffMessages(callback) {
-    return this.subscribe('/topic/staff/messages', callback);
+    return this.subscribe("/topic/staff/messages", callback);
   }
 
   /**
    * Subscribe to new session notifications - /topic/staff/new-session
    */
   subscribeToNewSessions(callback) {
-    return this.subscribe('/topic/staff/new-session', callback);
+    return this.subscribe("/topic/staff/new-session", callback);
   }
 
   /**
@@ -211,15 +280,17 @@ class ChatWebSocketService {
   handleReconnect() {
     if (this.reconnectAttempts < this.maxReconnectAttempts) {
       this.reconnectAttempts++;
-      console.log(`Attempting to reconnect... (${this.reconnectAttempts}/${this.maxReconnectAttempts})`);
-      
+      console.log(
+        `Attempting to reconnect... (${this.reconnectAttempts}/${this.maxReconnectAttempts})`
+      );
+
       setTimeout(() => {
         this.connect().catch(() => {
           // Reconnect failed, will try again
         });
       }, this.reconnectDelay);
     } else {
-      console.error('Max reconnection attempts reached');
+      console.error("Max reconnection attempts reached");
     }
   }
 

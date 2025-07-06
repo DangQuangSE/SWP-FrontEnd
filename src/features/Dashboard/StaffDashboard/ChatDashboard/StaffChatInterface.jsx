@@ -23,13 +23,13 @@ import {
   UserOutlined,
   ClockCircleOutlined,
   CheckCircleOutlined,
-  ExclamationCircleOutlined,
   ReloadOutlined,
 } from "@ant-design/icons";
 import chatAPIService from "./chatAPI";
+import { useChatWebSocket } from "./ChatWebSocketProvider";
 import "./StaffChatInterface.css";
 
-const { Text, Title } = Typography;
+const { Text } = Typography;
 const { TextArea } = Input;
 
 /**
@@ -46,6 +46,10 @@ const StaffChatInterface = ({ defaultTab = "waiting", hideTabs = false }) => {
   const [waitingSessions, setWaitingSessions] = useState([]);
   const [activeSessions, setActiveSessions] = useState([]);
   const messagesEndRef = useRef(null);
+
+  // Sử dụng WebSocket context
+  const { connected: wsConnected, service: chatWebSocketService } =
+    useChatWebSocket();
   const inputRef = useRef(null);
 
   // Fetch chat sessions for specific status
@@ -132,49 +136,7 @@ const StaffChatInterface = ({ defaultTab = "waiting", hideTabs = false }) => {
   // No automatic API calls on component mount
   // Sessions will only be loaded when user clicks tabs
 
-  // Mock data for demo - organized by status (fallback)
-  const mockSessions = [
-    {
-      sessionId: "1",
-      customerName: "Nguyễn Văn A",
-      topic: "Hỗ trợ đặt lịch",
-      status: "WAITING",
-      unreadCount: 3,
-      lastMessage: "Tôi cần hỗ trợ đặt lịch khám",
-      lastMessageTime: "2024-01-15T10:30:00Z",
-      customerAvatar: null,
-    },
-    {
-      sessionId: "2",
-      customerName: "Trần Thị B",
-      topic: "Tư vấn dịch vụ",
-      status: "WAITING",
-      unreadCount: 1,
-      lastMessage: "Cho em hỏi về gói khám sức khỏe",
-      lastMessageTime: "2024-01-15T09:15:00Z",
-      customerAvatar: null,
-    },
-    {
-      sessionId: "3",
-      customerName: "Lê Văn C",
-      topic: "Thanh toán",
-      status: "ACTIVE",
-      unreadCount: 2,
-      lastMessage: "Tôi đã thanh toán rồi",
-      lastMessageTime: "2024-01-15T08:45:00Z",
-      customerAvatar: null,
-    },
-    {
-      sessionId: "4",
-      customerName: "Phạm Thị D",
-      topic: "Hỗ trợ kỹ thuật",
-      status: "ACTIVE",
-      unreadCount: 0,
-      lastMessage: "Ứng dụng bị lỗi không vào được",
-      lastMessageTime: "2024-01-15T07:20:00Z",
-      customerAvatar: null,
-    },
-  ];
+  // Mock data removed - using real API data
 
   const mockMessages = {
     1: [
@@ -252,30 +214,108 @@ const StaffChatInterface = ({ defaultTab = "waiting", hideTabs = false }) => {
     loadSessionsForTab(key);
   };
 
-  // Auto scroll to bottom when messages change
-  const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  // Auto scroll to bottom when messages change (only for new messages, not when switching sessions)
+  const scrollToBottom = (smooth = true) => {
+    if (messagesEndRef.current) {
+      messagesEndRef.current.scrollIntoView({
+        behavior: smooth ? "smooth" : "auto",
+        block: "end",
+      });
+    }
   };
 
+  // Only scroll when new messages are added, not when switching sessions
+  const [previousMessagesLength, setPreviousMessagesLength] = useState(0);
+
   useEffect(() => {
-    scrollToBottom();
-  }, [messages]);
+    // Only scroll if messages were added (not replaced)
+    if (
+      messages.length > previousMessagesLength &&
+      previousMessagesLength > 0
+    ) {
+      scrollToBottom();
+    }
+    setPreviousMessagesLength(messages.length);
+  }, [messages, previousMessagesLength]);
+
+  // Handle new session notification from WebSocket
+  const handleNewSessionNotification = (newSession) => {
+    console.log("🆕 [STAFF CHAT] Processing new session:", newSession);
+
+    // Add to appropriate sessions list based on status
+    if (newSession.status === "WAITING") {
+      setWaitingSessions((prev) => [newSession, ...prev]);
+      // If currently viewing waiting tab, update sessions display
+      if (activeTab === "waiting") {
+        setSessions((prev) => [newSession, ...prev]);
+      }
+    } else if (newSession.status === "ACTIVE") {
+      setActiveSessions((prev) => [newSession, ...prev]);
+      // If currently viewing active tab, update sessions display
+      if (activeTab === "active") {
+        setSessions((prev) => [newSession, ...prev]);
+      }
+    }
+
+    // Show notification to user
+    message.success(`Có chat session mới từ ${newSession.customerName}`);
+  };
 
   // Auto-load all sessions when component mounts (when clicking Q&A)
   useEffect(() => {
-    console.log("🚀 [STAFF CHAT] Component mounted, loading all sessions...");
+    console.log("🚀 [STAFF CHAT] Component mounted, loading sessions...");
     loadAllSessions();
-  }, []); // Empty dependency array means this runs once on mount
+  }, []);
+
+  // Subscribe to new session notifications when WebSocket is connected
+  useEffect(() => {
+    if (wsConnected && chatWebSocketService) {
+      console.log("🔔 [STAFF CHAT] Setting up new session subscription...");
+
+      const subscription = chatWebSocketService.subscribeToNewSessions(
+        (newSession) => {
+          console.log(
+            "🔔 [STAFF CHAT] New session notification received:",
+            newSession
+          );
+          handleNewSessionNotification(newSession);
+        }
+      );
+
+      if (subscription) {
+        console.log(
+          "✅ [STAFF CHAT] Successfully subscribed to new session notifications"
+        );
+      }
+    }
+  }, [wsConnected, chatWebSocketService]);
 
   // Handle session selection
   const handleSessionSelect = (session) => {
+    console.log("📱 [STAFF CHAT] Selecting session:", session.sessionId);
+
     setSelectedSession(session);
     setMessages(mockMessages[session.sessionId] || []);
 
-    // Focus input after selecting session
+    // Reset previous messages length to prevent unwanted scroll
+    setPreviousMessagesLength(0);
+
+    // On smaller screens, scroll to chat area smoothly
     setTimeout(() => {
-      inputRef.current?.focus();
-    }, 100);
+      const chatArea = document.querySelector(".chat-card");
+      if (chatArea && window.innerWidth < 768) {
+        chatArea.scrollIntoView({
+          behavior: "smooth",
+          block: "start",
+          inline: "nearest",
+        });
+      }
+
+      // Focus input after selecting session (without scrolling)
+      if (inputRef.current) {
+        inputRef.current.focus({ preventScroll: true });
+      }
+    }, 200);
   };
 
   // Handle send message
@@ -292,6 +332,11 @@ const StaffChatInterface = ({ defaultTab = "waiting", hideTabs = false }) => {
 
     setMessages((prev) => [...prev, newMessage]);
     setInputMessage("");
+
+    // Scroll to bottom after sending message
+    setTimeout(() => {
+      scrollToBottom();
+    }, 100);
 
     // Update session's last message
     setSessions((prev) =>
@@ -315,36 +360,24 @@ const StaffChatInterface = ({ defaultTab = "waiting", hideTabs = false }) => {
     }
   };
 
-  // Get status color
-  const getStatusColor = (status) => {
-    switch (status) {
-      case "ACTIVE":
-        return "green";
-      case "WAITING":
-        return "orange";
-      case "RESOLVED":
-        return "blue";
-      default:
-        return "default";
-    }
-  };
-
-  // Get status icon
-  const getStatusIcon = (status) => {
-    switch (status) {
-      case "ACTIVE":
-        return <CheckCircleOutlined />;
-      case "WAITING":
-        return <ClockCircleOutlined />;
-      case "RESOLVED":
-        return <ExclamationCircleOutlined />;
-      default:
-        return <MessageOutlined />;
-    }
-  };
+  // Utility functions removed - not used in current implementation
 
   return (
     <div className="staff-chat-interface">
+      {/* WebSocket Status Indicator */}
+      <div style={{ marginBottom: "8px", textAlign: "right" }}>
+        <Space>
+          <Text type="secondary" style={{ fontSize: "12px" }}>
+            Realtime:
+          </Text>
+          <Badge
+            status={wsConnected ? "success" : "error"}
+            text={wsConnected ? "Kết nối" : "Mất kết nối"}
+            style={{ fontSize: "12px" }}
+          />
+        </Space>
+      </div>
+
       {/* Tabs for Q&A Status - Only show if not hidden */}
       {!hideTabs && (
         <Tabs
@@ -388,10 +421,23 @@ const StaffChatInterface = ({ defaultTab = "waiting", hideTabs = false }) => {
 
       <Row
         gutter={16}
-        style={{ height: hideTabs ? "100%" : "calc(100% - 60px)" }}
+        style={{
+          height: hideTabs ? "100%" : "calc(100% - 60px)",
+          overflow: "hidden", // Prevent vertical scroll
+        }}
       >
         {/* Sessions List */}
-        <Col xs={24} lg={8}>
+        <Col
+          xs={24}
+          sm={24}
+          md={10}
+          lg={8}
+          xl={8}
+          style={{
+            height: "100%",
+            paddingBottom: selectedSession ? "8px" : "0", // Add space when chat is active
+          }}
+        >
           <Card
             title={
               <Space>
@@ -423,7 +469,14 @@ const StaffChatInterface = ({ defaultTab = "waiting", hideTabs = false }) => {
             }
             className="sessions-card"
           >
-            <div className="sessions-list-container">
+            <div
+              className="sessions-list-container"
+              style={{
+                maxHeight: "500px", // Giới hạn chiều cao
+                overflowY: "auto", // Thêm scroll dọc
+                overflowX: "hidden", // Ẩn scroll ngang
+              }}
+            >
               {loading ? (
                 <div
                   className="loading-container"
@@ -681,7 +734,18 @@ const StaffChatInterface = ({ defaultTab = "waiting", hideTabs = false }) => {
         </Col>
 
         {/* Chat Area */}
-        <Col xs={24} lg={16}>
+        <Col
+          xs={24}
+          sm={24}
+          md={14}
+          lg={16}
+          xl={16}
+          style={{
+            height: "100%",
+            display: "flex",
+            flexDirection: "column",
+          }}
+        >
           {selectedSession ? (
             <Card
               title={
@@ -699,7 +763,15 @@ const StaffChatInterface = ({ defaultTab = "waiting", hideTabs = false }) => {
               className="chat-card"
             >
               {/* Messages Area */}
-              <div className="messages-container">
+              <div
+                className="messages-container"
+                style={{
+                  maxHeight: "400px",
+                  overflowY: "auto",
+                  overflowX: "hidden",
+                  scrollBehavior: "smooth",
+                }}
+              >
                 {messages.map((msg) => (
                   <div
                     key={msg.id}
@@ -739,13 +811,21 @@ const StaffChatInterface = ({ defaultTab = "waiting", hideTabs = false }) => {
               <Divider style={{ margin: "16px 0" }} />
 
               {/* Input Area */}
-              <div className="input-area">
+              <div
+                className="input-area chat-input-container"
+                style={{
+                  marginTop: "16px",
+                  paddingTop: "16px",
+                  borderTop: "1px solid #f0f0f0",
+                  flexShrink: 0,
+                }}
+              >
                 <Space.Compact style={{ width: "100%" }}>
                   <TextArea
                     ref={inputRef}
                     value={inputMessage}
                     onChange={(e) => setInputMessage(e.target.value)}
-                    onKeyPress={handleKeyPress}
+                    onKeyDown={handleKeyPress}
                     placeholder={`Nhập tin nhắn cho ${selectedSession.customerName}...`}
                     autoSize={{ minRows: 1, maxRows: 4 }}
                     style={{ flex: 1 }}

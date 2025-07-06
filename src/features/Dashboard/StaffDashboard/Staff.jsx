@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import "./Staff.css";
 import StaffBookingDashboard from "./StaffBookingDashboard/StaffBookingDashboard";
 import StaffChatInterface from "./ChatDashboard/StaffChatInterface";
+import SafeChatWebSocketProvider from "./ChatDashboard/SafeChatWebSocketProvider";
 import {
   Layout,
   Menu,
@@ -223,6 +224,7 @@ function Staff() {
             key={`qa-${Date.now()}`} // Force re-render to trigger API calls
           />
         );
+
       case "qa_waiting":
         return <StaffChatInterface defaultTab="waiting" hideTabs={false} />;
       case "customers_history":
@@ -239,124 +241,136 @@ function Staff() {
   };
 
   return (
-    <Layout>
-      <Header style={{ display: "flex", alignItems: "center" }}>
-        <div className="demo-logo" />
-        <Menu
-          theme="dark"
-          mode="horizontal"
-          defaultSelectedKeys={["1"]}
-          items={items1}
-          style={{ flex: 1, minWidth: 0 }}
-        />
-      </Header>
+    <SafeChatWebSocketProvider
+      enableChat={
+        selectedMenuItem === "qa" || selectedMenuItem.startsWith("qa_")
+      }
+    >
       <Layout>
-        <Sider width={200} style={{ background: colorBgContainer }}>
+        <Header style={{ display: "flex", alignItems: "center" }}>
+          <div className="demo-logo" />
           <Menu
-            mode="inline"
-            selectedKeys={[selectedMenuItem]}
-            defaultOpenKeys={
-              selectedMenuItem.startsWith("qa_") || selectedMenuItem === "qa"
-                ? ["qa"]
-                : ["appointments"]
-            }
-            style={{ height: "100%", borderRight: 0 }}
-            items={items2}
-            onSelect={({ key }) => {
-              console.log("🔍 [STAFF] Menu item selected:", key);
-              setSelectedMenuItem(key);
-            }}
+            theme="dark"
+            mode="horizontal"
+            defaultSelectedKeys={["1"]}
+            items={items1}
+            style={{ flex: 1, minWidth: 0 }}
           />
-        </Sider>
-        <Layout style={{ padding: "0 24px 24px" }}>
-          <Breadcrumb
-            items={[
-              { title: "Home" },
-              { title: "Staff" },
-              { title: "Dashboard" },
-            ]}
-            style={{ margin: "16px 0" }}
-          />
-          <Content
-            style={{
-              padding: 24,
-              margin: 0,
-              minHeight: 280,
-              background: colorBgContainer,
-              borderRadius: borderRadiusLG,
-            }}
-          >
-            {renderContent()}
-          </Content>
+        </Header>
+        <Layout>
+          <Sider width={200} style={{ background: colorBgContainer }}>
+            <Menu
+              mode="inline"
+              selectedKeys={[selectedMenuItem]}
+              defaultOpenKeys={
+                selectedMenuItem.startsWith("qa_") || selectedMenuItem === "qa"
+                  ? ["qa"]
+                  : ["appointments"]
+              }
+              style={{ height: "100%", borderRight: 0 }}
+              items={items2}
+              onSelect={({ key }) => {
+                console.log("🔍 [STAFF] Menu item selected:", key);
+                setSelectedMenuItem(key);
+              }}
+            />
+          </Sider>
+          <Layout style={{ padding: "0 24px 24px" }}>
+            <Breadcrumb
+              items={[
+                { title: "Home" },
+                { title: "Staff" },
+                { title: "Dashboard" },
+              ]}
+              style={{ margin: "16px 0" }}
+            />
+            <Content
+              style={{
+                padding: 24,
+                margin: 0,
+                minHeight: 280,
+                background: colorBgContainer,
+                borderRadius: borderRadiusLG,
+              }}
+            >
+              {renderContent()}
+            </Content>
+          </Layout>
         </Layout>
+
+        {/* Create Appointment Modal */}
+        <Modal
+          title="Create New Appointment"
+          visible={isAppointmentModalVisible}
+          onOk={handleAppointmentModalOk}
+          onCancel={() => setIsAppointmentModalVisible(false)}
+        >
+          <Form form={form} layout="vertical">
+            <Form.Item
+              name="customer"
+              label="Customer Name"
+              rules={[
+                { required: true, message: "Please input customer name!" },
+              ]}
+            >
+              <Input />
+            </Form.Item>
+            <Form.Item
+              name="consultant"
+              label="Consultant"
+              rules={[
+                { required: true, message: "Please input consultant name!" },
+              ]}
+            >
+              <Input />
+            </Form.Item>
+            <Form.Item
+              name="date"
+              label="Date"
+              rules={[{ required: true, message: "Please select date!" }]}
+            >
+              <DatePicker style={{ width: "100%" }} />
+            </Form.Item>
+            <Form.Item
+              name="time"
+              label="Time"
+              rules={[{ required: true, message: "Please select time!" }]}
+            >
+              <TimePicker style={{ width: "100%" }} />
+            </Form.Item>
+          </Form>
+        </Modal>
+
+        {/* Create Q&A Modal */}
+        <Modal
+          title="New Q&A"
+          visible={isQAModalVisible}
+          onOk={handleQAModalOk}
+          onCancel={() => setIsQAModalVisible(false)}
+        >
+          <Form form={form} layout="vertical">
+            <Form.Item
+              name="customer"
+              label="Customer Name"
+              rules={[
+                { required: true, message: "Please input customer name!" },
+              ]}
+            >
+              <Input />
+            </Form.Item>
+            <Form.Item
+              name="question"
+              label="Question"
+              rules={[
+                { required: true, message: "Please input your question!" },
+              ]}
+            >
+              <Input.TextArea rows={4} />
+            </Form.Item>
+          </Form>
+        </Modal>
       </Layout>
-
-      {/* Create Appointment Modal */}
-      <Modal
-        title="Create New Appointment"
-        visible={isAppointmentModalVisible}
-        onOk={handleAppointmentModalOk}
-        onCancel={() => setIsAppointmentModalVisible(false)}
-      >
-        <Form form={form} layout="vertical">
-          <Form.Item
-            name="customer"
-            label="Customer Name"
-            rules={[{ required: true, message: "Please input customer name!" }]}
-          >
-            <Input />
-          </Form.Item>
-          <Form.Item
-            name="consultant"
-            label="Consultant"
-            rules={[
-              { required: true, message: "Please input consultant name!" },
-            ]}
-          >
-            <Input />
-          </Form.Item>
-          <Form.Item
-            name="date"
-            label="Date"
-            rules={[{ required: true, message: "Please select date!" }]}
-          >
-            <DatePicker style={{ width: "100%" }} />
-          </Form.Item>
-          <Form.Item
-            name="time"
-            label="Time"
-            rules={[{ required: true, message: "Please select time!" }]}
-          >
-            <TimePicker style={{ width: "100%" }} />
-          </Form.Item>
-        </Form>
-      </Modal>
-
-      {/* Create Q&A Modal */}
-      <Modal
-        title="New Q&A"
-        visible={isQAModalVisible}
-        onOk={handleQAModalOk}
-        onCancel={() => setIsQAModalVisible(false)}
-      >
-        <Form form={form} layout="vertical">
-          <Form.Item
-            name="customer"
-            label="Customer Name"
-            rules={[{ required: true, message: "Please input customer name!" }]}
-          >
-            <Input />
-          </Form.Item>
-          <Form.Item
-            name="question"
-            label="Question"
-            rules={[{ required: true, message: "Please input your question!" }]}
-          >
-            <Input.TextArea rows={4} />
-          </Form.Item>
-        </Form>
-      </Modal>
-    </Layout>
+    </SafeChatWebSocketProvider>
   );
 }
 
