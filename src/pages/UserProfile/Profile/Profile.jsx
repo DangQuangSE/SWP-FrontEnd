@@ -9,6 +9,8 @@ import {
   message,
   Row,
   Col,
+  Upload,
+  Modal,
 } from "antd";
 import {
   UserOutlined,
@@ -17,6 +19,8 @@ import {
   CalendarOutlined,
   EditOutlined,
   SaveOutlined,
+  UploadOutlined,
+  CameraOutlined,
 } from "@ant-design/icons";
 import dayjs from "dayjs";
 import api from "../../../configs/api";
@@ -28,6 +32,10 @@ const Profile = () => {
   const [editing, setEditing] = useState(false);
   const [user, setUser] = useState(null);
   const [fetchingUser, setFetchingUser] = useState(true);
+  const [imageUrl, setImageUrl] = useState("");
+  const [uploading, setUploading] = useState(false);
+  const [previewVisible, setPreviewVisible] = useState(false);
+  const [previewImage, setPreviewImage] = useState("");
 
   // Fetch user data from API /api/me
   useEffect(() => {
@@ -37,6 +45,7 @@ const Profile = () => {
         const response = await api.get("/me");
         console.log("User data from /api/me:", response.data);
         setUser(response.data);
+        setImageUrl(response.data.imageUrl || "");
 
         // Set form values from API user data
         form.setFieldsValue({
@@ -57,6 +66,49 @@ const Profile = () => {
 
     fetchUserData();
   }, [form]);
+
+  // Handle image upload
+  const handleImageUpload = async (file) => {
+    try {
+      setUploading(true);
+
+      // Create FormData for file upload
+      const formData = new FormData();
+      formData.append("file", file);
+
+      // Upload to server using PUT instead of POST
+      const response = await api.put("/me/avatar", formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      });
+
+      if (response.data && response.data.imageUrl) {
+        setImageUrl(response.data.imageUrl);
+
+        // Update user data with new image URL
+        setUser(prev => ({
+          ...prev,
+          imageUrl: response.data.imageUrl
+        }));
+
+        message.success("Tải ảnh lên thành công!");
+      } else {
+        throw new Error("Upload failed");
+      }
+    } catch (error) {
+      console.error("Error uploading image:", error);
+      message.error("Có lỗi xảy ra khi tải ảnh lên!");
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  // Preview image
+  const handlePreview = () => {
+    setPreviewImage(imageUrl || user?.imageUrl);
+    setPreviewVisible(true);
+  };
 
   // Update profile
   const handleUpdateProfile = async (values) => {
@@ -119,12 +171,29 @@ const Profile = () => {
           {/* Avatar Section */}
           <Col xs={24} md={8}>
             <div className="avatar-section">
-              <Avatar
-                size={120}
-                src={user?.imageUrl}
-                icon={<UserOutlined />}
-                className="profile-avatar"
-              />
+              <div className="avatar-container">
+                <Avatar
+                  size={120}
+                  src={imageUrl || user?.imageUrl}
+                  icon={<UserOutlined />}
+                  className="profile-avatar"
+                  onClick={handlePreview}
+                />
+                <Upload
+                  name="avatar"
+                  showUploadList={false}
+                  beforeUpload={handleImageUpload}
+                  accept="image/*"
+                >
+                  <Button
+                    className="avatar-upload-button"
+                    icon={<CameraOutlined />}
+                    loading={uploading}
+                    type="primary"
+                    shape="circle"
+                  />
+                </Upload>
+              </div>
 
               <div className="user-basic-info">
                 <h3>{user?.fullname || "Chưa có tên"}</h3>
@@ -251,6 +320,17 @@ const Profile = () => {
           </Col>
         </Row>
       </Card>
+
+      {/* Image Preview Modal */}
+      <Modal
+        visible={previewVisible}
+        title="Xem ảnh đại diện"
+        footer={null}
+        onCancel={() => setPreviewVisible(false)}
+        className="avatar-preview-modal"
+      >
+        <img alt="Avatar" src={previewImage} />
+      </Modal>
     </div>
   );
 };
