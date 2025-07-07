@@ -173,6 +173,13 @@ export const userSlice = createSlice({
       });
       console.log("✅ Final imageUrl in Redux:", state.user.imageUrl);
     },
+    updateUserAvatar: (state, action) => {
+      console.log("🔍 Redux updateUserAvatar action received:", action.payload);
+      if (state.user && action.payload.imageUrl) {
+        state.user.imageUrl = action.payload.imageUrl;
+        console.log("✅ Updated user avatar in Redux:", state.user.imageUrl);
+      }
+    },
     logout: () => {
       console.log(" Redux logout action");
       // Xóa thông tin người dùng đăng nhập
@@ -185,5 +192,5 @@ export const userSlice = createSlice({
     },
   },
 });
-export const { login, logout } = userSlice.actions;
+export const { login, logout, updateUserAvatar } = userSlice.actions;
 export default userSlice.reducer;

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import {
   Card,
   Form,
@@ -11,6 +11,7 @@ import {
   Col,
   Upload,
   Modal,
+  Select,
 } from "antd";
 import {
   UserOutlined,
@@ -19,15 +20,17 @@ import {
   CalendarOutlined,
   EditOutlined,
   SaveOutlined,
-  UploadOutlined,
   CameraOutlined,
 } from "@ant-design/icons";
 import dayjs from "dayjs";
 import api from "../../../configs/api";
+import { useDispatch } from "react-redux";
+import { updateUserAvatar } from "../../../redux/reduxStore/userSlice";
 import "./Profile.css";
 
 const Profile = () => {
   const [form] = Form.useForm();
+  const dispatch = useDispatch();
   const [loading, setLoading] = useState(false);
   const [editing, setEditing] = useState(false);
   const [user, setUser] = useState(null);
@@ -52,6 +55,7 @@ const Profile = () => {
           fullname: response.data.fullname || "",
           phone: response.data.phone || "",
           address: response.data.address || "",
+          gender: response.data.gender || "",
           dateOfBirth: response.data.dateOfBirth
             ? dayjs(response.data.dateOfBirth)
             : null,
@@ -87,10 +91,13 @@ const Profile = () => {
         setImageUrl(response.data.imageUrl);
 
         // Update user data with new image URL
-        setUser(prev => ({
+        setUser((prev) => ({
           ...prev,
-          imageUrl: response.data.imageUrl
+          imageUrl: response.data.imageUrl,
         }));
+
+        // Cập nhật Redux store để các component khác cũng nhận được ảnh mới
+        dispatch(updateUserAvatar({ imageUrl: response.data.imageUrl }));
 
         message.success("Tải ảnh lên thành công!");
       } else {
@@ -119,6 +126,7 @@ const Profile = () => {
         fullname: values.fullname,
         phone: values.phone,
         address: values.address,
+        gender: values.gender,
         dateOfBirth: values.dateOfBirth
           ? values.dateOfBirth.format("YYYY-MM-DD")
           : null,
@@ -265,6 +273,22 @@ const Profile = () => {
                 </Col>
 
                 <Col xs={24} md={12}>
+                  <Form.Item name="gender" label="Giới tính">
+                    <Select
+                      placeholder="Chọn giới tính"
+                      size="large"
+                      style={{ width: "100%" }}
+                    >
+                      <Select.Option value="MALE">Nam</Select.Option>
+                      <Select.Option value="FEMALE">Nữ</Select.Option>
+                      <Select.Option value="OTHER">Khác</Select.Option>
+                    </Select>
+                  </Form.Item>
+                </Col>
+              </Row>
+
+              <Row gutter={16}>
+                <Col xs={24} md={12}>
                   <Form.Item label="Email">
                     <Input
                       value={user?.email}
@@ -296,6 +320,7 @@ const Profile = () => {
                           fullname: user?.fullname || "",
                           phone: user?.phone || "",
                           address: user?.address || "",
+                          gender: user?.gender || "",
                           dateOfBirth: user?.dateOfBirth
                             ? dayjs(user.dateOfBirth)
                             : null,
@@ -323,7 +348,7 @@ const Profile = () => {
 
       {/* Image Preview Modal */}
       <Modal
-        visible={previewVisible}
+        open={previewVisible}
         title="Xem ảnh đại diện"
         footer={null}
         onCancel={() => setPreviewVisible(false)}
