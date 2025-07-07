@@ -330,7 +330,7 @@ const ServiceManagement = () => {
       const serviceData = {
         name: values.name,
         description: values.description,
-        duration: values.duration ? parseInt(values.duration) * 60 : null,
+        duration: values.duration ? parseInt(values.duration) : null,
         type: values.type,
         price: values.price ? parseFloat(values.price) : 0,
         isActive: values.isActive !== undefined ? values.isActive : true,

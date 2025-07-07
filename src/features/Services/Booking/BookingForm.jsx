@@ -154,6 +154,7 @@ const BookingForm = ({ serviceIdProp, serviceDetail: detailProp }) => {
     const bookingPreviewData = {
       serviceId: defaultServiceId,
       serviceName: serviceDetail.name,
+      serviceType: serviceDetail.type, // Thêm type của service
       price: serviceDetail.price,
       duration: serviceDetail.duration,
       preferredDate: selectedDay,
@@ -162,6 +163,11 @@ const BookingForm = ({ serviceIdProp, serviceDetail: detailProp }) => {
       slotId: selectedSlotId,
       note,
     };
+
+    console.log(
+      "🚀 [DEBUG] Booking preview data with service type:",
+      bookingPreviewData
+    );
 
     navigate("/booking-confirmation", { state: bookingPreviewData });
   };

@@ -166,6 +166,60 @@ const Booking = () => {
   useEffect(() => {
     fetchAppointments();
   }, [fetchAppointments]);
+
+  // Function to create Zoom meeting if service type is CONSULTING_ON
+  const createZoomMeetingIfNeeded = useCallback(
+    async (appointmentId) => {
+      try {
+        console.log(
+          "🔍 Checking if need to create Zoom meeting for appointment:",
+          appointmentId
+        );
+
+        // Lấy thông tin appointment để kiểm tra service type
+        const appointmentResponse = await api.get(
+          `/appointment/${appointmentId}`
+        );
+        const appointment = appointmentResponse.data;
+
+        console.log("📋 Appointment details:", appointment);
+
+        // Kiểm tra nếu là dịch vụ CONSULTING_ON
+        if (
+          appointment.appointmentDetails &&
+          appointment.appointmentDetails.length > 0
+        ) {
+          const hasConsultingOnService = appointment.appointmentDetails.some(
+            (detail) => detail.serviceType === "CONSULTING_ON"
+          );
+
+          if (hasConsultingOnService) {
+            console.log(
+              "🎥 Creating Zoom meeting for CONSULTING_ON service..."
+            );
+
+            // Gọi API tạo Zoom meeting
+            const zoomResponse = await api.get(
+              `/zoom/test-create-meeting?appointmentId=${appointmentId}`
+            );
+            console.log("📹 Zoom meeting created:", zoomResponse.data);
+
+            // Refresh appointments để lấy join_url mới
+            setTimeout(() => {
+              fetchAppointments();
+            }, 1000);
+
+            message.success("Đã tạo phòng tư vấn online!");
+          }
+        }
+      } catch (error) {
+        console.error("❌ Error creating Zoom meeting:", error);
+        // Không hiển thị error message để không làm phiền user
+      }
+    },
+    [fetchAppointments]
+  );
+
   const handleCancelAppointment = async (appointmentId) => {
     if (!window.confirm("Bạn chắc chắn muốn hủy lịch hẹn này?")) return;
 
@@ -237,6 +291,11 @@ const Booking = () => {
 
         // Gọi API để verify payment với backend
         verifyVNPayPayment(query);
+
+        // Tạo Zoom meeting nếu là dịch vụ CONSULTING_ON
+        if (appointmentId) {
+          createZoomMeetingIfNeeded(appointmentId);
+        }
       } else if (vnpResponseCode === "24") {
         // Người dùng hủy thanh toán - cancel cuộc hẹn
         message.warning("Thanh toán đã bị hủy. Đang hủy lịch hẹn...");
@@ -336,7 +395,13 @@ const Booking = () => {
       setTimeout(refreshAppointments, 500);
       return;
     }
-  }, [search, verifyVNPayPayment, fetchAppointments, token]);
+  }, [
+    search,
+    verifyVNPayPayment,
+    fetchAppointments,
+    token,
+    createZoomMeetingIfNeeded,
+  ]);
   const renderAppointments = () => {
     if (loading) {
       return (
@@ -406,22 +471,30 @@ const Booking = () => {
             {/* Zoom consultation button for CONSULTING_ON services with CONFIRMED status */}
             {(() => {
               // Debug log to check appointment structure
-              console.log(" Appointment debug:", {
+              console.log("🔍 [DEBUG] Appointment structure:", {
                 id: appointment.id,
                 serviceType: appointment.serviceType,
                 type: appointment.type,
                 serviceName: appointment.serviceName,
                 status: appointment.status,
+                appointmentDetails: appointment.appointmentDetails,
               });
 
-              // Check for CONSULTING_ON service type and CONFIRMED status
+              // Check for CONSULTING_ON service type in appointmentDetails array
               const isConsultingOnline =
-                appointment.serviceType === "CONSULTING_ON" ||
-                appointment.type === "CONSULTING_ON" ||
-                appointment.serviceName
-                  ?.toLowerCase()
-                  .includes("tư vấn online");
+                appointment.appointmentDetails?.some((detail) => {
+                  console.log("🔍 [DEBUG] Checking detail:", detail);
+                  console.log(
+                    "🔍 [DEBUG] Detail serviceType:",
+                    detail.serviceType
+                  );
+                  return detail.serviceType === "CONSULTING_ON";
+                }) || false;
+
               const isConfirmed = appointment.status === "CONFIRMED";
+
+              console.log("🎯 [DEBUG] isConsultingOnline:", isConsultingOnline);
+              console.log("🎯 [DEBUG] isConfirmed:", isConfirmed);
 
               return isConsultingOnline && isConfirmed;
             })() && (

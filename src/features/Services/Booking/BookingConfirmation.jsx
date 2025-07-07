@@ -125,6 +125,15 @@ const BookingConfirmation = () => {
       localStorage.setItem("shouldRefreshSchedule", "true");
       localStorage.setItem("lastBookedServiceId", booking.serviceId);
 
+      // Lưu service type vào localStorage
+      if (booking.serviceType) {
+        localStorage.setItem("lastBookedServiceType", booking.serviceType);
+        console.log(
+          "💾 [DEBUG] Saved service type to localStorage:",
+          booking.serviceType
+        );
+      }
+
       message.success("Đặt lịch thành công!");
 
       // Nếu chọn thanh toán VNPay, lưu thông tin và chuyển đến trang Payment
@@ -136,6 +145,7 @@ const BookingConfirmation = () => {
             paymentMethod,
             amount: fullBooking.price,
             serviceName: fullBooking.serviceName,
+            serviceType: booking.serviceType, // Thêm service type vào pendingBooking
           })
         );
 
@@ -159,8 +169,93 @@ const BookingConfirmation = () => {
   };
 
   const handleDepositConfirm = async () => {
+    console.log("🚀 [DEBUG] handleDepositConfirm started");
+    console.log("🚀 [DEBUG] Current booking data:", booking);
+    console.log("🚀 [DEBUG] Full booking data:", fullBooking);
+    console.log("🚀 [DEBUG] Deposit amount:", depositAmount);
+
     setShowDepositModal(false);
-    await processBooking();
+
+    // Tạo appointment trước, sau đó lưu thông tin và chuyển đến Payment giống hệt VNPay
+    try {
+      const bookingPayload = {
+        service_id: Number(booking.serviceId),
+        preferredDate: booking.preferredDate,
+        slot: booking.slot,
+        slot_id: booking.slotId,
+        note: booking.note,
+        paymentMethod: "direct",
+      };
+
+      console.log("📤 [DEBUG] Sending booking payload:", bookingPayload);
+
+      const res = await api.post("/booking/medicalService", bookingPayload);
+
+      console.log("📥 [DEBUG] Backend response:", res.data);
+      console.log("📥 [DEBUG] Response status:", res.status);
+      console.log("📥 [DEBUG] Full response object:", res);
+
+      const appointmentId = res.data.appointmentId;
+      console.log("🆔 [DEBUG] Extracted appointmentId:", appointmentId);
+
+      if (!appointmentId) {
+        console.error("❌ [DEBUG] No appointmentId in response!");
+        message.error("Không lấy được mã lịch hẹn từ phản hồi server.");
+        return;
+      }
+
+      // Trigger refresh schedule data khi user quay lại booking form
+      localStorage.setItem("shouldRefreshSchedule", "true");
+      localStorage.setItem("lastBookedServiceId", booking.serviceId);
+
+      // Lưu service type vào localStorage
+      if (booking.serviceType) {
+        localStorage.setItem("lastBookedServiceType", booking.serviceType);
+        console.log(
+          "💾 [DEBUG] Saved service type to localStorage (direct payment):",
+          booking.serviceType
+        );
+      }
+
+      message.success("Đặt lịch thành công!");
+
+      // Lưu thông tin và chuyển đến trang Payment để xử lý create-off giống VNPay
+      const pendingBookingData = {
+        appointmentId,
+        paymentMethod: "direct",
+        amount: depositAmount, // 20% giá trị dịch vụ
+        serviceName: fullBooking.serviceName,
+        serviceType: booking.serviceType, // Thêm service type vào pendingBooking
+        isDirectPayment: true, // Flag để Payment.jsx biết gọi create-off
+      };
+
+      console.log("💾 [DEBUG] Saving to localStorage:", pendingBookingData);
+      localStorage.setItem(
+        "pendingBooking",
+        JSON.stringify(pendingBookingData)
+      );
+
+      console.log("🔄 [DEBUG] Navigating to /payment");
+      // Chuyển đến trang Payment để xử lý create-off
+      navigate("/payment");
+    } catch (error) {
+      console.error("❌ [DEBUG] Error occurred:", error);
+      console.error("❌ [DEBUG] Error response:", error.response);
+      console.error("❌ [DEBUG] Error response data:", error.response?.data);
+      console.error(
+        "❌ [DEBUG] Error response status:",
+        error.response?.status
+      );
+
+      const errorMessage =
+        error.response?.data?.message ||
+        (typeof error.response?.data === "string"
+          ? error.response.data
+          : "Lỗi không xác định từ máy chủ");
+
+      console.error("❌ [DEBUG] Final error message:", errorMessage);
+      message.error(`Đặt lịch thất bại: ${errorMessage}`);
+    }
   };
 
   const handleDepositCancel = () => {
