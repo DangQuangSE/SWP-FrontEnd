@@ -1,14 +1,30 @@
 import React, { useState, useEffect, useRef } from "react";
-import { Button, Input, Avatar, Badge, Typography, Tooltip } from "antd";
+import {
+  Button,
+  Input,
+  Avatar,
+  Badge,
+  Typography,
+  Tooltip,
+  Tag,
+  Space,
+} from "antd";
 import {
   MessageOutlined,
   SendOutlined,
   CloseOutlined,
   UserOutlined,
+  CheckCircleOutlined,
+  LoadingOutlined,
 } from "@ant-design/icons";
 import { useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
+import SockJS from "sockjs-client";
+import { Stomp } from "@stomp/stompjs";
 import chatApi from "../../configs/chatApi";
+import { useRealTimeMessages } from "./hooks/useRealTimeMessages";
+import { customerChatAPI } from "./customerChatAPI";
+import unifiedChatAPI from "./unifiedChatAPI";
 import "./CustomerChatWidget.css";
 
 const { Text } = Typography;
@@ -18,15 +34,33 @@ const { Text } = Typography;
  */
 const CustomerChatWidget = () => {
   const [isOpen, setIsOpen] = useState(false);
-  const [messages, setMessages] = useState([]);
   const [inputMessage, setInputMessage] = useState("");
   const [isConnected, setIsConnected] = useState(false);
-  const [isTyping, setIsTyping] = useState(false);
   const [sessionId, setSessionId] = useState(null);
   const [showNameForm, setShowNameForm] = useState(false);
   const [customerName, setCustomerName] = useState("");
+  const [staffOnline, setStaffOnline] = useState(false);
+  const [staffTyping, setStaffTyping] = useState(false);
+  const [sessionStatus, setSessionStatus] = useState("WAITING"); // WAITING, ACTIVE, COMPLETED
+  const [unreadCount, setUnreadCount] = useState(0);
+
+  // Real-time messages hook
+  const {
+    messages,
+    loading: messagesLoading,
+    error: messagesError,
+    addMessage,
+    clearMessages,
+    refetch: refetchMessages,
+  } = useRealTimeMessages(
+    sessionId,
+    false, // isStaff = false for customer
+    sessionStatus === "ACTIVE" // isActive when session is active
+  );
   const messagesEndRef = useRef(null);
   const inputRef = useRef(null);
+  const stompClientRef = useRef(null);
+  const wsConnectedRef = useRef(false);
   const navigate = useNavigate();
 
   // Get current user info from Redux store first, then fallback to localStorage
@@ -48,7 +82,125 @@ const CustomerChatWidget = () => {
   console.log("🔍 [WIDGET] Final user:", currentUser);
   console.log("🔍 [WIDGET] Final role:", userRole);
   console.log("🔍 [WIDGET] All localStorage keys:", Object.keys(localStorage));
-  const unreadCount = 0;
+
+  // WebSocket connection for real-time updates
+  const connectWebSocket = () => {
+    if (wsConnectedRef.current || !sessionId) return;
+
+    try {
+      console.log("🔌 [CUSTOMER WS] Connecting to WebSocket...");
+      const socket = new SockJS("http://localhost:8080/ws/chat");
+      const stompClient = Stomp.over(socket);
+
+      stompClient.debug = (str) => {
+        console.log("🔍 [CUSTOMER STOMP]:", str);
+      };
+
+      stompClient.connect(
+        {},
+        (frame) => {
+          console.log("✅ [CUSTOMER WS] Connected:", frame);
+          wsConnectedRef.current = true;
+          stompClientRef.current = stompClient;
+
+          // Subscribe to session messages
+          stompClient.subscribe(`/topic/chat/${sessionId}`, (message) => {
+            try {
+              const data = JSON.parse(message.body);
+              console.log("📨 [CUSTOMER WS] Message received:", data);
+
+              // Handle real-time message via WebSocket
+              if (data.message) {
+                // If this is the first staff message, update status to ACTIVE
+                if (
+                  data.senderType === "STAFF" &&
+                  sessionStatus === "WAITING"
+                ) {
+                  console.log(
+                    "👨‍💼 [CUSTOMER WS] First staff message received - session now ACTIVE"
+                  );
+                  setStaffOnline(true);
+                  setSessionStatus("ACTIVE");
+
+                  // Clear bot messages - let polling fetch the real message
+                  clearMessages();
+                } else {
+                  // Don't add optimistically - let polling fetch it
+                  console.log(
+                    "📥 [CUSTOMER WS] Message received, triggering refetch"
+                  );
+                }
+
+                // Update unread count if widget is closed
+                if (!isOpen) {
+                  setUnreadCount((prev) => prev + 1);
+                }
+
+                // Trigger refetch to sync with backend (get real message from server)
+                setTimeout(() => refetchMessages(), 500);
+              }
+
+              // Handle typing indicators
+              if (data.type === "TYPING_START") {
+                setStaffTyping(true);
+              } else if (data.type === "TYPING_STOP") {
+                setStaffTyping(false);
+              }
+            } catch (error) {
+              console.error("❌ [CUSTOMER WS] Error parsing message:", error);
+            }
+          });
+
+          // Subscribe to session status updates
+          stompClient.subscribe(
+            `/topic/chat/${sessionId}/status`,
+            (message) => {
+              try {
+                const data = JSON.parse(message.body);
+                console.log("📊 [CUSTOMER WS] Status update:", data);
+
+                if (data.status) {
+                  setSessionStatus(data.status);
+
+                  if (data.status === "ACTIVE") {
+                    setStaffOnline(true);
+                  } else if (data.status === "COMPLETED") {
+                    setStaffOnline(false);
+                    // Don't add completion message optimistically
+                    // Let the system handle session completion naturally
+                    console.log("📋 [CUSTOMER WS] Session completed");
+                  }
+                }
+              } catch (error) {
+                console.error("❌ [CUSTOMER WS] Error parsing status:", error);
+              }
+            }
+          );
+        },
+        (error) => {
+          console.error("❌ [CUSTOMER WS] Connection error:", error);
+          wsConnectedRef.current = false;
+
+          // Retry connection after 5 seconds
+          setTimeout(() => {
+            if (sessionId) connectWebSocket();
+          }, 5000);
+        }
+      );
+    } catch (error) {
+      console.error("❌ [CUSTOMER WS] Failed to create connection:", error);
+    }
+  };
+
+  // Disconnect WebSocket
+  const disconnectWebSocket = () => {
+    if (stompClientRef.current && wsConnectedRef.current) {
+      console.log("🔌 [CUSTOMER WS] Disconnecting...");
+      stompClientRef.current.disconnect();
+      wsConnectedRef.current = false;
+      stompClientRef.current = null;
+    }
+  };
 
   // Start chat session API call (no auth required)
   const startChatSession = async (name) => {
@@ -76,6 +228,15 @@ const CustomerChatWidget = () => {
         console.log("✅ [CHAT API] Session ID set:", response.data.sessionId);
         setIsConnected(true);
         setShowNameForm(false);
+
+        // Set initial session status to WAITING
+        setSessionStatus("WAITING");
+        setStaffOnline(false);
+
+        // Connect WebSocket for real-time updates
+        setTimeout(() => {
+          connectWebSocket();
+        }, 1000);
       }
 
       return response.data;
@@ -128,34 +289,74 @@ const CustomerChatWidget = () => {
     scrollToBottom();
   }, [messages]);
 
-  // Handle send message
-  const handleSendMessage = () => {
-    if (!inputMessage.trim()) return;
+  // Connect WebSocket when sessionId is available
+  useEffect(() => {
+    if (sessionId && !wsConnectedRef.current) {
+      console.log(
+        "🔌 [CUSTOMER WS] SessionId available, connecting WebSocket..."
+      );
+      connectWebSocket();
+    }
 
-    const newMessage = {
-      id: Date.now(),
-      message: inputMessage,
-      senderName: currentUser.name,
-      senderType: "CUSTOMER",
-      timestamp: new Date().toISOString(),
-      avatar: null,
+    // Cleanup on unmount or sessionId change
+    return () => {
+      if (wsConnectedRef.current) {
+        console.log("🧹 [CUSTOMER WS] Cleaning up WebSocket connection...");
+        disconnectWebSocket();
+      }
     };
+  }, [sessionId]);
 
-    setMessages((prev) => [...prev, newMessage]);
+  // Reset unread count when widget opens
+  useEffect(() => {
+    if (isOpen) {
+      setUnreadCount(0);
+    }
+  }, [isOpen]);
+
+  // Handle send message
+  const handleSendMessage = async () => {
+    if (!inputMessage.trim() || !sessionId) return;
+
+    const messageText = inputMessage.trim();
+    const customerName = currentUser?.name || "Customer";
+
+    // Add message to local state immediately for better UX
+    // Clear input immediately for better UX
     setInputMessage("");
 
-    // Simulate staff response after 2 seconds
-    setTimeout(() => {
-      const staffResponse = {
-        id: Date.now() + 1,
-        message: "Cảm ơn bạn đã liên hệ! Chúng tôi sẽ hỗ trợ bạn ngay.",
-        senderName: "Support Staff",
-        senderType: "STAFF",
-        timestamp: new Date().toISOString(),
-        avatar: null,
-      };
-      setMessages((prev) => [...prev, staffResponse]);
-    }, 2000);
+    // Send message via REST API (more reliable)
+    try {
+      console.log("📤 [CUSTOMER CHAT] Sending message via REST API...");
+
+      const sentMessage = await unifiedChatAPI.sendMessage(
+        sessionId,
+        messageText,
+        customerName,
+        false // isStaff = false for customer
+      );
+
+      console.log("✅ [CUSTOMER CHAT] Message sent successfully:", sentMessage);
+
+      // Trigger immediate refetch to get the sent message
+      if (refetchMessages) {
+        setTimeout(() => {
+          refetchMessages();
+        }, 500);
+      }
+
+      // Don't send via WebSocket - REST API is sufficient
+      // WebSocket will receive the message from server after API processes it
+      console.log(
+        "✅ [CUSTOMER CHAT] Message sent via REST API only, WebSocket will receive from server"
+      );
+    } catch (error) {
+      console.error("❌ [CUSTOMER CHAT] Failed to send message:", error);
+
+      // Don't add error message optimistically
+      // Just log the error and let user retry
+      console.log("💡 [CUSTOMER CHAT] User can retry sending the message");
+    }
   };
 
   // Handle key press
@@ -224,19 +425,13 @@ const CustomerChatWidget = () => {
     }
   };
 
-  // Initialize demo messages
+  // Initialize connection when widget opens
   useEffect(() => {
-    if (isOpen && messages.length === 0) {
-      const welcomeMessage = {
-        id: 1,
-        message: "Xin chào! Chúng tôi có thể hỗ trợ gì cho bạn?",
-        senderName: "Support Bot",
-        senderType: "STAFF",
-        timestamp: new Date().toISOString(),
-        avatar: null,
-      };
-      setMessages([welcomeMessage]);
+    if (isOpen) {
       setIsConnected(true);
+      // Don't add welcome message optimistically
+      // Let the real chat flow handle initial messages
+      console.log("💬 [CUSTOMER CHAT] Widget opened, ready for chat");
     }
   }, [isOpen]);
 
@@ -272,16 +467,43 @@ const CustomerChatWidget = () => {
                 <div className="chat-status-indicator">
                   <div
                     className={`status-dot ${
-                      isConnected ? "online" : "offline"
+                      staffOnline
+                        ? "online"
+                        : isConnected
+                        ? "waiting"
+                        : "offline"
                     }`}
                   ></div>
                   <Text strong style={{ color: "#fff" }}>
                     Customer Support
                   </Text>
+                  {sessionStatus === "ACTIVE" && (
+                    <Tag color="#52c41a" size="small" style={{ marginLeft: 8 }}>
+                      <CheckCircleOutlined /> Đang hỗ trợ
+                    </Tag>
+                  )}
                 </div>
-                <Text style={{ color: "#b9bbbe", fontSize: "12px" }}>
-                  {isConnected ? "Đang kết nối" : "Ngoại tuyến"}
-                </Text>
+                <Space direction="vertical" size={0}>
+                  <Text
+                    style={{
+                      color: "rgba(255, 255, 255, 0.8)",
+                      fontSize: "12px",
+                    }}
+                  >
+                    {staffOnline
+                      ? "Nhân viên đang online"
+                      : sessionStatus === "WAITING"
+                      ? "Đang chờ nhân viên..."
+                      : isConnected
+                      ? "Đang kết nối"
+                      : "Ngoại tuyến"}
+                  </Text>
+                  {staffTyping && (
+                    <Text style={{ color: "#52c41a", fontSize: "11px" }}>
+                      <LoadingOutlined /> Nhân viên đang nhập...
+                    </Text>
+                  )}
+                </Space>
               </div>
               <Button
                 type="text"
@@ -292,104 +514,135 @@ const CustomerChatWidget = () => {
             </div>
 
             {/* Name Form or Messages Area */}
-            {showNameForm ? (
-              <div
-                className="name-form-container"
-                style={{
-                  padding: "20px",
-                  display: "flex",
-                  flexDirection: "column",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  height: "300px",
-                  backgroundColor: "#36393f",
-                }}
-              >
-                <Text
-                  style={{
-                    color: "#dcddde",
-                    marginBottom: "16px",
-                    textAlign: "center",
-                  }}
-                >
+            {showNameForm && !sessionId ? (
+              <div className="chat-name-form">
+                <Typography.Title level={4}>
                   Xin chào! Vui lòng nhập tên của bạn để bắt đầu cuộc trò chuyện
-                </Text>
+                </Typography.Title>
                 <Input
                   placeholder="Nhập tên của bạn..."
                   value={customerName}
                   onChange={(e) => setCustomerName(e.target.value)}
                   onKeyDown={handleNameKeyPress}
-                  style={{
-                    marginBottom: "16px",
-                    backgroundColor: "#40444b",
-                    border: "1px solid #72767d",
-                    color: "#dcddde",
-                  }}
                   autoFocus
                 />
                 <Button
                   type="primary"
                   onClick={handleNameSubmit}
                   disabled={!customerName.trim()}
-                  style={{
-                    backgroundColor: "#5865f2",
-                    borderColor: "#5865f2",
-                  }}
+                  block
                 >
                   Bắt đầu trò chuyện
                 </Button>
               </div>
             ) : (
               <div className="chat-messages-area">
-                {messages.map((msg) => (
-                  <div key={msg.id} className="message-wrapper">
-                    <div className="message-content">
-                      <Avatar
-                        size={40}
-                        icon={<UserOutlined />}
-                        style={{
-                          backgroundColor:
-                            msg.senderType === "STAFF" ? "#5865f2" : "#57f287",
-                          flexShrink: 0,
-                        }}
-                      />
-                      <div className="message-details">
-                        <div className="message-header">
-                          <Text strong style={{ color: "#dcddde" }}>
-                            {msg.senderName}
-                          </Text>
+                {messages
+                  .sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp))
+                  .map((msg) => (
+                    <div
+                      key={msg.id}
+                      className={`message-item ${
+                        msg.senderType === "SYSTEM"
+                          ? "system-message"
+                          : msg.senderType === "STAFF"
+                          ? "staff-message"
+                          : "customer-message"
+                      }`}
+                      style={{
+                        display: "flex",
+                        alignItems: "flex-start",
+                        marginBottom: "16px",
+                        padding: "8px 12px",
+                      }}
+                    >
+                      {msg.senderType !== "SYSTEM" && (
+                        <Avatar
+                          size={32}
+                          icon={<UserOutlined />}
+                          style={{
+                            backgroundColor:
+                              msg.senderType === "STAFF"
+                                ? "#1890ff"
+                                : "#52c41a",
+                            marginRight: "12px",
+                            flexShrink: 0,
+                          }}
+                        />
+                      )}
+                      <div className="message-details" style={{ flex: 1 }}>
+                        {msg.senderType !== "SYSTEM" && (
+                          <div
+                            className="message-header"
+                            style={{ marginBottom: "4px" }}
+                          >
+                            <Text
+                              strong
+                              style={{ color: "white", fontSize: "14px" }}
+                            >
+                              {msg.senderName}
+                            </Text>
+                            <Text
+                              style={{
+                                color: "rgba(255, 255, 255, 0.7)",
+                                fontSize: "12px",
+                                marginLeft: "8px",
+                              }}
+                            >
+                              {new Date(msg.timestamp).toLocaleTimeString(
+                                "vi-VN",
+                                {
+                                  hour: "2-digit",
+                                  minute: "2-digit",
+                                  second: "2-digit",
+                                }
+                              )}
+                            </Text>
+                          </div>
+                        )}
+                        <div
+                          className="message-bubble"
+                          style={{
+                            backgroundColor:
+                              msg.senderType === "SYSTEM"
+                                ? "#f6ffed"
+                                : msg.senderType === "STAFF"
+                                ? "#1890ff"
+                                : "#52c41a",
+                            color:
+                              msg.senderType === "SYSTEM" ? "#389e0d" : "white",
+                            padding: "8px 12px",
+                            borderRadius: "12px",
+                            maxWidth: "80%",
+                            wordWrap: "break-word",
+                            border:
+                              msg.senderType === "SYSTEM"
+                                ? "1px solid #b7eb8f"
+                                : "none",
+                          }}
+                        >
                           <Text
                             style={{
-                              color: "#72767d",
-                              fontSize: "12px",
-                              marginLeft: "8px",
+                              color:
+                                msg.senderType === "SYSTEM"
+                                  ? "#389e0d"
+                                  : "white",
+                              fontSize: "14px",
                             }}
                           >
-                            {new Date(msg.timestamp).toLocaleTimeString(
-                              "vi-VN",
-                              {
-                                hour: "2-digit",
-                                minute: "2-digit",
-                              }
-                            )}
-                          </Text>
-                        </div>
-                        <div className="message-text">
-                          <Text style={{ color: "#dcddde" }}>
                             {msg.message}
                           </Text>
                         </div>
                       </div>
                     </div>
-                  </div>
-                ))}
+                  ))}
 
-                {isTyping && (
+                {staffTyping && (
                   <div className="typing-indicator">
                     <Avatar
                       size={40}
                       icon={<UserOutlined />}
-                      style={{ backgroundColor: "#5865f2" }}
+                      style={{ backgroundColor: "#1890ff" }}
                     />
                     <div className="typing-content">
                       <Text style={{ color: "#dcddde" }}>
@@ -408,36 +661,42 @@ const CustomerChatWidget = () => {
               </div>
             )}
 
-            {/* Input Area */}
-            <div className="chat-input-area">
-              <div className="chat-input-container">
-                <Input.TextArea
-                  ref={inputRef}
-                  value={inputMessage}
-                  onChange={(e) => setInputMessage(e.target.value)}
-                  onKeyDown={handleKeyPress}
-                  placeholder="Nhập tin nhắn..."
-                  autoSize={{ minRows: 1, maxRows: 4 }}
-                  style={{
-                    backgroundColor: "#40444b",
-                    border: "none",
-                    color: "#dcddde",
-                    resize: "none",
-                  }}
-                />
-                <Button
-                  type="primary"
-                  icon={<SendOutlined />}
-                  onClick={handleSendMessage}
-                  disabled={!inputMessage.trim()}
-                  style={{
-                    backgroundColor: "#5865f2",
-                    borderColor: "#5865f2",
-                    marginLeft: "8px",
-                  }}
-                />
+            {/* Input Area - Only show when staff is connected */}
+            {sessionStatus === "ACTIVE" && staffOnline && (
+              <div className="chat-input-area">
+                <div className="chat-input-container">
+                  <Input.TextArea
+                    ref={inputRef}
+                    value={inputMessage}
+                    onChange={(e) => setInputMessage(e.target.value)}
+                    onKeyDown={handleKeyPress}
+                    placeholder="Nhập tin nhắn..."
+                    autoSize={{ minRows: 1, maxRows: 4 }}
+                  />
+                  <Button
+                    type="primary"
+                    icon={<SendOutlined />}
+                    onClick={handleSendMessage}
+                    disabled={!inputMessage.trim()}
+                  />
+                </div>
               </div>
-            </div>
+            )}
+
+            {/* Waiting Status Message */}
+            {sessionStatus === "WAITING" && (
+              <div className="chat-waiting-area">
+                <div className="waiting-message">
+                  <LoadingOutlined
+                    spin
+                    style={{ marginRight: 8, color: "#1890ff" }}
+                  />
+                  <Text style={{ color: "#8c8c8c", fontStyle: "italic" }}>
+                    Đang chờ nhân viên hỗ trợ tham gia cuộc trò chuyện...
+                  </Text>
+                </div>
+              </div>
+            )}
           </div>
         </div>
       )}

@@ -25,9 +25,12 @@ import {
   CheckCircleOutlined,
   ReloadOutlined,
 } from "@ant-design/icons";
+import { useSelector } from "react-redux";
 import chatAPIService from "./chatAPI";
+import unifiedChatAPI from "../../../Chat/unifiedChatAPI";
 import { useChatWebSocket } from "./ChatWebSocketProvider";
 import { chatNotificationService } from "./ChatNotification";
+import { useRealTimeMessages } from "../../../Chat/hooks/useRealTimeMessages";
 import "./StaffChatInterface.css";
 
 const { Text } = Typography;
@@ -47,10 +50,25 @@ const StaffChatInterface = ({ defaultTab = "waiting", hideTabs = false }) => {
   const [waitingSessions, setWaitingSessions] = useState([]);
   const [activeSessions, setActiveSessions] = useState([]);
   const messagesEndRef = useRef(null);
+
+  // Real-time messages hook for selected session
+  const {
+    messages: realTimeMessages,
+    loading: messagesLoading,
+    addMessage,
+    refetch: refetchMessages,
+  } = useRealTimeMessages(
+    selectedSession?.sessionId,
+    true, // isStaff
+    true // isActive
+  );
   const subscriptionRef = useRef(null); // Track subscription to prevent duplicates
   const processedSessionsRef = useRef(new Set()); // Track processed sessions
   const notificationTimeoutRef = useRef({}); // Track notification timeouts
   const lastReloadTimeRef = useRef(0); // Track last reload time for rate limiting
+
+  // Get current user from Redux
+  const currentUser = useSelector((state) => state.user?.user);
 
   // Sử dụng WebSocket context
   const { connected: wsConnected, service: chatWebSocketService } =
@@ -414,6 +432,38 @@ const StaffChatInterface = ({ defaultTab = "waiting", hideTabs = false }) => {
           joinedSession
         );
 
+        // Send automatic greeting message when staff joins
+        try {
+          const staffName = currentUser?.name || "Nhân viên hỗ trợ";
+          const greetingMessage = "Xin chào, tôi có thể giúp gì cho bạn?";
+
+          console.log("📤 [STAFF CHAT] Sending automatic greeting message...");
+
+          // Send greeting message via unified API
+          const sentMessage = await unifiedChatAPI.sendMessage(
+            session.sessionId,
+            greetingMessage,
+            staffName,
+            true // isStaff = true
+          );
+
+          console.log(
+            "✅ [STAFF CHAT] Greeting message sent successfully:",
+            sentMessage
+          );
+
+          // Show success notification
+          message.success(
+            `Đã gửi tin nhắn chào hỏi tới ${session.customerName}`
+          );
+        } catch (error) {
+          console.error(
+            "❌ [STAFF CHAT] Failed to send greeting message:",
+            error
+          );
+          message.error("Không thể gửi tin nhắn chào hỏi");
+        }
+
         // Update selected session with joined session data
         setSelectedSession(joinedSession);
         message.success(`Đã tham gia chat với ${session.customerName}`);
@@ -455,37 +505,57 @@ const StaffChatInterface = ({ defaultTab = "waiting", hideTabs = false }) => {
   };
 
   // Handle send message
-  const handleSendMessage = () => {
+  const handleSendMessage = async () => {
     if (!inputMessage.trim() || !selectedSession) return;
 
-    const newMessage = {
-      id: Date.now(),
-      message: inputMessage,
-      senderName: "Staff Support",
-      senderType: "STAFF",
-      timestamp: new Date().toISOString(),
-    };
+    const messageText = inputMessage;
+    const sessionId = selectedSession.sessionId;
 
-    setMessages((prev) => [...prev, newMessage]);
+    // Clear input immediately for better UX
     setInputMessage("");
 
-    // Scroll to bottom after sending message
-    setTimeout(() => {
-      scrollToBottom();
-    }, 100);
+    try {
+      // Send message via unified API
+      await unifiedChatAPI.sendMessage(
+        sessionId,
+        messageText,
+        "Staff Support",
+        true // isStaff = true
+      );
 
-    // Update session's last message
-    setSessions((prev) =>
-      prev.map((session) =>
-        session.sessionId === selectedSession.sessionId
-          ? {
-              ...session,
-              lastMessage: inputMessage,
-              lastMessageTime: new Date().toISOString(),
-            }
-          : session
-      )
-    );
+      console.log("✅ [STAFF CHAT] Message sent successfully");
+
+      // Trigger immediate refetch to get the sent message
+      if (refetchMessages) {
+        setTimeout(() => {
+          refetchMessages();
+        }, 500);
+      }
+
+      // Scroll to bottom after sending message
+      setTimeout(() => {
+        scrollToBottom();
+      }, 100);
+
+      // Update session's last message
+      setSessions((prev) =>
+        prev.map((session) =>
+          session.sessionId === sessionId
+            ? {
+                ...session,
+                lastMessage: messageText,
+                lastMessageTime: new Date().toISOString(),
+              }
+            : session
+        )
+      );
+    } catch (error) {
+      console.error("❌ [STAFF CHAT] Error sending message:", error);
+      message.error("Không thể gửi tin nhắn. Vui lòng thử lại.");
+
+      // Restore input text on error
+      setInputMessage(messageText);
+    }
   };
 
   // Handle key press
@@ -908,39 +978,100 @@ const StaffChatInterface = ({ defaultTab = "waiting", hideTabs = false }) => {
                   scrollBehavior: "smooth",
                 }}
               >
-                {messages.map((msg) => (
+                {messagesLoading ? (
                   <div
-                    key={msg.id}
-                    className={`message-item ${msg.senderType.toLowerCase()}`}
+                    className="loading-messages"
+                    style={{ textAlign: "center", padding: "20px" }}
                   >
-                    <div className="message-content">
-                      <Avatar
-                        size={32}
-                        icon={<UserOutlined />}
+                    <Spin size="small" />
+                    <Text type="secondary" style={{ marginLeft: 8 }}>
+                      Đang tải tin nhắn...
+                    </Text>
+                  </div>
+                ) : realTimeMessages.length === 0 ? (
+                  <div
+                    className="no-messages"
+                    style={{ textAlign: "center", padding: "20px" }}
+                  >
+                    <Text type="secondary">
+                      Chưa có tin nhắn nào trong cuộc trò chuyện này
+                    </Text>
+                  </div>
+                ) : (
+                  realTimeMessages
+                    .sort(
+                      (a, b) => new Date(a.timestamp) - new Date(b.timestamp)
+                    )
+                    .map((msg) => (
+                      <div
+                        key={msg.id}
+                        className={`message-item ${msg.senderType.toLowerCase()}`}
                         style={{
-                          backgroundColor:
-                            msg.senderType === "STAFF" ? "#52c41a" : "#1890ff",
+                          display: "flex",
+                          alignItems: "flex-start",
+                          marginBottom: "16px",
+                          padding: "8px 12px",
                         }}
-                      />
-                      <div className="message-details">
-                        <div className="message-header">
-                          <Text strong style={{ fontSize: "14px" }}>
-                            {msg.senderName}
-                          </Text>
-                          <Text
-                            type="secondary"
-                            style={{ fontSize: "12px", marginLeft: "8px" }}
+                      >
+                        <Avatar
+                          size={32}
+                          icon={<UserOutlined />}
+                          style={{
+                            backgroundColor:
+                              msg.senderType === "STAFF"
+                                ? "#1890ff"
+                                : "#52c41a",
+                            marginRight: "12px",
+                            flexShrink: 0,
+                          }}
+                        />
+                        <div className="message-details" style={{ flex: 1 }}>
+                          <div
+                            className="message-header"
+                            style={{ marginBottom: "4px" }}
                           >
-                            {new Date(msg.timestamp).toLocaleString("vi-VN")}
-                          </Text>
-                        </div>
-                        <div className="message-text">
-                          <Text>{msg.message}</Text>
+                            <Text
+                              strong
+                              style={{ fontSize: "14px", color: "#333" }}
+                            >
+                              {msg.senderName}
+                            </Text>
+                            <Text
+                              type="secondary"
+                              style={{ fontSize: "12px", marginLeft: "8px" }}
+                            >
+                              {new Date(msg.timestamp).toLocaleTimeString(
+                                "vi-VN",
+                                {
+                                  hour: "2-digit",
+                                  minute: "2-digit",
+                                  second: "2-digit",
+                                }
+                              )}
+                            </Text>
+                          </div>
+                          <div
+                            className="message-bubble"
+                            style={{
+                              backgroundColor:
+                                msg.senderType === "STAFF"
+                                  ? "#1890ff"
+                                  : "#52c41a",
+                              color: "white",
+                              padding: "8px 12px",
+                              borderRadius: "12px",
+                              maxWidth: "80%",
+                              wordWrap: "break-word",
+                            }}
+                          >
+                            <Text style={{ color: "white", fontSize: "14px" }}>
+                              {msg.message}
+                            </Text>
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  </div>
-                ))}
+                    ))
+                )}
                 <div ref={messagesEndRef} />
               </div>
 

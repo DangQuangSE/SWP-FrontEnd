@@ -153,6 +153,27 @@ class ChatAPIService {
   }
 
   /**
+   * Send chat message via REST API - /api/chat/send endpoint
+   */
+  async sendChatMessage(sessionId, message, senderName) {
+    try {
+      const payload = {
+        sessionId,
+        message,
+        senderName,
+      };
+
+      console.log("📤 [CHAT API] Sending message:", payload);
+      const response = await this.api.post("/chat/send", payload);
+      console.log("✅ [CHAT API] Message sent successfully:", response.data);
+      return response.data;
+    } catch (error) {
+      console.error("❌ [CHAT API] Error sending chat message:", error);
+      throw error;
+    }
+  }
+
+  /**
    * Tạo chat session mới (cho customer)
    */
   async createChatSession(customerName, topic = "General Support") {
