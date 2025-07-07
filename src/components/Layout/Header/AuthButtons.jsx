@@ -7,8 +7,9 @@ import {
   UserOutlined,
   SettingOutlined,
   LogoutOutlined,
+  CalendarOutlined,
 } from "@ant-design/icons";
-import { Avatar, Dropdown, Badge } from "antd";
+import { Avatar, Dropdown, Badge, Calendar } from "antd";
 import { logout } from "../../../redux/reduxStore/userSlice.js";
 import { useNavigate } from "react-router-dom";
 import api from "../../../configs/api";
@@ -22,12 +23,25 @@ const AuthButtons = () => {
 
   //  LẤY RA USER ĐÚNG TỪ state
   const userState = useSelector((state) => state.user);
-  const user = userState?.user;
+  let user = userState?.user;
+
+  // Fallback từ localStorage nếu Redux state bị lỗi
+  if (!user || !user.email) {
+    try {
+      const localUser = localStorage.getItem("user");
+      if (localUser) {
+        user = JSON.parse(localUser);
+        console.log("🔧 Using fallback user from localStorage:", user);
+      }
+    } catch {
+      console.log("🔧 No valid localStorage user data");
+    }
+  }
 
   //  Debug logging
   console.log("AuthButtons Debug:");
   console.log("Full userState:", userState);
-  console.log("Extracted user:", user);
+  console.log("Final user:", user);
   console.log("user.email:", user?.email);
   console.log("user.fullname:", user?.fullname);
   console.log("user.imageUrl:", user?.imageUrl);
@@ -37,14 +51,14 @@ const AuthButtons = () => {
   console.log("isLoggedIn:", isLoggedIn);
   const [showNotifications, setShowNotifications] = useState(false);
   const [selectedNotification, setSelectedNotification] = useState(null);
-  const [notificationDetailVisible, setNotificationDetailVisible] = useState(false);
+  const [notificationDetailVisible, setNotificationDetailVisible] =
+    useState(false);
   const [notifications, setNotifications] = useState([]);
   const [loading, setLoading] = useState(false);
 
   const onLoginClick = () => {
     setOpen(true);
   };
-
 
   const items = [
     {
@@ -61,6 +75,14 @@ const AuthButtons = () => {
     },
     {
       key: "3",
+      label: "Lịch sử đặt chỗ",
+      icon: <CalendarOutlined />,
+      onClick: () => {
+        navigate("/user/booking");
+      },
+    },
+    {
+      key: "4",
       label: "Đăng xuất",
       icon: <LogoutOutlined />,
       onClick: () => {
@@ -81,8 +103,16 @@ const AuthButtons = () => {
       console.error("Error fetching notifications:", error);
       // Nếu API lỗi, sử dụng dữ liệu mẫu
       setNotifications([
-        { id: 1, message: "Bạn có lịch hẹn mới", createdAt: new Date().toISOString() },
-        { id: 2, message: "Kết quả xét nghiệm đã có", createdAt: new Date().toISOString() }
+        {
+          id: 1,
+          message: "Bạn có lịch hẹn mới",
+          createdAt: new Date().toISOString(),
+        },
+        {
+          id: 2,
+          message: "Kết quả xét nghiệm đã có",
+          createdAt: new Date().toISOString(),
+        },
       ]);
     } finally {
       setLoading(false);
@@ -97,11 +127,9 @@ const AuthButtons = () => {
         await api.patch(`/notifications/${notification.id}/read`);
 
         // Cập nhật state để hiển thị thông báo đã đọc
-        setNotifications(prevNotifications =>
-          prevNotifications.map(item =>
-            item.id === notification.id
-              ? { ...item, isRead: true }
-              : item
+        setNotifications((prevNotifications) =>
+          prevNotifications.map((item) =>
+            item.id === notification.id ? { ...item, isRead: true } : item
           )
         );
       }
@@ -160,7 +188,11 @@ const AuthButtons = () => {
           {/* User dropdown */}
           <Dropdown menu={{ items }} trigger={["click"]}>
             <div
-              style={{ display: "flex", alignItems: "center", cursor: "pointer" }}
+              style={{
+                display: "flex",
+                alignItems: "center",
+                cursor: "pointer",
+              }}
             >
               <Avatar src={user?.imageUrl || "/placeholder.svg"} />
               <span style={{ marginLeft: "8px" }}>
@@ -169,7 +201,6 @@ const AuthButtons = () => {
             </div>
           </Dropdown>
         </div>
-
       )}
 
       <AuthModal open={open} onClose={() => setOpen(false)} />

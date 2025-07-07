@@ -2,7 +2,7 @@
 import React, { useEffect, useState, useCallback, useRef } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
-import { message } from "antd";
+import { message, Modal } from "antd";
 import api from "../../../configs/api";
 import "./Booking.css";
 const TABS = [
@@ -14,9 +14,18 @@ const TABS = [
 
 // API status mapping
 const STATUS_MAP = {
-  upcoming: ["CONFIRMED", "PENDING"],
+  upcoming: ["CONFIRMED", "PENDING", "CHECKED"],
   completed: ["COMPLETED"],
   history: ["CANCELED"],
+};
+
+// Status display mapping (Vietnamese)
+const STATUS_DISPLAY = {
+  CONFIRMED: "Đã xác nhận",
+  PENDING: "Chờ xác nhận",
+  CHECKED: "Đã check in",
+  COMPLETED: "Hoàn thành",
+  CANCELED: "Đã hủy",
 };
 
 const Booking = () => {
@@ -25,6 +34,8 @@ const Booking = () => {
   const [activeTab, setActiveTab] = useState("upcoming");
   const [zoomUrls, setZoomUrls] = useState({}); // Cache Zoom URLs by appointment ID
   const [blinkingButtons, setBlinkingButtons] = useState({}); // Track which buttons are blinking
+  const [modalVisible, setModalVisible] = useState(false);
+  const [selectedAppointment, setSelectedAppointment] = useState(null);
 
   const navigate = useNavigate();
   const { search } = useLocation();
@@ -54,7 +65,7 @@ const Booking = () => {
   // Function to get and cache Zoom URL
   const getZoomUrl = useCallback(async (appointmentId) => {
     try {
-      console.log("🔄 Getting Zoom URL for appointment:", appointmentId);
+      console.log(" Getting Zoom URL for appointment:", appointmentId);
 
       const response = await api.get(
         `/zoom/test-create-meeting?appointmentId=${appointmentId}`
@@ -189,6 +200,12 @@ const Booking = () => {
       }
     }
   };
+
+  const handleViewDetail = (appointment) => {
+    setSelectedAppointment(appointment);
+    setModalVisible(true);
+  };
+
   // Handle VNPay payment result from URL params - only run once per URL change
   useEffect(() => {
     const query = new URLSearchParams(search);
@@ -205,6 +222,12 @@ const Booking = () => {
         fullURL: search,
       });
 
+      // Lấy appointmentId từ localStorage TRƯỚC KHI xóa
+      const pendingBooking = JSON.parse(
+        localStorage.getItem("pendingBooking") || "{}"
+      );
+      const appointmentId = pendingBooking.appointmentId;
+
       localStorage.removeItem("pendingBooking");
       paymentMessageShown.current = true; // Mark message as shown
 
@@ -214,6 +237,88 @@ const Booking = () => {
 
         // Gọi API để verify payment với backend
         verifyVNPayPayment(query);
+      } else if (vnpResponseCode === "24") {
+        // Người dùng hủy thanh toán - cancel cuộc hẹn
+        message.warning("Thanh toán đã bị hủy. Đang hủy lịch hẹn...");
+
+        console.log(" Debug info:", {
+          appointmentId,
+          vnpTxnRef,
+          pendingBooking,
+        });
+
+        // Tạo async function để handle cancel
+        const cancelAppointmentDueToPayment = async () => {
+          try {
+            let targetAppointmentId = appointmentId;
+
+            // Nếu không có appointmentId từ localStorage, thử lấy từ backend
+            if (!targetAppointmentId) {
+              console.log(
+                " No appointmentId in localStorage, trying to find by vnpTxnRef:",
+                vnpTxnRef
+              );
+
+              // Gọi API để tìm appointment bằng vnpTxnRef
+              try {
+                const response = await api.get(
+                  `/appointment/by-transaction/${vnpTxnRef}`
+                );
+                targetAppointmentId =
+                  response.data.appointmentId || response.data.id;
+                console.log(
+                  " Found appointmentId from backend:",
+                  targetAppointmentId
+                );
+              } catch (findError) {
+                console.error(
+                  "Error finding appointment by transaction:",
+                  findError
+                );
+
+                // Fallback: Lấy appointments gần đây và tìm appointment PENDING
+                try {
+                  const recentResponse = await api.get(
+                    "/appointment/by-status?status=PENDING"
+                  );
+                  const recentAppointments = recentResponse.data;
+
+                  // Lấy appointment PENDING mới nhất (có thể là appointment vừa tạo)
+                  if (recentAppointments && recentAppointments.length > 0) {
+                    const latestPending = recentAppointments.sort(
+                      (a, b) => new Date(b.created_at) - new Date(a.created_at)
+                    )[0];
+                    targetAppointmentId = latestPending.id;
+                    console.log(
+                      " Using latest PENDING appointment:",
+                      targetAppointmentId
+                    );
+                  }
+                } catch (fallbackError) {
+                  console.error("Fallback method also failed:", fallbackError);
+                }
+              }
+            }
+
+            if (targetAppointmentId) {
+              await api.delete(`/appointment/${targetAppointmentId}/cancel`);
+              message.success("Lịch hẹn đã được hủy do thanh toán bị hủy.");
+            } else {
+              console.error("No appointmentId found to cancel");
+              message.error(
+                "Không tìm thấy lịch hẹn để hủy. Vui lòng kiểm tra lại trong danh sách lịch hẹn."
+              );
+            }
+          } catch (error) {
+            console.error("Error canceling appointment:", error);
+            message.error(
+              "Không thể hủy lịch hẹn tự động. Vui lòng hủy thủ công trong danh sách lịch hẹn."
+            );
+          }
+        };
+
+        // Gọi function cancel
+        cancelAppointmentDueToPayment();
       } else {
         // Thanh toán VNPay thất bại
         message.error("Thanh toán thất bại hoặc đã bị hủy.");
@@ -230,25 +335,6 @@ const Booking = () => {
       };
       setTimeout(refreshAppointments, 500);
       return;
-    }
-
-    // Handle legacy MoMo result (nếu có)
-    const resultCode = query.get("resultCode");
-    if (resultCode && !paymentMessageShown.current) {
-      localStorage.removeItem("pendingBooking");
-      paymentMessageShown.current = true; // Mark message as shown
-
-      if (resultCode === "1000") {
-        message.success("Thanh toán thành công!");
-      } else {
-        message.warning("Thanh toán thất bại hoặc đã bị hủy.");
-      }
-
-      // Clean URL và refresh
-      window.history.replaceState({}, document.title, "/user/booking");
-      setTimeout(() => {
-        fetchAppointments();
-      }, 500);
     }
   }, [search, verifyVNPayPayment, fetchAppointments, token]);
   const renderAppointments = () => {
@@ -285,7 +371,7 @@ const Booking = () => {
           <p>
             <strong>Trạng thái:</strong>{" "}
             <span className={`status ${appointment.status.toLowerCase()}`}>
-              {appointment.status}
+              {STATUS_DISPLAY[appointment.status] || appointment.status}
             </span>
           </p>
           <p>
@@ -299,7 +385,16 @@ const Booking = () => {
             {new Date(appointment.created_at).toLocaleString()}
           </p>
           <div className="appointment-actions">
-            {["CONFIRMED", "PENDING"].includes(appointment.status) && (
+            <button
+              className="detail-button-profile"
+              onClick={() => handleViewDetail(appointment)}
+            >
+              Xem chi tiết
+            </button>
+
+            {["CONFIRMED", "PENDING", "CHECKED"].includes(
+              appointment.status
+            ) && (
               <button
                 className="cancel-button-profile"
                 onClick={() => handleCancelAppointment(appointment.id)}
@@ -349,7 +444,6 @@ const Booking = () => {
       </div>
     ));
   };
-
   const renderTabContent = () => renderAppointments();
 
   return (
@@ -371,6 +465,138 @@ const Booking = () => {
       </div>
 
       <div className="booking-tab-content-profile">{renderTabContent()}</div>
+
+      {/* Modal hiển thị chi tiết lịch hẹn */}
+      <Modal
+        title="Chi tiết lịch hẹn"
+        open={modalVisible}
+        onCancel={() => setModalVisible(false)}
+        footer={null}
+        width={600}
+        className="appointment-detail-modal"
+      >
+        {selectedAppointment && (
+          <div className="appointment-detail-content">
+            {(() => {
+              const detail = selectedAppointment.appointmentDetails?.[0];
+              return (
+                <div className="detail-sections">
+                  {/* Thông tin chính */}
+                  <div className="detail-section">
+                    <h3 className="section-title">Thông tin lịch hẹn</h3>
+                    <div className="detail-item">
+                      <span className="detail-label">ID:</span>
+                      <span className="detail-value">
+                        {selectedAppointment.id}
+                      </span>
+                    </div>
+                    <div className="detail-item">
+                      <span className="detail-label">Khách hàng:</span>
+                      <span className="detail-value">
+                        {selectedAppointment.customerName || "Không có tên"}
+                      </span>
+                    </div>
+                    <div className="detail-item">
+                      <span className="detail-label">Dịch vụ:</span>
+                      <span className="detail-value">
+                        {selectedAppointment.serviceName}
+                      </span>
+                    </div>
+                    <div className="detail-item">
+                      <span className="detail-label">Bác sĩ phụ trách:</span>
+                      <span className="detail-value">
+                        {detail?.consultantName || "Chưa phân công"}
+                      </span>
+                    </div>
+                    <div className="detail-item">
+                      <span className="detail-label">Ngày hẹn:</span>
+                      <span className="detail-value">
+                        {selectedAppointment.preferredDate || "Không có"}
+                      </span>
+                    </div>
+                    <div className="detail-item">
+                      <span className="detail-label">Thời gian hẹn:</span>
+                      <span className="detail-value">
+                        {detail?.slotTime
+                          ? new Date(detail.slotTime).toLocaleString("vi-VN")
+                          : "Không có"}
+                      </span>
+                    </div>
+                    <div className="detail-item">
+                      <span className="detail-label">Trạng thái:</span>
+                      <span
+                        className={`detail-value status-${selectedAppointment.status?.toLowerCase()}`}
+                      >
+                        {STATUS_DISPLAY[selectedAppointment.status] ||
+                          selectedAppointment.status ||
+                          "Không xác định"}
+                      </span>
+                    </div>
+                    <div className="detail-item">
+                      <span className="detail-label">Giá:</span>
+                      <span className="detail-value price">
+                        {selectedAppointment.price
+                          ? selectedAppointment.price.toLocaleString() + " VND"
+                          : "Không có"}
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Thông tin thanh toán */}
+                  {/* <div className="detail-section">
+                    <h3 className="section-title">Thông tin thanh toán</h3>
+
+                    <div className="detail-item">
+                      <span className="detail-label">
+                        Trạng thái thanh toán:
+                      </span>
+                      <span className="detail-value">
+                        {selectedAppointment.paymentStatus || "Chưa thanh toán"}
+                      </span>
+                    </div>
+                    <div className="detail-item">
+                      <span className="detail-label">Đã thanh toán:</span>
+                      <span className="detail-value">
+                        {selectedAppointment.isPaid === true
+                          ? "Có"
+                          : selectedAppointment.isPaid === false
+                          ? "Chưa"
+                          : "Không xác định"}
+                      </span>
+                    </div>
+                  </div> */}
+
+                  {/* Thông tin bổ sung */}
+                  {/*  */}
+
+                  {/* Thông tin bác sĩ chi tiết */}
+                  {detail && (
+                    <div className="detail-section">
+                      <h3 className="section-title">Thông tin chi tiết</h3>
+                      <div className="detail-item">
+                        <span className="detail-label">ID Chi tiết:</span>
+                        <span className="detail-value">{detail.id}</span>
+                      </div>
+                      <div className="detail-item">
+                        <span className="detail-label">Link tham gia:</span>
+                        <span className="detail-value">
+                          {detail.joinUrl || "Chưa có"}
+                        </span>
+                      </div>
+                      <div className="detail-item">
+                        <span className="detail-label">Kết quả khám:</span>
+                        <span className="detail-value">
+                          {detail.medicalResult || "Chưa có"}
+                        </span>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              );
+            })()}
+          </div>
+        )}
+      </Modal>
     </div>
   );
 };

@@ -137,6 +137,12 @@
   border: 1px solid #10b981;
 }
 
+.status.checked {
+  background: #fef3c7;
+  color: #92400e;
+  border: 1px solid #f59e0b;
+}
+
 .status.completed {
   background: #dbeafe;
   color: #1e40af;
@@ -260,13 +266,12 @@
   background-color: #ff4d4f;
   color: white;
   border: none;
-  border-radius: 4px;
+  border-radius: 6px;
   cursor: pointer;
-  transition: all 0.2s ease;
-  display: inline-block;
-  width: auto;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 4px rgba(255, 77, 79, 0.2);
+  margin-right: 8px;
   min-width: 100px;
-  height: 36px;
   font-weight: 500;
   text-align: center;
   line-height: 1.2;
@@ -275,6 +280,129 @@
 .cancel-button-profile:hover {
   background-color: #ff7875;
   transform: translateY(-1px);
+}
+
+.detail-button-profile {
+  margin: 0;
+  padding: 8px 16px;
+  font-size: 12px;
+  background-color: #2753d0;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 4px rgba(39, 83, 208, 0.2);
+  margin-right: 8px;
+  min-width: 100px;
+  font-weight: 500;
+  text-align: center;
+  line-height: 1.2;
+}
+
+.detail-button-profile:hover {
+  background-color: #086ce4;
+  transform: translateY(-1px);
+}
+
+/* Modal styling */
+.appointment-detail-modal .ant-modal-header {
+  border-bottom: none;
+  border-radius: 8px 8px 0 0;
+}
+
+.appointment-detail-modal .ant-modal-title {
+  color: #2753d0;
+  font-weight: 600;
+  font-size: 24px;
+}
+
+.appointment-detail-modal .ant-modal-close {
+  color: white;
+}
+
+.appointment-detail-modal .ant-modal-close:hover {
+  color: #f0f0f0;
+}
+
+.appointment-detail-content {
+  padding: 0;
+}
+
+.detail-sections {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.detail-section {
+  background: #f8f9fa;
+  border-radius: 0px;
+  padding: 16px;
+  border-left: 4px solid #2753d0;
+}
+
+.section-title {
+  margin: 0 0 12px 0;
+  font-size: 16px;
+  font-weight: 600;
+  color: #2753d0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.detail-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 8px;
+  padding: 8px 0;
+  border-bottom: 1px solid #e8e8e8;
+}
+
+.detail-item:last-child {
+  border-bottom: none;
+  margin-bottom: 0;
+}
+
+.detail-label {
+  font-weight: 500;
+  color: #666;
+  min-width: 140px;
+  flex-shrink: 0;
+}
+
+.detail-value {
+  color: #333;
+  text-align: right;
+  flex: 1;
+  word-break: break-word;
+}
+
+.detail-value.price {
+  font-weight: 600;
+  color: #2753d0;
+}
+
+.detail-value.status-pending {
+  color: #faad14;
+  font-weight: 500;
+}
+
+.detail-value.status-confirmed {
+  color: #52c41a;
+  font-weight: 500;
+}
+
+.detail-value.status-completed {
+  color: #1890ff;
+  font-weight: 500;
+}
+
+.detail-value.status-canceled {
+  color: #ff4d4f;
+  font-weight: 500;
 }
 
 /* Appointment Actions Container */
@@ -360,10 +488,12 @@
     gap: 8px;
   }
 
+  .detail-button-profile,
   .cancel-button-profile,
   .zoom-button-profile {
     width: 100%;
     max-width: none;
     margin-bottom: 0;
+    margin-right: 0;
   }
 }

@@ -26,29 +26,86 @@ const LoginForm = ({ onClose }) => {
         password: values.password,
       });
 
-      console.log("Login successful, response:", res.data);
-      const jwt = res.data.jwt || res.data.accessToken || res.data.token;
-      const user = res.data.user || res.data;
+      console.log("🔍 Login successful, full response:", res.data);
+      console.log("🔍 Response structure:", Object.keys(res.data));
 
-      console.log(" Extracted jwt:", jwt);
-      console.log(" Extracted user:", user);
+      const jwt = res.data.jwt || res.data.accessToken || res.data.token;
+
+      // Thử nhiều cách để extract user data
+      let user = null;
+      if (res.data.user && typeof res.data.user === "object") {
+        user = res.data.user;
+        console.log("🔍 Using res.data.user");
+      } else if (res.data.data && res.data.data.user) {
+        user = res.data.data.user;
+        console.log("🔍 Using res.data.data.user");
+      } else if (res.data.email || res.data.role) {
+        user = res.data;
+        console.log("🔍 Using res.data directly");
+      } else {
+        console.log("🔍 Fallback to res.data");
+        user = res.data;
+      }
+
+      console.log("🔍 Extracted jwt:", jwt);
+      console.log("🔍 Extracted user:", user);
+      console.log("🔍 User type:", typeof user);
+      console.log("🔍 User is null?", user === null);
+      console.log("🔍 User is undefined?", user === undefined);
+
+      // Kiểm tra user không null/undefined trước khi dispatch
+      if (!user || user === null || user === undefined) {
+        console.error("❌ User data is invalid:", { user, type: typeof user });
+        throw new Error("User data is null or undefined");
+      }
+
+      // Kiểm tra user có properties cần thiết không
+      if (typeof user === "object" && !user.role && !user.email) {
+        console.error("❌ User object missing required fields:", user);
+        throw new Error("User object missing required fields (role, email)");
+      }
+
+      console.log("✅ About to dispatch login with:", { user, jwt });
+
+      // Lưu role trước khi dispatch để tránh bị mất
+      const userRole = user?.role;
+      console.log("🔍 User role for navigation:", userRole);
+
+      // Clear any corrupted Redux persist data trước khi login
+      try {
+        localStorage.removeItem("persist:root");
+        console.log("🔧 Cleared persist:root");
+      } catch {
+        console.log("🔧 No persist:root to clear");
+      }
+
       //  Lưu vào localStorage
       localStorage.setItem("token", jwt);
-      // Lưu cả user và jwt vào Redux
-      dispatch(login({ ...user, jwt }));
+      localStorage.setItem("user", JSON.stringify(user));
+
+      // Lưu cả user và jwt vào Redux với cấu trúc đúng
+      try {
+        dispatch(login({ user, jwt }));
+        console.log("✅ Redux dispatch successful");
+      } catch (dispatchError) {
+        console.error("❌ Redux dispatch failed:", dispatchError);
+        // Vẫn tiếp tục với localStorage data
+      }
+
       toast.success("Đăng nhập thành công!");
       if (onClose) onClose();
 
-      // Chuyển trang đúng theo role
-      if (user.role === "CUSTOMER") {
+      // Chuyển trang đúng theo role (sử dụng userRole đã lưu)
+      if (userRole === "CUSTOMER") {
         navigate("/");
-      } else if (user.role === "ADMIN") {
-        navigate("/dashboard");
-      } else if (user.role === "STAFF") {
+      } else if (userRole === "ADMIN") {
+        navigate("/admin");
+      } else if (userRole === "STAFF") {
         navigate("/staff");
-      } else if (user.role === "CONSULTANT") {
+      } else if (userRole === "CONSULTANT") {
         navigate("/consultant");
       } else {
+        console.log("🔍 Unknown role, navigating to error:", userRole);
         navigate("/error");
       }
       console.log("Login response:", res.data);

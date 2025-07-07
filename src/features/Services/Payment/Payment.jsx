@@ -69,7 +69,7 @@ const Payment = () => {
           serviceName: booking.serviceName,
         };
 
-        console.log(" Gửi tới /api/payment/momo/create:", payload);
+        console.log(" Gửi tới /api/payment/vnpay/create:", payload);
 
         const res = await api.get("/payment/vnpay/create", {
           params: {

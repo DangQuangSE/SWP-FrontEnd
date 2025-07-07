@@ -21,13 +21,7 @@ const Footer = () => {
               <h3>Tin tức</h3>
               <ul>
                 <li>
-                  <Link to="/tin-y-te">Tin Y tế </Link>
-                </li>
-                <li>
-                  <Link to="/tin-dich-vu">Tin Dịch vụ</Link>
-                </li>
-                <li>
-                  <Link to="/y-hoc-thuong-thuc">Y học thường thức</Link>
+                  <Link to="/blog">Tất cả tin tức</Link>
                 </li>
               </ul>
             </div>

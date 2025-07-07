@@ -22,7 +22,7 @@ const APPOINTMENT_STATUSES = [
   { key: "ALL", label: "Tất cả", color: "default" },
   { key: "PENDING", label: "Chờ xác nhận", color: "orange" },
   { key: "CONFIRMED", label: "Đã xác nhận", color: "blue" },
-  { key: "CHECKED", label: "Đã khám", color: "green" },
+  { key: "CHECKING", label: "Đã khám", color: "green" },
   { key: "COMPLETED", label: "Hoàn thành", color: "success" },
   { key: "CANCELED", label: "Đã hủy", color: "red" },
   { key: "ABSENT", label: "Vắng mặt", color: "volcano" },
@@ -45,27 +45,33 @@ const BookingDashboard = () => {
         const statusList = [
           "PENDING",
           "CONFIRMED",
-          "CHECKED",
+          "CHECKING",
           "COMPLETED",
           "CANCELED",
           "ABSENT",
         ];
 
-        console.log("📋 Fetching all appointments for all statuses...");
+        console.log(" Fetching all appointments for all statuses...");
 
         const promises = statusList.map(async (s) => {
           try {
+            console.log(` Trying to fetch appointments for status: ${s}`);
             const response = await api.get(
               `/appointment/by-status?status=${s}`
             );
             console.log(
-              `📋 Status ${s}:`,
+              `Status ${s}:`,
               response.data?.length || 0,
               "appointments"
             );
             return response.data || [];
           } catch (error) {
-            console.error(`❌ Error fetching ${s}:`, error);
+            console.error(` Error fetching ${s}:`, error);
+            console.error(` Error details:`, {
+              status: error.response?.status,
+              message: error.response?.data?.message || error.message,
+              url: error.config?.url,
+            });
             return [];
           }
         });
@@ -74,11 +80,38 @@ const BookingDashboard = () => {
         allAppointments = responses.flat();
       } else {
         // Gọi API với status cụ thể
-        console.log(`📋 Fetching appointments for status: ${status}`);
-        const response = await api.get(
-          `/appointment/by-status?status=${status}`
-        );
-        allAppointments = response.data || [];
+        console.log(` Fetching appointments for status: ${status}`);
+        try {
+          const response = await api.get(
+            `/appointment/by-status?status=${status}`
+          );
+          allAppointments = response.data || [];
+          console.log(
+            `Loaded ${allAppointments.length} appointments for ${status}`
+          );
+        } catch (error) {
+          console.error(` Error fetching appointments for ${status}:`, error);
+          console.error(` Error details:`, {
+            status: error.response?.status,
+            message: error.response?.data?.message || error.message,
+            url: error.config?.url,
+          });
+
+          // Fallback: try alternative endpoints
+          console.log(`🔄 Trying fallback endpoints...`);
+          try {
+            // Try without query parameter
+            const fallbackResponse = await api.get(`/appointments`);
+            const allData = fallbackResponse.data || [];
+            allAppointments = allData.filter((apt) => apt.status === status);
+            console.log(
+              `Fallback successful: ${allAppointments.length} appointments`
+            );
+          } catch (fallbackError) {
+            console.error(` Fallback also failed:`, fallbackError);
+            allAppointments = [];
+          }
+        }
       }
 
       // Sort theo ngày tạo mới nhất
@@ -88,9 +121,9 @@ const BookingDashboard = () => {
 
       setAppointments(sortedData);
       console.log(
-        `📋 Loaded ${sortedData.length} appointments for status: ${status}`
+        ` Loaded ${sortedData.length} appointments for status: ${status}`
       );
-      console.log("📋 Sample appointment data:", sortedData[0]);
+      console.log(" Sample appointment data:", sortedData[0]);
     } catch (error) {
       console.error("Error fetching appointments:", error);
       message.error("Không thể tải danh sách lịch hẹn");
@@ -253,7 +286,7 @@ const BookingDashboard = () => {
 
   // Handle actions
   const handleViewDetail = (record) => {
-    console.log("🔍 Showing appointment detail for:", record.id);
+    console.log(" Showing appointment detail for:", record.id);
 
     Modal.info({
       title: "Chi tiết lịch hẹn",
@@ -313,7 +346,7 @@ const BookingDashboard = () => {
                 <strong>Thông tin chi tiết:</strong>
               </p>
               <p>
-                • <strong>Tư vấn viên:</strong>{" "}
+                • <strong>Tư vấn viên - Bác sĩ:</strong>{" "}
                 {record.appointmentDetails[0].consultantName ||
                   "Chưa phân công"}
               </p>

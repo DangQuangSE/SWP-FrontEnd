@@ -83,14 +83,14 @@ const LIKE_API_SIMULATION_MODE = false;
 export const likeBlog = async (id) => {
   console.log(` likeBlog API call for blog ID: ${id}`);
   const token = localStorage.getItem("token");
-  console.log(`🔑 Token available:`, !!token);
-  console.log(`🌐 API endpoint: POST /blog/${id}/like`);
+  console.log(` Token available:`, !!token);
+  console.log(` API endpoint: POST /blog/${id}/like`);
 
   if (LIKE_API_SIMULATION_MODE) {
     // Simulation mode for testing UI
-    console.log(`⚠️ SIMULATION MODE: Simulating successful like for testing`);
+    console.log(` SIMULATION MODE: Simulating successful like for testing`);
     console.log(
-      `💡 To use real API, set LIKE_API_SIMULATION_MODE = false in consultantAPI.js`
+      ` To use real API, set LIKE_API_SIMULATION_MODE = false in consultantAPI.js`
     );
 
     return new Promise((resolve) => {
@@ -110,7 +110,7 @@ export const likeBlog = async (id) => {
   // Check if user is logged in
   if (!token) {
     console.warn(
-      `⚠️ No authentication token found. User needs to login to like blogs.`
+      ` No authentication token found. User needs to login to like blogs.`
     );
     throw new Error(`Bạn cần đăng nhập để thích bài viết`);
   }
@@ -170,15 +170,15 @@ export const getConsultantSchedules = (consultantId, from, to) => {
 };
 
 export const deleteBlog = async (blogId) => {
-  console.log(`🗑️ deleteBlog API call for blog ID: ${blogId}`);
+  console.log(` deleteBlog API call for blog ID: ${blogId}`);
   const token = localStorage.getItem("token");
-  console.log(`🔑 Token available:`, !!token);
-  console.log(`🌐 API endpoint: DELETE /blog/${blogId}`);
+  console.log(` Token available:`, !!token);
+  console.log(` API endpoint: DELETE /blog/${blogId}`);
 
   // Check if user is logged in
   if (!token) {
     console.warn(
-      `⚠️ No authentication token found. User needs to login to delete blogs.`
+      ` No authentication token found. User needs to login to delete blogs.`
     );
     throw new Error(`Bạn cần đăng nhập để xóa bài viết`);
   }
@@ -216,4 +216,20 @@ export const deleteBlog = async (blogId) => {
 export const fetchAvailableSlots = (serviceId, from, to) => {
   const params = { service_id: serviceId, from, to };
   return api.get("/schedules/slot-free-service", { params });
+};
+
+// Get my schedule (for current logged-in consultant)
+export const getMySchedule = (from, to) => {
+  const params = new URLSearchParams();
+  if (from) params.append("from", from);
+  if (to) params.append("to", to);
+
+  return api.get(`/appointment/my-schedule?${params.toString()}`);
+};
+
+// Update appointment detail status
+export const updateAppointmentDetailStatus = (appointmentDetailId, status) => {
+  return api.put(`/appointment-details/${appointmentDetailId}/status`, {
+    status: status,
+  });
 };

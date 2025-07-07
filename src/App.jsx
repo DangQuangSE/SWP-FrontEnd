@@ -23,9 +23,6 @@ import CycleTracker from "./features/Services/CycleTracker/CycleTracker";
 import ForgotPasswordOTP from "./features/authentication/ForgotPassword";
 import AllBlog from "./features/bloglist/allBlog";
 import BlogDetail from "./features/bloglist/BlogDetail";
-import Medicalnew from "./features/bloglist/Medicalnew";
-import Servicevnew from "./features/bloglist/Servicenew";
-import Generalnew from "./features/bloglist/Generalnew";
 import CycleTracking from "./features/Services/CycleTracker/CycleTracker";
 import Doctor from "./features/Services/DoctorList/DoctorList";
 import Loading from "./components/Loading/Loading";
@@ -88,9 +85,6 @@ function App() {
               <Route path="/forgot-password" element={<ForgotPasswordOTP />} />
               <Route path="/blog" element={<AllBlog />} />
               <Route path="/blog/:id" element={<BlogDetail />} />
-              <Route path="/tin-y-te" element={<Medicalnew />} />
-              <Route path="/tin-dich-vu" element={<Servicevnew />} />
-              <Route path="/y-hoc-thuong-thuc" element={<Generalnew />} />
 
               {/* Protected routes */}
               {/* <Route
@@ -119,9 +113,9 @@ function App() {
                   </ProtectedRoute>
                 }
               /> */}
-              <Route path="/consultant" element={<Consultant />}></Route>
-              <Route path="/staff" element={<Staff />}></Route>
-              <Route path="/admin" element={<Admin />}></Route>
+              <Route path="/admin" element={<Admin />} />
+              <Route path="/staff" element={<Staff />} />
+              <Route path="/consultant" element={<Consultant />} />
               <Route path="/settings" element={<Settings />} />
               <Route path="/user" element={<UserProfile />}>
                 <Route index element={<Profile />} />

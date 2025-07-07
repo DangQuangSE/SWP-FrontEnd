@@ -18,7 +18,6 @@ import {
   EditOutlined,
   SaveOutlined,
 } from "@ant-design/icons";
-import { useSelector } from "react-redux";
 import dayjs from "dayjs";
 import api from "../../../configs/api";
 import "./Profile.css";
@@ -27,26 +26,37 @@ const Profile = () => {
   const [form] = Form.useForm();
   const [loading, setLoading] = useState(false);
   const [editing, setEditing] = useState(false);
-  const [profileData, setProfileData] = useState(null);
-  const [imageUrl, setImageUrl] = useState("");
+  const [user, setUser] = useState(null);
+  const [fetchingUser, setFetchingUser] = useState(true);
 
-  const user = useSelector((state) => state.user.user);
-
-  // Load profile data from Redux
+  // Fetch user data from API /api/me
   useEffect(() => {
-    if (user) {
-      setProfileData(user);
-      setImageUrl(user.imageUrl || "");
+    const fetchUserData = async () => {
+      try {
+        setFetchingUser(true);
+        const response = await api.get("/me");
+        console.log("User data from /api/me:", response.data);
+        setUser(response.data);
 
-      // Set form values from Redux user data
-      form.setFieldsValue({
-        fullname: user.fullname || "",
-        phone: user.phone || "",
-        address: user.address || "",
-        dateOfBirth: user.dateOfBirth ? dayjs(user.dateOfBirth) : null,
-      });
-    }
-  }, [user, form]);
+        // Set form values from API user data
+        form.setFieldsValue({
+          fullname: response.data.fullname || "",
+          phone: response.data.phone || "",
+          address: response.data.address || "",
+          dateOfBirth: response.data.dateOfBirth
+            ? dayjs(response.data.dateOfBirth)
+            : null,
+        });
+      } catch (error) {
+        console.error(" Error fetching user data:", error);
+        message.error("Không thể lấy thông tin người dùng");
+      } finally {
+        setFetchingUser(false);
+      }
+    };
+
+    fetchUserData();
+  }, [form]);
 
   // Update profile
   const handleUpdateProfile = async (values) => {
@@ -70,7 +80,9 @@ const Profile = () => {
       message.success("Cập nhật hồ sơ thành công!");
       setEditing(false);
 
-      // Profile data will be updated from Redux after API response
+      // Refresh user data after successful update
+      const updatedResponse = await api.get("/me");
+      setUser(updatedResponse.data);
     } catch (error) {
       console.error("Error updating profile:", error);
       message.error("Cập nhật hồ sơ thất bại!");
@@ -101,7 +113,7 @@ const Profile = () => {
             </Button>
           </div>
         }
-        loading={loading}
+        loading={loading || fetchingUser}
       >
         <Row gutter={24}>
           {/* Avatar Section */}
@@ -109,15 +121,13 @@ const Profile = () => {
             <div className="avatar-section">
               <Avatar
                 size={120}
-                src={imageUrl || user?.imageUrl}
+                src={user?.imageUrl}
                 icon={<UserOutlined />}
                 className="profile-avatar"
               />
 
               <div className="user-basic-info">
-                <h3>
-                  {profileData?.fullname || user?.fullname || "Chưa có tên"}
-                </h3>
+                <h3>{user?.fullname || "Chưa có tên"}</h3>
                 <p>{user?.email}</p>
               </div>
             </div>
@@ -212,7 +222,7 @@ const Profile = () => {
                     <Button
                       onClick={() => {
                         setEditing(false);
-                        // Reset form to original user data from Redux
+                        // Reset form to original user data from API
                         form.setFieldsValue({
                           fullname: user?.fullname || "",
                           phone: user?.phone || "",

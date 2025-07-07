@@ -80,50 +80,6 @@ const RoomModal = ({ visible, onOk, onCancel, form, editingRoom }) => {
         </Form.Item>
 
         <Form.Item
-          name="location"
-          label="Vị trí"
-          rules={[{ required: true, message: "Vui lòng nhập vị trí phòng!" }]}
-        >
-          <Input placeholder="Nhập vị trí phòng" />
-        </Form.Item>
-
-        <Form.Item
-          name="capacity"
-          label="Sức chứa"
-          rules={[{ required: true, message: "Vui lòng nhập sức chứa!" }]}
-        >
-          <Input type="number" min={1} placeholder="Nhập sức chứa phòng" />
-        </Form.Item>
-
-        <Form.Item name="facilities" label="Tiện nghi">
-          <TextArea rows={2} placeholder="Nhập tiện nghi phòng" />
-        </Form.Item>
-
-        <Form.Item
-          name="openTime"
-          label="Giờ mở cửa"
-          rules={[{ required: true, message: "Vui lòng chọn giờ mở cửa!" }]}
-        >
-          <TimePicker
-            format="HH:mm"
-            placeholder="Chọn giờ mở cửa"
-            style={{ width: "100%" }}
-          />
-        </Form.Item>
-
-        <Form.Item
-          name="closeTime"
-          label="Giờ đóng cửa"
-          rules={[{ required: true, message: "Vui lòng chọn giờ đóng cửa!" }]}
-        >
-          <TimePicker
-            format="HH:mm"
-            placeholder="Chọn giờ đóng cửa"
-            style={{ width: "100%" }}
-          />
-        </Form.Item>
-
-        <Form.Item
           name="specializationId"
           label="Chuyên khoa"
           rules={[{ required: true, message: "Vui lòng chọn chuyên khoa!" }]}

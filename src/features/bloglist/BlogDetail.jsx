@@ -22,7 +22,7 @@ const BlogDetail = () => {
         const response = await fetchBlogDetail(id);
         const blogData = response.data;
 
-        console.log("📋 Blog detail loaded:", blogData);
+        console.log(" Blog detail loaded:", blogData);
 
         // Transform blog data
         const transformedArticle = {

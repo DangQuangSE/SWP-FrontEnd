@@ -7,17 +7,13 @@ const serviceOptions = [
   { label: "Đăng kí khám bệnh", href: "/services?type=dangki" },
 ];
 
-const blogOptions = [
-  { label: "Tin Y tế", href: "/tin-y-te" },
-  { label: "Tin dịch vụ", href: "/tin-dich-vu" },
-  { label: "Y học thường thức", href: "/y-hoc-thuong-thuc" },
-];
+// Removed blog options - no longer using tag-based navigation
 
 const Navigation = () => {
   const location = useLocation();
   const navigationItems = [
     { label: "Trang chủ", href: "/" },
-    { label: "Tin tức", href: "/blog", dropdown: true },
+    { label: "Tin tức", href: "/blog" },
     { label: "Dịch vụ", href: "/services", dropdown: true },
     { label: "Liên hệ", href: "/contact" },
   ];
@@ -32,7 +28,9 @@ const Navigation = () => {
           >
             <Link
               to={item.href}
-              className={`nav-link${location.pathname === item.href ? " active" : ""}`}
+              className={`nav-link${
+                location.pathname === item.href ? " active" : ""
+              }`}
             >
               {item.label}
             </Link>
@@ -48,21 +46,7 @@ const Navigation = () => {
                 ))}
               </ul>
             )}
-            {/* Dropdown for Tin tức */}
-            {item.dropdown && item.label === "Tin tức" && (
-              <ul className="dropdown-menu">
-                {blogOptions.map((opt, idx) => (
-                  <li key={idx}>
-                    <Link
-                      to={opt.href}
-                      className={`dropdown-link${location.pathname === opt.href ? " active" : ""}`}
-                    >
-                      {opt.label}
-                    </Link>
-                  </li>
-                ))}
-              </ul>
-            )}
+            {/* Removed Tin tức dropdown - now goes directly to /blog */}
           </li>
         ))}
       </ul>

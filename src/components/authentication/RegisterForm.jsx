@@ -3,7 +3,7 @@ import { Form, Input, Button, message, Spin } from "antd";
 import GradientButton from "../../components/common/GradientButton";
 import api from "../../configs/api";
 import { useDispatch } from "react-redux";
-import { login } from "../../redux/features/userSlice";
+import { login } from "../../redux/reduxStore/userSlice";
 import { toast } from "react-toastify";
 import LoginGoogle from "../../api/LoginGoogle";
 
