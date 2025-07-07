@@ -27,6 +27,7 @@ import {
 } from "@ant-design/icons";
 import chatAPIService from "./chatAPI";
 import { useChatWebSocket } from "./ChatWebSocketProvider";
+import { chatNotificationService } from "./ChatNotification";
 import "./StaffChatInterface.css";
 
 const { Text } = Typography;
@@ -46,6 +47,10 @@ const StaffChatInterface = ({ defaultTab = "waiting", hideTabs = false }) => {
   const [waitingSessions, setWaitingSessions] = useState([]);
   const [activeSessions, setActiveSessions] = useState([]);
   const messagesEndRef = useRef(null);
+  const subscriptionRef = useRef(null); // Track subscription to prevent duplicates
+  const processedSessionsRef = useRef(new Set()); // Track processed sessions
+  const notificationTimeoutRef = useRef({}); // Track notification timeouts
+  const lastReloadTimeRef = useRef(0); // Track last reload time for rate limiting
 
   // Sử dụng WebSocket context
   const { connected: wsConnected, service: chatWebSocketService } =
@@ -238,37 +243,127 @@ const StaffChatInterface = ({ defaultTab = "waiting", hideTabs = false }) => {
     setPreviousMessagesLength(messages.length);
   }, [messages, previousMessagesLength]);
 
-  // Handle new session notification from WebSocket
+  // Handle new session notification from WebSocket with duplicate prevention
   const handleNewSessionNotification = (newSession) => {
     console.log("🆕 [STAFF CHAT] Processing new session:", newSession);
 
+    // Strong duplicate prevention using ref
+    if (processedSessionsRef.current.has(newSession.sessionId)) {
+      console.log(
+        "⚠️ [STAFF CHAT] Session already processed, ignoring:",
+        newSession.sessionId
+      );
+      return;
+    }
+
+    // Mark session as processed
+    processedSessionsRef.current.add(newSession.sessionId);
+
+    // Prevent duplicate sessions in state
+    const sessionExists = (sessionsList) =>
+      sessionsList.some(
+        (session) => session.sessionId === newSession.sessionId
+      );
+
     // Add to appropriate sessions list based on status
     if (newSession.status === "WAITING") {
-      setWaitingSessions((prev) => [newSession, ...prev]);
+      setWaitingSessions((prev) => {
+        if (sessionExists(prev)) {
+          console.log(
+            "⚠️ [STAFF CHAT] Duplicate WAITING session ignored:",
+            newSession.sessionId
+          );
+          return prev;
+        }
+        return [newSession, ...prev];
+      });
+
       // If currently viewing waiting tab, update sessions display
       if (activeTab === "waiting") {
-        setSessions((prev) => [newSession, ...prev]);
+        setSessions((prev) => {
+          if (sessionExists(prev)) {
+            console.log("⚠️ [STAFF CHAT] Duplicate session in display ignored");
+            return prev;
+          }
+          return [newSession, ...prev];
+        });
       }
     } else if (newSession.status === "ACTIVE") {
-      setActiveSessions((prev) => [newSession, ...prev]);
+      setActiveSessions((prev) => {
+        if (sessionExists(prev)) {
+          console.log(
+            "⚠️ [STAFF CHAT] Duplicate ACTIVE session ignored:",
+            newSession.sessionId
+          );
+          return prev;
+        }
+        return [newSession, ...prev];
+      });
+
       // If currently viewing active tab, update sessions display
       if (activeTab === "active") {
-        setSessions((prev) => [newSession, ...prev]);
+        setSessions((prev) => {
+          if (sessionExists(prev)) {
+            console.log("⚠️ [STAFF CHAT] Duplicate session in display ignored");
+            return prev;
+          }
+          return [newSession, ...prev];
+        });
       }
     }
 
-    // Show notification to user
-    message.success(`Có chat session mới từ ${newSession.customerName}`);
+    // Play notification sound immediately (no debouncing for audio)
+    chatNotificationService.playNotificationSound();
+
+    // Show text notification with debouncing to prevent spam
+    const notificationKey = `chat-session-${newSession.sessionId}`;
+
+    // Clear existing timeout for this session
+    if (notificationTimeoutRef.current[newSession.sessionId]) {
+      clearTimeout(notificationTimeoutRef.current[newSession.sessionId]);
+    }
+
+    // Set new timeout - only show notification if no more events in 500ms
+    notificationTimeoutRef.current[newSession.sessionId] = setTimeout(() => {
+      message.success({
+        content: `Có chat session mới từ ${newSession.customerName}`,
+        key: notificationKey,
+        duration: 3,
+      });
+
+      // Clean up timeout reference
+      delete notificationTimeoutRef.current[newSession.sessionId];
+    }, 500);
   };
 
   // Auto-load all sessions when component mounts (when clicking Q&A)
   useEffect(() => {
     console.log("🚀 [STAFF CHAT] Component mounted, loading sessions...");
     loadAllSessions();
+
+    // Cleanup on unmount
+    return () => {
+      console.log(
+        "🧹 [STAFF CHAT] Component unmounting, clearing processed sessions..."
+      );
+      processedSessionsRef.current.clear();
+
+      // Clear all pending notification timeouts
+      Object.values(notificationTimeoutRef.current).forEach((timeout) => {
+        clearTimeout(timeout);
+      });
+      notificationTimeoutRef.current = {};
+    };
   }, []);
 
   // Subscribe to new session notifications when WebSocket is connected
   useEffect(() => {
+    // Prevent multiple subscriptions
+    if (subscriptionRef.current) {
+      console.log("⚠️ [STAFF CHAT] Subscription already exists, skipping...");
+      return;
+    }
+
     if (wsConnected && chatWebSocketService) {
       console.log("🔔 [STAFF CHAT] Setting up new session subscription...");
 
@@ -283,39 +378,80 @@ const StaffChatInterface = ({ defaultTab = "waiting", hideTabs = false }) => {
       );
 
       if (subscription) {
+        subscriptionRef.current = subscription;
         console.log(
           "✅ [STAFF CHAT] Successfully subscribed to new session notifications"
         );
       }
     }
+
+    // Cleanup function to prevent multiple subscriptions
+    return () => {
+      if (
+        subscriptionRef.current &&
+        typeof subscriptionRef.current.unsubscribe === "function"
+      ) {
+        console.log("🧹 [STAFF CHAT] Cleaning up WebSocket subscription...");
+        subscriptionRef.current.unsubscribe();
+        subscriptionRef.current = null;
+      }
+    };
   }, [wsConnected, chatWebSocketService]);
 
   // Handle session selection
-  const handleSessionSelect = (session) => {
+  const handleSessionSelect = async (session) => {
     console.log("📱 [STAFF CHAT] Selecting session:", session.sessionId);
 
-    setSelectedSession(session);
-    setMessages(mockMessages[session.sessionId] || []);
+    try {
+      // If this is a WAITING session in the waiting tab, join it first
+      if (session.status === "WAITING" && activeTab === "waiting") {
+        console.log("🚀 [STAFF CHAT] Joining WAITING session...");
+        const joinedSession = await chatAPIService.joinSession(
+          session.sessionId
+        );
+        console.log(
+          "✅ [STAFF CHAT] Session joined successfully:",
+          joinedSession
+        );
 
-    // Reset previous messages length to prevent unwanted scroll
-    setPreviousMessagesLength(0);
+        // Update selected session with joined session data
+        setSelectedSession(joinedSession);
+        message.success(`Đã tham gia chat với ${session.customerName}`);
 
-    // On smaller screens, scroll to chat area smoothly
-    setTimeout(() => {
-      const chatArea = document.querySelector(".chat-card");
-      if (chatArea && window.innerWidth < 768) {
-        chatArea.scrollIntoView({
-          behavior: "smooth",
-          block: "start",
-          inline: "nearest",
-        });
+        // Reload active tab to show the newly joined session
+        setTimeout(() => {
+          loadSessionsForTab("active");
+        }, 500);
+      } else {
+        // Normal session selection
+        setSelectedSession(session);
       }
 
-      // Focus input after selecting session (without scrolling)
-      if (inputRef.current) {
-        inputRef.current.focus({ preventScroll: true });
-      }
-    }, 200);
+      setMessages(mockMessages[session.sessionId] || []);
+
+      // Reset previous messages length to prevent unwanted scroll
+      setPreviousMessagesLength(0);
+
+      // On smaller screens, scroll to chat area smoothly
+      setTimeout(() => {
+        const chatArea = document.querySelector(".chat-card");
+        if (chatArea && window.innerWidth < 768) {
+          chatArea.scrollIntoView({
+            behavior: "smooth",
+            block: "start",
+            inline: "nearest",
+          });
+        }
+
+        // Focus input after selecting session (without scrolling)
+        if (inputRef.current) {
+          inputRef.current.focus({ preventScroll: true });
+        }
+      }, 200);
+    } catch (error) {
+      console.error("❌ [STAFF CHAT] Error handling session selection:", error);
+      message.error("Không thể tham gia chat session");
+    }
   };
 
   // Handle send message

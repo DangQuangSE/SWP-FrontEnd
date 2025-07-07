@@ -271,6 +271,19 @@ class ChatAPIService {
   }
 
   /**
+   * Join chat session (staff joins a waiting session)
+   */
+  async joinSession(sessionId) {
+    try {
+      const response = await this.api.post(`/chat/join/${sessionId}`);
+      return response.data;
+    } catch (error) {
+      console.error("Error joining session:", error);
+      throw error;
+    }
+  }
+
+  /**
    * Close chat session
    */
   async closeSession(sessionId, reason = "Completed") {
