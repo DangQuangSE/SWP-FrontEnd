@@ -25,6 +25,11 @@ import chatApi from "../../configs/chatApi";
 import { useRealTimeMessages } from "./hooks/useRealTimeMessages";
 import { customerChatAPI } from "./customerChatAPI";
 import unifiedChatAPI from "./unifiedChatAPI";
+import {
+  getMessageColors,
+  getAvatarColor,
+  getMessageBubbleStyle,
+} from "./chatColors";
 import "./CustomerChatWidget.css";
 
 const { Text } = Typography;
@@ -319,7 +324,7 @@ const CustomerChatWidget = () => {
     if (!inputMessage.trim() || !sessionId) return;
 
     const messageText = inputMessage.trim();
-    const customerName = currentUser?.name || "Customer";
+    // Use the customerName from state (entered in name form)
 
     // Add message to local state immediately for better UX
     // Clear input immediately for better UX
@@ -539,39 +544,38 @@ const CustomerChatWidget = () => {
               <div className="chat-messages-area">
                 {messages
                   .sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp))
-                  .map((msg) => (
-                    <div
-                      key={msg.id}
-                      className={`message-item ${
-                        msg.senderType === "SYSTEM"
-                          ? "system-message"
-                          : msg.senderType === "STAFF"
-                          ? "staff-message"
-                          : "customer-message"
-                      }`}
-                      style={{
-                        display: "flex",
-                        alignItems: "flex-start",
-                        marginBottom: "16px",
-                        padding: "8px 12px",
-                      }}
-                    >
-                      {msg.senderType !== "SYSTEM" && (
+                  .map((msg) => {
+                    console.log(`🎨 [CUSTOMER CHAT] Message colors:`, {
+                      senderType: msg.senderType,
+                      avatarColor: getAvatarColor(msg.senderType),
+                      bubbleStyle: getMessageBubbleStyle(msg.senderType),
+                    });
+
+                    return (
+                      <div
+                        key={`${msg.id}-${msg.senderType}`}
+                        className={`message-item ${
+                          msg.senderType === "STAFF"
+                            ? "staff-message"
+                            : "customer-message"
+                        }`}
+                        style={{
+                          display: "flex",
+                          alignItems: "flex-start",
+                          marginBottom: "16px",
+                          padding: "8px 12px",
+                        }}
+                      >
                         <Avatar
                           size={32}
                           icon={<UserOutlined />}
                           style={{
-                            backgroundColor:
-                              msg.senderType === "STAFF"
-                                ? "#1890ff"
-                                : "#52c41a",
+                            backgroundColor: getAvatarColor(msg.senderType),
                             marginRight: "12px",
                             flexShrink: 0,
                           }}
                         />
-                      )}
-                      <div className="message-details" style={{ flex: 1 }}>
-                        {msg.senderType !== "SYSTEM" && (
+                        <div className="message-details" style={{ flex: 1 }}>
                           <div
                             className="message-header"
                             style={{ marginBottom: "4px" }}
@@ -599,43 +603,23 @@ const CustomerChatWidget = () => {
                               )}
                             </Text>
                           </div>
-                        )}
-                        <div
-                          className="message-bubble"
-                          style={{
-                            backgroundColor:
-                              msg.senderType === "SYSTEM"
-                                ? "#f6ffed"
-                                : msg.senderType === "STAFF"
-                                ? "#1890ff"
-                                : "#52c41a",
-                            color:
-                              msg.senderType === "SYSTEM" ? "#389e0d" : "white",
-                            padding: "8px 12px",
-                            borderRadius: "12px",
-                            maxWidth: "80%",
-                            wordWrap: "break-word",
-                            border:
-                              msg.senderType === "SYSTEM"
-                                ? "1px solid #b7eb8f"
-                                : "none",
-                          }}
-                        >
-                          <Text
-                            style={{
-                              color:
-                                msg.senderType === "SYSTEM"
-                                  ? "#389e0d"
-                                  : "white",
-                              fontSize: "14px",
-                            }}
+                          <div
+                            className="message-bubble"
+                            style={getMessageBubbleStyle(msg.senderType)}
                           >
-                            {msg.message}
-                          </Text>
+                            <Text
+                              style={{
+                                color: getMessageColors(msg.senderType).text,
+                                fontSize: "14px",
+                              }}
+                            >
+                              {msg.message}
+                            </Text>
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  ))}
+                    );
+                  })}
 
                 {staffTyping && (
                   <div className="typing-indicator">

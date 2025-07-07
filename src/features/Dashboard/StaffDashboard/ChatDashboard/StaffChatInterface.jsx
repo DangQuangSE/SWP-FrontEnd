@@ -28,6 +28,11 @@ import {
 import { useSelector } from "react-redux";
 import chatAPIService from "./chatAPI";
 import unifiedChatAPI from "../../../Chat/unifiedChatAPI";
+import {
+  getMessageColors,
+  getAvatarColor,
+  getMessageBubbleStyle,
+} from "../../../Chat/chatColors";
 import { useChatWebSocket } from "./ChatWebSocketProvider";
 import { chatNotificationService } from "./ChatNotification";
 import { useRealTimeMessages } from "../../../Chat/hooks/useRealTimeMessages";
@@ -510,6 +515,7 @@ const StaffChatInterface = ({ defaultTab = "waiting", hideTabs = false }) => {
 
     const messageText = inputMessage;
     const sessionId = selectedSession.sessionId;
+    const staffName = currentUser?.name || "Nhân viên hỗ trợ";
 
     // Clear input immediately for better UX
     setInputMessage("");
@@ -519,7 +525,7 @@ const StaffChatInterface = ({ defaultTab = "waiting", hideTabs = false }) => {
       await unifiedChatAPI.sendMessage(
         sessionId,
         messageText,
-        "Staff Support",
+        staffName,
         true // isStaff = true
       );
 
@@ -1004,7 +1010,7 @@ const StaffChatInterface = ({ defaultTab = "waiting", hideTabs = false }) => {
                     )
                     .map((msg) => (
                       <div
-                        key={msg.id}
+                        key={`${msg.id}-${msg.senderType}`}
                         className={`message-item ${msg.senderType.toLowerCase()}`}
                         style={{
                           display: "flex",
@@ -1017,14 +1023,17 @@ const StaffChatInterface = ({ defaultTab = "waiting", hideTabs = false }) => {
                           size={32}
                           icon={<UserOutlined />}
                           style={{
-                            backgroundColor:
-                              msg.senderType === "STAFF"
-                                ? "#1890ff"
-                                : "#52c41a",
+                            backgroundColor: getAvatarColor(msg.senderType),
                             marginRight: "12px",
                             flexShrink: 0,
                           }}
                         />
+                        {/* Debug log */}
+                        {console.log(`🎨 [STAFF CHAT] Message colors:`, {
+                          senderType: msg.senderType,
+                          avatarColor: getAvatarColor(msg.senderType),
+                          bubbleStyle: getMessageBubbleStyle(msg.senderType),
+                        })}
                         <div className="message-details" style={{ flex: 1 }}>
                           <div
                             className="message-header"
@@ -1052,19 +1061,14 @@ const StaffChatInterface = ({ defaultTab = "waiting", hideTabs = false }) => {
                           </div>
                           <div
                             className="message-bubble"
-                            style={{
-                              backgroundColor:
-                                msg.senderType === "STAFF"
-                                  ? "#1890ff"
-                                  : "#52c41a",
-                              color: "white",
-                              padding: "8px 12px",
-                              borderRadius: "12px",
-                              maxWidth: "80%",
-                              wordWrap: "break-word",
-                            }}
+                            style={getMessageBubbleStyle(msg.senderType)}
                           >
-                            <Text style={{ color: "white", fontSize: "14px" }}>
+                            <Text
+                              style={{
+                                color: getMessageColors(msg.senderType).text,
+                                fontSize: "14px",
+                              }}
+                            >
                               {msg.message}
                             </Text>
                           </div>

@@ -185,8 +185,7 @@
 .message-text {
   word-wrap: break-word;
   line-height: 1.5;
-  color: #262626;
-  background: white;
+  /* Colors controlled by JavaScript */
   padding: 12px 16px;
   border-radius: 18px;
   border: 1px solid #e8e8e8;
@@ -382,14 +381,7 @@
   border-color: #40a9ff !important;
 }
 
-/* System message styling */
-.system-message .message-text {
-  background: #f6ffed !important;
-  border: 1px solid #b7eb8f !important;
-  color: #389e0d !important;
-  text-align: center;
-  font-style: italic;
-}
+/* Message colors handled by JavaScript */
 
 /* Waiting Area Styling */
 .chat-waiting-area {

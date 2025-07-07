@@ -241,7 +241,7 @@
 }
 
 .message-text {
-  background: #f5f5f5;
+  /* Background colors controlled by JavaScript */
   padding: 8px 12px;
   border-radius: 12px;
   word-wrap: break-word;
@@ -254,22 +254,12 @@
   flex-direction: row-reverse;
 }
 
-.message-item.staff .message-text {
-  background: #1890ff;
-  color: white;
-  margin-left: auto;
-}
-
 .message-item.staff .message-header {
   justify-content: flex-end;
   text-align: right;
 }
 
-/* Customer messages styling */
-.message-item.customer .message-text {
-  background: #f0f0f0;
-  color: #333;
-}
+/* Customer messages styling - colors handled by JavaScript */
 
 /* Input Area */
 .input-area {
