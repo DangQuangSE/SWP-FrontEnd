@@ -321,6 +321,34 @@ class ChatAPIService {
       throw error;
     }
   }
+
+  /**
+   * Lấy số lượng tin nhắn chưa đọc cho một session
+   * @param {string} sessionId - ID của session
+   * @param {string} readerName - Tên người đọc (staff name)
+   * @returns {Promise<number>} Số lượng tin nhắn chưa đọc
+   */
+  async getUnreadCount(sessionId, readerName) {
+    try {
+      const response = await this.api.get(
+        `/chat/sessions/${sessionId}/unread-count`,
+        {
+          params: { readerName },
+        }
+      );
+      console.log(
+        `📊 [CHAT API] Unread count for session ${sessionId}:`,
+        response.data
+      );
+      return response.data;
+    } catch (error) {
+      console.error(
+        `❌ [CHAT API] Error getting unread count for session ${sessionId}:`,
+        error
+      );
+      throw error;
+    }
+  }
 }
 
 // Export singleton instance

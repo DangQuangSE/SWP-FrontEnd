@@ -119,15 +119,22 @@ const StaffChatInterface = ({ defaultTab = "waiting", hideTabs = false }) => {
         fetchChatSessionsByStatus("ACTIVE"),
       ]);
 
+      // Fetch unread counts for both waiting and active sessions
+      // For staff: use customerName as readerName to count messages from customer
+      const [waitingWithUnread, activeWithUnread] = await Promise.all([
+        fetchUnreadCountsForSessions(waitingData, "STAFF"),
+        fetchUnreadCountsForSessions(activeData, "STAFF"),
+      ]);
+
       // Store sessions by status
-      setWaitingSessions(waitingData);
-      setActiveSessions(activeData);
+      setWaitingSessions(waitingWithUnread);
+      setActiveSessions(activeWithUnread);
 
       // Set current tab sessions
       if (activeTab === "waiting") {
-        setSessions(waitingData);
+        setSessions(waitingWithUnread);
       } else if (activeTab === "active") {
-        setSessions(activeData);
+        setSessions(activeWithUnread);
       }
 
       console.log("✅ [STAFF CHAT] All sessions loaded successfully");
@@ -136,6 +143,73 @@ const StaffChatInterface = ({ defaultTab = "waiting", hideTabs = false }) => {
       message.error("Không thể tải danh sách chat sessions");
     } finally {
       setLoading(false);
+    }
+  };
+
+  // Fetch unread count for sessions
+  const fetchUnreadCountsForSessions = async (sessions, readerType) => {
+    try {
+      console.log(
+        "📊 [STAFF CHAT] Fetching unread counts for sessions:",
+        sessions.length,
+        "Reader type:",
+        readerType
+      );
+
+      // Fetch unread counts for all sessions in parallel
+      const unreadCountPromises = sessions.map(async (session) => {
+        try {
+          // For staff dashboard: we want to count messages from customers
+          // So we pass "Nhân viên hỗ trợ" as readerName to exclude staff messages
+          const readerName =
+            readerType === "STAFF" ? "Nhân viên hỗ trợ" : session.customerName;
+
+          console.log(
+            `📊 [STAFF CHAT] Getting unread count for session ${session.sessionId} with readerName: ${readerName}`
+          );
+
+          const unreadCount = await chatAPIService.getUnreadCount(
+            session.sessionId,
+            readerName
+          );
+          return {
+            sessionId: session.sessionId,
+            unreadCount: unreadCount || 0,
+          };
+        } catch (error) {
+          console.error(
+            `❌ [STAFF CHAT] Error fetching unread count for session ${session.sessionId}:`,
+            error
+          );
+          return {
+            sessionId: session.sessionId,
+            unreadCount: 0,
+          };
+        }
+      });
+
+      const unreadCounts = await Promise.all(unreadCountPromises);
+
+      // Map unread counts back to sessions
+      const sessionsWithUnreadCount = sessions.map((session) => {
+        const unreadData = unreadCounts.find(
+          (uc) => uc.sessionId === session.sessionId
+        );
+        return {
+          ...session,
+          unreadCount: unreadData ? unreadData.unreadCount : 0,
+        };
+      });
+
+      console.log(
+        "✅ [STAFF CHAT] Sessions with unread counts:",
+        sessionsWithUnreadCount
+      );
+      return sessionsWithUnreadCount;
+    } catch (error) {
+      console.error("❌ [STAFF CHAT] Error fetching unread counts:", error);
+      // Return sessions without unread count if error
+      return sessions.map((session) => ({ ...session, unreadCount: 0 }));
     }
   };
 
@@ -153,11 +227,23 @@ const StaffChatInterface = ({ defaultTab = "waiting", hideTabs = false }) => {
         // Always fetch fresh data when clicking tab
         console.log("🔄 [STAFF CHAT] Fetching fresh WAITING sessions");
         sessionsData = await fetchChatSessionsByStatus("WAITING");
+        // Fetch unread counts for waiting sessions
+        // For staff: use "STAFF" to indicate we want to count customer messages
+        sessionsData = await fetchUnreadCountsForSessions(
+          sessionsData,
+          "STAFF"
+        );
         setWaitingSessions(sessionsData);
       } else if (tabKey === "active") {
         // Always fetch fresh data when clicking tab
         console.log("🔄 [STAFF CHAT] Fetching fresh ACTIVE sessions");
         sessionsData = await fetchChatSessionsByStatus("ACTIVE");
+        // Fetch unread counts for active sessions
+        // For staff: use "STAFF" to indicate we want to count customer messages
+        sessionsData = await fetchUnreadCountsForSessions(
+          sessionsData,
+          "STAFF"
+        );
         setActiveSessions(sessionsData);
       }
 
@@ -392,7 +478,42 @@ const StaffChatInterface = ({ defaultTab = "waiting", hideTabs = false }) => {
     };
   }, []);
 
-  // Subscribe to new session notifications when WebSocket is connected
+  // Handle new message from WebSocket to update unread count
+  const handleNewMessage = (message) => {
+    console.log("📨 [STAFF CHAT] New message received:", message);
+
+    // Update unread count for the session if it's not the currently selected session
+    if (selectedSession?.sessionId !== message.sessionId) {
+      // Update waiting sessions
+      setWaitingSessions((prev) =>
+        prev.map((session) =>
+          session.sessionId === message.sessionId
+            ? { ...session, unreadCount: (session.unreadCount || 0) + 1 }
+            : session
+        )
+      );
+
+      // Update active sessions
+      setActiveSessions((prev) =>
+        prev.map((session) =>
+          session.sessionId === message.sessionId
+            ? { ...session, unreadCount: (session.unreadCount || 0) + 1 }
+            : session
+        )
+      );
+
+      // Update current sessions display
+      setSessions((prev) =>
+        prev.map((session) =>
+          session.sessionId === message.sessionId
+            ? { ...session, unreadCount: (session.unreadCount || 0) + 1 }
+            : session
+        )
+      );
+    }
+  };
+
+  // Subscribe to new session notifications and staff messages when WebSocket is connected
   useEffect(() => {
     // Prevent multiple subscriptions
     if (subscriptionRef.current) {
@@ -401,42 +522,126 @@ const StaffChatInterface = ({ defaultTab = "waiting", hideTabs = false }) => {
     }
 
     if (wsConnected && chatWebSocketService) {
-      console.log("🔔 [STAFF CHAT] Setting up new session subscription...");
+      console.log("🔔 [STAFF CHAT] Setting up WebSocket subscriptions...");
 
-      const subscription = chatWebSocketService.subscribeToNewSessions(
-        (newSession) => {
+      // Subscribe to new session notifications
+      const newSessionSubscription =
+        chatWebSocketService.subscribeToNewSessions((newSession) => {
           console.log(
             "🔔 [STAFF CHAT] New session notification received:",
             newSession
           );
           handleNewSessionNotification(newSession);
-        }
-      );
+        });
 
-      if (subscription) {
-        subscriptionRef.current = subscription;
+      // Subscribe to staff messages for unread count updates
+      const staffMessagesSubscription =
+        chatWebSocketService.subscribeToStaffMessages((message) => {
+          console.log("📨 [STAFF CHAT] Staff message received:", message);
+          handleNewMessage(message);
+        });
+
+      if (newSessionSubscription || staffMessagesSubscription) {
+        subscriptionRef.current = {
+          newSession: newSessionSubscription,
+          staffMessages: staffMessagesSubscription,
+        };
         console.log(
-          "✅ [STAFF CHAT] Successfully subscribed to new session notifications"
+          "✅ [STAFF CHAT] Successfully subscribed to WebSocket notifications"
         );
       }
     }
 
     // Cleanup function to prevent multiple subscriptions
     return () => {
-      if (
-        subscriptionRef.current &&
-        typeof subscriptionRef.current.unsubscribe === "function"
-      ) {
-        console.log("🧹 [STAFF CHAT] Cleaning up WebSocket subscription...");
-        subscriptionRef.current.unsubscribe();
+      if (subscriptionRef.current) {
+        console.log("🧹 [STAFF CHAT] Cleaning up WebSocket subscriptions...");
+
+        // Unsubscribe from all subscriptions
+        if (subscriptionRef.current.newSession) {
+          subscriptionRef.current.newSession.unsubscribe();
+        }
+        if (subscriptionRef.current.staffMessages) {
+          subscriptionRef.current.staffMessages.unsubscribe();
+        }
+
         subscriptionRef.current = null;
+        console.log("✅ [STAFF CHAT] WebSocket subscriptions cleaned up");
       }
     };
   }, [wsConnected, chatWebSocketService]);
 
+  // Reset unread count when user selects a session
+  const resetUnreadCountForSession = (sessionId) => {
+    console.log(
+      `🔄 [STAFF CHAT] Resetting unread count for session: ${sessionId}`
+    );
+
+    // Update waiting sessions
+    setWaitingSessions((prev) =>
+      prev.map((session) =>
+        session.sessionId === sessionId
+          ? { ...session, unreadCount: 0 }
+          : session
+      )
+    );
+
+    // Update active sessions
+    setActiveSessions((prev) =>
+      prev.map((session) =>
+        session.sessionId === sessionId
+          ? { ...session, unreadCount: 0 }
+          : session
+      )
+    );
+
+    // Update current sessions display
+    setSessions((prev) =>
+      prev.map((session) =>
+        session.sessionId === sessionId
+          ? { ...session, unreadCount: 0 }
+          : session
+      )
+    );
+  };
+
+  // Refresh unread counts for current sessions
+  const refreshUnreadCounts = async () => {
+    try {
+      console.log(
+        "🔄 [STAFF CHAT] Refreshing unread counts after message sent..."
+      );
+
+      if (sessions.length === 0) return;
+
+      // Refresh unread counts for current sessions
+      const updatedSessions = await fetchUnreadCountsForSessions(
+        sessions,
+        "STAFF"
+      );
+
+      // Update the appropriate state based on current tab
+      if (activeTab === "waiting") {
+        setWaitingSessions(updatedSessions);
+      } else if (activeTab === "active") {
+        setActiveSessions(updatedSessions);
+      }
+
+      // Update current sessions display
+      setSessions(updatedSessions);
+
+      console.log("✅ [STAFF CHAT] Unread counts refreshed successfully");
+    } catch (error) {
+      console.error("❌ [STAFF CHAT] Error refreshing unread counts:", error);
+    }
+  };
+
   // Handle session selection
   const handleSessionSelect = async (session) => {
     console.log("📱 [STAFF CHAT] Selecting session:", session.sessionId);
+
+    // Reset unread count for the selected session
+    resetUnreadCountForSession(session.sessionId);
 
     try {
       // If this is a WAITING session in the waiting tab, join it first
@@ -474,6 +679,11 @@ const StaffChatInterface = ({ defaultTab = "waiting", hideTabs = false }) => {
           message.success(
             `Đã gửi tin nhắn chào hỏi tới ${session.customerName}`
           );
+
+          // Refresh unread counts after sending greeting message
+          setTimeout(() => {
+            refreshUnreadCounts();
+          }, 1000);
         } catch (error) {
           console.error(
             "❌ [STAFF CHAT] Failed to send greeting message:",
@@ -559,6 +769,11 @@ const StaffChatInterface = ({ defaultTab = "waiting", hideTabs = false }) => {
       setTimeout(() => {
         scrollToBottom();
       }, 100);
+
+      // Refresh unread counts after sending message
+      setTimeout(() => {
+        refreshUnreadCounts();
+      }, 1000); // Wait a bit longer to ensure message is processed
 
       // Update session's last message
       setSessions((prev) =>

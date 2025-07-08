@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import {
   Button,
   Input,
@@ -47,7 +47,12 @@ const CustomerChatWidget = () => {
   const [staffOnline, setStaffOnline] = useState(false);
   const [staffTyping, setStaffTyping] = useState(false);
   const [sessionStatus, setSessionStatus] = useState("WAITING"); // WAITING, ACTIVE, COMPLETED
-  const [unreadCount, setUnreadCount] = useState(0);
+  const [unreadCount, setUnreadCount] = useState(() => {
+    // Load unread count from localStorage on init
+    const saved = localStorage.getItem("chat_unread_count");
+    return saved ? parseInt(saved, 10) : 0;
+  });
+  const [lastReadMessageId, setLastReadMessageId] = useState(null);
 
   // Real-time messages hook
   const {
@@ -136,9 +141,23 @@ const CustomerChatWidget = () => {
                   );
                 }
 
-                // Update unread count if widget is closed
-                if (!isOpen) {
-                  setUnreadCount((prev) => prev + 1);
+                // Update unread count if widget is closed and message is from staff
+                if (!isOpen && data.senderType === "STAFF") {
+                  console.log(
+                    "📊 [CUSTOMER WS] Incrementing unread count for staff message"
+                  );
+                  setUnreadCount((prev) => {
+                    const newCount = prev + 1;
+                    console.log(
+                      `📊 [CUSTOMER WS] Unread count: ${prev} → ${newCount}`
+                    );
+                    // Save to localStorage
+                    localStorage.setItem(
+                      "chat_unread_count",
+                      newCount.toString()
+                    );
+                    return newCount;
+                  });
                 }
 
                 // Trigger refetch to sync with backend (get real message from server)
@@ -312,12 +331,60 @@ const CustomerChatWidget = () => {
     };
   }, [sessionId]);
 
+  // Save unread count to localStorage
+  const saveUnreadCount = (count) => {
+    localStorage.setItem("chat_unread_count", count.toString());
+  };
+
+  // Update unread count with persistence
+  const updateUnreadCount = useCallback(
+    (newCount) => {
+      console.log(
+        `📊 [CUSTOMER CHAT] Updating unread count: ${unreadCount} → ${newCount}`
+      );
+      setUnreadCount(newCount);
+      saveUnreadCount(newCount);
+    },
+    [unreadCount]
+  );
+
+  // Fetch unread count from server
+  const fetchUnreadCount = async () => {
+    if (!sessionId || !customerName) return;
+
+    try {
+      console.log("📊 [CUSTOMER CHAT] Fetching unread count from server...");
+      const count = await customerChatAPI.getUnreadCount(
+        sessionId,
+        customerName
+      );
+      console.log("✅ [CUSTOMER CHAT] Server unread count:", count);
+      updateUnreadCount(count);
+    } catch (error) {
+      console.error("❌ [CUSTOMER CHAT] Error fetching unread count:", error);
+    }
+  };
+
+  // Load unread count when session is established
+  useEffect(() => {
+    if (sessionId && customerName && !isOpen) {
+      fetchUnreadCount();
+    }
+  }, [sessionId, customerName, isOpen]);
+
   // Reset unread count when widget opens
   useEffect(() => {
     if (isOpen) {
-      setUnreadCount(0);
+      console.log("🔄 [CUSTOMER CHAT] Widget opened - resetting unread count");
+      updateUnreadCount(0);
+
+      // Mark messages as read on server if session exists
+      if (sessionId && customerName) {
+        // Optional: Call mark as read API here if available
+        console.log("📖 [CUSTOMER CHAT] Marking messages as read on server");
+      }
     }
-  }, [isOpen]);
+  }, [isOpen, sessionId, customerName, updateUnreadCount]);
 
   // Handle send message
   const handleSendMessage = async () => {
@@ -450,13 +517,34 @@ const CustomerChatWidget = () => {
           }
           placement="left"
         >
-          <Badge count={unreadCount} offset={[-8, 8]}>
+          <Badge
+            count={unreadCount}
+            offset={[-8, 8]}
+            style={{
+              backgroundColor: "#ff4d4f",
+              color: "white",
+              fontWeight: "bold",
+              fontSize: "12px",
+              minWidth: "20px",
+              height: "20px",
+              lineHeight: "20px",
+              borderRadius: "10px",
+              border: "2px solid white",
+              boxShadow: "0 2px 8px rgba(0,0,0,0.15)",
+            }}
+            showZero={false}
+          >
             <Button
               type="primary"
               shape="circle"
               size="large"
               icon={isOpen ? <CloseOutlined /> : <MessageOutlined />}
               className={`chat-toggle-btn ${isOpen ? "open" : ""}`}
+              style={{
+                position: "relative",
+                boxShadow: "0 4px 12px rgba(24, 144, 255, 0.3)",
+                transition: "all 0.3s ease",
+              }}
             />
           </Badge>
         </Tooltip>

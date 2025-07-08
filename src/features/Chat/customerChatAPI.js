@@ -170,6 +170,38 @@ class CustomerChatAPIService {
       throw error;
     }
   }
+
+  /**
+   * Get unread count for customer in a session
+   * @param {string} sessionId - Session ID
+   * @param {string} customerName - Customer name
+   * @returns {Promise<number>} Number of unread messages
+   */
+  async getUnreadCount(sessionId, customerName) {
+    try {
+      console.log("📊 [CUSTOMER CHAT API] Getting unread count:", {
+        sessionId,
+        customerName,
+      });
+
+      const response = await this.api.get(
+        `/chat/sessions/${sessionId}/unread-count`,
+        {
+          params: { readerName: customerName },
+        }
+      );
+
+      console.log("✅ [CUSTOMER CHAT API] Unread count:", response.data);
+      return response.data || 0;
+    } catch (error) {
+      console.error(
+        "❌ [CUSTOMER CHAT API] Error getting unread count:",
+        error
+      );
+      // Return 0 if error to prevent UI issues
+      return 0;
+    }
+  }
 }
 
 // Export singleton instance
