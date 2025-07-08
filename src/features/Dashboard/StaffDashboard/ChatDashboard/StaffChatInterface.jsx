@@ -48,7 +48,6 @@ const { TextArea } = Input;
 const StaffChatInterface = ({ defaultTab = "waiting", hideTabs = false }) => {
   const [activeTab, setActiveTab] = useState(defaultTab);
   const [selectedSession, setSelectedSession] = useState(null);
-  const [messages, setMessages] = useState([]);
   const [inputMessage, setInputMessage] = useState("");
   const [sessions, setSessions] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -61,6 +60,7 @@ const StaffChatInterface = ({ defaultTab = "waiting", hideTabs = false }) => {
     messages: realTimeMessages,
     loading: messagesLoading,
     addMessage,
+    clearMessages,
     refetch: refetchMessages,
   } = useRealTimeMessages(
     selectedSession?.sessionId,
@@ -86,6 +86,17 @@ const StaffChatInterface = ({ defaultTab = "waiting", hideTabs = false }) => {
       console.log("🚀 [STAFF CHAT] Fetching sessions with status:", status);
       const response = await chatAPIService.getChatSessions(status);
       console.log(`✅ [STAFF CHAT] ${status} sessions fetched:`, response);
+
+      // Debug: Check each session's actual status
+      response.forEach((session, index) => {
+        console.log(`🔍 [STAFF CHAT] Session ${index + 1}:`, {
+          sessionId: session.sessionId,
+          customerName: session.customerName,
+          status: session.status,
+          expectedStatus: status,
+        });
+      });
+
       return response;
     } catch (error) {
       console.error(
@@ -258,17 +269,19 @@ const StaffChatInterface = ({ defaultTab = "waiting", hideTabs = false }) => {
   useEffect(() => {
     // Only scroll if messages were added (not replaced)
     if (
-      messages.length > previousMessagesLength &&
+      realTimeMessages.length > previousMessagesLength &&
       previousMessagesLength > 0
     ) {
       scrollToBottom();
     }
-    setPreviousMessagesLength(messages.length);
-  }, [messages, previousMessagesLength]);
+    setPreviousMessagesLength(realTimeMessages.length);
+  }, [realTimeMessages, previousMessagesLength]);
 
   // Handle new session notification from WebSocket with duplicate prevention
   const handleNewSessionNotification = (newSession) => {
     console.log("🆕 [STAFF CHAT] Processing new session:", newSession);
+    console.log("🔍 [STAFF CHAT] New session status:", newSession.status);
+    console.log("🔍 [STAFF CHAT] Current active tab:", activeTab);
 
     // Strong duplicate prevention using ref
     if (processedSessionsRef.current.has(newSession.sessionId)) {
@@ -478,11 +491,15 @@ const StaffChatInterface = ({ defaultTab = "waiting", hideTabs = false }) => {
           loadSessionsForTab("active");
         }, 500);
       } else {
-        // Normal session selection
+        // Normal session selection - clear messages first
+        console.log("🔄 [STAFF CHAT] Switching to session:", session.sessionId);
+
+        // Clear previous messages immediately
+        clearMessages();
+
+        // Set selected session (this will trigger useRealTimeMessages to fetch new messages)
         setSelectedSession(session);
       }
-
-      setMessages(mockMessages[session.sessionId] || []);
 
       // Reset previous messages length to prevent unwanted scroll
       setPreviousMessagesLength(0);
