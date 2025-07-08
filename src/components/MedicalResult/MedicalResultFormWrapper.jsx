@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { Modal, Button, Alert, Space } from "antd";
 import { ExperimentOutlined } from "@ant-design/icons";
 import MedicalResultForm from "./MedicalResultForm";
-import dayjs from "dayjs";
+// import dayjs from "dayjs";
 
 /**
  * Wrapper component to handle MedicalResultForm with proper error handling

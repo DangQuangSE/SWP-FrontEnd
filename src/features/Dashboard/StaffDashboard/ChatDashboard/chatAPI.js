@@ -72,7 +72,7 @@ class ChatAPIService {
             "🔐 [STAFF CHAT API] Unauthorized - redirecting to login"
           );
           localStorage.removeItem("token");
-          window.location.href = "/login";
+          // window.location.href = "/login";
         }
 
         return Promise.reject(error);
