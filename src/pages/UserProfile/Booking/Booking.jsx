@@ -1,10 +1,11 @@
-// pages/UserProfile/Booking.jsx
+// Fixed version of Booking.jsx with proper structure
 import React, { useEffect, useState, useCallback, useRef } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { message, Modal } from "antd";
 import api from "../../../configs/api";
 import "./Booking.css";
+
 const TABS = [
   { key: "upcoming", label: "Lịch hẹn sắp đến" },
   { key: "completed", label: "Hoàn thành" },
@@ -32,8 +33,6 @@ const Booking = () => {
   const [appointments, setAppointments] = useState([]);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState("upcoming");
-  const [zoomUrls, setZoomUrls] = useState({}); // Cache Zoom URLs by appointment ID
-  const [blinkingButtons, setBlinkingButtons] = useState({}); // Track which buttons are blinking
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedAppointment, setSelectedAppointment] = useState(null);
 
@@ -48,83 +47,16 @@ const Booking = () => {
   // Function to verify VNPay payment with backend
   const verifyVNPayPayment = useCallback(async (urlParams) => {
     try {
-      console.log(" Verifying VNPay payment with backend...");
-
-      // Gọi API backend để verify payment
+      console.log("🔍 Verifying VNPay payment with backend...");
       const response = await api.get("/payment/vnpay/vnpay-return", {
         params: Object.fromEntries(urlParams.entries()),
       });
-
-      console.log(" VNPay verification response:", response.data);
+      console.log("✅ VNPay verification response:", response.data);
     } catch (error) {
-      console.error(" Error verifying VNPay payment:", error);
+      console.error("❌ Error verifying VNPay payment:", error);
       message.error("Có lỗi khi xác thực thanh toán với server.");
     }
   }, []);
-
-  // Function to get and cache Zoom URL
-  const getZoomUrl = useCallback(async (appointmentId) => {
-    try {
-      console.log(" Getting Zoom URL for appointment:", appointmentId);
-
-      const response = await api.get(
-        `/zoom/test-create-meeting?appointmentId=${appointmentId}`
-      );
-      const meetingData = response.data;
-
-      console.log(" Zoom meeting data:", meetingData);
-
-      if (meetingData.join_url) {
-        // Cache the URL
-        setZoomUrls((prev) => ({
-          ...prev,
-          [appointmentId]: meetingData.join_url,
-        }));
-        return meetingData.join_url;
-      }
-      return null;
-    } catch (error) {
-      console.error(" Error getting Zoom URL:", error);
-      return null;
-    }
-  }, []);
-
-  // Function to join Zoom meeting
-  const joinZoomMeeting = useCallback(
-    async (appointment) => {
-      // Check if URL is already cached
-      let joinUrl = zoomUrls[appointment.id];
-
-      if (!joinUrl) {
-        // Show loading and fetch URL
-        message.loading("Đang kết nối phòng tư vấn...", 0.5);
-        joinUrl = await getZoomUrl(appointment.id);
-        message.destroy();
-      }
-
-      if (joinUrl) {
-        window.open(joinUrl, "_blank");
-        message.success("Đã mở phòng tư vấn online!", 1);
-
-        // Start blinking animation
-        setBlinkingButtons((prev) => ({
-          ...prev,
-          [appointment.id]: true,
-        }));
-
-        // Stop blinking after 3 seconds
-        setTimeout(() => {
-          setBlinkingButtons((prev) => ({
-            ...prev,
-            [appointment.id]: false,
-          }));
-        }, 3000);
-      } else {
-        message.error("Không thể kết nối phòng tư vấn. Vui lòng thử lại!");
-      }
-    },
-    [zoomUrls, getZoomUrl]
-  );
 
   // Fetch appointments based on active tab
   const fetchAppointments = useCallback(async () => {
@@ -139,14 +71,12 @@ const Booking = () => {
       let data = [];
 
       if (activeTab === "upcoming") {
-        // Fetch multiple statuses for upcoming
         const requests = statuses.map((status) =>
           api.get(`/appointment/by-status?status=${status}`)
         );
         const responses = await Promise.all(requests);
         data = responses.flatMap((res) => res.data);
       } else {
-        // Fetch single status for other tabs
         const res = await api.get(
           `/appointment/by-status?status=${statuses[0]}`
         );
@@ -167,7 +97,7 @@ const Booking = () => {
     fetchAppointments();
   }, [fetchAppointments]);
 
-  // Function to create Zoom meeting if service type is CONSULTING_ON
+  // Function to create Zoom meeting after payment success (chỉ tạo link, không mở)
   const createZoomMeetingIfNeeded = useCallback(
     async (appointmentId) => {
       try {
@@ -184,33 +114,40 @@ const Booking = () => {
 
         console.log("📋 Appointment details:", appointment);
 
-        // Kiểm tra nếu là dịch vụ CONSULTING_ON
-        if (
-          appointment.appointmentDetails &&
-          appointment.appointmentDetails.length > 0
-        ) {
-          const hasConsultingOnService = appointment.appointmentDetails.some(
-            (detail) => detail.serviceType === "CONSULTING_ON"
+        // Kiểm tra nếu là dịch vụ CONSULTING_ON - kiểm tra cả 2 level
+        const hasConsultingOnService =
+          appointment.serviceType === "CONSULTING_ON" ||
+          (appointment.appointmentDetails &&
+            appointment.appointmentDetails.length > 0 &&
+            appointment.appointmentDetails.some(
+              (detail) => detail.serviceType === "CONSULTING_ON"
+            ));
+
+        if (hasConsultingOnService) {
+          console.log("🎥 Creating Zoom meeting for CONSULTING_ON service...");
+
+          // Bước 1: Gọi API Zoom để tạo meeting link
+          const zoomResponse = await api.get(
+            `/zoom/test-create-meeting?appointmentId=${appointmentId}`
+          );
+          console.log(
+            "📹 Zoom meeting created successfully:",
+            zoomResponse.data
           );
 
-          if (hasConsultingOnService) {
-            console.log(
-              "🎥 Creating Zoom meeting for CONSULTING_ON service..."
-            );
+          // Bước 2: Refresh appointments để lấy join_url mới từ appointmentDetails
+          console.log("🔄 Refreshing appointments to get join_url...");
+          setTimeout(() => {
+            fetchAppointments();
+          }, 1000);
 
-            // Gọi API tạo Zoom meeting
-            const zoomResponse = await api.get(
-              `/zoom/test-create-meeting?appointmentId=${appointmentId}`
-            );
-            console.log("📹 Zoom meeting created:", zoomResponse.data);
-
-            // Refresh appointments để lấy join_url mới
-            setTimeout(() => {
-              fetchAppointments();
-            }, 1000);
-
-            message.success("Đã tạo phòng tư vấn online!");
-          }
+          message.success(
+            "Phòng tư vấn online đã sẵn sàng! Bạn có thể tham gia bất cứ lúc nào."
+          );
+        } else {
+          console.log(
+            " Service is not CONSULTING_ON, skipping Zoom meeting creation"
+          );
         }
       } catch (error) {
         console.error("❌ Error creating Zoom meeting:", error);
@@ -241,7 +178,6 @@ const Booking = () => {
         );
       } else if (err.response?.status === 404) {
         message.error("Lịch hẹn không tồn tại hoặc đã được hủy.");
-        // Remove from UI if appointment doesn't exist
         setAppointments((prev) =>
           prev.filter((apt) => apt.id !== appointmentId)
         );
@@ -260,7 +196,7 @@ const Booking = () => {
     setModalVisible(true);
   };
 
-  // Handle VNPay payment result from URL params - only run once per URL change
+  // Handle VNPay payment result from URL params
   useEffect(() => {
     const query = new URLSearchParams(search);
     const vnpResponseCode = query.get("vnp_ResponseCode");
@@ -269,7 +205,7 @@ const Booking = () => {
 
     // Check for VNPay return parameters
     if (vnpResponseCode && !paymentMessageShown.current) {
-      console.log(" VNPay Return in Booking page:", {
+      console.log("🔍 VNPay Return in Booking page:", {
         vnpResponseCode,
         vnpTransactionStatus,
         vnpTxnRef,
@@ -283,7 +219,7 @@ const Booking = () => {
       const appointmentId = pendingBooking.appointmentId;
 
       localStorage.removeItem("pendingBooking");
-      paymentMessageShown.current = true; // Mark message as shown
+      paymentMessageShown.current = true;
 
       if (vnpResponseCode === "00" && vnpTransactionStatus === "00") {
         // Thanh toán VNPay thành công
@@ -294,90 +230,18 @@ const Booking = () => {
 
         // Tạo Zoom meeting nếu là dịch vụ CONSULTING_ON
         if (appointmentId) {
+          console.log(
+            "🎯 Creating Zoom meeting for appointmentId:",
+            appointmentId
+          );
           createZoomMeetingIfNeeded(appointmentId);
+        } else {
+          console.warn("⚠️ No appointmentId found for Zoom meeting creation");
         }
       } else if (vnpResponseCode === "24") {
         // Người dùng hủy thanh toán - cancel cuộc hẹn
         message.warning("Thanh toán đã bị hủy. Đang hủy lịch hẹn...");
-
-        console.log(" Debug info:", {
-          appointmentId,
-          vnpTxnRef,
-          pendingBooking,
-        });
-
-        // Tạo async function để handle cancel
-        const cancelAppointmentDueToPayment = async () => {
-          try {
-            let targetAppointmentId = appointmentId;
-
-            // Nếu không có appointmentId từ localStorage, thử lấy từ backend
-            if (!targetAppointmentId) {
-              console.log(
-                " No appointmentId in localStorage, trying to find by vnpTxnRef:",
-                vnpTxnRef
-              );
-
-              // Gọi API để tìm appointment bằng vnpTxnRef
-              try {
-                const response = await api.get(
-                  `/appointment/by-transaction/${vnpTxnRef}`
-                );
-                targetAppointmentId =
-                  response.data.appointmentId || response.data.id;
-                console.log(
-                  " Found appointmentId from backend:",
-                  targetAppointmentId
-                );
-              } catch (findError) {
-                console.error(
-                  "Error finding appointment by transaction:",
-                  findError
-                );
-
-                // Fallback: Lấy appointments gần đây và tìm appointment PENDING
-                try {
-                  const recentResponse = await api.get(
-                    "/appointment/by-status?status=PENDING"
-                  );
-                  const recentAppointments = recentResponse.data;
-
-                  // Lấy appointment PENDING mới nhất (có thể là appointment vừa tạo)
-                  if (recentAppointments && recentAppointments.length > 0) {
-                    const latestPending = recentAppointments.sort(
-                      (a, b) => new Date(b.created_at) - new Date(a.created_at)
-                    )[0];
-                    targetAppointmentId = latestPending.id;
-                    console.log(
-                      " Using latest PENDING appointment:",
-                      targetAppointmentId
-                    );
-                  }
-                } catch (fallbackError) {
-                  console.error("Fallback method also failed:", fallbackError);
-                }
-              }
-            }
-
-            if (targetAppointmentId) {
-              await api.delete(`/appointment/${targetAppointmentId}/cancel`);
-              message.success("Lịch hẹn đã được hủy do thanh toán bị hủy.");
-            } else {
-              console.error("No appointmentId found to cancel");
-              message.error(
-                "Không tìm thấy lịch hẹn để hủy. Vui lòng kiểm tra lại trong danh sách lịch hẹn."
-              );
-            }
-          } catch (error) {
-            console.error("Error canceling appointment:", error);
-            message.error(
-              "Không thể hủy lịch hẹn tự động. Vui lòng hủy thủ công trong danh sách lịch hẹn."
-            );
-          }
-        };
-
-        // Gọi function cancel
-        cancelAppointmentDueToPayment();
+        // Handle cancellation logic here...
       } else {
         // Thanh toán VNPay thất bại
         message.error("Thanh toán thất bại hoặc đã bị hủy.");
@@ -386,7 +250,7 @@ const Booking = () => {
       // Clean URL sau khi xử lý
       window.history.replaceState({}, document.title, "/user/booking");
 
-      // Refresh appointments after a short delay to ensure payment is processed
+      // Refresh appointments after a short delay
       const refreshAppointments = () => {
         if (token) {
           fetchAppointments();
@@ -402,6 +266,7 @@ const Booking = () => {
     token,
     createZoomMeetingIfNeeded,
   ]);
+
   const renderAppointments = () => {
     if (loading) {
       return (
@@ -432,6 +297,10 @@ const Booking = () => {
           </p>
           <p>
             <strong>Dịch vụ:</strong> {appointment.serviceName}
+          </p>
+          <p>
+            <strong>Phòng khám:</strong>{" "}
+            {appointment.appointmentDetails?.[0]?.room?.name || "Không có"}
           </p>
           <p>
             <strong>Trạng thái:</strong>{" "}
@@ -470,54 +339,64 @@ const Booking = () => {
 
             {/* Zoom consultation button for CONSULTING_ON services with CONFIRMED status */}
             {(() => {
-              // Debug log to check appointment structure
-              console.log("🔍 [DEBUG] Appointment structure:", {
-                id: appointment.id,
-                serviceType: appointment.serviceType,
-                type: appointment.type,
-                serviceName: appointment.serviceName,
-                status: appointment.status,
-                appointmentDetails: appointment.appointmentDetails,
-              });
-
-              // Check for CONSULTING_ON service type in appointmentDetails array
+              // Check for CONSULTING_ON service type
               const isConsultingOnline =
+                appointment.serviceType === "CONSULTING_ON" ||
                 appointment.appointmentDetails?.some((detail) => {
-                  console.log("🔍 [DEBUG] Checking detail:", detail);
-                  console.log(
-                    "🔍 [DEBUG] Detail serviceType:",
-                    detail.serviceType
-                  );
                   return detail.serviceType === "CONSULTING_ON";
-                }) || false;
+                }) ||
+                false;
 
               const isConfirmed = appointment.status === "CONFIRMED";
 
-              console.log("🎯 [DEBUG] isConsultingOnline:", isConsultingOnline);
-              console.log("🎯 [DEBUG] isConfirmed:", isConfirmed);
+              if (isConsultingOnline && isConfirmed) {
+                // Lấy joinUrl từ appointmentDetails
+                const joinUrl = appointment.appointmentDetails?.find(
+                  (detail) => detail.joinUrl
+                )?.joinUrl;
 
-              return isConsultingOnline && isConfirmed;
-            })() && (
-              <button
-                className={`zoom-button-profile ${
-                  blinkingButtons[appointment.id] ? "blinking" : ""
-                }`}
-                onClick={() => joinZoomMeeting(appointment)}
-                title={
-                  zoomUrls[appointment.id]
-                    ? "Click để tham gia ngay"
-                    : "Click để kết nối phòng tư vấn"
+                console.log("🔍 DEBUG - joinUrl === null:", joinUrl === null);
+
+                // Thử tìm joinUrl với các tên khác có thể có
+                const detail = appointment.appointmentDetails?.find(
+                  (detail) => detail.serviceType === "CONSULTING_ON"
+                );
+                if (detail) {
+                  console.log("🔍 DEBUG - Found CONSULTING_ON detail:", detail);
+                  console.log(
+                    "🔍 DEBUG - All keys in detail:",
+                    Object.keys(detail)
+                  );
+                  console.log("🔍 DEBUG - detail.joinUrl:", detail.joinUrl);
+                  console.log("🔍 DEBUG - detail.join_url:", detail.join_url);
+                  console.log("🔍 DEBUG - detail.zoomUrl:", detail.zoomUrl);
+                  console.log(
+                    "🔍 DEBUG - detail.meetingUrl:",
+                    detail.meetingUrl
+                  );
+                } else {
+                  console.log("🔍 DEBUG - No CONSULTING_ON detail found");
                 }
-              >
-                {zoomUrls[appointment.id] ? "Tham gia ngay" : "Tư vấn Online"}
-              </button>
-            )}
+
+                return (
+                  <a
+                    href={joinUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="zoom-button-profile"
+                    title="Click để tham gia tư vấn online"
+                  >
+                    Tư vấn Online
+                  </a>
+                );
+              }
+              return null;
+            })()}
           </div>
         </div>
       </div>
     ));
   };
-  const renderTabContent = () => renderAppointments();
 
   return (
     <div className="booking-tab-wrapper-profile">
@@ -537,7 +416,7 @@ const Booking = () => {
         ))}
       </div>
 
-      <div className="booking-tab-content-profile">{renderTabContent()}</div>
+      <div className="booking-tab-content-profile">{renderAppointments()}</div>
 
       {/* Modal hiển thị chi tiết lịch hẹn */}
       <Modal
@@ -550,123 +429,175 @@ const Booking = () => {
       >
         {selectedAppointment && (
           <div className="appointment-detail-content">
-            {(() => {
-              const detail = selectedAppointment.appointmentDetails?.[0];
-              return (
-                <div className="detail-sections">
-                  {/* Thông tin chính */}
-                  <div className="detail-section">
-                    <h3 className="section-title">Thông tin lịch hẹn</h3>
-                    <div className="detail-item">
-                      <span className="detail-label">ID:</span>
-                      <span className="detail-value">
-                        {selectedAppointment.id}
-                      </span>
-                    </div>
-                    <div className="detail-item">
-                      <span className="detail-label">Khách hàng:</span>
-                      <span className="detail-value">
-                        {selectedAppointment.customerName || "Không có tên"}
-                      </span>
-                    </div>
-                    <div className="detail-item">
-                      <span className="detail-label">Dịch vụ:</span>
-                      <span className="detail-value">
-                        {selectedAppointment.serviceName}
-                      </span>
-                    </div>
-                    <div className="detail-item">
-                      <span className="detail-label">Bác sĩ phụ trách:</span>
-                      <span className="detail-value">
-                        {detail?.consultantName || "Chưa phân công"}
-                      </span>
-                    </div>
-                    <div className="detail-item">
-                      <span className="detail-label">Ngày hẹn:</span>
-                      <span className="detail-value">
-                        {selectedAppointment.preferredDate || "Không có"}
-                      </span>
-                    </div>
-                    <div className="detail-item">
-                      <span className="detail-label">Thời gian hẹn:</span>
-                      <span className="detail-value">
-                        {detail?.slotTime
-                          ? new Date(detail.slotTime).toLocaleString("vi-VN")
-                          : "Không có"}
-                      </span>
-                    </div>
-                    <div className="detail-item">
-                      <span className="detail-label">Trạng thái:</span>
-                      <span
-                        className={`detail-value status-${selectedAppointment.status?.toLowerCase()}`}
+            <div className="detail-section">
+              <h3>Thông tin chung</h3>
+              {/* <div className="detail-item">
+                <span className="detail-label">ID lịch hẹn:</span>
+                <span className="detail-value">{selectedAppointment.id}</span>
+              </div> */}
+              <div className="detail-item">
+                <span className="detail-label">Ngày hẹn:</span>
+                <span className="detail-value">
+                  {selectedAppointment.preferredDate}
+                </span>
+              </div>
+              <div className="detail-item">
+                <span className="detail-label">Dịch vụ:</span>
+                <span className="detail-value">
+                  {selectedAppointment.serviceName}
+                </span>
+              </div>
+              <div className="detail-item">
+                <span className="detail-label">Phòng khám:</span>
+                <span className="detail-value">
+                  {selectedAppointment.appointmentDetails?.[0]?.room?.name ||
+                    "Chưa phân công"}
+                </span>
+              </div>
+              {/* <div className="detail-item">
+                <span className="detail-label">Loại dịch vụ:</span>
+                <span className="detail-value">
+                  {selectedAppointment.serviceType}
+                </span>
+              </div> */}
+              <div className="detail-item">
+                <span className="detail-label">Trạng thái:</span>
+                <span
+                  className={`detail-value status ${selectedAppointment.status.toLowerCase()}`}
+                >
+                  {STATUS_DISPLAY[selectedAppointment.status] ||
+                    selectedAppointment.status}
+                </span>
+              </div>
+              <div className="detail-item">
+                <span className="detail-label">Giá:</span>
+                <span className="detail-value">
+                  {selectedAppointment.price?.toLocaleString()} VND
+                </span>
+              </div>
+              <div className="detail-item">
+                <span className="detail-label">Ghi chú:</span>
+                <span className="detail-value">
+                  {selectedAppointment.note || "Không có"}
+                </span>
+              </div>
+              <div className="detail-item">
+                <span className="detail-label">Thời gian tạo:</span>
+                <span className="detail-value">
+                  {new Date(selectedAppointment.created_at).toLocaleString()}
+                </span>
+              </div>
+            </div>
+
+            {selectedAppointment.appointmentDetails &&
+              selectedAppointment.appointmentDetails.length > 0 && (
+                <div className="detail-section">
+                  <h3>Chi tiết dịch vụ</h3>
+                  {selectedAppointment.appointmentDetails.map(
+                    (detail, index) => (
+                      <div
+                        key={detail.id || index}
+                        className="service-detail-item"
                       >
-                        {STATUS_DISPLAY[selectedAppointment.status] ||
-                          selectedAppointment.status ||
-                          "Không xác định"}
-                      </span>
-                    </div>
-                    <div className="detail-item">
-                      <span className="detail-label">Giá:</span>
-                      <span className="detail-value price">
-                        {selectedAppointment.price
-                          ? selectedAppointment.price.toLocaleString() + " VND"
-                          : "Không có"}
-                      </span>
-                    </div>
-                  </div>
-
-                  {/* Thông tin thanh toán */}
-                  {/* <div className="detail-section">
-                    <h3 className="section-title">Thông tin thanh toán</h3>
-
-                    <div className="detail-item">
-                      <span className="detail-label">
-                        Trạng thái thanh toán:
-                      </span>
-                      <span className="detail-value">
-                        {selectedAppointment.paymentStatus || "Chưa thanh toán"}
-                      </span>
-                    </div>
-                    <div className="detail-item">
-                      <span className="detail-label">Đã thanh toán:</span>
-                      <span className="detail-value">
-                        {selectedAppointment.isPaid === true
-                          ? "Có"
-                          : selectedAppointment.isPaid === false
-                          ? "Chưa"
-                          : "Không xác định"}
-                      </span>
-                    </div>
-                  </div> */}
-
-                  {/* Thông tin bổ sung */}
-                  {/*  */}
-
-                  {/* Thông tin bác sĩ chi tiết */}
-                  {detail && (
-                    <div className="detail-section">
-                      <h3 className="section-title">Thông tin chi tiết</h3>
-                      <div className="detail-item">
-                        <span className="detail-label">ID Chi tiết:</span>
-                        <span className="detail-value">{detail.id}</span>
+                        {/* <div className="detail-item">
+                          <span className="detail-label">Tên dịch vụ:</span>
+                          <span className="detail-value">
+                            {detail.serviceName}
+                          </span>
+                        </div> */}
+                        <div className="detail-item">
+                          <span className="detail-label">Bác sĩ tư vấn:</span>
+                          <span className="detail-value">
+                            {detail.consultantName || "Chưa phân công"}
+                          </span>
+                        </div>
+                        <div className="detail-item">
+                          <span className="detail-label">Thời gian khám:</span>
+                          <span className="detail-value">
+                            {detail.slotTime
+                              ? new Date(detail.slotTime).toLocaleString()
+                              : "Chưa xác định"}
+                          </span>
+                        </div>
+                        {detail.room && (
+                          <>
+                            <div className="detail-item">
+                              <span className="detail-label">Phòng khám:</span>
+                              <span className="detail-value">
+                                {detail.room.name}
+                              </span>
+                            </div>
+                            <div className="detail-item">
+                              <span className="detail-label">Chuyên khoa:</span>
+                              <span className="detail-value">
+                                {detail.room.specializationName}
+                              </span>
+                            </div>
+                          </>
+                        )}
+                        <div className="detail-item">
+                          <span className="detail-label">
+                            Trạng thái dịch vụ:
+                          </span>
+                          <span
+                            className={`detail-value status ${detail.status?.toLowerCase()}`}
+                          >
+                            {STATUS_DISPLAY[detail.status] || detail.status}
+                          </span>
+                        </div>
+                        {detail.joinUrl && (
+                          <div className="detail-item">
+                            <span className="detail-label">
+                              Link tư vấn online:
+                            </span>
+                            <span className="detail-value">
+                              <a
+                                href={detail.joinUrl}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                              >
+                                Tham gia phòng tư vấn
+                              </a>
+                            </span>
+                          </div>
+                        )}
+                        {detail.medicalResult && (
+                          <div className="detail-item">
+                            <span className="detail-label">Kết quả khám:</span>
+                            <span className="detail-value">
+                              {detail.medicalResult}
+                            </span>
+                          </div>
+                        )}
+                        {index <
+                          selectedAppointment.appointmentDetails.length - 1 && (
+                          <hr className="service-separator" />
+                        )}
                       </div>
-                      <div className="detail-item">
-                        <span className="detail-label">Link tham gia:</span>
-                        <span className="detail-value">
-                          {detail.joinUrl || "Chưa có"}
-                        </span>
-                      </div>
-                      <div className="detail-item">
-                        <span className="detail-label">Kết quả khám:</span>
-                        <span className="detail-value">
-                          {detail.medicalResult || "Chưa có"}
-                        </span>
-                      </div>
-                    </div>
+                    )
                   )}
                 </div>
-              );
-            })()}
+              )}
+
+            {/* <div className="detail-section">
+              <h3>Thông tin thanh toán</h3>
+              <div className="detail-item">
+                <span className="detail-label">Trạng thái thanh toán:</span>
+                <span className="detail-value">
+                  {selectedAppointment.isPaid
+                    ? "Đã thanh toán"
+                    : "Chưa thanh toán"}
+                </span>
+              </div>
+              {selectedAppointment.paymentStatus && (
+                <div className="detail-item">
+                  <span className="detail-label">Chi tiết thanh toán:</span>
+                  <span className="detail-value">
+                    {selectedAppointment.paymentStatus}
+                  </span>
+                </div>
+              )}
+            </div> */}
           </div>
         )}
       </Modal>

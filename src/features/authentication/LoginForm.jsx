@@ -26,8 +26,8 @@ const LoginForm = ({ onClose }) => {
         password: values.password,
       });
 
-      console.log("🔍 Login successful, full response:", res.data);
-      console.log("🔍 Response structure:", Object.keys(res.data));
+      console.log(" Login successful, full response:", res.data);
+      console.log(" Response structure:", Object.keys(res.data));
 
       const jwt = res.data.jwt || res.data.accessToken || res.data.token;
 
@@ -35,23 +35,23 @@ const LoginForm = ({ onClose }) => {
       let user = null;
       if (res.data.user && typeof res.data.user === "object") {
         user = res.data.user;
-        console.log("🔍 Using res.data.user");
+        console.log(" Using res.data.user");
       } else if (res.data.data && res.data.data.user) {
         user = res.data.data.user;
-        console.log("🔍 Using res.data.data.user");
+        console.log(" Using res.data.data.user");
       } else if (res.data.email || res.data.role) {
         user = res.data;
-        console.log("🔍 Using res.data directly");
+        console.log(" Using res.data directly");
       } else {
-        console.log("🔍 Fallback to res.data");
+        console.log(" Fallback to res.data");
         user = res.data;
       }
 
-      console.log("🔍 Extracted jwt:", jwt);
-      console.log("🔍 Extracted user:", user);
-      console.log("🔍 User type:", typeof user);
-      console.log("🔍 User is null?", user === null);
-      console.log("🔍 User is undefined?", user === undefined);
+      console.log(" Extracted jwt:", jwt);
+      console.log(" Extracted user:", user);
+      console.log(" User type:", typeof user);
+      console.log(" User is null?", user === null);
+      console.log(" User is undefined?", user === undefined);
 
       // Kiểm tra user không null/undefined trước khi dispatch
       if (!user || user === null || user === undefined) {
@@ -69,7 +69,7 @@ const LoginForm = ({ onClose }) => {
 
       // Lưu role trước khi dispatch để tránh bị mất
       const userRole = user?.role;
-      console.log("🔍 User role for navigation:", userRole);
+      console.log(" User role for navigation:", userRole);
 
       // Clear any corrupted Redux persist data trước khi login
       try {
@@ -105,7 +105,7 @@ const LoginForm = ({ onClose }) => {
       } else if (userRole === "CONSULTANT") {
         navigate("/consultant");
       } else {
-        console.log("🔍 Unknown role, navigating to error:", userRole);
+        console.log(" Unknown role, navigating to error:", userRole);
         navigate("/error");
       }
       console.log("Login response:", res.data);

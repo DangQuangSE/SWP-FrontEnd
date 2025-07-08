@@ -66,14 +66,14 @@ export const userSlice = createSlice({
   initialState,
   reducers: {
     login: (state, action) => {
-      console.log("🔍 Redux login action received:", action.payload);
-      console.log("🔍 Payload type:", typeof action.payload);
+      console.log(" Redux login action received:", action.payload);
+      console.log(" Payload type:", typeof action.payload);
       console.log(
-        "🔍 Payload keys:",
+        " Payload keys:",
         action.payload ? Object.keys(action.payload) : "null"
       );
-      console.log("🔍 Initial state check:", state);
-      console.log("🔍 State.user check:", state.user);
+      console.log(" Initial state check:", state);
+      console.log(" State.user check:", state.user);
 
       // Kiểm tra payload không null/undefined
       if (!action.payload) {
@@ -93,13 +93,13 @@ export const userSlice = createSlice({
       }
 
       // Debug user data
-      console.log("🔍 action.payload.user:", action.payload.user);
-      console.log("🔍 action.payload.user type:", typeof action.payload.user);
+      console.log(" action.payload.user:", action.payload.user);
+      console.log(" action.payload.user type:", typeof action.payload.user);
 
       // Handle both user object and direct user fields
       if (action.payload.user && typeof action.payload.user === "object") {
         console.log("✅ Using nested user object");
-        console.log("🔍 User object keys:", Object.keys(action.payload.user));
+        console.log(" User object keys:", Object.keys(action.payload.user));
 
         // Normalize user object fields
         const newUser = {
@@ -110,9 +110,9 @@ export const userSlice = createSlice({
           imageUrl: action.payload.user.imageUrl || "",
         };
 
-        console.log("🔍 Normalized user:", newUser);
-        console.log("🔍 Current state:", state);
-        console.log("🔍 State.user before:", state.user);
+        console.log(" Normalized user:", newUser);
+        console.log(" Current state:", state);
+        console.log(" State.user before:", state.user);
 
         try {
           // Gán từng property thay vì gán object
@@ -121,7 +121,7 @@ export const userSlice = createSlice({
           state.user.role = newUser.role;
           state.user.imageUrl = newUser.imageUrl;
           console.log("✅ Successfully set state.user properties");
-          console.log("🔍 State.user after:", state.user);
+          console.log(" State.user after:", state.user);
         } catch (error) {
           console.error("❌ Error setting state.user:", error);
           console.error("❌ State:", state);
@@ -144,7 +144,7 @@ export const userSlice = createSlice({
             (action.payload.imageUrl && action.payload.imageUrl.trim()) || "",
         };
 
-        console.log("🔍 Direct user:", newUser);
+        console.log(" Direct user:", newUser);
         try {
           // Gán từng property thay vì gán object
           state.user.fullname = newUser.fullname;
@@ -174,7 +174,7 @@ export const userSlice = createSlice({
       console.log("✅ Final imageUrl in Redux:", state.user.imageUrl);
     },
     updateUserAvatar: (state, action) => {
-      console.log("🔍 Redux updateUserAvatar action received:", action.payload);
+      console.log(" Redux updateUserAvatar action received:", action.payload);
       if (state.user && action.payload.imageUrl) {
         state.user.imageUrl = action.payload.imageUrl;
         console.log("✅ Updated user avatar in Redux:", state.user.imageUrl);

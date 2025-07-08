@@ -15,7 +15,7 @@ const Payment = () => {
   const createZoomMeetingIfNeeded = async (appointmentId) => {
     try {
       console.log(
-        "🔍 [DEBUG] Checking if need to create Zoom meeting for appointment:",
+        " [DEBUG] Checking if need to create Zoom meeting for appointment:",
         appointmentId
       );
 
@@ -36,9 +36,7 @@ const Payment = () => {
         appointment.appointmentDetails &&
         appointment.appointmentDetails.length > 0
       ) {
-        console.log(
-          "🔍 [DEBUG] Checking service types in appointment details:"
-        );
+        console.log(" [DEBUG] Checking service types in appointment details:");
         appointment.appointmentDetails.forEach((detail, index) => {
           console.log(`📋 [DEBUG] Detail ${index}:`, detail);
           console.log(`📋 [DEBUG] Service type ${index}:`, detail.serviceType);
@@ -49,7 +47,7 @@ const Payment = () => {
         );
 
         console.log(
-          "🎯 [DEBUG] Has CONSULTING_ON service:",
+          " [DEBUG] Has CONSULTING_ON service:",
           hasConsultingOnService
         );
 
@@ -68,11 +66,11 @@ const Payment = () => {
           message.success("Đã tạo phòng tư vấn online!");
         } else {
           console.log(
-            "ℹ️ [DEBUG] No CONSULTING_ON service found, skipping Zoom creation"
+            " [DEBUG] No CONSULTING_ON service found, skipping Zoom creation"
           );
         }
       } else {
-        console.log("ℹ️ [DEBUG] No appointment details found");
+        console.log(" [DEBUG] No appointment details found");
       }
     } catch (error) {
       console.error("❌ [DEBUG] Error creating Zoom meeting:", error);
