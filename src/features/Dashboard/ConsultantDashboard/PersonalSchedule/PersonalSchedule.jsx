@@ -31,6 +31,7 @@ import {
 import dayjs from "dayjs"; // Only for DatePicker component, not used in MedicalResultForm
 import MedicalResultViewer from "../../../../components/MedicalResult/MedicalResultViewer";
 import MedicalResultFormWrapper from "../../../../components/MedicalResult/MedicalResultFormWrapper";
+import PatientDetailButton from "../PatientHistory/PatientDetailButton";
 import "./PersonalSchedule.css";
 
 const PersonalSchedule = ({ userId }) => {
@@ -114,7 +115,7 @@ const PersonalSchedule = ({ userId }) => {
   // Load appointments for specific status
   const loadAppointmentsByStatus = useCallback(
     async (date, status, useCache = true) => {
-      const targetDate = date || new Date().toISOString().slice(0, 10);
+      const targetDate = date || dayjs().format("YYYY-MM-DD");
 
       // Check cache first if enabled
       if (useCache) {
@@ -184,7 +185,7 @@ const PersonalSchedule = ({ userId }) => {
   // Load all tabs data in parallel
   const loadAllTabsData = useCallback(
     async (date, useCache = true) => {
-      const targetDate = date || new Date().toISOString().slice(0, 10);
+      const targetDate = date || dayjs().format("YYYY-MM-DD");
       const statuses = [
         "CHECKED",
         "IN_PROGRESS",
@@ -195,13 +196,17 @@ const PersonalSchedule = ({ userId }) => {
       console.log(
         `🚀 [PARALLEL] Loading all tabs data for ${targetDate}, useCache: ${useCache}`
       );
+      console.log("🎯 [PARALLEL] Will load these statuses:", statuses);
       setAppointmentsLoading(true);
 
       try {
         // Load all statuses in parallel
-        const promises = statuses.map((status) =>
-          loadAppointmentsByStatus(targetDate, status, useCache)
-        );
+        const promises = statuses.map((status) => {
+          console.log(
+            `📡 [API_CALL] Calling loadAppointmentsByStatus(${targetDate}, ${status}, ${useCache})`
+          );
+          return loadAppointmentsByStatus(targetDate, status, useCache);
+        });
 
         const results = await Promise.allSettled(promises);
 
@@ -233,35 +238,56 @@ const PersonalSchedule = ({ userId }) => {
     [loadAppointmentsByStatus]
   );
 
-  // Handle tab change - always call API
+  // Handle tab change - always call API with current selected date
   const handleTabChange = (key) => {
     setActiveTab(key);
-    const date = selectedDate.toISOString().split("T")[0];
 
+    // CRITICAL FIX: Use currentDateStr state for immediate access to selected date
+    console.log(`🎯 [TAB] Using currentDateStr: ${currentDateStr}`);
+
+    // Status mapping for consultant dashboard API calls
     const statusMap = {
-      checked: "CHECKED",
-      in_progress: "IN_PROGRESS",
-      waiting_result: "WAITING_RESULT",
-      completed: "COMPLETED",
+      checked: "CHECKED", // CHECKED -> CHECKED in backend
+      in_progress: "IN_PROGRESS", // IN_PROGRESS -> IN_PROGRESS in backend
+      waiting_result: "WAITING_RESULT", // WAITING_RESULT -> WAITING_RESULT in backend
+      completed: "COMPLETED", // COMPLETED -> COMPLETED in backend
     };
 
     const status = statusMap[key] || "CHECKED";
-    console.log(` [TAB] Switching to ${key} tab, reloading ${status} data`);
+    console.log(
+      `🎯 [TAB] Switching to ${key} tab for date ${currentDateStr}, reloading ${status} data`
+    );
 
-    // Always call API when switching tabs (useCache = false)
-    loadAppointmentsByStatus(date, status, false);
+    // Always call API when switching tabs (useCache = false) with CURRENT date
+    loadAppointmentsByStatus(currentDateStr, status, false);
   };
+
+  // Store current date string for immediate access
+  const [currentDateStr, setCurrentDateStr] = useState(
+    dayjs().format("YYYY-MM-DD")
+  );
 
   // Handle date change
   const handleDateChange = (date) => {
-    // Convert dayjs object to native Date for internal state
-    const nativeDate = date ? date.toDate() : new Date();
-    setSelectedDate(nativeDate);
-    const dateStr = nativeDate.toISOString().split("T")[0]; // Convert to YYYY-MM-DD format
-    console.log("📅 [DATE] Date changed, loading all data for:", dateStr);
+    console.log("🔍 [DEBUG] DatePicker onChange triggered");
+    console.log("🔍 [DEBUG] Raw date from DatePicker:", date);
 
-    // Load all tabs data for new date
-    loadAllTabsData(dateStr, true); // Use cache for date changes
+    // Keep dayjs object for internal state to avoid timezone conversion issues
+    const selectedDayjs = date || dayjs();
+    const nativeDate = selectedDayjs.toDate();
+    const dateStr = selectedDayjs.format("YYYY-MM-DD");
+
+    console.log("� [DATE] New date selected:", dateStr);
+
+    // Update both states immediately
+    setSelectedDate(nativeDate);
+    setCurrentDateStr(dateStr); // CRITICAL: Store formatted date string
+
+    console.log("📅 [DATE] Updated currentDateStr to:", dateStr);
+
+    // CRITICAL: Force reload ALL TABS for new date (no cache)
+    console.log("🚀 [FORCE_RELOAD] Loading ALL 4 tabs for new date:", dateStr);
+    loadAllTabsData(dateStr, false); // Force reload without cache
   };
 
   // Initial load when component mounts
@@ -426,22 +452,68 @@ const PersonalSchedule = ({ userId }) => {
         title: "Thông tin bệnh nhân",
         key: "patientInfo",
         width: 200,
-        render: (_, detail) => (
-          <div>
-            <div
-              style={{ fontWeight: "bold", color: "#1890ff", fontSize: "14px" }}
-            >
-              <UserOutlined /> {detail.customerName || "Chưa có tên"}
+        render: (_, detail) => {
+          // Debug: Log detail object and parent appointment
+          console.log("🔍 [PERSONAL_SCHEDULE] Detail object:", detail);
+          console.log(
+            "🔍 [PERSONAL_SCHEDULE] detail.customerId:",
+            detail.customerId
+          );
+          console.log(
+            "🔍 [PERSONAL_SCHEDULE] detail keys:",
+            Object.keys(detail)
+          );
+
+          // Check if customerId is in parent appointment
+          const appointment = getCurrentTabData().find((apt) =>
+            apt.appointmentDetails?.some((d) => d.id === detail.id)
+          );
+          console.log(
+            "🔍 [PERSONAL_SCHEDULE] Parent appointment:",
+            appointment
+          );
+          console.log(
+            "🔍 [PERSONAL_SCHEDULE] appointment.customerId:",
+            appointment?.customerId
+          );
+
+          return (
+            <div>
+              <div
+                style={{
+                  fontWeight: "bold",
+                  color: "#1890ff",
+                  fontSize: "14px",
+                }}
+              >
+                <UserOutlined /> {detail.customerName || "Chưa có tên"}
+              </div>
+              <div
+                style={{ fontSize: "12px", color: "#666", marginTop: "4px" }}
+              >
+                📅 Ngày hẹn:{" "}
+                {new Date(detail.preferredDate).toLocaleDateString("vi-VN")}
+              </div>
+              <div style={{ fontSize: "12px", color: "#666" }}>
+                🆔 Lịch hẹn: #{detail.appointmentId}
+              </div>
+              {/* Patient Detail Button */}
+              <div style={{ marginTop: "6px" }}>
+                <PatientDetailButton
+                  patientId={detail.customerId || appointment?.customerId}
+                  patientName={
+                    detail.customerName ||
+                    appointment?.customerName ||
+                    "Bệnh nhân"
+                  }
+                  buttonText="Chi tiết"
+                  buttonType="link"
+                  buttonSize="small"
+                />
+              </div>
             </div>
-            <div style={{ fontSize: "12px", color: "#666", marginTop: "4px" }}>
-              📅 Ngày hẹn:{" "}
-              {new Date(detail.preferredDate).toLocaleDateString("vi-VN")}
-            </div>
-            <div style={{ fontSize: "12px", color: "#666" }}>
-              🆔 Lịch hẹn: #{detail.appointmentId}
-            </div>
-          </div>
-        ),
+          );
+        },
       },
       {
         title: "Trạng thái",
@@ -830,8 +902,25 @@ const PersonalSchedule = ({ userId }) => {
             <CalendarOutlined /> Chọn ngày:
           </span>
           <DatePicker
-            value={dayjs(selectedDate)}
-            onChange={handleDateChange}
+            value={
+              selectedDate
+                ? dayjs(selectedDate).startOf("day")
+                : dayjs().startOf("day")
+            }
+            onChange={(date) => {
+              console.log("🎯 [DATEPICKER] Raw onChange value:", date);
+              if (date) {
+                console.log(
+                  "🎯 [DATEPICKER] Date format YYYY-MM-DD:",
+                  date.format("YYYY-MM-DD")
+                );
+                console.log(
+                  "🎯 [DATEPICKER] Date format DD/MM/YYYY:",
+                  date.format("DD/MM/YYYY")
+                );
+              }
+              handleDateChange(date);
+            }}
             format="DD/MM/YYYY"
             placeholder="Chọn ngày"
             style={{ width: "200px" }}
@@ -990,17 +1079,39 @@ const PersonalSchedule = ({ userId }) => {
       <MedicalResultFormWrapper
         visible={isResultModalVisible}
         appointmentDetail={selectedAppointmentDetail}
-        onSuccess={(result) => {
+        onSuccess={async (result) => {
           console.log("✅ Medical result submitted successfully:", result);
           toast.success("Đã lưu kết quả khám thành công!");
+
+          try {
+            // Update appointment detail status to COMPLETED after submitting medical result
+            if (selectedAppointmentDetail?.id) {
+              console.log(
+                "🔄 [STATUS] Updating appointment detail status to COMPLETED"
+              );
+              await updateAppointmentDetailStatus(
+                selectedAppointmentDetail.id,
+                "COMPLETED"
+              );
+              console.log(
+                "✅ [STATUS] Appointment detail status updated to COMPLETED"
+              );
+            }
+          } catch (error) {
+            console.error(
+              "❌ [STATUS] Error updating appointment detail status:",
+              error
+            );
+            // Don't show error to user as medical result was saved successfully
+          }
 
           // Close modal
           setIsResultModalVisible(false);
           setSelectedAppointmentDetail(null);
           resultForm.resetFields();
 
-          // Reload current tab data
-          const date = selectedDate.toISOString().split("T")[0];
+          // Get current date for API calls
+          const date = dayjs(selectedDate).format("YYYY-MM-DD");
           const statusMap = {
             checked: "CHECKED",
             in_progress: "IN_PROGRESS",
@@ -1009,8 +1120,21 @@ const PersonalSchedule = ({ userId }) => {
           };
           const currentStatus = statusMap[activeTab] || "CHECKED";
 
-          // Refetch current tab data
+          console.log(
+            "🔄 [RELOAD] Reloading tabs after medical result submission"
+          );
+
+          // Refetch current tab data (WAITING_RESULT)
           loadAppointmentsByStatus(date, currentStatus, false);
+
+          // Also reload COMPLETED tab since the appointment is now completed
+          console.log("🔄 [RELOAD] Also reloading COMPLETED tab");
+          loadAppointmentsByStatus(date, "COMPLETED", false);
+
+          // Update cache for both tabs
+          console.log(
+            "✅ [RELOAD] Finished reloading tabs after medical result submission"
+          );
         }}
         onClose={() => {
           setIsResultModalVisible(false);

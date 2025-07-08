@@ -691,18 +691,7 @@ const MedicalResultForm = ({
         {/* Action Buttons */}
         <Row justify="end" gutter={16}>
           <Col>
-            <Button
-              onClick={() => {
-                console.log("🔄 Cancel button clicked in form");
-                if (onCancel) {
-                  console.log("🔄 Calling onCancel function");
-                  onCancel();
-                } else {
-                  console.warn("⚠️ onCancel function not provided");
-                }
-              }}
-              size="large"
-            >
+            <Button onClick={onCancel} size="large">
               Hủy
             </Button>
           </Col>

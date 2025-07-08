@@ -55,19 +55,9 @@ function ConsultantDashboard() {
       label: "Lịch tư vấn cá nhân",
     },
     {
-      key: "user_profiles",
-      icon: <UserOutlined />,
-      label: "Thông tin người dùng",
-    },
-    {
       key: "online_consultation",
       icon: <SolutionOutlined />,
       label: "Tư vấn trực tuyến",
-    },
-    {
-      key: "consultation_results",
-      icon: <EditOutlined />,
-      label: "Gửi kết quả tư vấn",
     },
     {
       key: "manage_schedule",
@@ -143,11 +133,6 @@ function ConsultantDashboard() {
           theme="dark"
           mode="horizontal"
           defaultSelectedKeys={["1"]}
-          items={[
-            { key: "1", label: "Trang chủ" },
-            { key: "2", label: "Lịch của tôi" },
-            { key: "3", label: "Cài đặt" },
-          ]}
           style={{
             flex: 1,
             minWidth: 0,

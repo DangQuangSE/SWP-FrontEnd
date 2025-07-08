@@ -1,0 +1,391 @@
+/* Staff Chat Interface Styling */
+
+.staff-chat-interface {
+  height: calc(100vh - 200px);
+  min-height: 600px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* Sessions Card */
+.sessions-card {
+  height: 100%;
+}
+
+.sessions-card .ant-card-body {
+  padding: 0;
+  height: calc(100% - 57px);
+  overflow: hidden; /* Remove default overflow */
+}
+
+/* Sessions List Container with Custom Scroll */
+.sessions-list-container {
+  height: 100%;
+  max-height: 500px;
+  overflow-y: auto;
+  overflow-x: hidden;
+  /* Custom scrollbar styling */
+  scrollbar-width: thin;
+  scrollbar-color: #d9d9d9 transparent;
+}
+
+.sessions-list-container::-webkit-scrollbar {
+  width: 6px;
+}
+
+.sessions-list-container::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.sessions-list-container::-webkit-scrollbar-thumb {
+  background-color: #d9d9d9;
+  border-radius: 3px;
+}
+
+.sessions-list-container::-webkit-scrollbar-thumb:hover {
+  background-color: #bfbfbf;
+}
+
+.session-item {
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border-bottom: 1px solid #f0f0f0;
+  padding: 12px 16px !important;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+}
+
+.session-item:hover {
+  background-color: #f5f5f5;
+}
+
+.session-item.selected {
+  background-color: #e6f7ff;
+  border-left: 4px solid #1890ff;
+}
+
+.session-item:last-child {
+  border-bottom: none;
+}
+
+/* Session Content Styling for Better Text Handling */
+.session-item .ant-list-item-meta-title {
+  font-size: 14px;
+  font-weight: 600;
+  margin-bottom: 4px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 220px;
+}
+
+.session-item .ant-list-item-meta-description {
+  font-size: 12px;
+  color: #8c8c8c;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 280px;
+  line-height: 1.4;
+}
+
+.session-item .ant-list-item-action {
+  margin-left: 8px;
+  flex-shrink: 0;
+}
+
+.session-item .ant-badge {
+  white-space: nowrap;
+}
+
+/* Session Meta Info */
+.session-meta-info {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 4px;
+  gap: 8px;
+}
+
+.session-time {
+  font-size: 11px;
+  color: #999;
+  white-space: nowrap;
+}
+
+.session-status-badge {
+  font-size: 10px;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+/* Session Item Content */
+.session-item .ant-list-item-meta-title {
+  font-size: 14px;
+  font-weight: 600;
+  margin-bottom: 4px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 200px;
+}
+
+.session-item .ant-list-item-meta-description {
+  font-size: 12px;
+  color: #8c8c8c;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 250px;
+}
+
+.session-item .ant-list-item-action {
+  margin-left: 8px;
+}
+
+.session-item .ant-badge {
+  white-space: nowrap;
+}
+
+/* Chat Card */
+.chat-card {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.chat-card .ant-card-body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  padding: 16px;
+  height: calc(100% - 57px);
+  overflow: hidden;
+}
+
+/* Chat Input Container */
+.chat-input-container {
+  display: flex;
+  gap: 8px;
+  align-items: flex-end;
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid #f0f0f0;
+  flex-shrink: 0; /* Prevent input from shrinking */
+}
+
+/* Messages Container */
+.messages-container {
+  flex: 1;
+  overflow-y: auto;
+  padding: 16px 0;
+  max-height: calc(100vh - 400px);
+  min-height: 300px;
+  scroll-behavior: smooth;
+}
+
+.messages-container::-webkit-scrollbar {
+  width: 6px;
+}
+
+.messages-container::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 3px;
+}
+
+.messages-container::-webkit-scrollbar-thumb {
+  background: #c1c1c1;
+  border-radius: 3px;
+}
+
+.messages-container::-webkit-scrollbar-thumb:hover {
+  background: #a8a8a8;
+}
+
+/* Message Items */
+.message-item {
+  margin-bottom: 16px;
+  animation: fadeIn 0.3s ease-in;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.message-content {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+}
+
+.message-details {
+  flex: 1;
+  min-width: 0;
+}
+
+.message-header {
+  display: flex;
+  align-items: baseline;
+  margin-bottom: 4px;
+}
+
+.message-text {
+  /* Background colors controlled by JavaScript */
+  padding: 8px 12px;
+  border-radius: 12px;
+  word-wrap: break-word;
+  line-height: 1.4;
+  max-width: 80%;
+}
+
+/* Staff messages styling */
+.message-item.staff .message-content {
+  flex-direction: row-reverse;
+}
+
+.message-item.staff .message-header {
+  justify-content: flex-end;
+  text-align: right;
+}
+
+/* Customer messages styling - colors handled by JavaScript */
+
+/* Input Area */
+.input-area {
+  margin-top: auto;
+  padding-top: 16px;
+}
+
+.input-area .ant-input {
+  border-radius: 8px;
+  resize: none;
+}
+
+.input-area .ant-btn {
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 32px;
+}
+
+/* Responsive Design */
+@media (max-width: 992px) {
+  .staff-chat-interface {
+    height: auto;
+    min-height: auto;
+  }
+
+  .sessions-card {
+    margin-bottom: 16px;
+    height: 300px;
+  }
+
+  .chat-card {
+    height: 500px;
+  }
+
+  .messages-container {
+    max-height: 300px;
+    min-height: 200px;
+  }
+}
+
+@media (max-width: 768px) {
+  .message-text {
+    max-width: 90% !important;
+  }
+
+  .message-header {
+    flex-direction: column;
+    align-items: flex-start !important;
+    gap: 2px;
+  }
+
+  .message-item.staff .message-header {
+    align-items: flex-end !important;
+  }
+}
+
+/* Status indicators */
+.ant-tag {
+  margin: 0;
+  font-size: 11px;
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+
+/* Badge styling */
+.ant-badge-count {
+  font-size: 10px;
+  min-width: 16px;
+  height: 16px;
+  line-height: 16px;
+}
+
+/* List item meta styling */
+.ant-list-item-meta-title {
+  margin-bottom: 4px !important;
+}
+
+.ant-list-item-meta-description {
+  line-height: 1.3 !important;
+}
+
+/* Empty state styling */
+.ant-empty {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+  min-height: 300px;
+}
+
+/* Smooth transitions */
+.session-item,
+.message-item,
+.input-area .ant-btn {
+  transition: all 0.2s ease;
+}
+
+/* Focus states */
+.input-area .ant-input:focus {
+  border-color: #1890ff;
+  box-shadow: 0 0 0 2px rgba(24, 144, 255, 0.2);
+}
+
+/* Hover effects */
+.session-item:hover .ant-list-item-meta-title {
+  color: #1890ff;
+}
+
+/* Loading states */
+.messages-container.loading {
+  opacity: 0.7;
+  pointer-events: none;
+}
+
+/* Scroll to bottom button */
+.scroll-to-bottom {
+  position: absolute;
+  bottom: 80px;
+  right: 20px;
+  z-index: 10;
+  opacity: 0.8;
+}
+
+.scroll-to-bottom:hover {
+  opacity: 1;
+}

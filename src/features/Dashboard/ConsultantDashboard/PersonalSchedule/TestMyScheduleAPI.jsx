@@ -60,7 +60,7 @@ const TestMyScheduleAPI = () => {
     },
     {
       label: "Today Confirmed",
-      action: () => testAPI(new Date().toISOString().slice(0, 10), "CONFIRMED"),
+      action: () => testAPI(dayjs().format("YYYY-MM-DD"), "CONFIRMED"),
       description: "Get today's confirmed appointments",
     },
     {

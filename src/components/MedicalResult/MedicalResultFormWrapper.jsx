@@ -33,7 +33,7 @@ const MedicalResultFormWrapper = ({
 
   const handleSuccess = (result) => {
     try {
-      console.log(" Form submission successful:", result);
+      console.log("✅ Form submission successful:", result);
       setFormError(null);
       if (onSuccess) {
         onSuccess(result);
@@ -49,13 +49,9 @@ const MedicalResultFormWrapper = ({
 
   const handleCancel = () => {
     try {
-      console.log("🔄 Modal cancel button clicked");
       setFormError(null);
       if (onClose) {
-        console.log("🔄 Calling onClose function");
         onClose();
-      } else {
-        console.warn("⚠️ onClose function not provided");
       }
     } catch (error) {
       console.error("Error in cancel handler:", error);
@@ -95,34 +91,13 @@ const MedicalResultFormWrapper = ({
 
   return (
     <Modal
-      title={
-        <div
-          style={{
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "center",
-          }}
-        >
-          <Space>
-            <ExperimentOutlined />
-            <span>Nhập kết quả khám bệnh</span>
-          </Space>
-          <Button
-            type="text"
-            onClick={handleCancel}
-            style={{ marginRight: -8 }}
-          >
-            ✕ Đóng
-          </Button>
-        </div>
-      }
+      title={null}
       open={visible}
       onCancel={handleCancel}
       footer={null}
       width={1200}
       style={{ top: 20 }}
       maskClosable={false}
-      closable={true}
     >
       {formError && (
         <Alert
