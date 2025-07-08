@@ -86,30 +86,19 @@ const CustomerChatWidget = () => {
   const currentUser = reduxUser || localStorageUser;
   const userRole = currentUser?.role || "CUSTOMER";
 
-  console.log("🔍 [WIDGET] Redux user:", reduxUser);
-  console.log("🔍 [WIDGET] Redux token:", !!reduxToken);
-  console.log("🔍 [WIDGET] LocalStorage user:", localStorageUser);
-  console.log("🔍 [WIDGET] Final user:", currentUser);
-  console.log("🔍 [WIDGET] Final role:", userRole);
-  console.log("🔍 [WIDGET] All localStorage keys:", Object.keys(localStorage));
-
   // WebSocket connection for real-time updates
   const connectWebSocket = () => {
     if (wsConnectedRef.current || !sessionId) return;
 
     try {
-      console.log("🔌 [CUSTOMER WS] Connecting to WebSocket...");
       const socket = new SockJS("http://localhost:8080/ws/chat");
       const stompClient = Stomp.over(socket);
 
-      stompClient.debug = (str) => {
-        console.log("🔍 [CUSTOMER STOMP]:", str);
-      };
+      stompClient.debug = null;
 
       stompClient.connect(
         {},
         (frame) => {
-          console.log("✅ [CUSTOMER WS] Connected:", frame);
           wsConnectedRef.current = true;
           stompClientRef.current = stompClient;
 
@@ -117,7 +106,6 @@ const CustomerChatWidget = () => {
           stompClient.subscribe(`/topic/chat/${sessionId}`, (message) => {
             try {
               const data = JSON.parse(message.body);
-              console.log("📨 [CUSTOMER WS] Message received:", data);
 
               // Handle real-time message via WebSocket
               if (data.message) {
@@ -126,31 +114,17 @@ const CustomerChatWidget = () => {
                   data.senderType === "STAFF" &&
                   sessionStatus === "WAITING"
                 ) {
-                  console.log(
-                    "👨‍💼 [CUSTOMER WS] First staff message received - session now ACTIVE"
-                  );
                   setStaffOnline(true);
                   setSessionStatus("ACTIVE");
 
                   // Clear bot messages - let polling fetch the real message
                   clearMessages();
-                } else {
-                  // Don't add optimistically - let polling fetch it
-                  console.log(
-                    "📥 [CUSTOMER WS] Message received, triggering refetch"
-                  );
                 }
 
                 // Update unread count if widget is closed and message is from staff
                 if (!isOpen && data.senderType === "STAFF") {
-                  console.log(
-                    "📊 [CUSTOMER WS] Incrementing unread count for staff message"
-                  );
                   setUnreadCount((prev) => {
                     const newCount = prev + 1;
-                    console.log(
-                      `📊 [CUSTOMER WS] Unread count: ${prev} → ${newCount}`
-                    );
                     // Save to localStorage
                     localStorage.setItem(
                       "chat_unread_count",
@@ -171,7 +145,7 @@ const CustomerChatWidget = () => {
                 setStaffTyping(false);
               }
             } catch (error) {
-              console.error("❌ [CUSTOMER WS] Error parsing message:", error);
+              console.error("Error parsing message:", error);
             }
           });
 
@@ -181,7 +155,6 @@ const CustomerChatWidget = () => {
             (message) => {
               try {
                 const data = JSON.parse(message.body);
-                console.log("📊 [CUSTOMER WS] Status update:", data);
 
                 if (data.status) {
                   setSessionStatus(data.status);
@@ -190,19 +163,16 @@ const CustomerChatWidget = () => {
                     setStaffOnline(true);
                   } else if (data.status === "COMPLETED") {
                     setStaffOnline(false);
-                    // Don't add completion message optimistically
-                    // Let the system handle session completion naturally
-                    console.log("📋 [CUSTOMER WS] Session completed");
                   }
                 }
               } catch (error) {
-                console.error("❌ [CUSTOMER WS] Error parsing status:", error);
+                console.error("Error parsing status:", error);
               }
             }
           );
         },
         (error) => {
-          console.error("❌ [CUSTOMER WS] Connection error:", error);
+          console.error("Connection error:", error);
           wsConnectedRef.current = false;
 
           // Retry connection after 5 seconds
@@ -212,14 +182,13 @@ const CustomerChatWidget = () => {
         }
       );
     } catch (error) {
-      console.error("❌ [CUSTOMER WS] Failed to create connection:", error);
+      console.error("Failed to create connection:", error);
     }
   };
 
   // Disconnect WebSocket
   const disconnectWebSocket = () => {
     if (stompClientRef.current && wsConnectedRef.current) {
-      console.log("🔌 [CUSTOMER WS] Disconnecting...");
       stompClientRef.current.disconnect();
       wsConnectedRef.current = false;
       stompClientRef.current = null;
@@ -229,14 +198,9 @@ const CustomerChatWidget = () => {
   // Start chat session API call (no auth required)
   const startChatSession = async (name) => {
     try {
-      console.log("🚀 [CHAT API] Starting chat session (no auth)...");
-      console.log("🔍 [CHAT API] Customer name:", name);
-
       const requestBody = {
         customerName: name || "Khách hàng",
       };
-
-      console.log("🔍 [CHAT API] Request body:", requestBody);
 
       // Call chat API (no auth required)
       const response = await chatApi.post("/chat/start", requestBody);

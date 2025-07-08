@@ -83,26 +83,10 @@ const StaffChatInterface = ({ defaultTab = "waiting", hideTabs = false }) => {
   // Fetch chat sessions for specific status
   const fetchChatSessionsByStatus = async (status) => {
     try {
-      console.log("🚀 [STAFF CHAT] Fetching sessions with status:", status);
       const response = await chatAPIService.getChatSessions(status);
-      console.log(`✅ [STAFF CHAT] ${status} sessions fetched:`, response);
-
-      // Debug: Check each session's actual status
-      response.forEach((session, index) => {
-        console.log(`🔍 [STAFF CHAT] Session ${index + 1}:`, {
-          sessionId: session.sessionId,
-          customerName: session.customerName,
-          status: session.status,
-          expectedStatus: status,
-        });
-      });
-
       return response;
     } catch (error) {
-      console.error(
-        `❌ [STAFF CHAT] Error fetching ${status} sessions:`,
-        error
-      );
+      console.error(`Error fetching ${status} sessions:`, error);
       throw error;
     }
   };
@@ -111,7 +95,6 @@ const StaffChatInterface = ({ defaultTab = "waiting", hideTabs = false }) => {
   const loadAllSessions = async () => {
     try {
       setLoading(true);
-      console.log("🚀 [STAFF CHAT] Loading all sessions (WAITING + ACTIVE)...");
 
       // Fetch both WAITING and ACTIVE sessions in parallel
       const [waitingData, activeData] = await Promise.all([
@@ -136,10 +119,8 @@ const StaffChatInterface = ({ defaultTab = "waiting", hideTabs = false }) => {
       } else if (activeTab === "active") {
         setSessions(activeWithUnread);
       }
-
-      console.log("✅ [STAFF CHAT] All sessions loaded successfully");
     } catch (error) {
-      console.error("❌ [STAFF CHAT] Error loading all sessions:", error);
+      console.error("Error loading all sessions:", error);
       message.error("Không thể tải danh sách chat sessions");
     } finally {
       setLoading(false);
@@ -149,13 +130,6 @@ const StaffChatInterface = ({ defaultTab = "waiting", hideTabs = false }) => {
   // Fetch unread count for sessions
   const fetchUnreadCountsForSessions = async (sessions, readerType) => {
     try {
-      console.log(
-        "📊 [STAFF CHAT] Fetching unread counts for sessions:",
-        sessions.length,
-        "Reader type:",
-        readerType
-      );
-
       // Fetch unread counts for all sessions in parallel
       const unreadCountPromises = sessions.map(async (session) => {
         try {
@@ -163,10 +137,6 @@ const StaffChatInterface = ({ defaultTab = "waiting", hideTabs = false }) => {
           // So we pass "Nhân viên hỗ trợ" as readerName to exclude staff messages
           const readerName =
             readerType === "STAFF" ? "Nhân viên hỗ trợ" : session.customerName;
-
-          console.log(
-            `📊 [STAFF CHAT] Getting unread count for session ${session.sessionId} with readerName: ${readerName}`
-          );
 
           const unreadCount = await chatAPIService.getUnreadCount(
             session.sessionId,
@@ -177,10 +147,6 @@ const StaffChatInterface = ({ defaultTab = "waiting", hideTabs = false }) => {
             unreadCount: unreadCount || 0,
           };
         } catch (error) {
-          console.error(
-            `❌ [STAFF CHAT] Error fetching unread count for session ${session.sessionId}:`,
-            error
-          );
           return {
             sessionId: session.sessionId,
             unreadCount: 0,
@@ -201,13 +167,9 @@ const StaffChatInterface = ({ defaultTab = "waiting", hideTabs = false }) => {
         };
       });
 
-      console.log(
-        "✅ [STAFF CHAT] Sessions with unread counts:",
-        sessionsWithUnreadCount
-      );
       return sessionsWithUnreadCount;
     } catch (error) {
-      console.error("❌ [STAFF CHAT] Error fetching unread counts:", error);
+      console.error("Error fetching unread counts:", error);
       // Return sessions without unread count if error
       return sessions.map((session) => ({ ...session, unreadCount: 0 }));
     }
@@ -217,29 +179,19 @@ const StaffChatInterface = ({ defaultTab = "waiting", hideTabs = false }) => {
   const loadSessionsForTab = async (tabKey) => {
     try {
       setLoading(true);
-      console.log("🚀 [STAFF CHAT] Loading sessions for tab:", tabKey);
-      console.log(
-        "🔍 [STAFF CHAT] Function loadSessionsForTab is being called!"
-      );
 
       let sessionsData;
       if (tabKey === "waiting") {
-        // Always fetch fresh data when clicking tab
-        console.log("🔄 [STAFF CHAT] Fetching fresh WAITING sessions");
         sessionsData = await fetchChatSessionsByStatus("WAITING");
         // Fetch unread counts for waiting sessions
-        // For staff: use "STAFF" to indicate we want to count customer messages
         sessionsData = await fetchUnreadCountsForSessions(
           sessionsData,
           "STAFF"
         );
         setWaitingSessions(sessionsData);
       } else if (tabKey === "active") {
-        // Always fetch fresh data when clicking tab
-        console.log("🔄 [STAFF CHAT] Fetching fresh ACTIVE sessions");
         sessionsData = await fetchChatSessionsByStatus("ACTIVE");
         // Fetch unread counts for active sessions
-        // For staff: use "STAFF" to indicate we want to count customer messages
         sessionsData = await fetchUnreadCountsForSessions(
           sessionsData,
           "STAFF"
@@ -249,7 +201,7 @@ const StaffChatInterface = ({ defaultTab = "waiting", hideTabs = false }) => {
 
       setSessions(sessionsData);
     } catch (error) {
-      console.error("❌ [STAFF CHAT] Error loading sessions for tab:", error);
+      console.error("Error loading sessions for tab:", error);
       message.error("Không thể tải danh sách chat sessions");
     } finally {
       setLoading(false);
@@ -263,79 +215,14 @@ const StaffChatInterface = ({ defaultTab = "waiting", hideTabs = false }) => {
 
   // Mock data removed - using real API data
 
-  const mockMessages = {
-    1: [
-      {
-        id: 1,
-        message: "Xin chào! Tôi cần hỗ trợ đặt lịch khám.",
-        senderName: "Nguyễn Văn A",
-        senderType: "CUSTOMER",
-        timestamp: "2024-01-15T10:25:00Z",
-      },
-      {
-        id: 2,
-        message:
-          "Chào bạn! Tôi sẽ hỗ trợ bạn đặt lịch. Bạn muốn đặt lịch cho dịch vụ nào?",
-        senderName: "Staff Support",
-        senderType: "STAFF",
-        timestamp: "2024-01-15T10:26:00Z",
-      },
-      {
-        id: 3,
-        message: "Tôi muốn đặt lịch khám tổng quát.",
-        senderName: "Nguyễn Văn A",
-        senderType: "CUSTOMER",
-        timestamp: "2024-01-15T10:30:00Z",
-      },
-    ],
-    2: [
-      {
-        id: 1,
-        message: "Cho em hỏi về gói khám sức khỏe ạ",
-        senderName: "Trần Thị B",
-        senderType: "CUSTOMER",
-        timestamp: "2024-01-15T09:15:00Z",
-      },
-    ],
-    3: [
-      {
-        id: 1,
-        message: "Tôi đã thanh toán nhưng chưa nhận được xác nhận",
-        senderName: "Lê Văn C",
-        senderType: "CUSTOMER",
-        timestamp: "2024-01-15T08:40:00Z",
-      },
-      {
-        id: 2,
-        message: "Tôi đã kiểm tra và xác nhận thanh toán của bạn. Cảm ơn bạn!",
-        senderName: "Staff Support",
-        senderType: "STAFF",
-        timestamp: "2024-01-15T08:42:00Z",
-      },
-      {
-        id: 3,
-        message: "Cảm ơn bạn đã hỗ trợ!",
-        senderName: "Lê Văn C",
-        senderType: "CUSTOMER",
-        timestamp: "2024-01-15T08:45:00Z",
-      },
-    ],
-  };
-
   // Note: Sessions are now fetched directly from API with status filter
 
   // Note: Sessions are now fetched via API calls, not filtered from mock data
 
   // Handle tab change - call API only when user clicks tab
   const handleTabChange = (key) => {
-    console.log("🔄 [STAFF CHAT] Tab changed to:", key);
-    console.log("🎯 [STAFF CHAT] handleTabChange function is being called!");
     setActiveTab(key);
     setSelectedSession(null); // Clear selection when switching tabs
-
-    // Call API for the selected tab
-    console.log("🚀 [STAFF CHAT] User clicked tab, loading data for:", key);
-    console.log("🔥 [STAFF CHAT] About to call loadSessionsForTab...");
     loadSessionsForTab(key);
   };
 
@@ -365,16 +252,8 @@ const StaffChatInterface = ({ defaultTab = "waiting", hideTabs = false }) => {
 
   // Handle new session notification from WebSocket with duplicate prevention
   const handleNewSessionNotification = (newSession) => {
-    console.log("🆕 [STAFF CHAT] Processing new session:", newSession);
-    console.log("🔍 [STAFF CHAT] New session status:", newSession.status);
-    console.log("🔍 [STAFF CHAT] Current active tab:", activeTab);
-
     // Strong duplicate prevention using ref
     if (processedSessionsRef.current.has(newSession.sessionId)) {
-      console.log(
-        "⚠️ [STAFF CHAT] Session already processed, ignoring:",
-        newSession.sessionId
-      );
       return;
     }
 
@@ -391,10 +270,6 @@ const StaffChatInterface = ({ defaultTab = "waiting", hideTabs = false }) => {
     if (newSession.status === "WAITING") {
       setWaitingSessions((prev) => {
         if (sessionExists(prev)) {
-          console.log(
-            "⚠️ [STAFF CHAT] Duplicate WAITING session ignored:",
-            newSession.sessionId
-          );
           return prev;
         }
         return [newSession, ...prev];
@@ -404,7 +279,6 @@ const StaffChatInterface = ({ defaultTab = "waiting", hideTabs = false }) => {
       if (activeTab === "waiting") {
         setSessions((prev) => {
           if (sessionExists(prev)) {
-            console.log("⚠️ [STAFF CHAT] Duplicate session in display ignored");
             return prev;
           }
           return [newSession, ...prev];
@@ -413,10 +287,6 @@ const StaffChatInterface = ({ defaultTab = "waiting", hideTabs = false }) => {
     } else if (newSession.status === "ACTIVE") {
       setActiveSessions((prev) => {
         if (sessionExists(prev)) {
-          console.log(
-            "⚠️ [STAFF CHAT] Duplicate ACTIVE session ignored:",
-            newSession.sessionId
-          );
           return prev;
         }
         return [newSession, ...prev];
@@ -426,7 +296,6 @@ const StaffChatInterface = ({ defaultTab = "waiting", hideTabs = false }) => {
       if (activeTab === "active") {
         setSessions((prev) => {
           if (sessionExists(prev)) {
-            console.log("⚠️ [STAFF CHAT] Duplicate session in display ignored");
             return prev;
           }
           return [newSession, ...prev];
@@ -608,10 +477,6 @@ const StaffChatInterface = ({ defaultTab = "waiting", hideTabs = false }) => {
   // Refresh unread counts for current sessions
   const refreshUnreadCounts = async () => {
     try {
-      console.log(
-        "🔄 [STAFF CHAT] Refreshing unread counts after message sent..."
-      );
-
       if (sessions.length === 0) return;
 
       // Refresh unread counts for current sessions
@@ -629,17 +494,13 @@ const StaffChatInterface = ({ defaultTab = "waiting", hideTabs = false }) => {
 
       // Update current sessions display
       setSessions(updatedSessions);
-
-      console.log("✅ [STAFF CHAT] Unread counts refreshed successfully");
     } catch (error) {
-      console.error("❌ [STAFF CHAT] Error refreshing unread counts:", error);
+      console.error("Error refreshing unread counts:", error);
     }
   };
 
   // Handle session selection
   const handleSessionSelect = async (session) => {
-    console.log("📱 [STAFF CHAT] Selecting session:", session.sessionId);
-
     // Reset unread count for the selected session
     resetUnreadCountForSession(session.sessionId);
 
@@ -657,22 +518,15 @@ const StaffChatInterface = ({ defaultTab = "waiting", hideTabs = false }) => {
 
         // Send automatic greeting message when staff joins
         try {
-          const staffName = currentUser?.name || "Nhân viên hỗ trợ";
+          const staffName = "Nhân viên hỗ trợ";
           const greetingMessage = "Xin chào, tôi có thể giúp gì cho bạn?";
 
-          console.log("📤 [STAFF CHAT] Sending automatic greeting message...");
-
           // Send greeting message via unified API
-          const sentMessage = await unifiedChatAPI.sendMessage(
+          await unifiedChatAPI.sendMessage(
             session.sessionId,
             greetingMessage,
             staffName,
             true // isStaff = true
-          );
-
-          console.log(
-            "✅ [STAFF CHAT] Greeting message sent successfully:",
-            sentMessage
           );
 
           // Show success notification
@@ -685,10 +539,7 @@ const StaffChatInterface = ({ defaultTab = "waiting", hideTabs = false }) => {
             refreshUnreadCounts();
           }, 1000);
         } catch (error) {
-          console.error(
-            "❌ [STAFF CHAT] Failed to send greeting message:",
-            error
-          );
+          console.error("Failed to send greeting message:", error);
           message.error("Không thể gửi tin nhắn chào hỏi");
         }
 
@@ -731,7 +582,7 @@ const StaffChatInterface = ({ defaultTab = "waiting", hideTabs = false }) => {
         }
       }, 200);
     } catch (error) {
-      console.error("❌ [STAFF CHAT] Error handling session selection:", error);
+      console.error("Error handling session selection:", error);
       message.error("Không thể tham gia chat session");
     }
   };
@@ -756,8 +607,6 @@ const StaffChatInterface = ({ defaultTab = "waiting", hideTabs = false }) => {
         true // isStaff = true
       );
 
-      console.log("✅ [STAFF CHAT] Message sent successfully");
-
       // Trigger immediate refetch to get the sent message
       if (refetchMessages) {
         setTimeout(() => {
@@ -773,7 +622,7 @@ const StaffChatInterface = ({ defaultTab = "waiting", hideTabs = false }) => {
       // Refresh unread counts after sending message
       setTimeout(() => {
         refreshUnreadCounts();
-      }, 1000); // Wait a bit longer to ensure message is processed
+      }, 1000);
 
       // Update session's last message
       setSessions((prev) =>
@@ -788,7 +637,7 @@ const StaffChatInterface = ({ defaultTab = "waiting", hideTabs = false }) => {
         )
       );
     } catch (error) {
-      console.error("❌ [STAFF CHAT] Error sending message:", error);
+      console.error("Error sending message:", error);
       message.error("Không thể gửi tin nhắn. Vui lòng thử lại.");
 
       // Restore input text on error
