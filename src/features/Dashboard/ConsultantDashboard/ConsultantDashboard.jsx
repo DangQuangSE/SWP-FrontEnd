@@ -31,7 +31,7 @@ const { Title } = Typography;
 function ConsultantDashboard() {
   const [selectedMenuItem, setSelectedMenuItem] = useState("personal_schedule");
   const token = useSelector((state) => state.user.jwt || state.user.token);
-  
+
   let userId;
   if (token) {
     try {
@@ -55,19 +55,9 @@ function ConsultantDashboard() {
       label: "Lịch tư vấn cá nhân",
     },
     {
-      key: "user_profiles",
-      icon: <UserOutlined />,
-      label: "Thông tin người dùng",
-    },
-    {
       key: "online_consultation",
       icon: <SolutionOutlined />,
       label: "Tư vấn trực tuyến",
-    },
-    {
-      key: "consultation_results",
-      icon: <EditOutlined />,
-      label: "Gửi kết quả tư vấn",
     },
     {
       key: "manage_schedule",
@@ -123,11 +113,13 @@ function ConsultantDashboard() {
 
   // Lấy tên menu item hiện tại cho breadcrumb
   const getCurrentMenuLabel = () => {
-    const flatItems = menuItems.flatMap(item => 
+    const flatItems = menuItems.flatMap((item) =>
       item.children ? item.children : item
     );
-    return flatItems.find(item => item.key === selectedMenuItem)?.label || 
-           menuItems.find(item => item.key === selectedMenuItem)?.label;
+    return (
+      flatItems.find((item) => item.key === selectedMenuItem)?.label ||
+      menuItems.find((item) => item.key === selectedMenuItem)?.label
+    );
   };
 
   return (
@@ -141,11 +133,6 @@ function ConsultantDashboard() {
           theme="dark"
           mode="horizontal"
           defaultSelectedKeys={["1"]}
-          items={[
-            { key: "1", label: "Trang chủ" },
-            { key: "2", label: "Lịch của tôi" },
-            { key: "3", label: "Cài đặt" },
-          ]}
           style={{
             flex: 1,
             minWidth: 0,
@@ -153,7 +140,7 @@ function ConsultantDashboard() {
           }}
         />
       </Header>
-      
+
       <Layout>
         <Sider width={250} style={{ background: colorBgContainer }}>
           <Menu
@@ -165,7 +152,7 @@ function ConsultantDashboard() {
             onSelect={({ key }) => setSelectedMenuItem(key)}
           />
         </Sider>
-        
+
         <Layout style={{ padding: "0 24px 24px" }}>
           <Breadcrumb
             items={[
@@ -175,7 +162,7 @@ function ConsultantDashboard() {
             ]}
             style={{ margin: "16px 0" }}
           />
-          
+
           <Content
             style={{
               padding: 24,

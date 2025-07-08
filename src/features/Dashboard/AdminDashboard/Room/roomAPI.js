@@ -75,3 +75,70 @@ export const fetchRoomById = async (id) => {
     throw error;
   }
 };
+
+// Thêm bác sĩ vào phòng
+export const addConsultantToRoom = async (roomId, consultantData) => {
+  try {
+    console.log(" Adding consultant to room:", { roomId, consultantData });
+    const response = await api.post(
+      `/rooms/${roomId}/consultants`,
+      consultantData
+    );
+    console.log("Add consultant to room response:", response.data);
+    return response.data;
+  } catch (error) {
+    console.error(" Lỗi thêm bác sĩ vào phòng:", error);
+    console.error("Error response:", error.response?.data);
+    console.error("Error status:", error.response?.status);
+    throw error;
+  }
+};
+
+// Lấy danh sách bác sĩ trong phòng
+export const fetchRoomConsultants = async (roomId) => {
+  try {
+    console.log(" Fetching consultants for room:", roomId);
+    const response = await api.get(`/rooms/${roomId}/consultants`);
+    console.log("Fetch room consultants response:", response.data);
+    console.log(" Number of consultants found:", response.data?.length || 0);
+
+    // Đảm bảo trả về array
+    if (Array.isArray(response.data)) {
+      return response.data;
+    } else if (response.data) {
+      return [response.data];
+    } else {
+      return [];
+    }
+  } catch (error) {
+    console.error(" Lỗi lấy danh sách bác sĩ trong phòng:", error);
+    console.error("Error response:", error.response?.data);
+    console.error("Error status:", error.response?.status);
+    console.error("Room ID:", roomId);
+
+    // Nếu là 404 (không tìm thấy), trả về array rỗng thay vì throw error
+    if (error.response?.status === 404) {
+      console.log(" Room has no consultants yet, returning empty array");
+      return [];
+    }
+
+    throw error;
+  }
+};
+
+// Xóa bác sĩ khỏi phòng (sử dụng assignmentId)
+export const removeConsultantFromRoom = async (roomId, assignmentId) => {
+  try {
+    console.log(" Removing consultant from room:", { roomId, assignmentId });
+    const response = await api.delete(
+      `/rooms/${roomId}/consultants/${assignmentId}`
+    );
+    console.log("Remove consultant from room response:", response.data);
+    return response.data;
+  } catch (error) {
+    console.error(" Lỗi xóa bác sĩ khỏi phòng:", error);
+    console.error("Error response:", error.response?.data);
+    console.error("Error status:", error.response?.status);
+    throw error;
+  }
+};

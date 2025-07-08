@@ -4,3 +4,4 @@ export { default as BlogModal } from "./Blog/BlogModal";
 export { default as RoomModal } from "./Room/RoomModal";
 // SpecializationModal is now exported from ./Specialization/index.js
 // ServiceModal and ServiceDetailModal are now managed by ServiceManagement component
+// UserManagement is now exported from ./UserManagement/index.js

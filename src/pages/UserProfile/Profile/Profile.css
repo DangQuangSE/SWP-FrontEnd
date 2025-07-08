@@ -25,10 +25,30 @@
   padding: 20px;
 }
 
+/* Avatar upload styling */
+.avatar-container {
+  position: relative;
+  display: inline-block;
+  cursor: pointer;
+}
+
 .profile-avatar {
   margin-bottom: 16px;
   border: 3px solid #f0f0f0;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+}
+
+.profile-avatar:hover {
+  opacity: 0.8;
+}
+
+.avatar-upload-button {
+  position: absolute;
+  bottom: 20px;
+  right: 0;
+  z-index: 10;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
 }
 
 .avatar-uploader {
@@ -67,7 +87,7 @@
 }
 
 /* Form styling */
-.ant-form-item-label > label {
+.ant-form-item-label>label {
   font-weight: 600;
   color: #262626;
 }
@@ -131,26 +151,26 @@
   .profile-container {
     padding: 16px;
   }
-  
+
   .profile-header {
     flex-direction: column;
     gap: 16px;
     align-items: flex-start;
   }
-  
+
   .avatar-section {
     padding: 16px 0;
   }
-  
+
   .profile-avatar {
     width: 100px !important;
     height: 100px !important;
   }
-  
+
   .form-actions {
     flex-direction: column;
   }
-  
+
   .form-actions .ant-btn {
     width: 100%;
   }
@@ -160,12 +180,12 @@
   .profile-header h2 {
     font-size: 18px;
   }
-  
+
   .profile-avatar {
     width: 80px !important;
     height: 80px !important;
   }
-  
+
   .user-basic-info h3 {
     font-size: 16px;
   }
@@ -210,7 +230,7 @@
 }
 
 /* Date picker styling */
-.ant-picker-input > input {
+.ant-picker-input>input {
   font-size: 14px;
 }
 
@@ -222,4 +242,15 @@
 .ant-input:focus {
   border-color: #1890ff;
   box-shadow: 0 0 0 2px rgba(24, 144, 255, 0.2);
+}
+
+/* Preview modal */
+.avatar-preview-modal .ant-modal-body {
+  text-align: center;
+  padding: 24px;
+}
+
+.avatar-preview-modal img {
+  max-width: 100%;
+  max-height: 500px;
 }

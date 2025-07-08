@@ -55,8 +55,8 @@ const ServiceDetail = () => {
                 <h3>Quá trình chuẩn bị</h3>
                 <div className="prep-items">
                   <div className="prep-item">
-                    📝 Mang theo sổ khám bệnh, kết quả khám và các xét nghiệm
-                    trước đó (nếu có).
+                    Mang theo sổ khám bệnh, kết quả khám và các xét nghiệm trước
+                    đó (nếu có).
                   </div>
                   <div className="prep-item">
                     💬 Trường hợp có các biểu hiện đau nhức bất thường, có thể

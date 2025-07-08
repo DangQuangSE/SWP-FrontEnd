@@ -13,10 +13,12 @@ const SpecializationModal = ({
   return (
     <Modal
       title={editingSpecialization ? "Sửa Chuyên khoa" : "Thêm Chuyên khoa"}
-      visible={visible}
+      open={visible}
       onOk={onOk}
       onCancel={onCancel}
       width={500}
+      okText={editingSpecialization ? "Cập nhật" : "Thêm"}
+      cancelText="Hủy"
     >
       <Form form={form} layout="vertical">
         <Form.Item

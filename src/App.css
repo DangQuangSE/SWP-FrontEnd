@@ -70,7 +70,7 @@
 
 /* ===== BASE STYLES ===== */
 body {
-  background: #e8f4fd;
+  background: #ffffff;
   color: var(--text-primary);
   line-height: 1.6;
 }
@@ -131,7 +131,7 @@ body {
 }
 
 .main-content-app {
-  padding-top: 100px;
+  padding-top: 80px;
 }
 .btn-secondary {
   background: var(--bg-white);

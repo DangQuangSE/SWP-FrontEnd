@@ -1,8 +1,5 @@
 import React from "react";
-import { Modal, Form, Input, Select, Upload, Button } from "antd";
-import { UploadOutlined } from "@ant-design/icons";
-
-const { Option } = Select;
+import { Modal, Form, Input, Select } from "antd";
 
 const BlogModal = ({
   visible,
@@ -10,61 +7,60 @@ const BlogModal = ({
   onCancel,
   form,
   editingArticle,
-  imageUrl,
-  handleUpload,
+  tagOptions = [],
 }) => {
   return (
     <Modal
-      title={editingArticle ? "Edit Blog Article" : "Create Blog Article"}
-      visible={visible}
+      title={editingArticle ? "Chỉnh sửa bài đăng" : "Tạo bài đăng mới"}
+      open={visible}
       onOk={onOk}
       onCancel={onCancel}
-      width={600}
+      width={800}
+      okText={editingArticle ? "Cập nhật" : "Tạo bài đăng"}
+      cancelText="Hủy"
+      maskClosable={false}
     >
       <Form form={form} layout="vertical">
         <Form.Item
           name="title"
-          label="Article Title"
-          rules={[{ required: true, message: "Please input article title!" }]}
+          label="Tiêu đề"
+          rules={[
+            { required: true, message: "Vui lòng nhập tiêu đề!" },
+            { min: 10, message: "Tiêu đề phải có ít nhất 10 ký tự!" },
+          ]}
         >
-          <Input placeholder="Enter article title" />
+          <Input placeholder="Nhập tiêu đề bài viết" />
         </Form.Item>
         <Form.Item
-          name="author"
-          label="Author"
-          rules={[{ required: true, message: "Please input author name!" }]}
+          name="content"
+          label="Nội dung"
+          rules={[
+            { required: true, message: "Vui lòng nhập nội dung!" },
+            { min: 50, message: "Nội dung phải có ít nhất 50 ký tự!" },
+          ]}
         >
-          <Input placeholder="Enter author name" />
+          <Input.TextArea rows={8} placeholder="Nhập nội dung bài viết..." />
         </Form.Item>
-        <Form.Item name="content" label="Content">
-          <Input.TextArea rows={8} placeholder="Enter article content" />
-        </Form.Item>
-        <Form.Item label="Featured Image" name="image_url">
-          <Upload
-            customRequest={({ file, onSuccess }) => {
-              handleUpload(file).then(() => onSuccess("ok"));
-            }}
-            showUploadList={false}
-            accept="image/*"
-          >
-            <Button icon={<UploadOutlined />}>Upload Image</Button>
-          </Upload>
-          {imageUrl && (
-            <img
-              src={imageUrl}
-              alt="preview"
-              style={{ width: 120, marginTop: 8 }}
-            />
-          )}
+        <Form.Item name="tags" label="Chủ đề">
+          <Select
+            mode="multiple"
+            placeholder="Chọn chủ đề"
+            options={tagOptions}
+            allowClear
+          />
         </Form.Item>
         <Form.Item
           name="status"
-          label="Status"
-          rules={[{ required: true, message: "Please select status!" }]}
+          label="Trạng thái"
+          rules={[{ required: true, message: "Vui lòng chọn trạng thái!" }]}
         >
-          <Select placeholder="Select status">
-            <Option value="Published">Published</Option>
-            <Option value="Draft">Draft</Option>
+          <Select placeholder="Chọn trạng thái bài viết">
+            <Select.Option value="DRAFT"> Bản nháp</Select.Option>
+            <Select.Option value="PENDING">⏳ Chờ duyệt</Select.Option>
+            <Select.Option value="APPROVED">Đã duyệt</Select.Option>
+            <Select.Option value="PUBLISHED">🌐 Đã đăng</Select.Option>
+            <Select.Option value="REJECTED"> Bị từ chối</Select.Option>
+            <Select.Option value="ARCHIVED">📦 Đã lưu trữ</Select.Option>
           </Select>
         </Form.Item>
       </Form>

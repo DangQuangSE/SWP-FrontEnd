@@ -88,7 +88,7 @@
   border-radius: 8px;
   border: 1px solid #e8e8e8;
   background: white;
-  font-size: 11px;
+  font-size: 14px;
   cursor: pointer;
   user-select: none;
   transition: all 0.2s;
@@ -144,7 +144,7 @@
 }
 
 .time-slot {
-  padding: 6px 10px;
+  padding: 8px 12px;
   border-radius: 6px;
   border: 1px solid #e8e8e8;
   background-color: white;
@@ -152,10 +152,12 @@
   transition: all 0.2s;
   font-size: 12px;
   text-align: center;
+  min-width: 120px;
+  min-height: 50px;
 }
 
-.time-slot:hover {
-  border-color: #1890ff;
+.time-slots-grid .time-slot:hover {
+  border-color: #1890ff !important;
   color: #1890ff;
 }
 
@@ -163,6 +165,28 @@
   background-color: #1890ff;
   color: white;
   border-color: #1890ff;
+}
+
+.time-slot.selected .slot-available {
+  color: #a8d8a8; /* Lighter green for selected state */
+}
+
+.time-slot-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+}
+
+.time-display {
+  font-weight: 500;
+  font-size: 16px;
+}
+
+.slot-available {
+  font-size: 14px;
+  color: #52c41a;
+  font-weight: 450;
 }
 
 @media (max-width: 480px) {
@@ -182,9 +206,8 @@
   }
 }
 .slot-count {
-  font-size: 12px;
+  font-size: 14px;
   color: #52c41a;
-  margin-top: 2px;
 }
 .booking-price {
   text-align: start;

@@ -5,7 +5,7 @@ import LoginGoogle from "../../api/LoginGoogle";
 import api from "../../configs/api";
 import { useDispatch } from "react-redux";
 import { toast } from "react-toastify";
-import { login } from "../../redux/features/userSlice";
+import { login } from "../../redux/reduxStore/userSlice";
 import { useNavigate } from "react-router-dom";
 import "./LoginForm.css";
 
@@ -22,14 +22,23 @@ const LoginForm = ({ onClose }) => {
         email: values.email,
         password: values.password,
       });
-      const user = res.data;
-      dispatch(login({ user }));
-      console.log(user.jwt);
-      localStorage.setItem("token", user.jwt);
+      const responseData = res.data;
+      const jwt =
+        responseData.jwt || responseData.accessToken || responseData.token;
+      const user = responseData.user || responseData;
+
+      // Kiểm tra user không null/undefined
+      if (!user) {
+        throw new Error("User data is null or undefined");
+      }
+
+      dispatch(login({ user, jwt }));
+      console.log("JWT:", jwt);
+      localStorage.setItem("token", jwt);
       toast.success("Đăng nhập thành công!");
       if (onClose) onClose();
 
-      switch (user.user.role) {
+      switch (user.role) {
         case "CUSTOMER":
           navigate("/");
           break;
@@ -68,16 +77,18 @@ const LoginForm = ({ onClose }) => {
       );
 
       const { user, jwt: token } = res.data;
-      if (token) {
+      if (token && user) {
         localStorage.setItem("token", token);
         localStorage.setItem("user", JSON.stringify(user));
-        dispatch(login({ user, token }));
+        dispatch(login({ user, jwt: token }));
         toast.success("Đăng nhập Google thành công!");
         if (onClose) onClose();
         navigate("/");
         console.log("Token", token);
       } else {
-        toast.error("Đăng nhập Google thất bại! Không có token.");
+        toast.error(
+          "Đăng nhập Google thất bại! Thiếu thông tin user hoặc token."
+        );
       }
     } catch (error) {
       toast.error("Lỗi xác thực Google!");

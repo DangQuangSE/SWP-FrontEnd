@@ -628,10 +628,10 @@ const CycleTracker = () => {
                 thời điểm rụng trứng.
               </li>
               <li style={{ marginBottom: 12 }}>
-                <b>📝 Ghi chú thêm:</b> Bạn có thể ghi lại cảm xúc trong ngày,
-                mức độ căng thẳng, giấc ngủ, chế độ ăn uống hoặc bất kỳ điều gì
-                ảnh hưởng đến sức khỏe. Đây là cách để bạn hiểu được ảnh hưởng
-                của các yếu tố bên ngoài đến cơ thể mình.
+                <b> Ghi chú thêm:</b> Bạn có thể ghi lại cảm xúc trong ngày, mức
+                độ căng thẳng, giấc ngủ, chế độ ăn uống hoặc bất kỳ điều gì ảnh
+                hưởng đến sức khỏe. Đây là cách để bạn hiểu được ảnh hưởng của
+                các yếu tố bên ngoài đến cơ thể mình.
               </li>
               <li style={{ marginBottom: 12 }}>
                 <b>💊 Chọn triệu chứng:</b> Tick vào các triệu chứng bạn đang

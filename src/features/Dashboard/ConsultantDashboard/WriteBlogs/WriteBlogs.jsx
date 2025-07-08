@@ -15,9 +15,6 @@ import { toast } from "react-toastify";
 import api from "../../../../configs/api";
 import {
   fetchBlogs,
-  fetchAllBlogs,
-  fetchMyBlogs,
-  fetchBlogsByAuthor,
   fetchBlogDetail,
   createBlog,
   deleteBlog,
@@ -50,31 +47,27 @@ const WriteBlogs = ({ userId, selectedTab }) => {
   const [editingTag, setEditingTag] = useState(null);
   const [selectedTag, setSelectedTag] = useState(null);
 
+  // Status filter state
+  const [selectedStatus, setSelectedStatus] = useState("ALL");
+
   // Load blogs
   const loadBlogs = async (page = 0, size = 10) => {
-    console.log(`🔄 Loading blogs: page=${page}, size=${size}`);
     setLoadingBlogs(true);
     try {
-      // Simplified: Just use basic fetchBlogs endpoint
-      console.log("🔄 Using basic fetchBlogs endpoint...");
-      const res = await fetchBlogs(page, size);
-      console.log("📋 fetchBlogs response:", res.data);
-
-      // Handle both paginated and direct array response
+      const token = localStorage.getItem("token");
+      // Consultant: lấy tất cả blog của mình (mọi trạng thái)
+      const res = await api.get(`/blog/my-blogs?page=${page}&size=${size}`, {
+        headers: token ? { Authorization: `Bearer ${token}` } : {},
+      });
       let blogData = [];
       if (res.data?.content && Array.isArray(res.data.content)) {
         blogData = res.data.content;
       } else if (Array.isArray(res.data)) {
         blogData = res.data;
       } else if (res.data && typeof res.data === "object") {
-        // Single blog object - convert to array
         blogData = [res.data];
       }
-
-      console.log("📊 Blog data extracted:", blogData.length, "blogs");
-
       const processedBlogs = blogData.map((blog) => {
-        // Handle circular reference in author.blogs
         const cleanAuthor = blog.author
           ? {
               id: blog.author.id,
@@ -82,7 +75,6 @@ const WriteBlogs = ({ userId, selectedTab }) => {
               email: blog.author.email,
               imageUrl: blog.author.imageUrl,
               role: blog.author.role,
-              // Don't include blogs array to avoid circular reference
             }
           : { fullname: "Không có tác giả" };
 
@@ -104,29 +96,8 @@ const WriteBlogs = ({ userId, selectedTab }) => {
           tags: Array.isArray(blog.tags) ? blog.tags : [],
         };
       });
-
       setBlogs(processedBlogs);
-      console.log(
-        " Processed blogs set to state:",
-        processedBlogs.length,
-        "blogs"
-      );
-      console.log(
-        "📝 Latest blog titles:",
-        processedBlogs.slice(0, 3).map((b) => b.title)
-      );
-
-      // If no blogs from API but we have created blogs in session, show message
-      if (processedBlogs.length === 0) {
-        console.log(
-          "⚠️ No blogs returned from API - this might be due to status filtering"
-        );
-        console.log(
-          "💡 Backend API only returns PUBLISHED blogs, but you may have created DRAFT/PENDING blogs"
-        );
-      }
     } catch (error) {
-      console.error("❌ Error loading blogs:", error);
       toast.error(
         `Không thể tải danh sách blog: ${error.message || "Lỗi không xác định"}`
       );
@@ -136,14 +107,69 @@ const WriteBlogs = ({ userId, selectedTab }) => {
     }
   };
 
-  // Load tags
+  // Load blogs by status (consultant only)
+  const loadBlogsByStatus = async (status, page = 0, size = 10) => {
+    setLoadingBlogs(true);
+    try {
+      const token = localStorage.getItem("token");
+      const res = await api.get(
+        `/blog/my-blogs/by-status?status=${status}&page=${page}&size=${size}`,
+        {
+          headers: token ? { Authorization: `Bearer ${token}` } : {},
+        }
+      );
+      let blogData = [];
+      if (res.data?.content && Array.isArray(res.data.content)) {
+        blogData = res.data.content;
+      } else if (Array.isArray(res.data)) {
+        blogData = res.data;
+      } else if (res.data && typeof res.data === "object") {
+        blogData = [res.data];
+      }
+      const processedBlogs = blogData.map((blog) => {
+        const cleanAuthor = blog.author
+          ? {
+              id: blog.author.id,
+              fullname: blog.author.fullname || "Không có tác giả",
+              email: blog.author.email,
+              imageUrl: blog.author.imageUrl,
+              role: blog.author.role,
+            }
+          : { fullname: "Không có tác giả" };
+
+        return {
+          id: blog.id || blog.blog_id,
+          title: blog.title || "Không có tiêu đề",
+          content: blog.content || "Không có nội dung",
+          imgUrl: blog.imgUrl,
+          viewCount: blog.viewCount || 0,
+          likeCount: blog.likeCount || 0,
+          status: blog.status || "DRAFT",
+          createdAt: blog.createdAt
+            ? new Date(blog.createdAt).toLocaleString("vi-VN")
+            : "Không có",
+          updatedAt: blog.updatedAt
+            ? new Date(blog.updatedAt).toLocaleString("vi-VN")
+            : "Không có",
+          author: cleanAuthor,
+          tags: Array.isArray(blog.tags) ? blog.tags : [],
+        };
+      });
+      setBlogs(processedBlogs);
+    } catch (error) {
+      toast.error(
+        `Không thể tải blog theo trạng thái: ${error.message || "Lỗi không xác định"}`
+      );
+      setBlogs([]);
+    } finally {
+      setLoadingBlogs(false);
+    }
+  };
+
   const loadTags = async (forceRefresh = false) => {
     try {
-      // Add cache busting parameter if force refresh
       const url = forceRefresh ? `/tags?_t=${Date.now()}` : "/tags";
       const res = await api.get(url);
-
-      // Filter out deleted tags (temporary fix for soft delete)
       const activeTags = (res.data || []).filter(
         (tag) => !tag.deleted && !tag.deleted_at && tag.status !== "DELETED"
       );
@@ -156,7 +182,6 @@ const WriteBlogs = ({ userId, selectedTab }) => {
       );
       setTags(activeTags);
     } catch (error) {
-      console.error("Error loading tags:", error);
       setTagOptions([]);
       setTags([]);
     }
@@ -170,9 +195,7 @@ const WriteBlogs = ({ userId, selectedTab }) => {
       return;
     }
     try {
-      console.log("Filtering blogs by tag:", tagId);
       const res = await api.get(`/blog/by-tag/${tagId}`);
-      console.log("Filter by tag response:", res.data);
 
       const blogData = res.data?.content || res.data || [];
       const processedBlogs = blogData.map((blog) => ({
@@ -187,12 +210,20 @@ const WriteBlogs = ({ userId, selectedTab }) => {
         author: blog.author || { fullname: "Không có tác giả" },
         tags: Array.isArray(blog.tags) ? blog.tags : [],
       }));
-
       setBlogs(processedBlogs);
     } catch (error) {
-      console.error("Error filtering blogs by tag:", error);
       toast.error("Không thể lọc blog theo chủ đề");
       setBlogs([]);
+    }
+  };
+
+  // Handle filter by status
+  const handleFilterByStatus = (status) => {
+    setSelectedStatus(status);
+    if (status === "ALL") {
+      loadBlogs();
+    } else {
+      loadBlogsByStatus(status);
     }
   };
 
@@ -204,31 +235,17 @@ const WriteBlogs = ({ userId, selectedTab }) => {
     }
 
     try {
-      console.log("Fetching blog detail for ID:", id);
       const res = await fetchBlogDetail(id);
 
-      // Safely parse response to avoid circular reference issues
       let blog = {};
       try {
         if (typeof res.data === "string") {
-          // If response is string, try to parse it
           blog = JSON.parse(res.data);
         } else {
           blog = res.data || {};
         }
-        console.log("Blog detail response parsed successfully:", blog);
       } catch (parseError) {
-        console.error("JSON parse error:", parseError);
-        console.log("Raw response type:", typeof res.data);
-        console.log(
-          "Raw response preview:",
-          String(res.data).substring(0, 200) + "..."
-        );
-
-        // If parsing fails, try to extract data manually from string
         const responseText = String(res.data);
-
-        // Try to extract basic info using regex (fallback)
         const titleMatch = responseText.match(/"title":"([^"]*)"/);
         const contentMatch = responseText.match(/"content":"([^"]*?)"/);
         const idMatch = responseText.match(/"id":(\d+)/);
@@ -257,8 +274,6 @@ const WriteBlogs = ({ userId, selectedTab }) => {
           },
           tags: [],
         };
-
-        console.log("Fallback parsed blog data:", blog);
       }
 
       const processedBlog = {
@@ -288,7 +303,6 @@ const WriteBlogs = ({ userId, selectedTab }) => {
       setSelectedBlog(processedBlog);
       setIsDetailModalVisible(true);
     } catch (error) {
-      console.error("Error fetching blog detail:", error);
       toast.error(
         `Không thể tải chi tiết blog: ${error.message || "Lỗi không xác định"}`
       );
@@ -310,48 +324,38 @@ const WriteBlogs = ({ userId, selectedTab }) => {
     }
   };
 
-  // Create blog
   const handleCreateBlog = async () => {
-    console.log("🚀 Starting handleCreateBlog...");
+    setCreateBlogLoading(true);
 
-    // Temporary bypass for testing - use hardcoded userId
     const testUserId = userId || 1;
     console.log(" Using userId (test mode):", testUserId);
 
     console.log(" UserId found:", userId);
-    setCreateBlogLoading(true);
 
     try {
-      console.log("🔄 Validating form fields...");
       const values = await createBlogForm.validateFields();
-      console.log(" Form validation passed:", values);
 
-      // Get image file if exists
       const fileInput = document.getElementById("blog-image-input");
       const imgFile = fileInput?.files[0] || null;
 
-      // Validate required fields
       console.log(" Validating title:", values.title?.length);
       if (!values.title || values.title.trim().length < 10) {
-        console.error("❌ Title validation failed");
+        console.error(" Title validation failed");
         toast.error("Tiêu đề phải có ít nhất 10 ký tự!");
         return;
       }
 
       console.log(" Validating content:", values.content?.length);
       if (!values.content || values.content.trim().length < 50) {
-        console.error("❌ Content validation failed");
+        console.error(" Content validation failed");
         toast.error("Nội dung phải có ít nhất 50 ký tự!");
         return;
       }
 
-      console.log(" All validations passed");
-
-      // Process tags - convert IDs to names for backend
       let tagNames = [];
       if (values.tags && values.tags.length > 0) {
-        console.log("🏷️ Selected tag IDs:", values.tags);
-        console.log("🏷️ Available tags:", tags);
+        console.log(" Selected tag IDs:", values.tags);
+        console.log(" Available tags:", tags);
 
         tagNames = values.tags
           .map((tagId) => {
@@ -359,8 +363,6 @@ const WriteBlogs = ({ userId, selectedTab }) => {
             return tag ? tag.name : null;
           })
           .filter((name) => name !== null);
-
-        console.log("🏷️ Converted tag names:", tagNames);
       }
 
       const blogData = {
@@ -368,28 +370,33 @@ const WriteBlogs = ({ userId, selectedTab }) => {
         content: values.content.trim(),
         status: values.status || "DRAFT",
         imgFile: imgFile,
-        tagNames: tagNames, // Backend expects tag names
+        tagNames: tagNames,
       };
-
-      // Prepare blog data for submission
-
-      // Submit blog data
-      console.log("🚀 Submitting blog data:", blogData);
+      console.log("Submitting blog data:", blogData);
       try {
-        console.log("📤 Calling createBlog API...");
         const response = await createBlog(blogData);
-        console.log(" Blog created successfully:", response.data);
-
         toast.success("Tạo blog thành công!");
 
-        // Close modal and reset form
+        // Gửi blog để admin duyệt nếu tạo thành công
+        if (response.data && response.data.id) {
+          try {
+            const token = localStorage.getItem("token");
+            await api.post(`/blog/${response.data.id}/submit`, null, {
+              headers: token ? { Authorization: `Bearer ${token}` } : {},
+            });
+            toast.success("Đã gửi blog để admin duyệt!");
+          } catch (submitError) {
+            toast.error(
+              "Không thể gửi blog để duyệt: " +
+                (submitError.response?.data?.message || submitError.message)
+            );
+          }
+        }
+
         setIsCreateBlogModalVisible(false);
         createBlogForm.resetFields();
 
-        // Force reload blogs to show new blog
-        console.log("🔄 Reloading blogs after create...");
-
-        // Add the created blog directly to state as immediate feedback
+        console.log(" Reloading blogs after create...");
         if (response.data) {
           const newBlog = {
             ...response.data,
@@ -403,18 +410,16 @@ const WriteBlogs = ({ userId, selectedTab }) => {
             tags: Array.isArray(response.data.tags) ? response.data.tags : [],
           };
 
-          console.log("➕ Adding new blog to state immediately:", newBlog);
+          console.log(" Adding new blog to state immediately:", newBlog);
           setBlogs((prevBlogs) => [newBlog, ...prevBlogs]);
         }
 
-        await loadBlogs(0, 20); // Also try to reload from server
+        await loadBlogs(0, 20);
       } catch (error) {
-        console.error("❌ Create blog failed:", error);
-        console.error("❌ Error response:", error.response?.data);
-
-        // Retry without tags if error occurs and tags were included
+        console.error(" Create blog failed:", error);
+        console.error(" Error response:", error.response?.data);
         if (error.response?.status === 500 && blogData.tagNames.length > 0) {
-          console.log("🔄 Retrying without tags...");
+          console.log(" Retrying without tags...");
           const blogDataNoTags = { ...blogData, tagNames: [] };
           const retryResponse = await createBlog(blogDataNoTags);
           console.log(" Blog created without tags:", retryResponse.data);
@@ -422,12 +427,8 @@ const WriteBlogs = ({ userId, selectedTab }) => {
           toast.warning(
             "Blog được tạo thành công nhưng không có tags do hạn chế hệ thống"
           );
-
-          // Close modal and reset form
           setIsCreateBlogModalVisible(false);
           createBlogForm.resetFields();
-
-          // Add the created blog directly to state
           if (retryResponse.data) {
             const newBlog = {
               ...retryResponse.data,
@@ -441,32 +442,23 @@ const WriteBlogs = ({ userId, selectedTab }) => {
               tags: [],
             };
 
-            console.log("➕ Adding new blog (no tags) to state:", newBlog);
+            console.log(" Adding new blog (no tags) to state:", newBlog);
             setBlogs((prevBlogs) => [newBlog, ...prevBlogs]);
           }
-
-          // Force reload blogs
           await loadBlogs(0, 20);
         } else {
           throw error;
         }
       }
-
-      // Close modal and reset form
       setIsCreateBlogModalVisible(false);
       createBlogForm.resetFields();
-
-      // Clear file input
       if (fileInput) {
         fileInput.value = "";
       }
-
-      // Reload blogs list
       await loadBlogs();
 
       toast.success("Tạo blog thành công!");
     } catch (error) {
-      // Handle error with appropriate message
       let errorMessage = "Lỗi không xác định";
       if (error.response?.data?.message) {
         errorMessage = error.response.data.message;
@@ -477,14 +469,11 @@ const WriteBlogs = ({ userId, selectedTab }) => {
       } else if (error.message) {
         errorMessage = error.message;
       }
-
       toast.error(`Tạo blog thất bại: ${errorMessage}`);
     } finally {
       setCreateBlogLoading(false);
     }
   };
-
-  // Edit blog
   const handleEditBlog = async () => {
     const values = await editBlogForm.validateFields();
     try {
@@ -499,27 +488,17 @@ const WriteBlogs = ({ userId, selectedTab }) => {
       toast.error("Cập nhật blog thất bại");
     }
   };
-
-  // Delete blog
   const handleDeleteBlog = async (blogId) => {
     if (!blogId) return;
 
-    console.log(`🗑️ Attempting to delete blog ${blogId}`);
-
     try {
       await deleteBlog(blogId);
-      console.log(` Blog ${blogId} deleted successfully`);
       toast.success("Xóa blog thành công!");
-      loadBlogs(); // Reload the blog list
+      loadBlogs();
     } catch (error) {
-      console.error(`❌ Error deleting blog ${blogId}:`, error);
-
-      // Show specific error message
       const errorMessage =
         error.message || "Không thể xóa blog. Vui lòng thử lại sau.";
       toast.error(errorMessage);
-
-      // If authentication error, suggest login
       if (errorMessage.includes("đăng nhập")) {
         setTimeout(() => {
           const shouldLogin = confirm(`🔑 Bạn có muốn đăng nhập lại không?`);
@@ -530,8 +509,6 @@ const WriteBlogs = ({ userId, selectedTab }) => {
       }
     }
   };
-
-  // Upload image
   const handleImageChange = async (e) => {
     const file = e.target.files[0];
     if (!file) return;
@@ -546,31 +523,25 @@ const WriteBlogs = ({ userId, selectedTab }) => {
       setImageUploading(false);
     }
   };
-
-  // Function to render status with color and icon
   const renderStatus = (status) => {
     const statusConfig = {
-      DRAFT: { color: "#8c8c8c", icon: "📝", text: "Bản nháp" },
-      PENDING: { color: "#faad14", icon: "⏳", text: "Chờ duyệt" },
+      DRAFT: { color: "#8c8c8c", text: "Bản nháp" },
+      PENDING: { color: "#faad14", text: "Chờ duyệt" },
       APPROVED: { color: "#52c41a", icon: "", text: "Đã duyệt" },
-      PUBLISHED: { color: "#1890ff", icon: "🌐", text: "Đã đăng" },
-      REJECTED: { color: "#ff4d4f", icon: "❌", text: "Bị từ chối" },
-      ARCHIVED: { color: "#722ed1", icon: "📦", text: "Đã lưu trữ" },
+      PUBLISHED: { color: "#1890ff", text: "Đã đăng" },
+      REJECTED: { color: "#ff4d4f", text: "Bị từ chối" },
+      ARCHIVED: { color: "#722ed1", text: "Đã lưu trữ" },
     };
-
     const config = statusConfig[status] || {
       color: "#8c8c8c",
-      icon: "❓",
       text: status,
     };
-
     return (
-      <span style={{ color: config.color, fontWeight: "bold" }}>
+      <span className={`blog-status ${status.toLowerCase()}`}>
         {config.icon} {config.text}
       </span>
     );
   };
-
   useEffect(() => {
     if (selectedTab === "write_blogs") {
       loadBlogs();
@@ -579,8 +550,6 @@ const WriteBlogs = ({ userId, selectedTab }) => {
       loadTags();
     }
   }, [selectedTab, userId]);
-
-  // Blog columns for table
   const blogColumns = [
     {
       title: "Tiêu đề",
@@ -589,14 +558,11 @@ const WriteBlogs = ({ userId, selectedTab }) => {
       width: "40%",
       render: (title, record) => (
         <div>
-          <div style={{ fontWeight: "bold", marginBottom: 4 }}>
-            {title || "Không có tiêu đề"}
-          </div>
-          <div style={{ fontSize: "12px", color: "#666" }}>ID: {record.id}</div>
+          <div className="blog-title-cell">{title || "Không có tiêu đề"}</div>
+          <div className="blog-id-cell">ID: {record.id}</div>
         </div>
       ),
     },
-
     {
       title: "Ngày tạo",
       dataIndex: "createdAt",
@@ -605,7 +571,7 @@ const WriteBlogs = ({ userId, selectedTab }) => {
       sorter: (a, b) => new Date(a.createdAt) - new Date(b.createdAt),
       defaultSortOrder: "descend",
       render: (createdAt) => (
-        <div style={{ fontSize: "13px" }}>{createdAt || "Không có"}</div>
+        <div className="blog-date-cell">{createdAt || "Không có"}</div>
       ),
     },
     {
@@ -622,10 +588,10 @@ const WriteBlogs = ({ userId, selectedTab }) => {
       sorter: (a, b) => (a.viewCount || 0) - (b.viewCount || 0),
       render: (_, record) => (
         <div>
-          <div style={{ fontSize: "12px", marginBottom: 2 }}>
+          <div className="blog-stats-cell">
             👁️ {record.viewCount || 0} lượt xem
           </div>
-          <div style={{ fontSize: "12px" }}>
+          <div className="blog-stats-likes">
             ❤️ {record.likeCount || 0} lượt thích
           </div>
         </div>
@@ -639,16 +605,14 @@ const WriteBlogs = ({ userId, selectedTab }) => {
       render: (tags) => (
         <div>
           {tags && tags.length ? (
-            <Tag color="blue" style={{ fontSize: "11px" }}>
+            <Tag color="blue" className="blog-tag-primary">
               {tags[0]?.name || tags[0]}
             </Tag>
           ) : (
-            <span style={{ color: "#999", fontSize: "11px" }}>Không có</span>
+            <span className="blog-tag-empty">Không có</span>
           )}
           {tags && tags.length > 1 && (
-            <div style={{ fontSize: "10px", color: "#666", marginTop: 2 }}>
-              +{tags.length - 1}
-            </div>
+            <div className="blog-tag-count">+{tags.length - 1}</div>
           )}
         </div>
       ),
@@ -657,8 +621,61 @@ const WriteBlogs = ({ userId, selectedTab }) => {
       title: "Thao tác",
       key: "action",
       width: "13%",
-      render: (_, record) => (
-        <Space direction="vertical" size="small">
+      render: (_, record) => {
+        // Nếu là DRAFT thì cho phép gửi duyệt, sửa, xóa
+        if (record.status === "DRAFT") {
+          return (
+            <Space direction="vertical" size="small">
+              <Button
+                onClick={() => handleFetchBlogDetail(record.id)}
+                size="small"
+                type="default"
+                block
+              >
+                Xem chi tiết
+              </Button>
+              <Button
+                icon={<EditOutlined />}
+                size="small"
+                onClick={() => {
+                  editBlogForm.setFieldsValue({
+                    title: record.title,
+                    content: record.content,
+                    tags: record.tags?.map((tag) => tag.id),
+                    status: record.status,
+                  });
+                  setIsEditBlogModalVisible(true);
+                  setEditingBlogId(record.id);
+                }}
+                block
+              >
+                Sửa
+              </Button>
+              <Button
+                type="primary"
+                size="small"
+                block
+                onClick={() => handleSubmitBlog(record.id)}
+              >
+                Gửi duyệt
+              </Button>
+              <Popconfirm
+                title="Xóa blog"
+                description={`Bạn có chắc chắn muốn xóa blog "${record.title}"?`}
+                onConfirm={() => handleDeleteBlog(record.id)}
+                okText="Xóa"
+                cancelText="Hủy"
+                okButtonProps={{ danger: true }}
+              >
+                <Button danger size="small" block>
+                  Xóa
+                </Button>
+              </Popconfirm>
+            </Space>
+          );
+        }
+        // Nếu không phải DRAFT chỉ cho xem chi tiết
+        return (
           <Button
             onClick={() => handleFetchBlogDetail(record.id)}
             size="small"
@@ -667,38 +684,8 @@ const WriteBlogs = ({ userId, selectedTab }) => {
           >
             Xem chi tiết
           </Button>
-          <Button
-            icon={<EditOutlined />}
-            size="small"
-            onClick={() => {
-              editBlogForm.setFieldsValue({
-                title: record.title,
-                content: record.content,
-                tags: record.tags?.map((tag) => tag.id),
-                status: record.status,
-              });
-              setIsEditBlogModalVisible(true);
-              setEditingBlogId(record.id);
-            }}
-            block
-          >
-            Sửa
-          </Button>
-
-          <Popconfirm
-            title="Xóa blog"
-            description={`Bạn có chắc chắn muốn xóa blog "${record.title}"?`}
-            onConfirm={() => handleDeleteBlog(record.id)}
-            okText="Xóa"
-            cancelText="Hủy"
-            okButtonProps={{ danger: true }}
-          >
-            <Button danger size="small" block>
-              Xóa
-            </Button>
-          </Popconfirm>
-        </Space>
-      ),
+        );
+      },
     },
   ];
 
@@ -712,7 +699,6 @@ const WriteBlogs = ({ userId, selectedTab }) => {
         <Space>
           <Button
             onClick={() => {
-              console.log("✏️ Editing tag:", record);
               setEditingTag(record);
               tagForm.setFieldsValue({
                 name: record.name,
@@ -728,22 +714,9 @@ const WriteBlogs = ({ userId, selectedTab }) => {
             description="Hành động này không thể hoàn tác!"
             onConfirm={async () => {
               try {
-                console.log("🗑️ Deleting tag with ID:", record.id);
-                console.log("📋 Tags before delete:", tags.length);
-
                 const response = await api.delete(`/tags/${record.id}`);
-                console.log(
-                  " Delete API response:",
-                  response.status,
-                  response.statusText
-                );
 
                 if (response.status === 204) {
-                  // Backend trả về 204 nhưng không xóa thật
-                  // Fake delete ở frontend để UX tốt hơn
-                  console.log(
-                    "🎭 Backend fake delete - removing from frontend state"
-                  );
                   const updatedTags = tags.filter(
                     (tag) => tag.id !== record.id
                   );
@@ -754,19 +727,12 @@ const WriteBlogs = ({ userId, selectedTab }) => {
                       value: tag.id,
                     }))
                   );
-                  console.log("� Tags after fake delete:", updatedTags.length);
                   toast.success("Xóa chủ đề thành công!");
                 } else {
-                  // Nếu backend thực sự xóa, reload như bình thường
-                  console.log("�🔄 Reloading tags after delete...");
                   await loadTags();
-                  console.log("📋 Tags after reload:", tags.length);
                   toast.success("Xóa chủ đề thành công!");
                 }
               } catch (error) {
-                console.error("❌ Error deleting tag:", error);
-                console.error("Response data:", error.response?.data);
-                console.error("Response status:", error.response?.status);
                 toast.error(
                   `Xóa chủ đề thất bại: ${
                     error.response?.data?.message ||
@@ -787,6 +753,34 @@ const WriteBlogs = ({ userId, selectedTab }) => {
     },
   ];
 
+  // Đặt hàm handleSubmitBlog ở đây, trước blogColumns
+  const handleSubmitBlog = async (blogId) => {
+    if (!blogId) return;
+    try {
+      const token = localStorage.getItem("token");
+      await api.post(`/blog/${blogId}/submit`, null, {
+        headers: token ? { Authorization: `Bearer ${token}` } : {},
+      });
+      toast.success("Đã gửi blog để admin duyệt!");
+      setBlogs((prevBlogs) =>
+        prevBlogs.map((blog) =>
+          blog.id === blogId ? { ...blog, status: "PENDING" } : blog
+        )
+      );
+      // Reload lại danh sách blog theo filter hiện tại để đồng bộ với backend
+      if (selectedStatus === "ALL") {
+        await loadBlogs();
+      } else {
+        await loadBlogsByStatus(selectedStatus);
+      }
+    } catch (error) {
+      toast.error(
+        "Không thể gửi blog để duyệt: " +
+          (error.response?.data?.message || error.message)
+      );
+    }
+  };
+
   if (selectedTab === "write_blogs") {
     // Calculate statistics
     const totalBlogs = blogs.length;
@@ -806,121 +800,60 @@ const WriteBlogs = ({ userId, selectedTab }) => {
     return (
       <div>
         {/* Statistics Cards */}
-        <div
-          style={{
-            display: "grid",
-            gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))",
-            gap: "16px",
-            marginBottom: "24px",
-          }}
-        >
-          <div
-            style={{
-              background: "#f6ffed",
-              border: "1px solid #b7eb8f",
-              borderRadius: "8px",
-              padding: "16px",
-              textAlign: "center",
-            }}
-          >
-            <div
-              style={{ fontSize: "24px", fontWeight: "bold", color: "#52c41a" }}
-            >
-              {totalBlogs}
-            </div>
-            <div style={{ color: "#666", fontSize: "14px" }}>
-              Tổng số bài viết
-            </div>
+        <div className="stats-grid">
+          <div className="stats-card total">
+            <div className="stats-number total">{totalBlogs}</div>
+            <div className="stats-label">Tổng số bài viết</div>
           </div>
 
-          <div
-            style={{
-              background: "#e6f7ff",
-              border: "1px solid #91d5ff",
-              borderRadius: "8px",
-              padding: "16px",
-              textAlign: "center",
-            }}
-          >
-            <div
-              style={{ fontSize: "24px", fontWeight: "bold", color: "#1890ff" }}
-            >
-              {publishedBlogs}
-            </div>
-            <div style={{ color: "#666", fontSize: "14px" }}>Đã xuất bản</div>
+          <div className="stats-card published">
+            <div className="stats-number published">{publishedBlogs}</div>
+            <div className="stats-label">Đã xuất bản</div>
           </div>
 
-          <div
-            style={{
-              background: "#fff7e6",
-              border: "1px solid #ffd591",
-              borderRadius: "8px",
-              padding: "16px",
-              textAlign: "center",
-            }}
-          >
-            <div
-              style={{ fontSize: "24px", fontWeight: "bold", color: "#fa8c16" }}
-            >
-              {draftBlogs}
-            </div>
-            <div style={{ color: "#666", fontSize: "14px" }}>Bản nháp</div>
+          <div className="stats-card draft">
+            <div className="stats-number draft">{draftBlogs}</div>
+            <div className="stats-label">Bản nháp</div>
           </div>
 
-          <div
-            style={{
-              background: "#f9f0ff",
-              border: "1px solid #d3adf7",
-              borderRadius: "8px",
-              padding: "16px",
-              textAlign: "center",
-            }}
-          >
-            <div
-              style={{ fontSize: "24px", fontWeight: "bold", color: "#722ed1" }}
-            >
-              {totalViews}
-            </div>
-            <div style={{ color: "#666", fontSize: "14px" }}>Tổng lượt xem</div>
+          <div className="stats-card views">
+            <div className="stats-number views">{totalViews}</div>
+            <div className="stats-label">Tổng lượt xem</div>
           </div>
 
-          <div
-            style={{
-              background: "#fff0f6",
-              border: "1px solid #ffadd2",
-              borderRadius: "8px",
-              padding: "16px",
-              textAlign: "center",
-            }}
-          >
-            <div
-              style={{ fontSize: "24px", fontWeight: "bold", color: "#eb2f96" }}
-            >
-              {totalLikes}
-            </div>
-            <div style={{ color: "#666", fontSize: "14px" }}>
-              Tổng lượt thích
-            </div>
+          <div className="stats-card likes">
+            <div className="stats-number likes">{totalLikes}</div>
+            <div className="stats-label">Tổng lượt thích</div>
           </div>
         </div>
 
         {/* Filter and Actions */}
-        <div
-          style={{
-            marginBottom: 16,
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "center",
-          }}
-        >
-          <Select
-            allowClear
-            placeholder="Lọc theo chủ đề"
-            style={{ width: 200 }}
-            options={tagOptions}
-            value={selectedTag}
-            onChange={handleFilterByTag}
-          />
+        <div className="filter-actions">
+          <div style={{ display: "flex", gap: "16px" }}>
+            <Select
+              placeholder="Lọc theo trạng thái"
+              className="filter-select"
+              value={selectedStatus}
+              onChange={handleFilterByStatus}
+              options={[
+                { value: "ALL", label: "Tất cả trạng thái" },
+                { value: "DRAFT", label: "Bản nháp" },
+                { value: "PENDING", label: "Chờ duyệt" },
+                { value: "APPROVED", label: "Đã duyệt" },
+                { value: "PUBLISHED", label: "Đã đăng" },
+                { value: "REJECTED", label: "Bị từ chối" },
+                { value: "ARCHIVED", label: "Đã lưu trữ" },
+              ]}
+            />
+            <Select
+              allowClear
+              placeholder="Lọc theo chủ đề"
+              className="filter-select"
+              options={tagOptions}
+              value={selectedTag}
+              onChange={handleFilterByTag}
+            />
+          </div>
           <Button
             type="primary"
             icon={<PlusOutlined />}
@@ -997,33 +930,17 @@ const WriteBlogs = ({ userId, selectedTab }) => {
               />
             </Form.Item>
 
-            <Form.Item
-              name="status"
-              label="Trạng thái"
-              initialValue="PUBLISHED"
-              rules={[{ required: true, message: "Vui lòng chọn trạng thái!" }]}
-            >
-              <Select placeholder="Chọn trạng thái bài viết">
-                <Select.Option value="DRAFT">📝 Bản nháp</Select.Option>
-                <Select.Option value="PENDING">⏳ Chờ duyệt</Select.Option>
-                <Select.Option value="APPROVED"> Đã duyệt</Select.Option>
-                <Select.Option value="PUBLISHED">🌐 Đã đăng</Select.Option>
-                <Select.Option value="REJECTED">❌ Bị từ chối</Select.Option>
-                <Select.Option value="ARCHIVED">📦 Đã lưu trữ</Select.Option>
-              </Select>
-            </Form.Item>
-
             <Form.Item label="Ảnh đại diện">
               <input
                 id="blog-image-input"
                 type="file"
                 accept="image/*"
                 onChange={handleImageChange}
-                style={{ marginBottom: 8 }}
+                className="image-upload-input"
                 disabled={createBlogLoading}
               />
               {createBlogLoading && <div>Đang xử lý...</div>}
-              <div style={{ fontSize: "12px", color: "#666", marginTop: 4 }}>
+              <div className="image-upload-hint">
                 Chọn ảnh đại diện cho bài viết (tùy chọn)
               </div>
             </Form.Item>
@@ -1084,11 +1001,11 @@ const WriteBlogs = ({ userId, selectedTab }) => {
               rules={[{ required: true, message: "Vui lòng chọn trạng thái!" }]}
             >
               <Select placeholder="Chọn trạng thái bài viết">
-                <Select.Option value="DRAFT">📝 Bản nháp</Select.Option>
+                <Select.Option value="DRAFT"> Bản nháp</Select.Option>
                 <Select.Option value="PENDING">⏳ Chờ duyệt</Select.Option>
                 <Select.Option value="APPROVED"> Đã duyệt</Select.Option>
                 <Select.Option value="PUBLISHED">🌐 Đã đăng</Select.Option>
-                <Select.Option value="REJECTED">❌ Bị từ chối</Select.Option>
+                <Select.Option value="REJECTED"> Bị từ chối</Select.Option>
                 <Select.Option value="ARCHIVED">📦 Đã lưu trữ</Select.Option>
               </Select>
             </Form.Item>
@@ -1105,55 +1022,49 @@ const WriteBlogs = ({ userId, selectedTab }) => {
         >
           {selectedBlog && Object.keys(selectedBlog).length > 0 ? (
             <div>
-              <div style={{ marginBottom: 12 }}>
+              <div className="blog-detail-item">
                 <b>ID:</b> {selectedBlog.id}
               </div>
-              <div style={{ marginBottom: 12 }}>
+              <div className="blog-detail-item">
                 <b>Tiêu đề:</b> {selectedBlog.title}
               </div>
-              <div style={{ marginBottom: 12 }}>
+              <div className="blog-detail-item">
                 <b>Tác giả:</b> {selectedBlog.author?.fullname}
               </div>
-              <div style={{ marginBottom: 12 }}>
+              <div className="blog-detail-item">
                 <b>Ngày tạo:</b> {selectedBlog.createdAt}
               </div>
-              <div style={{ marginBottom: 12 }}>
+              <div className="blog-detail-item">
                 <b>Ngày cập nhật:</b> {selectedBlog.updatedAt}
               </div>
-              <div style={{ marginBottom: 12 }}>
+              <div className="blog-detail-item">
                 <b>Lượt xem:</b> {selectedBlog.viewCount} | <b>Lượt thích:</b>{" "}
                 {selectedBlog.likeCount}
               </div>
-              <div style={{ marginBottom: 12 }}>
+              <div className="blog-detail-item">
                 <b>Trạng thái:</b> {renderStatus(selectedBlog.status)}
               </div>
-              <div style={{ marginBottom: 12 }}>
+              <div className="blog-detail-item">
                 <b>Chủ đề:</b>{" "}
                 {selectedBlog.tags && selectedBlog.tags.length
                   ? selectedBlog.tags.map((tag) => tag.name || tag).join(", ")
                   : "Không có"}
               </div>
               {selectedBlog.imgUrl ? (
-                <div style={{ marginBottom: 12 }}>
+                <div className="blog-detail-item">
                   <b>Ảnh blog:</b>
                   <br />
                   <img
                     src={selectedBlog.imgUrl}
                     alt="blog"
-                    style={{
-                      maxWidth: "100%",
-                      marginTop: 4,
-                      marginBottom: 12,
-                    }}
+                    className="blog-image"
                   />
                 </div>
               ) : null}
-              <div style={{ marginBottom: 12 }}>
+              <div className="blog-detail-item">
                 <b>Nội dung:</b>
                 <br />
-                <div style={{ whiteSpace: "pre-line" }}>
-                  {selectedBlog.content}
-                </div>
+                <div className="blog-content">{selectedBlog.content}</div>
               </div>
             </div>
           ) : (
@@ -1169,7 +1080,7 @@ const WriteBlogs = ({ userId, selectedTab }) => {
       <div>
         <Button
           type="primary"
-          style={{ marginBottom: 16 }}
+          className="tag-create-button"
           onClick={() => {
             setEditingTag(null);
             tagForm.resetFields();
@@ -1192,14 +1103,10 @@ const WriteBlogs = ({ userId, selectedTab }) => {
           onOk={async () => {
             try {
               const values = await tagForm.validateFields();
-              console.log("📝 Creating/updating tag with values:", values);
-              console.log("📋 Current editingTag:", editingTag);
 
               if (editingTag) {
-                // Update existing tag
                 await api.put(`/tags/${editingTag.id}`, values);
 
-                // Update local state immediately
                 const updatedTags = tags.map((tag) =>
                   tag.id === editingTag.id ? { ...tag, ...values } : tag
                 );
@@ -1211,10 +1118,8 @@ const WriteBlogs = ({ userId, selectedTab }) => {
                   }))
                 );
               } else {
-                // Create new tag
                 const response = await api.post("/tags", values);
 
-                // Add new tag to local state
                 const newTag = response.data || { ...values, id: Date.now() };
                 const updatedTags = [...tags, newTag];
                 setTags(updatedTags);
@@ -1226,12 +1131,10 @@ const WriteBlogs = ({ userId, selectedTab }) => {
                 );
               }
 
-              // Close modal and reset form
               setIsTagModalVisible(false);
               tagForm.resetFields();
               setEditingTag(null);
 
-              // Force reload tags to reflect changes
               await loadTags(true);
 
               toast.success(
@@ -1240,17 +1143,6 @@ const WriteBlogs = ({ userId, selectedTab }) => {
                   : "Thêm chủ đề thành công!"
               );
             } catch (error) {
-              console.error("❌ Error creating/updating tag:", error);
-              console.error("📦 Error response data:", error.response?.data);
-              console.error(
-                "🔢 Error response status:",
-                error.response?.status
-              );
-              console.error(
-                "📄 Error response headers:",
-                error.response?.headers
-              );
-
               toast.error(
                 `${editingTag ? "Cập nhật" : "Tạo"} chủ đề thất bại: ${
                   error.response?.data?.message ||

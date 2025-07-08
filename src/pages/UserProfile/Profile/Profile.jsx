@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import {
   Card,
   Form,
@@ -9,6 +9,9 @@ import {
   message,
   Row,
   Col,
+  Upload,
+  Modal,
+  Select,
 } from "antd";
 import {
   UserOutlined,
@@ -17,36 +20,102 @@ import {
   CalendarOutlined,
   EditOutlined,
   SaveOutlined,
+  CameraOutlined,
 } from "@ant-design/icons";
-import { useSelector } from "react-redux";
 import dayjs from "dayjs";
 import api from "../../../configs/api";
+import { useDispatch } from "react-redux";
+import { updateUserAvatar } from "../../../redux/reduxStore/userSlice";
 import "./Profile.css";
 
 const Profile = () => {
   const [form] = Form.useForm();
+  const dispatch = useDispatch();
   const [loading, setLoading] = useState(false);
   const [editing, setEditing] = useState(false);
-  const [profileData, setProfileData] = useState(null);
+  const [user, setUser] = useState(null);
+  const [fetchingUser, setFetchingUser] = useState(true);
   const [imageUrl, setImageUrl] = useState("");
+  const [uploading, setUploading] = useState(false);
+  const [previewVisible, setPreviewVisible] = useState(false);
+  const [previewImage, setPreviewImage] = useState("");
 
-  const user = useSelector((state) => state.user.user);
-
-  // Load profile data from Redux
+  // Fetch user data from API /api/me
   useEffect(() => {
-    if (user) {
-      setProfileData(user);
-      setImageUrl(user.imageUrl || "");
+    const fetchUserData = async () => {
+      try {
+        setFetchingUser(true);
+        const response = await api.get("/me");
+        console.log("User data from /api/me:", response.data);
+        setUser(response.data);
+        setImageUrl(response.data.imageUrl || "");
 
-      // Set form values from Redux user data
-      form.setFieldsValue({
-        fullname: user.fullname || "",
-        phone: user.phone || "",
-        address: user.address || "",
-        dateOfBirth: user.dateOfBirth ? dayjs(user.dateOfBirth) : null,
+        // Set form values from API user data
+        form.setFieldsValue({
+          fullname: response.data.fullname || "",
+          phone: response.data.phone || "",
+          address: response.data.address || "",
+          gender: response.data.gender || "",
+          dateOfBirth: response.data.dateOfBirth
+            ? dayjs(response.data.dateOfBirth)
+            : null,
+        });
+      } catch (error) {
+        console.error(" Error fetching user data:", error);
+        message.error("Không thể lấy thông tin người dùng");
+      } finally {
+        setFetchingUser(false);
+      }
+    };
+
+    fetchUserData();
+  }, [form]);
+
+  // Handle image upload
+  const handleImageUpload = async (file) => {
+    try {
+      setUploading(true);
+
+      // Create FormData for file upload
+      const formData = new FormData();
+      formData.append("file", file);
+
+      // Upload to server using PUT instead of POST
+      const response = await api.put("/me/avatar", formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
       });
+
+      if (response.data && response.data.imageUrl) {
+        setImageUrl(response.data.imageUrl);
+
+        // Update user data with new image URL
+        setUser((prev) => ({
+          ...prev,
+          imageUrl: response.data.imageUrl,
+        }));
+
+        // Cập nhật Redux store để các component khác cũng nhận được ảnh mới
+        dispatch(updateUserAvatar({ imageUrl: response.data.imageUrl }));
+
+        message.success("Tải ảnh lên thành công!");
+      } else {
+        throw new Error("Upload failed");
+      }
+    } catch (error) {
+      console.error("Error uploading image:", error);
+      message.error("Có lỗi xảy ra khi tải ảnh lên!");
+    } finally {
+      setUploading(false);
     }
-  }, [user, form]);
+  };
+
+  // Preview image
+  const handlePreview = () => {
+    setPreviewImage(imageUrl || user?.imageUrl);
+    setPreviewVisible(true);
+  };
 
   // Update profile
   const handleUpdateProfile = async (values) => {
@@ -57,6 +126,7 @@ const Profile = () => {
         fullname: values.fullname,
         phone: values.phone,
         address: values.address,
+        gender: values.gender,
         dateOfBirth: values.dateOfBirth
           ? values.dateOfBirth.format("YYYY-MM-DD")
           : null,
@@ -70,7 +140,9 @@ const Profile = () => {
       message.success("Cập nhật hồ sơ thành công!");
       setEditing(false);
 
-      // Profile data will be updated from Redux after API response
+      // Refresh user data after successful update
+      const updatedResponse = await api.get("/me");
+      setUser(updatedResponse.data);
     } catch (error) {
       console.error("Error updating profile:", error);
       message.error("Cập nhật hồ sơ thất bại!");
@@ -101,23 +173,38 @@ const Profile = () => {
             </Button>
           </div>
         }
-        loading={loading}
+        loading={loading || fetchingUser}
       >
         <Row gutter={24}>
           {/* Avatar Section */}
           <Col xs={24} md={8}>
             <div className="avatar-section">
-              <Avatar
-                size={120}
-                src={imageUrl || user?.imageUrl}
-                icon={<UserOutlined />}
-                className="profile-avatar"
-              />
+              <div className="avatar-container">
+                <Avatar
+                  size={120}
+                  src={imageUrl || user?.imageUrl}
+                  icon={<UserOutlined />}
+                  className="profile-avatar"
+                  onClick={handlePreview}
+                />
+                <Upload
+                  name="avatar"
+                  showUploadList={false}
+                  beforeUpload={handleImageUpload}
+                  accept="image/*"
+                >
+                  <Button
+                    className="avatar-upload-button"
+                    icon={<CameraOutlined />}
+                    loading={uploading}
+                    type="primary"
+                    shape="circle"
+                  />
+                </Upload>
+              </div>
 
               <div className="user-basic-info">
-                <h3>
-                  {profileData?.fullname || user?.fullname || "Chưa có tên"}
-                </h3>
+                <h3>{user?.fullname || "Chưa có tên"}</h3>
                 <p>{user?.email}</p>
               </div>
             </div>
@@ -186,6 +273,22 @@ const Profile = () => {
                 </Col>
 
                 <Col xs={24} md={12}>
+                  <Form.Item name="gender" label="Giới tính">
+                    <Select
+                      placeholder="Chọn giới tính"
+                      size="large"
+                      style={{ width: "100%" }}
+                    >
+                      <Select.Option value="MALE">Nam</Select.Option>
+                      <Select.Option value="FEMALE">Nữ</Select.Option>
+                      <Select.Option value="OTHER">Khác</Select.Option>
+                    </Select>
+                  </Form.Item>
+                </Col>
+              </Row>
+
+              <Row gutter={16}>
+                <Col xs={24} md={12}>
                   <Form.Item label="Email">
                     <Input
                       value={user?.email}
@@ -212,11 +315,12 @@ const Profile = () => {
                     <Button
                       onClick={() => {
                         setEditing(false);
-                        // Reset form to original user data from Redux
+                        // Reset form to original user data from API
                         form.setFieldsValue({
                           fullname: user?.fullname || "",
                           phone: user?.phone || "",
                           address: user?.address || "",
+                          gender: user?.gender || "",
                           dateOfBirth: user?.dateOfBirth
                             ? dayjs(user.dateOfBirth)
                             : null,
@@ -241,6 +345,17 @@ const Profile = () => {
           </Col>
         </Row>
       </Card>
+
+      {/* Image Preview Modal */}
+      <Modal
+        open={previewVisible}
+        title="Xem ảnh đại diện"
+        footer={null}
+        onCancel={() => setPreviewVisible(false)}
+        className="avatar-preview-modal"
+      >
+        <img alt="Avatar" src={previewImage} />
+      </Modal>
     </div>
   );
 };

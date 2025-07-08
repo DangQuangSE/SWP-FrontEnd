@@ -1,4 +1,5 @@
 import api, { upload } from "../configs/api";
+import dayjs from "dayjs";
 
 export const fetchBlogs = (page = 0, size = 10) => {
   // Try different parameters to get all blogs including drafts
@@ -40,13 +41,11 @@ export const uploadImage = (file) => {
 };
 
 export const fetchConsultantSchedule = (userId) => {
-  const today = new Date().toISOString().slice(0, 10);
-  const oneMonthLater = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000)
-    .toISOString()
-    .slice(0, 10);
-  // Ví dụ truyền thêm from/to
+  const today = dayjs().format("YYYY-MM-DD");
+  const oneMonthLater = dayjs().add(30, "day").format("YYYY-MM-DD");
+  // Use dynamic date range instead of hardcoded dates
   return api.get(
-    `/schedules/view?consultant_id=${userId}&from=2025-06-01&to=2025-07-30`
+    `/schedules/view?consultant_id=${userId}&from=${today}&to=${oneMonthLater}`
   );
 };
 
@@ -81,16 +80,16 @@ export const createBlog = (blogData) => {
 const LIKE_API_SIMULATION_MODE = false;
 
 export const likeBlog = async (id) => {
-  console.log(`🔄 likeBlog API call for blog ID: ${id}`);
+  console.log(` likeBlog API call for blog ID: ${id}`);
   const token = localStorage.getItem("token");
-  console.log(`🔑 Token available:`, !!token);
-  console.log(`🌐 API endpoint: POST /blog/${id}/like`);
+  console.log(` Token available:`, !!token);
+  console.log(` API endpoint: POST /blog/${id}/like`);
 
   if (LIKE_API_SIMULATION_MODE) {
     // Simulation mode for testing UI
-    console.log(`⚠️ SIMULATION MODE: Simulating successful like for testing`);
+    console.log(` SIMULATION MODE: Simulating successful like for testing`);
     console.log(
-      `💡 To use real API, set LIKE_API_SIMULATION_MODE = false in consultantAPI.js`
+      ` To use real API, set LIKE_API_SIMULATION_MODE = false in consultantAPI.js`
     );
 
     return new Promise((resolve) => {
@@ -110,14 +109,14 @@ export const likeBlog = async (id) => {
   // Check if user is logged in
   if (!token) {
     console.warn(
-      `⚠️ No authentication token found. User needs to login to like blogs.`
+      ` No authentication token found. User needs to login to like blogs.`
     );
     throw new Error(`Bạn cần đăng nhập để thích bài viết`);
   }
 
   // REAL API CALL with authentication
   try {
-    console.log(`🔄 Attempting authenticated API call...`);
+    console.log(` Attempting authenticated API call...`);
 
     const response = await api.post(
       `/blog/${id}/like`,
@@ -133,10 +132,10 @@ export const likeBlog = async (id) => {
     console.log(` Like API call success:`, response);
     return response;
   } catch (error) {
-    console.error(`❌ likeBlog API error:`, error);
-    console.error(`❌ Error response:`, error.response?.data);
-    console.error(`❌ Error status:`, error.response?.status);
-    console.error(`❌ Error message:`, error.message);
+    console.error(` likeBlog API error:`, error);
+    console.error(` Error response:`, error.response?.data);
+    console.error(` Error status:`, error.response?.status);
+    console.error(` Error message:`, error.message);
 
     // Handle specific error cases
     if (error.response?.status === 401) {
@@ -159,22 +158,32 @@ export const registerSchedule = (requestBody) => {
   return api.post("/schedules/register", requestBody);
 };
 
+// Get consultant schedules with date range
+export const getConsultantSchedules = (consultantId, from, to) => {
+  const params = new URLSearchParams();
+  params.append("consultant_id", consultantId);
+  if (from) params.append("from", from);
+  if (to) params.append("to", to);
+
+  return api.get(`/schedules/view?${params.toString()}`);
+};
+
 export const deleteBlog = async (blogId) => {
-  console.log(`🗑️ deleteBlog API call for blog ID: ${blogId}`);
+  console.log(` deleteBlog API call for blog ID: ${blogId}`);
   const token = localStorage.getItem("token");
-  console.log(`🔑 Token available:`, !!token);
-  console.log(`🌐 API endpoint: DELETE /blog/${blogId}`);
+  console.log(` Token available:`, !!token);
+  console.log(` API endpoint: DELETE /blog/${blogId}`);
 
   // Check if user is logged in
   if (!token) {
     console.warn(
-      `⚠️ No authentication token found. User needs to login to delete blogs.`
+      ` No authentication token found. User needs to login to delete blogs.`
     );
     throw new Error(`Bạn cần đăng nhập để xóa bài viết`);
   }
 
   try {
-    console.log(`🔄 Attempting to delete blog ${blogId}...`);
+    console.log(` Attempting to delete blog ${blogId}...`);
 
     const response = await api.delete(`/blog/${blogId}`, {
       headers: {
@@ -185,10 +194,10 @@ export const deleteBlog = async (blogId) => {
     console.log(` Delete blog API success:`, response);
     return response;
   } catch (error) {
-    console.error(`❌ deleteBlog API error:`, error);
-    console.error(`❌ Error response:`, error.response?.data);
-    console.error(`❌ Error status:`, error.response?.status);
-    console.error(`❌ Error message:`, error.message);
+    console.error(` deleteBlog API error:`, error);
+    console.error(` Error response:`, error.response?.data);
+    console.error(` Error status:`, error.response?.status);
+    console.error(` Error message:`, error.message);
 
     // Handle specific error cases
     if (error.response?.status === 401) {
@@ -206,4 +215,20 @@ export const deleteBlog = async (blogId) => {
 export const fetchAvailableSlots = (serviceId, from, to) => {
   const params = { service_id: serviceId, from, to };
   return api.get("/schedules/slot-free-service", { params });
+};
+
+// Get my schedule (for current logged-in consultant)
+export const getMySchedule = (date, status) => {
+  const params = new URLSearchParams();
+  if (date) params.append("date", date);
+  if (status) params.append("status", status);
+
+  return api.get(`/appointment/my-schedule?${params.toString()}`);
+};
+
+// Update appointment detail status
+export const updateAppointmentDetailStatus = (appointmentDetailId, status) => {
+  return api.patch(
+    `/appointment/detail/${appointmentDetailId}/status?status=${status}`
+  );
 };

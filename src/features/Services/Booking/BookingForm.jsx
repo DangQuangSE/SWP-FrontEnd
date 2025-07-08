@@ -112,13 +112,18 @@ const BookingForm = ({ serviceIdProp, serviceDetail: detailProp }) => {
   const displayDays = useMemo(() => {
     if (!Array.isArray(scheduleData)) return [];
     return scheduleData.map((s) => {
-      const totalSlots = s.slots?.length || 0;
+      // Tính tổng availableBooking từ tất cả slots
+      const totalAvailableBooking =
+        s.slots?.reduce((sum, slot) => {
+          return sum + (slot.availableBooking || 0);
+        }, 0) || 0;
+
       return {
         date: s.workDate,
         day: dayjs(s.workDate).format("dd"),
         dayNum: dayjs(s.workDate).format("D/M"),
-        available: totalSlots > 0,
-        totalSlots,
+        available: totalAvailableBooking > 0,
+        totalSlots: totalAvailableBooking,
       };
     });
   }, [scheduleData]);
@@ -129,10 +134,14 @@ const BookingForm = ({ serviceIdProp, serviceDetail: detailProp }) => {
 
     return entry.slots
       .filter(({ availableBooking }) => availableBooking > 0)
-      .map(({ startTime, endTime, slotId }) => ({
+      .map(({ startTime, endTime, slotId, availableBooking, maxBooking }) => ({
         time: `${startTime.slice(0, 5)} - ${endTime.slice(0, 5)}`,
         slotId,
         hour: parseInt(startTime.slice(0, 2), 10),
+        availableBooking,
+        maxBooking,
+        timeDisplay: `${startTime.slice(0, 5)} - ${endTime.slice(0, 5)}`,
+        slotDisplay: `(${availableBooking}/${maxBooking} chỗ trống)`,
       }));
   };
 
@@ -145,6 +154,7 @@ const BookingForm = ({ serviceIdProp, serviceDetail: detailProp }) => {
     const bookingPreviewData = {
       serviceId: defaultServiceId,
       serviceName: serviceDetail.name,
+      serviceType: serviceDetail.type, // Thêm type của service
       price: serviceDetail.price,
       duration: serviceDetail.duration,
       preferredDate: selectedDay,
@@ -153,6 +163,11 @@ const BookingForm = ({ serviceIdProp, serviceDetail: detailProp }) => {
       slotId: selectedSlotId,
       note,
     };
+
+    console.log(
+      "🚀 [DEBUG] Booking preview data with service type:",
+      bookingPreviewData
+    );
 
     navigate("/booking-confirmation", { state: bookingPreviewData });
   };
@@ -272,7 +287,12 @@ const BookingForm = ({ serviceIdProp, serviceDetail: detailProp }) => {
                           setSelectedSlotId(slot.slotId);
                         }}
                       >
-                        {slot.time}
+                        <div className="time-slot-content">
+                          <div className="time-display">{slot.timeDisplay}</div>
+                          <div className="slot-available">
+                            {slot.slotDisplay}
+                          </div>
+                        </div>
                       </Button>
                     ))}
                   </div>

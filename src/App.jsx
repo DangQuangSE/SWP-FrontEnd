@@ -23,9 +23,6 @@ import CycleTracker from "./features/Services/CycleTracker/CycleTracker";
 import ForgotPasswordOTP from "./features/authentication/ForgotPassword";
 import AllBlog from "./features/bloglist/allBlog";
 import BlogDetail from "./features/bloglist/BlogDetail";
-import Medicalnew from "./features/bloglist/Medicalnew";
-import Servicevnew from "./features/bloglist/Servicenew";
-import Generalnew from "./features/bloglist/Generalnew";
 import CycleTracking from "./features/Services/CycleTracker/CycleTracker";
 import Doctor from "./features/Services/DoctorList/DoctorList";
 import Loading from "./components/Loading/Loading";
@@ -43,6 +40,7 @@ import Noti from "./features/NotificationCenter/Noti";
 import BookingConfirmation from "./features/Services/Booking/BookingConfirmation";
 import Payment from "./features/Services/Payment/Payment";
 import ProtectedRoute from "./components/ProtectedRoute";
+import CustomerChatWidget from "./features/Chat/CustomerChatWidget";
 
 function App() {
   const [rehydrated, setRehydrated] = useState(false);
@@ -88,12 +86,9 @@ function App() {
               <Route path="/forgot-password" element={<ForgotPasswordOTP />} />
               <Route path="/blog" element={<AllBlog />} />
               <Route path="/blog/:id" element={<BlogDetail />} />
-              <Route path="/tin-y-te" element={<Medicalnew />} />
-              <Route path="/tin-dich-vu" element={<Servicevnew />} />
-              <Route path="/y-hoc-thuong-thuc" element={<Generalnew />} />
 
               {/* Protected routes */}
-              <Route
+              {/* <Route
                 path="/consultant"
                 element={
                   <ProtectedRoute
@@ -118,8 +113,10 @@ function App() {
                     <Admin />
                   </ProtectedRoute>
                 }
-              />
-
+              /> */}
+              <Route path="/admin" element={<Admin />} />
+              <Route path="/staff" element={<Staff />} />
+              <Route path="/consultant" element={<Consultant />} />
               <Route path="/settings" element={<Settings />} />
               <Route path="/user" element={<UserProfile />}>
                 <Route index element={<Profile />} />
@@ -140,6 +137,9 @@ function App() {
             </Routes>
           </main>
           <Footer />
+
+          {/* Customer Chat Widget - Always visible */}
+          <CustomerChatWidget />
         </div>
       </PersistGate>
     </Provider>
