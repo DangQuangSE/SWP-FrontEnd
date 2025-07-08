@@ -2,9 +2,10 @@
 import React, { useEffect, useState, useCallback, useRef } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
-import { message, Modal } from "antd";
+import { message, Modal, Alert, Button } from "antd";
 import api from "../../../configs/api";
 import "./Booking.css";
+import RatingModal from '../../../components/RatingModal';
 const TABS = [
   { key: "upcoming", label: "Lịch hẹn sắp đến" },
   { key: "completed", label: "Hoàn thành" },
@@ -27,7 +28,6 @@ const STATUS_DISPLAY = {
   COMPLETED: "Hoàn thành",
   CANCELED: "Đã hủy",
 };
-
 const Booking = () => {
   const [appointments, setAppointments] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -36,6 +36,9 @@ const Booking = () => {
   const [blinkingButtons, setBlinkingButtons] = useState({}); // Track which buttons are blinking
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedAppointment, setSelectedAppointment] = useState(null);
+  const [ratingModalVisible, setRatingModalVisible] = useState(false);
+  const [appointmentToRate, setAppointmentToRate] = useState(null);
+  const [previousRating, setPreviousRating] = useState(null);
 
   const navigate = useNavigate();
   const { search } = useLocation();
@@ -402,6 +405,172 @@ const Booking = () => {
     token,
     createZoomMeetingIfNeeded,
   ]);
+
+  // Thêm useEffect để kiểm tra các cuộc hẹn cần đánh giá khi component mount
+  useEffect(() => {
+    const checkForPendingRatings = () => {
+      // Lọc các cuộc hẹn đã hoàn thành nhưng chưa được đánh giá
+      const needRatingAppointments = appointments.filter(
+        app => app.status === "COMPLETED" && !app.isRated
+      );
+
+      if (needRatingAppointments.length > 0 && activeTab === "completed") {
+        // Hiển thị banner thông báo
+        message.info("Bạn có cuộc hẹn cần đánh giá. Hãy đánh giá để giúp chúng tôi cải thiện dịch vụ!", 5);
+      }
+    };
+
+    if (appointments.length > 0) {
+      checkForPendingRatings();
+    }
+  }, [appointments, activeTab]);
+
+  // Thêm hàm để kiểm tra xem một cuộc hẹn có thể đánh giá không
+  const canRateAppointment = (appointment) => {
+    return appointment.status === "COMPLETED" && !appointment.isRated;
+  };
+
+  // Thêm hàm xử lý đánh giá
+  const handleSubmitRating = async (values) => {
+    try {
+      message.loading({ content: "Đang gửi đánh giá...", key: "submitRating" });
+
+      if (appointmentToRate.isRated && previousRating) {
+        // Cập nhật đánh giá cũ
+
+        // 1. Cập nhật đánh giá dịch vụ
+        const serviceFeedbackRequest = {
+          rating: values.serviceRating,
+          comment: values.serviceComment || ""
+        };
+
+        await api.put(`/feedback/${previousRating.serviceFeedback.id}`, serviceFeedbackRequest);
+
+        // 2. Cập nhật đánh giá bác sĩ
+        const consultantFeedbackRequest = {
+          rating: values.consultantRating,
+          consultantId: values.consultantId, // Sử dụng doctorId từ appointment nếu có
+          comment: values.consultantComment || ""
+        };
+
+        console.log("Consultant feedback request:", consultantFeedbackRequest);
+
+
+        if (previousRating.consultantFeedback && previousRating.consultantFeedback.id) {
+          await api.put(`/consultant-feedbacks/${previousRating.consultantFeedback.id}`, consultantFeedbackRequest);
+        }
+
+        message.success({ content: 'Đã cập nhật đánh giá thành công!', key: "submitRating" });
+      } else {
+        // Tạo đánh giá mới (giữ nguyên code cũ)
+        // 1. Đầu tiên, gửi đánh giá dịch vụ
+        const serviceFeedbackRequest = {
+          appointmentId: appointmentToRate.id,
+          rating: values.serviceRating,
+          comment: values.serviceComment || ""
+        };
+
+        // Gửi đánh giá dịch vụ và lấy response
+        const serviceResponse = await api.post('/feedback', serviceFeedbackRequest);
+        console.log("Service feedback response:", serviceResponse.data);
+
+        // Lấy serviceFeedbackId từ response
+        const serviceFeedbackId = serviceResponse.data.id;
+
+        if (!serviceFeedbackId) {
+          throw new Error("Không nhận được ID đánh giá dịch vụ từ server");
+        }
+
+        // 2. Sau đó, gửi đánh giá bác sĩ với serviceFeedbackId
+        const consultantFeedbackRequest = {
+          serviceFeedbackId: serviceFeedbackId,
+          consultantId: appointmentToRate.doctorId || 2, // Sử dụng doctorId từ appointment nếu có
+          rating: values.consultantRating,
+          comment: values.consultantComment || ""
+        };
+
+        await api.post('/consultant-feedbacks', consultantFeedbackRequest);
+
+        // 3. Cập nhật trạng thái đã đánh giá cho appointment
+        await api.put(`/appointment/${appointmentToRate.id}/rate`, {
+          isRated: true
+        });
+
+        message.success({ content: 'Cảm ơn bạn đã đánh giá!', key: "submitRating" });
+      }
+
+      setRatingModalVisible(false);
+      setTimeout(() => setPreviousRating(null), 300);
+
+      // Cập nhật lại danh sách cuộc hẹn
+      fetchAppointments();
+    } catch (error) {
+      console.error('Error submitting ratings:', error);
+      message.error({
+        content: 'Có lỗi xảy ra khi gửi đánh giá: ' + (error.response?.data?.message || error.message),
+        key: "submitRating"
+      });
+    }
+  };
+
+  // Cập nhật hàm fetch đánh giá cũ để phù hợp với API
+  const fetchPreviousRating = async (appointmentId) => {
+    try {
+      message.loading({ content: "Đang tải đánh giá...", key: "ratingLoading" });
+      console.log("Fetching previous rating for appointment:", appointmentId);
+
+      // Bước 1: Lấy service feedback dựa trên appointment ID
+      const serviceFeedbackResponse = await api.get(`/feedback/appointment/${appointmentId}`);
+      console.log("Service feedback data:", serviceFeedbackResponse.data);
+
+      if (!serviceFeedbackResponse.data || serviceFeedbackResponse.data.length === 0) {
+        throw new Error("Không tìm thấy đánh giá dịch vụ");
+      }
+
+      // Lấy service feedback đầu tiên (hoặc duy nhất)
+      const serviceFeedback = Array.isArray(serviceFeedbackResponse.data)
+        ? serviceFeedbackResponse.data[0]
+        : serviceFeedbackResponse.data;
+
+      // Bước 2: Lấy consultant feedback dựa trên service feedback ID
+      const consultantFeedbackResponse = await api.get(`/consultant-feedbacks/service-feedback/${serviceFeedback.id}`);
+      console.log("Consultant feedback data:", consultantFeedbackResponse.data);
+
+      // Tạo đối tượng previousRating với cấu trúc phù hợp
+      const previousRating = {
+        serviceFeedback: serviceFeedback,
+        consultantFeedback: Array.isArray(consultantFeedbackResponse.data) && consultantFeedbackResponse.data.length > 0
+          ? consultantFeedbackResponse.data[0]
+          : null
+      };
+
+      console.log("Combined previous rating:", previousRating);
+
+      // Lưu đánh giá cũ vào state
+      setPreviousRating(previousRating);
+
+      message.success({ content: "Đã tải đánh giá cũ", key: "ratingLoading", duration: 1 });
+      setRatingModalVisible(true);
+    } catch (error) {
+      console.error('Error fetching previous rating:', error);
+      message.error({
+        content: 'Không thể tải đánh giá cũ: ' + (error.response?.data?.message || error.message),
+        key: "ratingLoading",
+        duration: 3
+      });
+
+      setPreviousRating(null);
+      setRatingModalVisible(true);
+    }
+  };
+
+  // Thêm useEffect để debug khi previousRating thay đổi
+  useEffect(() => {
+    if (previousRating) {
+      console.log("Previous rating updated in Booking component:", previousRating);
+    }
+  }, [previousRating]);
+
   const renderAppointments = () => {
     if (loading) {
       return (
@@ -460,13 +629,13 @@ const Booking = () => {
             {["CONFIRMED", "PENDING", "CHECKED"].includes(
               appointment.status
             ) && (
-              <button
-                className="cancel-button-profile"
-                onClick={() => handleCancelAppointment(appointment.id)}
-              >
-                Hủy lịch hẹn
-              </button>
-            )}
+                <button
+                  className="cancel-button-profile"
+                  onClick={() => handleCancelAppointment(appointment.id)}
+                >
+                  Hủy lịch hẹn
+                </button>
+              )}
 
             {/* Zoom consultation button for CONSULTING_ON services with CONFIRMED status */}
             {(() => {
@@ -498,20 +667,44 @@ const Booking = () => {
 
               return isConsultingOnline && isConfirmed;
             })() && (
+                <button
+                  className={`zoom-button-profile ${blinkingButtons[appointment.id] ? "blinking" : ""
+                    }`}
+                  onClick={() => joinZoomMeeting(appointment)}
+                  title={
+                    zoomUrls[appointment.id]
+                      ? "Click để tham gia ngay"
+                      : "Click để kết nối phòng tư vấn"
+                  }
+                >
+                  {zoomUrls[appointment.id] ? "Tham gia ngay" : "Tư vấn Online"}
+                </button>
+              )}
+
+            {/* Thay đổi nút đánh giá để hiển thị "Sửa đánh giá" nếu đã đánh giá */}
+            {appointment.status === "COMPLETED" && (
               <button
-                className={`zoom-button-profile ${
-                  blinkingButtons[appointment.id] ? "blinking" : ""
-                }`}
-                onClick={() => joinZoomMeeting(appointment)}
-                title={
-                  zoomUrls[appointment.id]
-                    ? "Click để tham gia ngay"
-                    : "Click để kết nối phòng tư vấn"
-                }
+                className="rate-button"
+                onClick={() => {
+                  setAppointmentToRate(appointment);
+
+                  console.log("Rating button clicked for appointment:", appointment.id, "isRated:", appointment.isRated);
+
+                  // Nếu đã đánh giá, fetch dữ liệu đánh giá cũ trước
+                  if (appointment.isRated === true || appointment.isRated === 1) {
+                    fetchPreviousRating(appointment.id);
+                  } else {
+                    // Nếu chưa đánh giá, mở modal luôn
+                    setPreviousRating(null);
+                    setRatingModalVisible(true);
+                  }
+                }}
               >
-                {zoomUrls[appointment.id] ? "Tham gia ngay" : "Tư vấn Online"}
+                {appointment.isRated === true || appointment.isRated === 1 ? "Sửa đánh giá" : "Đánh giá dịch vụ"}
               </button>
             )}
+
+            {/* Xóa badge "Đã đánh giá" vì đã thay thế bằng nút "Sửa đánh giá" */}
           </div>
         </div>
       </div>
@@ -520,16 +713,15 @@ const Booking = () => {
   const renderTabContent = () => renderAppointments();
 
   return (
-    <div className="booking-tab-wrapper-profile">
+    <div className="booking-container">
       <h2 className="booking-title-profile">Lịch sử đặt chỗ</h2>
 
       <div className="booking-tabs-profile">
         {TABS.map((tab) => (
           <button
             key={tab.key}
-            className={`tab-button-profile ${
-              activeTab === tab.key ? "active" : ""
-            }`}
+            className={`tab-button-profile ${activeTab === tab.key ? "active" : ""
+              }`}
             onClick={() => setActiveTab(tab.key)}
           >
             {tab.label}
@@ -670,6 +862,43 @@ const Booking = () => {
           </div>
         )}
       </Modal>
+
+      {/* Thêm banner thông báo cho các cuộc hẹn cần đánh giá */}
+      {appointments.some(app => app.status === "COMPLETED" && !app.isRated) && (
+        <div className="rating-reminder-banner">
+          <Alert
+            message="Bạn có dịch vụ cần đánh giá"
+            description="Hãy đánh giá dịch vụ để giúp chúng tôi cải thiện chất lượng phục vụ."
+            type="info"
+            showIcon
+            action={
+              <Button
+                type="primary"
+                onClick={() => {
+                  const appToRate = appointments.find(app => app.status === "COMPLETED" && !app.isRated);
+                  setAppointmentToRate(appToRate);
+                  setRatingModalVisible(true);
+                }}
+              >
+                Đánh giá ngay
+              </Button>
+            }
+          />
+        </div>
+      )}
+
+      {/* Modal đánh giá */}
+      <RatingModal
+        visible={ratingModalVisible}
+        appointment={appointmentToRate}
+        previousRating={previousRating}
+        onSubmit={handleSubmitRating}
+        onCancel={() => {
+          setRatingModalVisible(false);
+          // Không reset previousRating ngay lập tức để tránh form bị reset
+          setTimeout(() => setPreviousRating(null), 300);
+        }}
+      />
     </div>
   );
 };
