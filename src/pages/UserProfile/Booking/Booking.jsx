@@ -2,9 +2,10 @@
 import React, { useEffect, useState, useCallback, useRef } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
-import { message, Modal } from "antd";
+import { message, Modal, Alert, Button } from "antd";
 import api from "../../../configs/api";
 import "./Booking.css";
+import RatingModal from '../../../components/RatingModal';
 const TABS = [
   { key: "upcoming", label: "Lịch hẹn sắp đến" },
   { key: "completed", label: "Hoàn thành" },
@@ -27,7 +28,6 @@ const STATUS_DISPLAY = {
   COMPLETED: "Hoàn thành",
   CANCELED: "Đã hủy",
 };
-
 const Booking = () => {
   const [appointments, setAppointments] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -36,6 +36,9 @@ const Booking = () => {
   const [blinkingButtons, setBlinkingButtons] = useState({}); // Track which buttons are blinking
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedAppointment, setSelectedAppointment] = useState(null);
+  const [ratingModalVisible, setRatingModalVisible] = useState(false);
+  const [appointmentToRate, setAppointmentToRate] = useState(null);
+  const [previousRating, setPreviousRating] = useState(null);
 
   const navigate = useNavigate();
   const { search } = useLocation();
@@ -402,7 +405,6 @@ const Booking = () => {
     token,
     createZoomMeetingIfNeeded,
   ]);
-<<<<<<< HEAD
 
   // Thêm useEffect để kiểm tra các cuộc hẹn cần đánh giá khi component mount
   useEffect(() => {
@@ -569,8 +571,6 @@ const Booking = () => {
     }
   }, [previousRating]);
 
-=======
->>>>>>> parent of ba57604 (add feedback)
   const renderAppointments = () => {
     if (loading) {
       return (
@@ -629,13 +629,13 @@ const Booking = () => {
             {["CONFIRMED", "PENDING", "CHECKED"].includes(
               appointment.status
             ) && (
-              <button
-                className="cancel-button-profile"
-                onClick={() => handleCancelAppointment(appointment.id)}
-              >
-                Hủy lịch hẹn
-              </button>
-            )}
+                <button
+                  className="cancel-button-profile"
+                  onClick={() => handleCancelAppointment(appointment.id)}
+                >
+                  Hủy lịch hẹn
+                </button>
+              )}
 
             {/* Zoom consultation button for CONSULTING_ON services with CONFIRMED status */}
             {(() => {
@@ -667,20 +667,44 @@ const Booking = () => {
 
               return isConsultingOnline && isConfirmed;
             })() && (
+                <button
+                  className={`zoom-button-profile ${blinkingButtons[appointment.id] ? "blinking" : ""
+                    }`}
+                  onClick={() => joinZoomMeeting(appointment)}
+                  title={
+                    zoomUrls[appointment.id]
+                      ? "Click để tham gia ngay"
+                      : "Click để kết nối phòng tư vấn"
+                  }
+                >
+                  {zoomUrls[appointment.id] ? "Tham gia ngay" : "Tư vấn Online"}
+                </button>
+              )}
+
+            {/* Thay đổi nút đánh giá để hiển thị "Sửa đánh giá" nếu đã đánh giá */}
+            {appointment.status === "COMPLETED" && (
               <button
-                className={`zoom-button-profile ${
-                  blinkingButtons[appointment.id] ? "blinking" : ""
-                }`}
-                onClick={() => joinZoomMeeting(appointment)}
-                title={
-                  zoomUrls[appointment.id]
-                    ? "Click để tham gia ngay"
-                    : "Click để kết nối phòng tư vấn"
-                }
+                className="rate-button"
+                onClick={() => {
+                  setAppointmentToRate(appointment);
+
+                  console.log("Rating button clicked for appointment:", appointment.id, "isRated:", appointment.isRated);
+
+                  // Nếu đã đánh giá, fetch dữ liệu đánh giá cũ trước
+                  if (appointment.isRated === true || appointment.isRated === 1) {
+                    fetchPreviousRating(appointment.id);
+                  } else {
+                    // Nếu chưa đánh giá, mở modal luôn
+                    setPreviousRating(null);
+                    setRatingModalVisible(true);
+                  }
+                }}
               >
-                {zoomUrls[appointment.id] ? "Tham gia ngay" : "Tư vấn Online"}
+                {appointment.isRated === true || appointment.isRated === 1 ? "Sửa đánh giá" : "Đánh giá dịch vụ"}
               </button>
             )}
+
+            {/* Xóa badge "Đã đánh giá" vì đã thay thế bằng nút "Sửa đánh giá" */}
           </div>
         </div>
       </div>
@@ -689,16 +713,15 @@ const Booking = () => {
   const renderTabContent = () => renderAppointments();
 
   return (
-    <div className="booking-tab-wrapper-profile">
+    <div className="booking-container">
       <h2 className="booking-title-profile">Lịch sử đặt chỗ</h2>
 
       <div className="booking-tabs-profile">
         {TABS.map((tab) => (
           <button
             key={tab.key}
-            className={`tab-button-profile ${
-              activeTab === tab.key ? "active" : ""
-            }`}
+            className={`tab-button-profile ${activeTab === tab.key ? "active" : ""
+              }`}
             onClick={() => setActiveTab(tab.key)}
           >
             {tab.label}
@@ -839,6 +862,43 @@ const Booking = () => {
           </div>
         )}
       </Modal>
+
+      {/* Thêm banner thông báo cho các cuộc hẹn cần đánh giá */}
+      {appointments.some(app => app.status === "COMPLETED" && !app.isRated) && (
+        <div className="rating-reminder-banner">
+          <Alert
+            message="Bạn có dịch vụ cần đánh giá"
+            description="Hãy đánh giá dịch vụ để giúp chúng tôi cải thiện chất lượng phục vụ."
+            type="info"
+            showIcon
+            action={
+              <Button
+                type="primary"
+                onClick={() => {
+                  const appToRate = appointments.find(app => app.status === "COMPLETED" && !app.isRated);
+                  setAppointmentToRate(appToRate);
+                  setRatingModalVisible(true);
+                }}
+              >
+                Đánh giá ngay
+              </Button>
+            }
+          />
+        </div>
+      )}
+
+      {/* Modal đánh giá */}
+      <RatingModal
+        visible={ratingModalVisible}
+        appointment={appointmentToRate}
+        previousRating={previousRating}
+        onSubmit={handleSubmitRating}
+        onCancel={() => {
+          setRatingModalVisible(false);
+          // Không reset previousRating ngay lập tức để tránh form bị reset
+          setTimeout(() => setPreviousRating(null), 300);
+        }}
+      />
     </div>
   );
 };
