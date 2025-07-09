@@ -369,63 +369,19 @@ const CustomerChatWidget = () => {
     }
   }, [sessionId, customerName, isOpen]);
 
-  // Handle new messages for unread count - track previous message count
-  const prevMessageCountRef = useRef(0);
-
-  useEffect(() => {
-    if (!isOpen && messages.length > 0) {
-      // Only count messages from staff when widget is closed
-      const staffMessages = messages.filter(
-        (msg) => msg.senderType === "STAFF" && msg.senderName !== customerName
-      );
-
-      // Check if we have new staff messages compared to previous count
-      const currentStaffCount = staffMessages.length;
-      const previousStaffCount = prevMessageCountRef.current;
-
-      if (currentStaffCount > previousStaffCount) {
-        const newMessagesCount = currentStaffCount - previousStaffCount;
-        console.log(
-          `📊 [CUSTOMER CHAT] Found ${newMessagesCount} new staff messages (${previousStaffCount} → ${currentStaffCount})`
-        );
-
-        // Increment unread count by the number of new messages
-        setUnreadCount((prev) => {
-          const newCount = prev + newMessagesCount;
-          saveUnreadCount(newCount);
-          return newCount;
-        });
-      }
-
-      // Update the reference for next comparison
-      prevMessageCountRef.current = currentStaffCount;
-    }
-  }, [messages, isOpen, customerName]);
-
   // Reset unread count when widget opens
   useEffect(() => {
     if (isOpen) {
       console.log("🔄 [CUSTOMER CHAT] Widget opened - resetting unread count");
       updateUnreadCount(0);
 
-      // Reset the message count reference when opening
-      const staffMessages = messages.filter(
-        (msg) => msg.senderType === "STAFF" && msg.senderName !== customerName
-      );
-      prevMessageCountRef.current = staffMessages.length;
-
-      // Save current timestamp as last seen
-      localStorage.setItem(
-        "chat_last_seen_timestamp",
-        new Date().toISOString()
-      );
-
       // Mark messages as read on server if session exists
       if (sessionId && customerName) {
-        markMessagesAsRead(sessionId);
+        // Optional: Call mark as read API here if available
+        console.log("📖 [CUSTOMER CHAT] Marking messages as read on server");
       }
     }
-  }, [isOpen, sessionId, customerName, messages]);
+  }, [isOpen, sessionId, customerName, updateUnreadCount]);
 
   // Handle send message
   const handleSendMessage = async () => {
@@ -543,12 +499,7 @@ const CustomerChatWidget = () => {
         markMessagesAsRead(sessionId);
       }
     } else {
-      // Closing chat widget - save current timestamp and fetch unread count
-      localStorage.setItem(
-        "chat_last_seen_timestamp",
-        new Date().toISOString()
-      );
-
+      // Closing chat widget - fetch unread count from server
       if (sessionId && customerName) {
         setTimeout(() => {
           fetchUnreadCount();
