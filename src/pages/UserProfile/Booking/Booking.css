@@ -229,12 +229,10 @@
 
 /* Animations */
 @keyframes pulse {
-
   0%,
   100% {
     opacity: 1;
   }
-
   50% {
     opacity: 0.5;
   }
@@ -245,7 +243,6 @@
     opacity: 0;
     transform: translateY(10px);
   }
-
   to {
     opacity: 1;
     transform: translateY(0);
@@ -477,58 +474,11 @@
     box-shadow: 0 0 5px rgba(24, 144, 255, 0.5);
     transform: scale(1);
   }
-
   100% {
     background-color: #40a9ff;
     box-shadow: 0 0 15px rgba(24, 144, 255, 0.8);
     transform: scale(1.05);
   }
-}
-
-/* Styling cho nút đánh giá */
-.rate-button {
-  background-color: #1890ff;
-  color: white;
-  border: none;
-  padding: 8px 16px;
-  border-radius: 4px;
-  cursor: pointer;
-  transition: all 0.3s;
-  margin-left: 10px;
-}
-
-.rate-button:hover {
-  background-color: #40a9ff;
-}
-
-/* Styling cho badge đã đánh giá */
-.rated-badge {
-  display: inline-block;
-  background-color: #52c41a;
-  color: white;
-  padding: 4px 8px;
-  border-radius: 4px;
-  font-size: 12px;
-  margin-left: 10px;
-}
-
-/* Animation cho nút đánh giá để thu hút sự chú ý */
-@keyframes pulse {
-  0% {
-    box-shadow: 0 0 0 0 rgba(24, 144, 255, 0.7);
-  }
-
-  70% {
-    box-shadow: 0 0 0 10px rgba(24, 144, 255, 0);
-  }
-
-  100% {
-    box-shadow: 0 0 0 0 rgba(24, 144, 255, 0);
-  }
-}
-
-.rate-button {
-  animation: pulse 2s infinite;
 }
 
 /* Responsive for mobile */
