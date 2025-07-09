@@ -94,7 +94,10 @@ const CustomerChatWidget = () => {
       const socket = new SockJS("http://localhost:8080/ws/chat");
       const stompClient = Stomp.over(socket);
 
-      stompClient.debug = null;
+      // Disable debug logging
+      stompClient.debug = function (str) {
+        // Silent debug - no console output
+      };
 
       stompClient.connect(
         {},

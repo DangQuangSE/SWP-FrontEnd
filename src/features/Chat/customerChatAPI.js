@@ -110,31 +110,15 @@ class CustomerChatAPIService {
     try {
       console.log("📥 [CUSTOMER CHAT API] Fetching messages for:", sessionId);
 
-      // Try public endpoint first
-      const response = await this.api.get(`/chat/messages/${sessionId}`);
+      // Use the correct endpoint that matches backend
+      const response = await this.api.get(
+        `/chat/sessions/${sessionId}/messages`
+      );
       console.log("✅ [CUSTOMER CHAT API] Messages fetched:", response.data);
       return response.data;
     } catch (error) {
       console.error("❌ [CUSTOMER CHAT API] Error fetching messages:", error);
-
-      // If public endpoint fails, try the original endpoint
-      try {
-        console.log("🔄 [CUSTOMER CHAT API] Trying alternative endpoint...");
-        const response = await this.api.get(
-          `/chat/sessions/${sessionId}/messages`
-        );
-        console.log(
-          "✅ [CUSTOMER CHAT API] Messages fetched (alternative):",
-          response.data
-        );
-        return response.data;
-      } catch (altError) {
-        console.error(
-          "❌ [CUSTOMER CHAT API] Alternative endpoint also failed:",
-          altError
-        );
-        throw altError;
-      }
+      throw error;
     }
   }
 
