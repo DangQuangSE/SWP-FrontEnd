@@ -105,7 +105,8 @@ const StaffChatInterface = ({ defaultTab = "waiting", hideTabs = false }) => {
       // Fetch unread counts for both waiting and active sessions
       // For staff: use customerName as readerName to count messages from customer
       const [waitingWithUnread, activeWithUnread] = await Promise.all([
-        fetchUnreadCountsForSessions(waitingData, "STAFF"),
+        // Don't fetch unread counts for waiting sessions - they don't have messages yet
+        Promise.resolve(waitingData),
         fetchUnreadCountsForSessions(activeData, "STAFF"),
       ]);
 
@@ -183,12 +184,9 @@ const StaffChatInterface = ({ defaultTab = "waiting", hideTabs = false }) => {
       let sessionsData;
       if (tabKey === "waiting") {
         sessionsData = await fetchChatSessionsByStatus("WAITING");
-        // Fetch unread counts for waiting sessions
-        sessionsData = await fetchUnreadCountsForSessions(
-          sessionsData,
-          "STAFF"
-        );
+        // No need to fetch unread counts for waiting sessions - they don't have messages yet
         setWaitingSessions(sessionsData);
+        setSessions(sessionsData);
       } else if (tabKey === "active") {
         sessionsData = await fetchChatSessionsByStatus("ACTIVE");
         // Fetch unread counts for active sessions
@@ -197,9 +195,8 @@ const StaffChatInterface = ({ defaultTab = "waiting", hideTabs = false }) => {
           "STAFF"
         );
         setActiveSessions(sessionsData);
+        setSessions(sessionsData);
       }
-
-      setSessions(sessionsData);
     } catch (error) {
       console.error("Error loading sessions for tab:", error);
       message.error("Không thể tải danh sách chat sessions");
@@ -479,21 +476,16 @@ const StaffChatInterface = ({ defaultTab = "waiting", hideTabs = false }) => {
     try {
       if (sessions.length === 0) return;
 
-      // Refresh unread counts for current sessions
-      const updatedSessions = await fetchUnreadCountsForSessions(
-        sessions,
-        "STAFF"
-      );
-
-      // Update the appropriate state based on current tab
-      if (activeTab === "waiting") {
-        setWaitingSessions(updatedSessions);
-      } else if (activeTab === "active") {
+      // Only refresh unread counts for active sessions (waiting sessions don't need it)
+      if (activeTab === "active") {
+        const updatedSessions = await fetchUnreadCountsForSessions(
+          sessions,
+          "STAFF"
+        );
         setActiveSessions(updatedSessions);
+        setSessions(updatedSessions);
       }
-
-      // Update current sessions display
-      setSessions(updatedSessions);
+      // For waiting tab, no need to refresh unread counts
     } catch (error) {
       console.error("Error refreshing unread counts:", error);
     }
