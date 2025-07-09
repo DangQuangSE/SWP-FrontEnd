@@ -449,7 +449,7 @@ const Booking = () => {
         // 2. Cập nhật đánh giá bác sĩ
         const consultantFeedbackRequest = {
           rating: values.consultantRating,
-          consultantId: values.consultantId, // Sử dụng doctorId từ appointment nếu có
+          consultantId: appointmentToRate.doctorId, // Sử dụng doctorId từ appointment nếu có
           comment: values.consultantComment || ""
         };
 
