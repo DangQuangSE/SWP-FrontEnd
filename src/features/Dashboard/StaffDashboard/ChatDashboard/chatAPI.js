@@ -380,6 +380,29 @@ class ChatAPIService {
       return 0;
     }
   }
+
+  /**
+   * Kết thúc chat session
+   * @param {string} sessionId - ID của session cần kết thúc
+   * @returns {Promise<void>}
+   */
+  async endSession(sessionId) {
+    try {
+      console.log(`🔚 [CHAT API] Ending chat session ${sessionId}`);
+
+      await this.api.delete(`/chat/sessions/${sessionId}/end`);
+
+      console.log(`✅ [CHAT API] Successfully ended session ${sessionId}`);
+    } catch (error) {
+      console.error(`❌ [CHAT API] Error ending session ${sessionId}:`, {
+        status: error.response?.status,
+        statusText: error.response?.statusText,
+        message: error.message,
+        data: error.response?.data,
+      });
+      throw error;
+    }
+  }
 }
 
 // Export singleton instance

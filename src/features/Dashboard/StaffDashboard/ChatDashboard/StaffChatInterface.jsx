@@ -16,6 +16,7 @@ import {
   Tabs,
   Spin,
   message,
+  Modal,
 } from "antd";
 import {
   MessageOutlined,
@@ -24,6 +25,7 @@ import {
   ClockCircleOutlined,
   CheckCircleOutlined,
   ReloadOutlined,
+  StopOutlined,
 } from "@ant-design/icons";
 import { useSelector } from "react-redux";
 import chatAPIService from "./chatAPI";
@@ -747,6 +749,62 @@ const StaffChatInterface = ({ defaultTab = "waiting", hideTabs = false }) => {
     }
   };
 
+  // Handle end session
+  const handleEndSession = async (sessionId, customerName, event) => {
+    // Prevent event bubbling to avoid triggering session selection
+    event.stopPropagation();
+
+    try {
+      console.log(`🔚 [STAFF CHAT] Ending session: ${sessionId}`);
+
+      // Show confirmation modal
+      Modal.confirm({
+        title: "Kết thúc cuộc trò chuyện",
+        content: `Bạn có chắc chắn muốn kết thúc cuộc trò chuyện với ${customerName}?`,
+        okText: "Kết thúc",
+        cancelText: "Hủy",
+        okType: "danger",
+        onOk: async () => {
+          try {
+            // Call end session API
+            await chatAPIService.endSession(sessionId);
+
+            console.log(
+              `✅ [STAFF CHAT] Successfully ended session: ${sessionId}`
+            );
+
+            // Show success message
+            message.success(`Đã kết thúc cuộc trò chuyện với ${customerName}`);
+
+            // Remove from active sessions
+            setActiveSessions((prev) =>
+              prev.filter((s) => s.sessionId !== sessionId)
+            );
+
+            // Clear selected session if it was the ended one
+            if (selectedSession?.sessionId === sessionId) {
+              setSelectedSession(null);
+              clearMessages();
+            }
+
+            // Refresh sessions
+            setTimeout(() => {
+              loadSessionsForTab("active");
+            }, 500);
+          } catch (error) {
+            console.error("❌ [STAFF CHAT] Error ending session:", error);
+            message.error(
+              "Không thể kết thúc cuộc trò chuyện. Vui lòng thử lại."
+            );
+          }
+        },
+      });
+    } catch (error) {
+      console.error("❌ [STAFF CHAT] Error in handleEndSession:", error);
+      message.error("Có lỗi xảy ra. Vui lòng thử lại.");
+    }
+  };
+
   // Handle key press
   const handleKeyPress = (e) => {
     if (e.key === "Enter" && !e.shiftKey) {
@@ -1076,35 +1134,28 @@ const StaffChatInterface = ({ defaultTab = "waiting", hideTabs = false }) => {
                           </div>
 
                           <div
-                            className="session-tags"
+                            className="session-tags-and-actions"
                             style={{
                               display: "flex",
-                              gap: "4px",
-                              flexWrap: "wrap",
+                              justifyContent: "space-between",
+                              alignItems: "center",
+                              gap: "8px",
                             }}
                           >
-                            <Tag
-                              color={
-                                session.status === "WAITING"
-                                  ? "orange"
-                                  : "green"
-                              }
+                            <div
+                              className="session-tags"
                               style={{
-                                fontSize: "10px",
-                                padding: "2px 8px",
-                                borderRadius: "12px",
-                                border: "none",
-                                fontWeight: "500",
-                                margin: 0,
+                                display: "flex",
+                                gap: "4px",
+                                flexWrap: "wrap",
                               }}
                             >
-                              {session.status === "WAITING"
-                                ? "Chờ phản hồi"
-                                : "Đang hoạt động"}
-                            </Tag>
-                            {session.staffName && (
                               <Tag
-                                color="blue"
+                                color={
+                                  session.status === "WAITING"
+                                    ? "orange"
+                                    : "green"
+                                }
                                 style={{
                                   fontSize: "10px",
                                   padding: "2px 8px",
@@ -1114,9 +1165,55 @@ const StaffChatInterface = ({ defaultTab = "waiting", hideTabs = false }) => {
                                   margin: 0,
                                 }}
                               >
-                                {session.staffName}
+                                {session.status === "WAITING"
+                                  ? "Chờ phản hồi"
+                                  : "Đang hoạt động"}
                               </Tag>
-                            )}
+                              {session.staffName && (
+                                <Tag
+                                  color="blue"
+                                  style={{
+                                    fontSize: "10px",
+                                    padding: "2px 8px",
+                                    borderRadius: "12px",
+                                    border: "none",
+                                    fontWeight: "500",
+                                    margin: 0,
+                                  }}
+                                >
+                                  {session.staffName}
+                                </Tag>
+                              )}
+                            </div>
+
+                            {/* End Session Button - Only show in active tab */}
+                            {activeTab === "active" &&
+                              session.status === "ACTIVE" && (
+                                <Button
+                                  type="text"
+                                  size="small"
+                                  danger
+                                  icon={<StopOutlined />}
+                                  onClick={(e) =>
+                                    handleEndSession(
+                                      session.sessionId,
+                                      session.customerName,
+                                      e
+                                    )
+                                  }
+                                  style={{
+                                    fontSize: "12px",
+                                    padding: "4px 8px",
+                                    height: "28px",
+                                    minWidth: "28px",
+                                    borderRadius: "6px",
+                                    display: "flex",
+                                    alignItems: "center",
+                                    justifyContent: "center",
+                                  }}
+                                  title="Kết thúc cuộc trò chuyện"
+                                />
+                              )}
                           </div>
                         </div>
                       </div>
