@@ -264,7 +264,7 @@
 /* Button styling - unified */
 .detail-button-profile,
 .cancel-button-profile,
-.zoom-button-profile {
+.online-consultation-button-profile {
   margin: 0;
   padding: 8px 16px;
   font-size: 12px;
@@ -303,14 +303,25 @@
   transform: translateY(-1px);
 }
 
-.zoom-button-profile {
+.online-consultation-button-profile {
   background-color: #1890ff;
   box-shadow: 0 2px 4px rgba(24, 144, 255, 0.2);
 }
 
-.zoom-button-profile:hover {
+.online-consultation-button-profile:hover {
   background-color: #40a9ff;
   transform: translateY(-1px);
+}
+
+.online-consultation-button-profile.disabled {
+  background-color: #d9d9d9;
+  color: #999;
+  cursor: not-allowed;
+}
+
+.online-consultation-button-profile.disabled:hover {
+  background-color: #d9d9d9;
+  transform: none;
 }
 
 /* Modal styling */
@@ -572,7 +583,7 @@
 
   .detail-button-profile,
   .cancel-button-profile,
-  .zoom-button-profile {
+  .online-consultation-button-profile {
     width: 100%;
     max-width: none;
     margin-bottom: 0;
