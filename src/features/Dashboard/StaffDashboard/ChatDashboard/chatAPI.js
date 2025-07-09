@@ -232,15 +232,31 @@ class ChatAPIService {
    */
   async markMessagesAsRead(sessionId, readerName) {
     try {
-      const response = await this.api.patch(
-        `/chat/sessions/${sessionId}/read`,
+      console.log("✅ [STAFF CHAT API] Marking messages as read:", {
+        sessionId,
+        readerName,
+      });
+
+      const response = await this.api.post(
+        `/chat/sessions/${sessionId}/mark-read`,
+        null,
         {
-          readerName,
+          params: {
+            readerName: readerName,
+          },
         }
+      );
+
+      console.log(
+        "✅ [STAFF CHAT API] Messages marked as read:",
+        response.data
       );
       return response.data;
     } catch (error) {
-      console.error("Error marking messages as read:", error);
+      console.error(
+        "❌ [STAFF CHAT API] Error marking messages as read:",
+        error
+      );
       throw error;
     }
   }
@@ -330,23 +346,38 @@ class ChatAPIService {
    */
   async getUnreadCount(sessionId, readerName) {
     try {
+      console.log(
+        `📊 [CHAT API] Getting unread count for session ${sessionId}, reader: ${readerName}`
+      );
+
       const response = await this.api.get(
         `/chat/sessions/${sessionId}/unread-count`,
         {
           params: { readerName },
         }
       );
+
+      const count = response.data || 0;
       console.log(
-        `📊 [CHAT API] Unread count for session ${sessionId}:`,
-        response.data
+        `✅ [CHAT API] Unread count for session ${sessionId}: ${count}`
       );
-      return response.data;
+      return count;
     } catch (error) {
       console.error(
         `❌ [CHAT API] Error getting unread count for session ${sessionId}:`,
-        error
+        {
+          status: error.response?.status,
+          statusText: error.response?.statusText,
+          message: error.message,
+          data: error.response?.data,
+        }
       );
-      throw error;
+
+      // Return 0 instead of throwing error to prevent UI issues
+      console.warn(
+        `⚠️ [CHAT API] Returning 0 unread count for session ${sessionId} due to error`
+      );
+      return 0;
     }
   }
 }

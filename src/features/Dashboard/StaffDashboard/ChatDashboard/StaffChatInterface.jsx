@@ -67,6 +67,26 @@ const StaffChatInterface = ({ defaultTab = "waiting", hideTabs = false }) => {
     true, // isStaff
     true // isActive
   );
+
+  // Auto mark-read function
+  const markMessagesAsRead = async (sessionId) => {
+    if (!sessionId) return;
+
+    try {
+      const readerName = "Nhân viên hỗ trợ"; // Staff reader name
+      await chatAPIService.markMessagesAsRead(sessionId, readerName);
+      console.log(
+        `✅ [MARK READ] Messages marked as read for session: ${sessionId}`
+      );
+
+      // Refresh unread counts after marking as read
+      setTimeout(() => {
+        refreshUnreadCounts();
+      }, 500);
+    } catch (error) {
+      console.error("❌ [MARK READ] Failed to mark messages as read:", error);
+    }
+  };
   const subscriptionRef = useRef(null); // Track subscription to prevent duplicates
   const processedSessionsRef = useRef(new Set()); // Track processed sessions
   const notificationTimeoutRef = useRef({}); // Track notification timeouts
@@ -79,6 +99,14 @@ const StaffChatInterface = ({ defaultTab = "waiting", hideTabs = false }) => {
   const { connected: wsConnected, service: chatWebSocketService } =
     useChatWebSocket();
   const inputRef = useRef(null);
+
+  // Auto mark-read when new messages arrive
+  useEffect(() => {
+    if (selectedSession?.sessionId && realTimeMessages.length > 0) {
+      // Mark messages as read when user is actively viewing the chat
+      markMessagesAsRead(selectedSession.sessionId);
+    }
+  }, [realTimeMessages.length, selectedSession?.sessionId]);
 
   // Fetch chat sessions for specific status
   const fetchChatSessionsByStatus = async (status) => {
@@ -131,6 +159,10 @@ const StaffChatInterface = ({ defaultTab = "waiting", hideTabs = false }) => {
   // Fetch unread count for sessions
   const fetchUnreadCountsForSessions = async (sessions, readerType) => {
     try {
+      console.log(
+        `📊 [STAFF CHAT] Fetching unread counts for ${sessions.length} sessions, readerType: ${readerType}`
+      );
+
       // Fetch unread counts for all sessions in parallel
       const unreadCountPromises = sessions.map(async (session) => {
         try {
@@ -139,15 +171,28 @@ const StaffChatInterface = ({ defaultTab = "waiting", hideTabs = false }) => {
           const readerName =
             readerType === "STAFF" ? "Nhân viên hỗ trợ" : session.customerName;
 
+          console.log(
+            `📊 [STAFF CHAT] Getting unread count for session ${session.sessionId}, reader: ${readerName}`
+          );
+
           const unreadCount = await chatAPIService.getUnreadCount(
             session.sessionId,
             readerName
           );
+
+          console.log(
+            `✅ [STAFF CHAT] Unread count for session ${session.sessionId}: ${unreadCount}`
+          );
+
           return {
             sessionId: session.sessionId,
             unreadCount: unreadCount || 0,
           };
         } catch (error) {
+          console.error(
+            `❌ [STAFF CHAT] Error getting unread count for session ${session.sessionId}:`,
+            error
+          );
           return {
             sessionId: session.sessionId,
             unreadCount: 0,
@@ -168,11 +213,22 @@ const StaffChatInterface = ({ defaultTab = "waiting", hideTabs = false }) => {
         };
       });
 
+      console.log(
+        `✅ [STAFF CHAT] Successfully fetched unread counts for ${sessionsWithUnreadCount.length} sessions`
+      );
+
       return sessionsWithUnreadCount;
     } catch (error) {
-      console.error("Error fetching unread counts:", error);
+      console.error("❌ [STAFF CHAT] Error fetching unread counts:", error);
       // Return sessions without unread count if error
-      return sessions.map((session) => ({ ...session, unreadCount: 0 }));
+      const fallbackSessions = sessions.map((session) => ({
+        ...session,
+        unreadCount: 0,
+      }));
+      console.warn(
+        `⚠️ [STAFF CHAT] Returning ${fallbackSessions.length} sessions with 0 unread count due to error`
+      );
+      return fallbackSessions;
     }
   };
 
@@ -344,17 +400,58 @@ const StaffChatInterface = ({ defaultTab = "waiting", hideTabs = false }) => {
     };
   }, []);
 
-  // Handle new message from WebSocket to update unread count
+  // Handle new message from WebSocket to update unread count and display message
   const handleNewMessage = (message) => {
     console.log("📨 [STAFF CHAT] New message received:", message);
+    console.log(
+      "📨 [STAFF CHAT] Current selected session:",
+      selectedSession?.sessionId
+    );
+    console.log("📨 [STAFF CHAT] Message session:", message.sessionId);
 
-    // Update unread count for the session if it's not the currently selected session
-    if (selectedSession?.sessionId !== message.sessionId) {
+    // If this is the currently selected session, add message to display immediately
+    if (selectedSession?.sessionId === message.sessionId) {
+      console.log(
+        "📨 [STAFF CHAT] Adding message to current session:",
+        message
+      );
+
+      // Double check session ID match before adding message
+      if (selectedSession.sessionId === message.sessionId) {
+        // Add message to current chat interface using the addMessage method
+        if (addMessage && typeof addMessage === "function") {
+          console.log("📨 [STAFF CHAT] Calling addMessage with:", message);
+          addMessage(message);
+        } else {
+          console.warn("⚠️ [STAFF CHAT] addMessage function not available");
+        }
+
+        // Also trigger a refresh to ensure sync
+        setTimeout(() => {
+          if (refetchMessages && typeof refetchMessages === "function") {
+            refetchMessages();
+          }
+        }, 500);
+      } else {
+        console.warn("⚠️ [STAFF CHAT] Session ID mismatch, not adding message");
+      }
+    } else {
+      // Update unread count for other sessions
+      console.log(
+        "📨 [STAFF CHAT] Updating unread count for session:",
+        message.sessionId
+      );
+
       // Update waiting sessions
       setWaitingSessions((prev) =>
         prev.map((session) =>
           session.sessionId === message.sessionId
-            ? { ...session, unreadCount: (session.unreadCount || 0) + 1 }
+            ? {
+                ...session,
+                unreadCount: (session.unreadCount || 0) + 1,
+                lastMessage: message.message,
+                lastMessageTime: message.timestamp || new Date().toISOString(),
+              }
             : session
         )
       );
@@ -363,7 +460,12 @@ const StaffChatInterface = ({ defaultTab = "waiting", hideTabs = false }) => {
       setActiveSessions((prev) =>
         prev.map((session) =>
           session.sessionId === message.sessionId
-            ? { ...session, unreadCount: (session.unreadCount || 0) + 1 }
+            ? {
+                ...session,
+                unreadCount: (session.unreadCount || 0) + 1,
+                lastMessage: message.message,
+                lastMessageTime: message.timestamp || new Date().toISOString(),
+              }
             : session
         )
       );
@@ -372,7 +474,12 @@ const StaffChatInterface = ({ defaultTab = "waiting", hideTabs = false }) => {
       setSessions((prev) =>
         prev.map((session) =>
           session.sessionId === message.sessionId
-            ? { ...session, unreadCount: (session.unreadCount || 0) + 1 }
+            ? {
+                ...session,
+                unreadCount: (session.unreadCount || 0) + 1,
+                lastMessage: message.message,
+                lastMessageTime: message.timestamp || new Date().toISOString(),
+              }
             : session
         )
       );
@@ -495,6 +602,9 @@ const StaffChatInterface = ({ defaultTab = "waiting", hideTabs = false }) => {
   const handleSessionSelect = async (session) => {
     // Reset unread count for the selected session
     resetUnreadCountForSession(session.sessionId);
+
+    // Always mark messages as read when clicking on a session (even if already selected)
+    await markMessagesAsRead(session.sessionId);
 
     try {
       // If this is a WAITING session in the waiting tab, join it first

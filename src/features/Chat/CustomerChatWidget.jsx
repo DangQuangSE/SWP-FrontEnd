@@ -71,6 +71,28 @@ const CustomerChatWidget = () => {
   const inputRef = useRef(null);
   const stompClientRef = useRef(null);
   const wsConnectedRef = useRef(false);
+
+  // Auto mark-read function for customer
+  const markMessagesAsRead = async (sessionId) => {
+    if (!sessionId || !customerName) return;
+
+    try {
+      const readerName = customerName; // Customer reader name
+      await customerChatAPI.markMessagesAsRead(sessionId, readerName);
+      console.log(
+        `✅ [CUSTOMER MARK READ] Messages marked as read for session: ${sessionId}`
+      );
+
+      // Reset unread count after marking as read
+      setUnreadCount(0);
+      localStorage.setItem("chat_unread_count", "0");
+    } catch (error) {
+      console.error(
+        "❌ [CUSTOMER MARK READ] Failed to mark messages as read:",
+        error
+      );
+    }
+  };
   const navigate = useNavigate();
 
   // Get current user info from Redux store first, then fallback to localStorage
@@ -85,6 +107,14 @@ const CustomerChatWidget = () => {
   // Use Redux data first, then localStorage as fallback
   const currentUser = reduxUser || localStorageUser;
   const userRole = currentUser?.role || "CUSTOMER";
+
+  // Auto mark-read when new messages arrive and chat is open
+  useEffect(() => {
+    if (sessionId && messages.length > 0 && isOpen) {
+      // Mark messages as read when user is actively viewing the chat
+      markMessagesAsRead(sessionId);
+    }
+  }, [messages.length, sessionId, isOpen]);
 
   // WebSocket connection for real-time updates
   const connectWebSocket = () => {
@@ -450,9 +480,11 @@ const CustomerChatWidget = () => {
     }
 
     console.log("👤 [WIDGET] Customer detected - opening chat widget...");
+
     // For customers, toggle chat widget
     setIsOpen(!isOpen);
     if (!isOpen) {
+      // Opening chat widget
       // Show name form if no session exists
       if (!sessionId) {
         setShowNameForm(true);
@@ -461,6 +493,18 @@ const CustomerChatWidget = () => {
       setTimeout(() => {
         inputRef.current?.focus();
       }, 100);
+
+      // Mark messages as read when customer opens chat widget
+      if (sessionId) {
+        markMessagesAsRead(sessionId);
+      }
+    } else {
+      // Closing chat widget - fetch unread count from server
+      if (sessionId && customerName) {
+        setTimeout(() => {
+          fetchUnreadCount();
+        }, 500); // Small delay to ensure any pending messages are processed
+      }
     }
   };
 

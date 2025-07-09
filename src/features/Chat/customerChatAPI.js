@@ -186,6 +186,43 @@ class CustomerChatAPIService {
       return 0;
     }
   }
+
+  /**
+   * Mark messages as read for customer
+   * @param {string} sessionId - Session ID
+   * @param {string} customerName - Customer name (readerName)
+   * @returns {Promise} API response
+   */
+  async markMessagesAsRead(sessionId, customerName) {
+    try {
+      console.log("✅ [CUSTOMER CHAT API] Marking messages as read:", {
+        sessionId,
+        customerName,
+      });
+
+      const response = await this.api.post(
+        `/chat/sessions/${sessionId}/mark-read`,
+        null,
+        {
+          params: {
+            readerName: customerName,
+          },
+        }
+      );
+
+      console.log(
+        "✅ [CUSTOMER CHAT API] Messages marked as read:",
+        response.data
+      );
+      return response.data;
+    } catch (error) {
+      console.error(
+        "❌ [CUSTOMER CHAT API] Error marking messages as read:",
+        error
+      );
+      throw error;
+    }
+  }
 }
 
 // Export singleton instance
