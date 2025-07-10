@@ -4,6 +4,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { message, Modal } from "antd";
 import api from "../../../configs/api";
+import RatingModal from "../../../components/RatingModal/RatingModal";
 import "./Booking.css";
 
 const TABS = [
@@ -43,6 +44,34 @@ const Booking = () => {
 
   // Track if payment success message has been shown
   const paymentMessageShown = useRef(false);
+
+  // Thêm state cho modal đánh giá
+  const [ratingModalVisible, setRatingModalVisible] = useState(false);
+  const [appointmentToRate, setAppointmentToRate] = useState(null);
+
+  // Thêm hàm xử lý hiển thị modal đánh giá
+  const handleRateService = (appointment) => {
+    setAppointmentToRate(appointment);
+    setRatingModalVisible(true);
+  };
+
+  // Thêm hàm callback khi đánh giá thành công
+  const handleRatingSuccess = async () => {
+    // Refresh appointment data
+    await fetchAppointments();
+
+    // Cập nhật trạng thái isRated cho appointmentToRate trong state
+    if (appointmentToRate && !appointmentToRate.isRated) {
+      setAppointments((prevAppointments) =>
+        prevAppointments.map((apt) =>
+          apt.id === appointmentToRate.id ? { ...apt, isRated: true } : apt
+        )
+      );
+    }
+
+    message.success("Cảm ơn bạn đã đánh giá!");
+    setRatingModalVisible(false);
+  };
 
   // Function to verify VNPay payment with backend
   const verifyVNPayPayment = useCallback(async (urlParams) => {
@@ -97,61 +126,28 @@ const Booking = () => {
     fetchAppointments();
   }, [fetchAppointments]);
 
-  // Function to create Zoom meeting after payment success (chỉ tạo link, không mở)
-  const createZoomMeetingIfNeeded = useCallback(
+  // Function to create Zoom meeting for specific appointmentId
+  const createZoomMeeting = useCallback(
     async (appointmentId) => {
       try {
         console.log(
-          "🔍 Checking if need to create Zoom meeting for appointment:",
+          "🎥 Creating Zoom meeting for appointmentId:",
           appointmentId
         );
 
-        // Lấy thông tin appointment để kiểm tra service type
-        const appointmentResponse = await api.get(
-          `/appointment/${appointmentId}`
+        const zoomResponse = await api.get(
+          `/zoom/test-create-meeting?appointmentId=${appointmentId}`
         );
-        const appointment = appointmentResponse.data;
 
-        console.log("📋 Appointment details:", appointment);
+        console.log("✅ Zoom meeting created successfully:", zoomResponse.data);
+        message.success("Phòng tư vấn online đã được tạo!");
 
-        // Kiểm tra nếu là dịch vụ CONSULTING_ON - kiểm tra cả 2 level
-        const hasConsultingOnService =
-          appointment.serviceType === "CONSULTING_ON" ||
-          (appointment.appointmentDetails &&
-            appointment.appointmentDetails.length > 0 &&
-            appointment.appointmentDetails.some(
-              (detail) => detail.serviceType === "CONSULTING_ON"
-            ));
-
-        if (hasConsultingOnService) {
-          console.log("🎥 Creating Zoom meeting for CONSULTING_ON service...");
-
-          // Bước 1: Gọi API Zoom để tạo meeting link
-          const zoomResponse = await api.get(
-            `/zoom/test-create-meeting?appointmentId=${appointmentId}`
-          );
-          console.log(
-            "📹 Zoom meeting created successfully:",
-            zoomResponse.data
-          );
-
-          // Bước 2: Refresh appointments để lấy join_url mới từ appointmentDetails
-          console.log("🔄 Refreshing appointments to get join_url...");
-          setTimeout(() => {
-            fetchAppointments();
-          }, 1000);
-
-          message.success(
-            "Phòng tư vấn online đã sẵn sàng! Bạn có thể tham gia bất cứ lúc nào."
-          );
-        } else {
-          console.log(
-            " Service is not CONSULTING_ON, skipping Zoom meeting creation"
-          );
-        }
+        // Refresh appointments để lấy joinUrl mới
+        setTimeout(() => {
+          fetchAppointments();
+        }, 1000);
       } catch (error) {
         console.error("❌ Error creating Zoom meeting:", error);
-        // Không hiển thị error message để không làm phiền user
       }
     },
     [fetchAppointments]
@@ -198,25 +194,30 @@ const Booking = () => {
 
   // Handle VNPay payment result from URL params
   useEffect(() => {
+    console.log("🔍 useEffect for VNPay return is running...");
+    console.log("🔍 Current search params:", search);
+
     const query = new URLSearchParams(search);
     const vnpResponseCode = query.get("vnp_ResponseCode");
     const vnpTransactionStatus = query.get("vnp_TransactionStatus");
     const vnpTxnRef = query.get("vnp_TxnRef");
 
+    console.log("🔍 Extracted parameters:", {
+      vnpResponseCode,
+      vnpTransactionStatus,
+      vnpTxnRef,
+      paymentMessageShown: paymentMessageShown.current,
+    });
+
     // Check for VNPay return parameters
     if (vnpResponseCode && !paymentMessageShown.current) {
-      console.log("🔍 VNPay Return in Booking page:", {
+      console.log("🔍 VNPay Return detected in Booking page!");
+      console.log("🔍 VNPay Return parameters:", {
         vnpResponseCode,
         vnpTransactionStatus,
         vnpTxnRef,
         fullURL: search,
       });
-
-      // Lấy appointmentId từ localStorage TRƯỚC KHI xóa
-      const pendingBooking = JSON.parse(
-        localStorage.getItem("pendingBooking") || "{}"
-      );
-      const appointmentId = pendingBooking.appointmentId;
 
       localStorage.removeItem("pendingBooking");
       paymentMessageShown.current = true;
@@ -228,16 +229,38 @@ const Booking = () => {
         // Gọi API để verify payment với backend
         verifyVNPayPayment(query);
 
-        // Tạo Zoom meeting nếu là dịch vụ CONSULTING_ON
-        if (appointmentId) {
-          console.log(
-            "🎯 Creating Zoom meeting for appointmentId:",
-            appointmentId
-          );
-          createZoomMeetingIfNeeded(appointmentId);
-        } else {
-          console.warn("⚠️ No appointmentId found for Zoom meeting creation");
-        }
+        // Tạo Zoom meeting cho appointment vừa thanh toán
+        console.log("🎯 Payment successful! Creating Zoom meeting...");
+
+        // Delay một chút để backend cập nhật status, sau đó lấy appointments CONFIRMED
+        setTimeout(async () => {
+          try {
+            const response = await api.get(
+              "/appointment/by-status?status=CONFIRMED"
+            );
+            const confirmedAppointments = response.data;
+
+            console.log(
+              "📋 Found CONFIRMED appointments:",
+              confirmedAppointments.length
+            );
+
+            // Tạo Zoom meeting cho appointment mới nhất (vừa được confirm)
+            if (confirmedAppointments.length > 0) {
+              const latestAppointment =
+                confirmedAppointments[confirmedAppointments.length - 1];
+              const appointmentId = latestAppointment.id;
+
+              console.log(
+                "🆔 Creating Zoom for latest appointmentId:",
+                appointmentId
+              );
+              createZoomMeeting(appointmentId);
+            }
+          } catch (error) {
+            console.error("❌ Error fetching confirmed appointments:", error);
+          }
+        }, 2000); // Delay 2 giây để backend cập nhật
       } else if (vnpResponseCode === "24") {
         // Người dùng hủy thanh toán - cancel cuộc hẹn
         message.warning("Thanh toán đã bị hủy. Đang hủy lịch hẹn...");
@@ -259,13 +282,7 @@ const Booking = () => {
       setTimeout(refreshAppointments, 500);
       return;
     }
-  }, [
-    search,
-    verifyVNPayPayment,
-    fetchAppointments,
-    token,
-    createZoomMeetingIfNeeded,
-  ]);
+  }, [search, verifyVNPayPayment, fetchAppointments, token, createZoomMeeting]);
 
   const renderAppointments = () => {
     if (loading) {
@@ -337,61 +354,29 @@ const Booking = () => {
               </button>
             )}
 
-            {/* Zoom consultation button for CONSULTING_ON services with CONFIRMED status */}
-            {(() => {
-              // Check for CONSULTING_ON service type
-              const isConsultingOnline =
-                appointment.serviceType === "CONSULTING_ON" ||
-                appointment.appointmentDetails?.some((detail) => {
-                  return detail.serviceType === "CONSULTING_ON";
-                }) ||
-                false;
-
-              const isConfirmed = appointment.status === "CONFIRMED";
-
-              if (isConsultingOnline && isConfirmed) {
+            {/* Nút Tư vấn Online cho CONSULTING_ON services với CONFIRMED status */}
+            {appointment.serviceType === "CONSULTING_ON" &&
+              appointment.status === "CONFIRMED" &&
+              (() => {
                 // Lấy joinUrl từ appointmentDetails
                 const joinUrl = appointment.appointmentDetails?.find(
                   (detail) => detail.joinUrl
                 )?.joinUrl;
 
-                console.log("🔍 DEBUG - joinUrl === null:", joinUrl === null);
-
-                // Thử tìm joinUrl với các tên khác có thể có
-                const detail = appointment.appointmentDetails?.find(
-                  (detail) => detail.serviceType === "CONSULTING_ON"
-                );
-                if (detail) {
-                  console.log("🔍 DEBUG - Found CONSULTING_ON detail:", detail);
-                  console.log(
-                    "🔍 DEBUG - All keys in detail:",
-                    Object.keys(detail)
+                if (joinUrl) {
+                  return (
+                    <a
+                      href={joinUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="online-consultation-button-profile"
+                      title="Click để tham gia tư vấn online"
+                    >
+                      Tư vấn Online
+                    </a>
                   );
-                  console.log("🔍 DEBUG - detail.joinUrl:", detail.joinUrl);
-                  console.log("🔍 DEBUG - detail.join_url:", detail.join_url);
-                  console.log("🔍 DEBUG - detail.zoomUrl:", detail.zoomUrl);
-                  console.log(
-                    "🔍 DEBUG - detail.meetingUrl:",
-                    detail.meetingUrl
-                  );
-                } else {
-                  console.log("🔍 DEBUG - No CONSULTING_ON detail found");
                 }
-
-                return (
-                  <a
-                    href={joinUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="zoom-button-profile"
-                    title="Click để tham gia tư vấn online"
-                  >
-                    Tư vấn Online
-                  </a>
-                );
-              }
-              return null;
-            })()}
+              })()}
           </div>
         </div>
       </div>
@@ -431,10 +416,7 @@ const Booking = () => {
           <div className="appointment-detail-content">
             <div className="detail-section">
               <h3>Thông tin chung</h3>
-              {/* <div className="detail-item">
-                <span className="detail-label">ID lịch hẹn:</span>
-                <span className="detail-value">{selectedAppointment.id}</span>
-              </div> */}
+
               <div className="detail-item">
                 <span className="detail-label">Ngày hẹn:</span>
                 <span className="detail-value">
@@ -555,6 +537,7 @@ const Booking = () => {
                                 href={detail.joinUrl}
                                 target="_blank"
                                 rel="noopener noreferrer"
+                                className="zoom-link"
                               >
                                 Tham gia phòng tư vấn
                               </a>
@@ -578,29 +561,17 @@ const Booking = () => {
                   )}
                 </div>
               )}
-
-            {/* <div className="detail-section">
-              <h3>Thông tin thanh toán</h3>
-              <div className="detail-item">
-                <span className="detail-label">Trạng thái thanh toán:</span>
-                <span className="detail-value">
-                  {selectedAppointment.isPaid
-                    ? "Đã thanh toán"
-                    : "Chưa thanh toán"}
-                </span>
-              </div>
-              {selectedAppointment.paymentStatus && (
-                <div className="detail-item">
-                  <span className="detail-label">Chi tiết thanh toán:</span>
-                  <span className="detail-value">
-                    {selectedAppointment.paymentStatus}
-                  </span>
-                </div>
-              )}
-            </div> */}
           </div>
         )}
       </Modal>
+
+      {/* Thêm modal đánh giá */}
+      <RatingModal
+        visible={ratingModalVisible}
+        onClose={() => setRatingModalVisible(false)}
+        appointment={appointmentToRate}
+        onSuccess={handleRatingSuccess}
+      />
     </div>
   );
 };

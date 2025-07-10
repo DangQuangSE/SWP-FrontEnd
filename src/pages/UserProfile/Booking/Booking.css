@@ -231,10 +231,12 @@
 
 /* Animations */
 @keyframes pulse {
+
   0%,
   100% {
     opacity: 1;
   }
+
   50% {
     opacity: 0.5;
   }
@@ -245,6 +247,7 @@
     opacity: 0;
     transform: translateY(10px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -264,7 +267,7 @@
 /* Button styling - unified */
 .detail-button-profile,
 .cancel-button-profile,
-.zoom-button-profile {
+.online-consultation-button-profile {
   margin: 0;
   padding: 8px 16px;
   font-size: 12px;
@@ -303,14 +306,25 @@
   transform: translateY(-1px);
 }
 
-.zoom-button-profile {
+.online-consultation-button-profile {
   background-color: #1890ff;
   box-shadow: 0 2px 4px rgba(24, 144, 255, 0.2);
 }
 
-.zoom-button-profile:hover {
+.online-consultation-button-profile:hover {
   background-color: #40a9ff;
   transform: translateY(-1px);
+}
+
+.online-consultation-button-profile.disabled {
+  background-color: #d9d9d9;
+  color: #999;
+  cursor: not-allowed;
+}
+
+.online-consultation-button-profile.disabled:hover {
+  background-color: #d9d9d9;
+  transform: none;
 }
 
 /* Modal styling */
@@ -549,18 +563,90 @@
   text-decoration: underline;
 }
 
-.service-detail-item {
-  background: #f8fafc;
+@keyframes zoomBlink {
+  0% {
+    background-color: #1890ff;
+    box-shadow: 0 0 5px rgba(24, 144, 255, 0.5);
+    transform: scale(1);
+  }
+
+  100% {
+    background-color: #40a9ff;
+    box-shadow: 0 0 15px rgba(24, 144, 255, 0.8);
+    transform: scale(1.05);
+  }
 }
 
-.service-detail-item:last-child {
-  margin-bottom: 0;
+/* Styles cho nút đánh giá */
+.appointment-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 10px;
 }
 
-.service-separator {
-  margin: 16px 0;
+.view-detail-btn,
+.rate-service-btn {
+  padding: 6px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: 500;
   border: none;
-  border-top: 1px solid #e2e8f0;
+  transition: all 0.3s ease;
+}
+
+.view-detail-btn {
+  background-color: #1890ff;
+  color: white;
+}
+
+.view-detail-btn:hover {
+  background-color: #40a9ff;
+}
+
+.rate-service-btn {
+  background-color: #52c41a;
+  color: white;
+}
+
+.rate-service-btn:hover {
+  background-color: #73d13d;
+}
+
+.rate-service-btn.rated {
+  background-color: #faad14;
+}
+
+.rate-service-btn.rated:hover {
+  background-color: #ffc53d;
+}
+
+/* Styles cho status badge */
+.status-badge {
+  padding: 2px 8px;
+  border-radius: 10px;
+  font-size: 12px;
+  font-weight: 500;
+  margin-left: 5px;
+}
+
+.status-badge.completed {
+  background-color: #52c41a;
+  color: white;
+}
+
+.status-badge.pending {
+  background-color: #faad14;
+  color: white;
+}
+
+.status-badge.cancelled {
+  background-color: #ff4d4f;
+  color: white;
+}
+
+.status-badge.confirmed {
+  background-color: #1890ff;
+  color: white;
 }
 
 /* Responsive for mobile */
@@ -572,38 +658,38 @@
 
   .detail-button-profile,
   .cancel-button-profile,
-  .zoom-button-profile {
+  .online-consultation-button-profile {
     width: 100%;
     max-width: none;
     margin-bottom: 0;
     margin-right: 0;
   }
+}
 
-  /* Modal responsive */
-  .appointment-detail-modal {
-    margin: 16px;
-    max-width: calc(100vw - 32px);
-  }
+/* Modal responsive */
+.appointment-detail-modal {
+  margin: 16px;
+  max-width: calc(100vw - 32px);
+}
 
-  .detail-item {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 4px;
-  }
+.detail-item {
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+}
 
-  .detail-label {
-    min-width: auto;
-  }
+.detail-label {
+  min-width: auto;
+}
 
-  .detail-value {
-    text-align: left;
-  }
+.detail-value {
+  text-align: left;
+}
 
-  .detail-section {
-    padding: 16px;
-  }
+.detail-section {
+  padding: 16px;
+}
 
-  .service-detail-item {
-    padding: 12px;
-  }
+.service-detail-item {
+  padding: 12px;
 }

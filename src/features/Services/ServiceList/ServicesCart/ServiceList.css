@@ -78,6 +78,7 @@
 .booking-button:hover {
   box-shadow: 0 6px 8px rgba(0, 181, 241, 0.3);
 }
+
 .price-and-button {
   display: flex;
   justify-content: space-between;
@@ -88,8 +89,10 @@
 
 .price-block {
   margin-bottom: 0px;
-  padding-top: 20px; /* Bỏ margin để canh giữa */
+  padding-top: 20px;
+  /* Bỏ margin để canh giữa */
 }
+
 .service-card-content {
   display: flex;
   justify-content: space-between;
@@ -105,9 +108,11 @@
 
 .right-action {
   display: flex;
-  align-items: center; /*  Nút canh giữa chiều cao card */
-  justify-content: flex-end;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
 }
+
 /* .service-search-box {
   max-width: 400px;
   margin: 0 auto 32px;
@@ -127,9 +132,11 @@
 .service-search-box input:focus {
   border-color: #1890ff;
 }
+
 .service-tab-buttons {
   display: flex;
-  justify-content: flex-start; /* 👈 Canh trái */
+  justify-content: flex-start;
+  /* 👈 Canh trái */
   gap: 8px;
   margin: 16px 0 24px;
   flex-wrap: wrap;
@@ -154,4 +161,30 @@
 .service-tab-button.active {
   background: #0283f5;
   color: white;
+}
+
+/* Thêm CSS cho phần đánh giá */
+.service-rating {
+  display: flex;
+  align-items: center;
+  margin-top: 8px;
+}
+
+.star-rating {
+  display: inline-flex;
+  margin-right: 8px;
+}
+
+.star {
+  color: #e0e0e0;
+  font-size: 24px;
+}
+
+.star.filled {
+  color: #ffc107;
+}
+
+.rating-text {
+  font-size: 14px;
+  color: #666;
 }
