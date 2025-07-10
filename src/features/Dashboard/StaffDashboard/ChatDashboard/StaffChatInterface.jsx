@@ -85,11 +85,11 @@ const StaffChatInterface = ({ defaultTab = "waiting", hideTabs = false }) => {
     try {
       console.log("🚀 [STAFF CHAT] Fetching sessions with status:", status);
       const response = await chatAPIService.getChatSessions(status);
-      console.log(`✅ [STAFF CHAT] ${status} sessions fetched:`, response);
+      console.log(` [STAFF CHAT] ${status} sessions fetched:`, response);
 
       // Debug: Check each session's actual status
       response.forEach((session, index) => {
-        console.log(`🔍 [STAFF CHAT] Session ${index + 1}:`, {
+        console.log(` [STAFF CHAT] Session ${index + 1}:`, {
           sessionId: session.sessionId,
           customerName: session.customerName,
           status: session.status,
@@ -99,10 +99,7 @@ const StaffChatInterface = ({ defaultTab = "waiting", hideTabs = false }) => {
 
       return response;
     } catch (error) {
-      console.error(
-        `❌ [STAFF CHAT] Error fetching ${status} sessions:`,
-        error
-      );
+      console.error(` [STAFF CHAT] Error fetching ${status} sessions:`, error);
       throw error;
     }
   };
@@ -130,9 +127,9 @@ const StaffChatInterface = ({ defaultTab = "waiting", hideTabs = false }) => {
         setSessions(activeData);
       }
 
-      console.log("✅ [STAFF CHAT] All sessions loaded successfully");
+      console.log(" [STAFF CHAT] All sessions loaded successfully");
     } catch (error) {
-      console.error("❌ [STAFF CHAT] Error loading all sessions:", error);
+      console.error(" [STAFF CHAT] Error loading all sessions:", error);
       message.error("Không thể tải danh sách chat sessions");
     } finally {
       setLoading(false);
@@ -144,9 +141,7 @@ const StaffChatInterface = ({ defaultTab = "waiting", hideTabs = false }) => {
     try {
       setLoading(true);
       console.log("🚀 [STAFF CHAT] Loading sessions for tab:", tabKey);
-      console.log(
-        "🔍 [STAFF CHAT] Function loadSessionsForTab is being called!"
-      );
+      console.log(" [STAFF CHAT] Function loadSessionsForTab is being called!");
 
       let sessionsData;
       if (tabKey === "waiting") {
@@ -163,7 +158,7 @@ const StaffChatInterface = ({ defaultTab = "waiting", hideTabs = false }) => {
 
       setSessions(sessionsData);
     } catch (error) {
-      console.error("❌ [STAFF CHAT] Error loading sessions for tab:", error);
+      console.error(" [STAFF CHAT] Error loading sessions for tab:", error);
       message.error("Không thể tải danh sách chat sessions");
     } finally {
       setLoading(false);
@@ -280,8 +275,8 @@ const StaffChatInterface = ({ defaultTab = "waiting", hideTabs = false }) => {
   // Handle new session notification from WebSocket with duplicate prevention
   const handleNewSessionNotification = (newSession) => {
     console.log("🆕 [STAFF CHAT] Processing new session:", newSession);
-    console.log("🔍 [STAFF CHAT] New session status:", newSession.status);
-    console.log("🔍 [STAFF CHAT] Current active tab:", activeTab);
+    console.log(" [STAFF CHAT] New session status:", newSession.status);
+    console.log(" [STAFF CHAT] Current active tab:", activeTab);
 
     // Strong duplicate prevention using ref
     if (processedSessionsRef.current.has(newSession.sessionId)) {
@@ -416,7 +411,7 @@ const StaffChatInterface = ({ defaultTab = "waiting", hideTabs = false }) => {
       if (subscription) {
         subscriptionRef.current = subscription;
         console.log(
-          "✅ [STAFF CHAT] Successfully subscribed to new session notifications"
+          " [STAFF CHAT] Successfully subscribed to new session notifications"
         );
       }
     }
@@ -446,7 +441,7 @@ const StaffChatInterface = ({ defaultTab = "waiting", hideTabs = false }) => {
           session.sessionId
         );
         console.log(
-          "✅ [STAFF CHAT] Session joined successfully:",
+          " [STAFF CHAT] Session joined successfully:",
           joinedSession
         );
 
@@ -466,7 +461,7 @@ const StaffChatInterface = ({ defaultTab = "waiting", hideTabs = false }) => {
           );
 
           console.log(
-            "✅ [STAFF CHAT] Greeting message sent successfully:",
+            " [STAFF CHAT] Greeting message sent successfully:",
             sentMessage
           );
 
@@ -476,7 +471,7 @@ const StaffChatInterface = ({ defaultTab = "waiting", hideTabs = false }) => {
           );
         } catch (error) {
           console.error(
-            "❌ [STAFF CHAT] Failed to send greeting message:",
+            " [STAFF CHAT] Failed to send greeting message:",
             error
           );
           message.error("Không thể gửi tin nhắn chào hỏi");
@@ -521,7 +516,7 @@ const StaffChatInterface = ({ defaultTab = "waiting", hideTabs = false }) => {
         }
       }, 200);
     } catch (error) {
-      console.error("❌ [STAFF CHAT] Error handling session selection:", error);
+      console.error(" [STAFF CHAT] Error handling session selection:", error);
       message.error("Không thể tham gia chat session");
     }
   };
@@ -546,7 +541,7 @@ const StaffChatInterface = ({ defaultTab = "waiting", hideTabs = false }) => {
         true // isStaff = true
       );
 
-      console.log("✅ [STAFF CHAT] Message sent successfully");
+      console.log(" [STAFF CHAT] Message sent successfully");
 
       // Trigger immediate refetch to get the sent message
       if (refetchMessages) {
@@ -573,7 +568,7 @@ const StaffChatInterface = ({ defaultTab = "waiting", hideTabs = false }) => {
         )
       );
     } catch (error) {
-      console.error("❌ [STAFF CHAT] Error sending message:", error);
+      console.error(" [STAFF CHAT] Error sending message:", error);
       message.error("Không thể gửi tin nhắn. Vui lòng thử lại.");
 
       // Restore input text on error

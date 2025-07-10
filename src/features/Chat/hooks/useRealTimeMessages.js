@@ -163,7 +163,7 @@ export const useRealTimeMessages = (
         });
       } catch (err) {
         if (!isUnmountedRef.current) {
-          console.error("❌ [REAL-TIME] Error fetching messages:", err);
+          console.error(" [REAL-TIME] Error fetching messages:", err);
           setError(err.message);
         }
       }

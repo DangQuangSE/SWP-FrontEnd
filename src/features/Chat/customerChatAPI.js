@@ -32,7 +32,7 @@ class CustomerChatAPIService {
         return config;
       },
       (error) => {
-        console.error("❌ [CUSTOMER CHAT API] Request Error:", error);
+        console.error(" [CUSTOMER CHAT API] Request Error:", error);
         return Promise.reject(error);
       }
     );
@@ -40,7 +40,7 @@ class CustomerChatAPIService {
     // Response interceptor for error handling
     this.api.interceptors.response.use(
       (response) => {
-        console.log("✅ [CUSTOMER CHAT API] Response:", {
+        console.log(" [CUSTOMER CHAT API] Response:", {
           status: response.status,
           url: response.config.url,
           data: response.data,
@@ -48,7 +48,7 @@ class CustomerChatAPIService {
         return response;
       },
       (error) => {
-        console.error("❌ [CUSTOMER CHAT API] Error:", {
+        console.error(" [CUSTOMER CHAT API] Error:", {
           status: error.response?.status,
           statusText: error.response?.statusText,
           url: error.config?.url,
@@ -74,10 +74,10 @@ class CustomerChatAPIService {
 
       console.log("📤 [CUSTOMER CHAT API] Creating session:", payload);
       const response = await this.api.post("/chat/start", payload);
-      console.log("✅ [CUSTOMER CHAT API] Session created:", response.data);
+      console.log(" [CUSTOMER CHAT API] Session created:", response.data);
       return response.data;
     } catch (error) {
-      console.error("❌ [CUSTOMER CHAT API] Error creating session:", error);
+      console.error(" [CUSTOMER CHAT API] Error creating session:", error);
       throw error;
     }
   }
@@ -95,10 +95,10 @@ class CustomerChatAPIService {
 
       console.log("📤 [CUSTOMER CHAT API] Sending message:", payload);
       const response = await this.api.post("/chat/send", payload);
-      console.log("✅ [CUSTOMER CHAT API] Message sent:", response.data);
+      console.log(" [CUSTOMER CHAT API] Message sent:", response.data);
       return response.data;
     } catch (error) {
-      console.error("❌ [CUSTOMER CHAT API] Error sending message:", error);
+      console.error(" [CUSTOMER CHAT API] Error sending message:", error);
       throw error;
     }
   }
@@ -112,10 +112,10 @@ class CustomerChatAPIService {
 
       // Try public endpoint first
       const response = await this.api.get(`/chat/messages/${sessionId}`);
-      console.log("✅ [CUSTOMER CHAT API] Messages fetched:", response.data);
+      console.log(" [CUSTOMER CHAT API] Messages fetched:", response.data);
       return response.data;
     } catch (error) {
-      console.error("❌ [CUSTOMER CHAT API] Error fetching messages:", error);
+      console.error(" [CUSTOMER CHAT API] Error fetching messages:", error);
 
       // If public endpoint fails, try the original endpoint
       try {
@@ -124,13 +124,13 @@ class CustomerChatAPIService {
           `/chat/sessions/${sessionId}/messages`
         );
         console.log(
-          "✅ [CUSTOMER CHAT API] Messages fetched (alternative):",
+          " [CUSTOMER CHAT API] Messages fetched (alternative):",
           response.data
         );
         return response.data;
       } catch (altError) {
         console.error(
-          "❌ [CUSTOMER CHAT API] Alternative endpoint also failed:",
+          " [CUSTOMER CHAT API] Alternative endpoint also failed:",
           altError
         );
         throw altError;
@@ -145,10 +145,10 @@ class CustomerChatAPIService {
     try {
       console.log("📤 [CUSTOMER CHAT API] Ending session:", sessionId);
       const response = await this.api.post(`/chat/sessions/${sessionId}/end`);
-      console.log("✅ [CUSTOMER CHAT API] Session ended:", response.data);
+      console.log(" [CUSTOMER CHAT API] Session ended:", response.data);
       return response.data;
     } catch (error) {
-      console.error("❌ [CUSTOMER CHAT API] Error ending session:", error);
+      console.error(" [CUSTOMER CHAT API] Error ending session:", error);
       throw error;
     }
   }
@@ -160,11 +160,11 @@ class CustomerChatAPIService {
     try {
       console.log("📥 [CUSTOMER CHAT API] Getting session status:", sessionId);
       const response = await this.api.get(`/chat/sessions/${sessionId}/status`);
-      console.log("✅ [CUSTOMER CHAT API] Session status:", response.data);
+      console.log(" [CUSTOMER CHAT API] Session status:", response.data);
       return response.data;
     } catch (error) {
       console.error(
-        "❌ [CUSTOMER CHAT API] Error getting session status:",
+        " [CUSTOMER CHAT API] Error getting session status:",
         error
       );
       throw error;

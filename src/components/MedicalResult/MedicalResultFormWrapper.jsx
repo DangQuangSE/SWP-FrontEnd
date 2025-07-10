@@ -33,7 +33,7 @@ const MedicalResultFormWrapper = ({
 
   const handleSuccess = (result) => {
     try {
-      console.log("✅ Form submission successful:", result);
+      console.log(" Form submission successful:", result);
       setFormError(null);
       if (onSuccess) {
         onSuccess(result);

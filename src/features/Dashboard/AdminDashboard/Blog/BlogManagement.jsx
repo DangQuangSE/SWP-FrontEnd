@@ -165,7 +165,9 @@ const BlogManagement = ({ userId, selectedTab }) => {
       setBlogs(processedBlogs);
     } catch (error) {
       toast.error(
-        `Không thể tải blog theo trạng thái: ${error.message || "Lỗi không xác định"}`
+        `Không thể tải blog theo trạng thái: ${
+          error.message || "Lỗi không xác định"
+        }`
       );
       setBlogs([]);
     } finally {
@@ -246,7 +248,7 @@ const BlogManagement = ({ userId, selectedTab }) => {
         headers: token ? { Authorization: `Bearer ${token}` } : {},
       });
 
-      console.log("✅ Approve response:", response.data);
+      console.log(" Approve response:", response.data);
       toast.success("Duyệt bài viết thành công!");
 
       // Refresh data ngay lập tức
@@ -261,7 +263,7 @@ const BlogManagement = ({ userId, selectedTab }) => {
         setBlogs([...blogs]);
       }, 500);
     } catch (error) {
-      console.error("❌ Error approving blog:", error);
+      console.error(" Error approving blog:", error);
       toast.error("Duyệt bài viết thất bại!");
     }
   };
@@ -291,7 +293,7 @@ const BlogManagement = ({ userId, selectedTab }) => {
         headers: token ? { Authorization: `Bearer ${token}` } : {},
       });
 
-      console.log("✅ Publish response:", response.data);
+      console.log(" Publish response:", response.data);
       toast.success("Đăng bài viết thành công!");
 
       await loadBlogs(); // Tải lại danh sách
@@ -302,7 +304,7 @@ const BlogManagement = ({ userId, selectedTab }) => {
         console.log("📋 Blog sau khi đăng:", blogAfter);
       }, 1000);
     } catch (error) {
-      console.error("❌ Error publishing blog:", error);
+      console.error(" Error publishing blog:", error);
       toast.error("Đăng bài viết thất bại!");
     }
   };

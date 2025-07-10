@@ -269,8 +269,8 @@ const PersonalSchedule = ({ userId }) => {
 
   // Handle date change
   const handleDateChange = (date) => {
-    console.log("🔍 [DEBUG] DatePicker onChange triggered");
-    console.log("🔍 [DEBUG] Raw date from DatePicker:", date);
+    console.log(" [DEBUG] DatePicker onChange triggered");
+    console.log(" [DEBUG] Raw date from DatePicker:", date);
 
     // Keep dayjs object for internal state to avoid timezone conversion issues
     const selectedDayjs = date || dayjs();
@@ -454,26 +454,20 @@ const PersonalSchedule = ({ userId }) => {
         width: 200,
         render: (_, detail) => {
           // Debug: Log detail object and parent appointment
-          console.log("🔍 [PERSONAL_SCHEDULE] Detail object:", detail);
+          console.log(" [PERSONAL_SCHEDULE] Detail object:", detail);
           console.log(
-            "🔍 [PERSONAL_SCHEDULE] detail.customerId:",
+            " [PERSONAL_SCHEDULE] detail.customerId:",
             detail.customerId
           );
-          console.log(
-            "🔍 [PERSONAL_SCHEDULE] detail keys:",
-            Object.keys(detail)
-          );
+          console.log(" [PERSONAL_SCHEDULE] detail keys:", Object.keys(detail));
 
           // Check if customerId is in parent appointment
           const appointment = getCurrentTabData().find((apt) =>
             apt.appointmentDetails?.some((d) => d.id === detail.id)
           );
+          console.log(" [PERSONAL_SCHEDULE] Parent appointment:", appointment);
           console.log(
-            "🔍 [PERSONAL_SCHEDULE] Parent appointment:",
-            appointment
-          );
-          console.log(
-            "🔍 [PERSONAL_SCHEDULE] appointment.customerId:",
+            " [PERSONAL_SCHEDULE] appointment.customerId:",
             appointment?.customerId
           );
 
@@ -620,7 +614,7 @@ const PersonalSchedule = ({ userId }) => {
                     fontWeight: "bold",
                   }}
                 >
-                  ✅ Đã hoàn thành
+                  Đã hoàn thành
                 </div>
               )}
             </Space>
@@ -1080,7 +1074,7 @@ const PersonalSchedule = ({ userId }) => {
         visible={isResultModalVisible}
         appointmentDetail={selectedAppointmentDetail}
         onSuccess={async (result) => {
-          console.log("✅ Medical result submitted successfully:", result);
+          console.log(" Medical result submitted successfully:", result);
           toast.success("Đã lưu kết quả khám thành công!");
 
           try {
@@ -1094,12 +1088,12 @@ const PersonalSchedule = ({ userId }) => {
                 "COMPLETED"
               );
               console.log(
-                "✅ [STATUS] Appointment detail status updated to COMPLETED"
+                " [STATUS] Appointment detail status updated to COMPLETED"
               );
             }
           } catch (error) {
             console.error(
-              "❌ [STATUS] Error updating appointment detail status:",
+              " [STATUS] Error updating appointment detail status:",
               error
             );
             // Don't show error to user as medical result was saved successfully
@@ -1133,7 +1127,7 @@ const PersonalSchedule = ({ userId }) => {
 
           // Update cache for both tabs
           console.log(
-            "✅ [RELOAD] Finished reloading tabs after medical result submission"
+            " [RELOAD] Finished reloading tabs after medical result submission"
           );
         }}
         onClose={() => {
