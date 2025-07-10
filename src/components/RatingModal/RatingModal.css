@@ -1,0 +1,53 @@
+.rating-loading {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 150px;
+  color: #1890ff;
+  font-size: 14px;
+  gap: 10px;
+}
+
+.service-name {
+  margin-bottom: 20px;
+  font-size: 16px;
+}
+
+.required-label::before {
+  content: '* ';
+  color: #ff4d4f;
+}
+
+.ant-form-item-label>label {
+  font-weight: 500;
+}
+
+.ant-rate {
+  font-size: 24px;
+}
+
+.divider {
+  height: 1px;
+  background-color: #f0f0f0;
+  margin: 20px 0;
+}
+
+/* Tùy chỉnh nút trong modal */
+.ant-btn-primary {
+  background-color: #1890ff;
+}
+
+.ant-btn-primary:hover {
+  background-color: #40a9ff;
+}
+
+/* Tùy chỉnh textarea */
+.ant-input-textarea {
+  border-radius: 4px;
+}
+
+.ant-input-textarea:focus,
+.ant-input-textarea-focused {
+  border-color: #1890ff;
+  box-shadow: 0 0 0 2px rgba(24, 144, 255, 0.2);
+}

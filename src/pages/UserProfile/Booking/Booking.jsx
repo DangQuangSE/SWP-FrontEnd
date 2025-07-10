@@ -4,6 +4,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { message, Modal } from "antd";
 import api from "../../../configs/api";
+import RatingModal from "../../../components/RatingModal/RatingModal";
 import "./Booking.css";
 
 const TABS = [
@@ -43,6 +44,34 @@ const Booking = () => {
 
   // Track if payment success message has been shown
   const paymentMessageShown = useRef(false);
+
+  // Thêm state cho modal đánh giá
+  const [ratingModalVisible, setRatingModalVisible] = useState(false);
+  const [appointmentToRate, setAppointmentToRate] = useState(null);
+
+  // Thêm hàm xử lý hiển thị modal đánh giá
+  const handleRateService = (appointment) => {
+    setAppointmentToRate(appointment);
+    setRatingModalVisible(true);
+  };
+
+  // Thêm hàm callback khi đánh giá thành công
+  const handleRatingSuccess = async () => {
+    // Refresh appointment data
+    await fetchAppointments();
+
+    // Cập nhật trạng thái isRated cho appointmentToRate trong state
+    if (appointmentToRate && !appointmentToRate.isRated) {
+      setAppointments((prevAppointments) =>
+        prevAppointments.map((apt) =>
+          apt.id === appointmentToRate.id ? { ...apt, isRated: true } : apt
+        )
+      );
+    }
+
+    message.success("Cảm ơn bạn đã đánh giá!");
+    setRatingModalVisible(false);
+  };
 
   // Function to verify VNPay payment with backend
   const verifyVNPayPayment = useCallback(async (urlParams) => {
@@ -535,6 +564,14 @@ const Booking = () => {
           </div>
         )}
       </Modal>
+
+      {/* Thêm modal đánh giá */}
+      <RatingModal
+        visible={ratingModalVisible}
+        onClose={() => setRatingModalVisible(false)}
+        appointment={appointmentToRate}
+        onSuccess={handleRatingSuccess}
+      />
     </div>
   );
 };

@@ -4,11 +4,22 @@ import axios from "axios";
 import BookingForm from "../../Booking/BookingForm";
 import { Tabs } from "antd";
 import "./ServiceDetail.css";
-
+import api from "../../../../configs/api.js";
 const ServiceDetail = () => {
   const { id } = useParams();
   const [service, setService] = useState(null);
   const [loading, setLoading] = useState(true);
+  // Thêm state mới cho đánh giá
+  const [feedbacks, setFeedbacks] = useState([]);
+
+  // Component hiển thị đánh giá sao
+  const StarRating = ({ rating }) => {
+    const stars = [];
+    for (let i = 1; i <= 5; i++) {
+      stars.push(<span key={i} className={i <= rating ? 'star filled' : 'star'}>★</span>);
+    }
+    return <div className="star-rating">{stars}</div>;
+  };
 
   useEffect(() => {
     if (!id) return;
@@ -22,6 +33,16 @@ const ServiceDetail = () => {
       .catch((err) => {
         console.error("Lỗi khi lấy chi tiết dịch vụ:", err);
         setLoading(false);
+      });
+
+    // Thêm phần lấy đánh giá
+    api.get(`/feedback/service/${id}`)
+      .then((res) => {
+        console.log("Danh sách đánh giá:", res.data);
+        setFeedbacks(res.data);
+      })
+      .catch((err) => {
+        console.error("Lỗi khi lấy danh sách đánh giá:", err);
       });
   }, [id]);
 
@@ -74,12 +95,29 @@ const ServiceDetail = () => {
             </div>
           </Tabs.TabPane>
 
-          <Tabs.TabPane tab={`Đánh giá (${service.ratingCount || 0})`} key="2">
-            <div style={{ textAlign: "center", padding: "32px 0" }}>
-              <p style={{ color: "#888", marginTop: 12 }}>
-                Chưa có đánh giá nào
-              </p>
-            </div>
+          <Tabs.TabPane tab={`Đánh giá (${feedbacks.length || 0})`} key="2">
+            {feedbacks.length > 0 ? (
+              <div className="feedback-list">
+                {feedbacks.map((feedback) => (
+                  <div key={feedback.id} className="feedback-card">
+                    <div className="feedback-header">
+                      <h4 className="feedback-author">{feedback.userName || "Khách hàng"}</h4>
+                      <StarRating rating={feedback.rating} />
+                    </div>
+                    <p className="feedback-date">
+                      {new Date(feedback.createdAt).toLocaleDateString("vi-VN")}
+                    </p>
+                    <p className="feedback-comment">{feedback.comment}</p>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div style={{ textAlign: "center", padding: "32px 0" }}>
+                <p style={{ color: "#888", marginTop: 12 }}>
+                  Chưa có đánh giá nào
+                </p>
+              </div>
+            )}
           </Tabs.TabPane>
         </Tabs>
       </div>
