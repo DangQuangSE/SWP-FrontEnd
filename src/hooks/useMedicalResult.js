@@ -68,7 +68,7 @@ export const useMedicalResult = (options = {}) => {
         const response = await submitMedicalResult(apiData);
 
         console.log(
-          "✅ [HOOK] Medical result submitted successfully:",
+          " [HOOK] Medical result submitted successfully:",
           response.data
         );
 
@@ -88,7 +88,7 @@ export const useMedicalResult = (options = {}) => {
           data: response.data,
         };
       } catch (error) {
-        console.error("❌ [HOOK] Error submitting medical result:", error);
+        console.error(" [HOOK] Error submitting medical result:", error);
 
         const errorMessage =
           error.response?.data?.message ||

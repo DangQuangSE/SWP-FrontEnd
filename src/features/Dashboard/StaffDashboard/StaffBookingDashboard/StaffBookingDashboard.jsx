@@ -118,7 +118,7 @@ const StaffBookingDashboard = () => {
     try {
       console.log(" Checking appointment:", record.id);
 
-      await api.path(`/appointment/${record.id}/checkin`);
+      await api.patch(`/appointment/${record.id}/checkin`);
 
       message.success("Đã đánh dấu checked thành công!");
 

@@ -24,11 +24,13 @@ import {
   ExclamationCircleOutlined,
   CheckCircleOutlined,
   ClockCircleOutlined,
+  CloseCircleOutlined,
   EyeOutlined,
   DownloadOutlined,
   PrinterOutlined,
   HeartOutlined,
   ExperimentOutlined,
+  MedicineBoxOutlined,
   RadarChartOutlined,
   AlertOutlined,
   TrophyOutlined,
@@ -397,33 +399,40 @@ const MedicalResultViewer = ({ result, compact = false, onClose }) => {
                 setDetailModalVisible(true);
               }}
             >
-              Chi tiết
+              Xem chi tiết
             </Button>
           </Space>
         </div>
 
-        {(result.testResult || result.normalRange) && (
+        {labData && (
           <div className="result-compact-value">
             <Row gutter={16}>
               <Col span={12}>
                 <Statistic
                   title="Kết quả"
-                  value={result.testResult || "N/A"}
+                  value={labData.value}
+                  precision={2}
                   valueStyle={{
                     color: severity.color,
                     fontSize: "16px",
-                    fontWeight: "bold",
                   }}
                 />
               </Col>
               <Col span={12}>
                 <div className="result-range-indicator">
                   <Text type="secondary" style={{ fontSize: "12px" }}>
-                    Tham chiếu: {result.normalRange || "N/A"}
+                    Bình thường: {result.normalRange}
                   </Text>
-                  <div style={{ marginTop: 4 }}>
-                    <Badge status={severity.level} text={severity.label} />
-                  </div>
+                  {labData.percentage !== undefined && (
+                    <Progress
+                      percent={labData.percentage}
+                      size="small"
+                      status={
+                        labData.status === "normal" ? "success" : "exception"
+                      }
+                      showInfo={false}
+                    />
+                  )}
                 </div>
               </Col>
             </Row>
@@ -452,30 +461,32 @@ const MedicalResultViewer = ({ result, compact = false, onClose }) => {
                 {result.testName || result.serviceName}
               </Title>
               <Tag color={severity.level}>{severity.label}</Tag>
-              {result.createdAt && (
-                <Text type="secondary" style={{ fontSize: "12px" }}>
-                  {new Date(result.createdAt).toLocaleDateString("vi-VN")}
-                </Text>
-              )}
             </Space>
           </Col>
           <Col>
             <Space>
               <Button
-                icon={<PrinterOutlined />}
+                icon={<DownloadOutlined />}
                 size="small"
-                onClick={() => handlePrint(result)}
+                onClick={() => generatePDF(result)}
                 type="primary"
                 ghost
               >
-                In kết quả
+                Tải xuống
+              </Button>
+              <Button
+                icon={<PrinterOutlined />}
+                size="small"
+                onClick={() => handlePrint(result)}
+              >
+                In
               </Button>
               {onClose && (
                 <Button
                   icon={<CloseOutlined />}
                   size="small"
                   onClick={onClose}
-                  type="text"
+                  danger
                 >
                   Đóng
                 </Button>
@@ -488,111 +499,11 @@ const MedicalResultViewer = ({ result, compact = false, onClose }) => {
       <Divider />
 
       <Row gutter={24}>
-        <Col span={24}>
+        <Col span={16}>
           <div className="result-content">
-            {/* Thông tin bệnh nhân */}
-            {(result.customerName || result.appointmentId) && (
-              <Card size="small" style={{ marginBottom: 16 }}>
-                <Row gutter={16}>
-                  <Col span={12}>
-                    <Text strong>Bệnh nhân: </Text>
-                    <Text>{result.customerName || "N/A"}</Text>
-                  </Col>
-                  <Col span={12}>
-                    <Text strong>Mã phiếu khám: </Text>
-                    <Text>#{result.appointmentId || "N/A"}</Text>
-                  </Col>
-                </Row>
-              </Card>
-            )}
-
-            {/* Kết quả xét nghiệm */}
-            {(result.testResult || result.normalRange) && (
-              <Card
-                size="small"
-                title={
-                  <Space>
-                    <ExperimentOutlined />
-                    <span>Kết quả xét nghiệm</span>
-                  </Space>
-                }
-                className="lab-values-card"
-                style={{ marginBottom: 16 }}
-              >
-                <Row gutter={16}>
-                  <Col span={8}>
-                    <Statistic
-                      title="Kết quả đo được"
-                      value={result.testResult || "Chưa có"}
-                      valueStyle={{
-                        color: severity.color,
-                        fontSize: "20px",
-                        fontWeight: "bold",
-                      }}
-                    />
-                  </Col>
-                  <Col span={8}>
-                    <Statistic
-                      title="Giá trị tham chiếu"
-                      value={result.normalRange || "N/A"}
-                      valueStyle={{ fontSize: "16px", color: "#666" }}
-                    />
-                  </Col>
-                  <Col span={8}>
-                    <div className="result-status-indicator">
-                      <Text strong>Đánh giá</Text>
-                      <div style={{ marginTop: 8 }}>
-                        <Badge
-                          status={severity.level}
-                          text={
-                            <Text
-                              style={{
-                                color: severity.color,
-                                fontWeight: "bold",
-                              }}
-                            >
-                              {severity.label}
-                            </Text>
-                          }
-                        />
-                      </div>
-                    </div>
-                  </Col>
-                </Row>
-
-                {/* Thông tin phương pháp và mẫu xét nghiệm */}
-                {(result.testMethod || result.specimenType) && (
-                  <div
-                    style={{
-                      marginTop: 16,
-                      padding: 12,
-                      backgroundColor: "#f8f9fa",
-                      borderRadius: 6,
-                    }}
-                  >
-                    <Row gutter={16}>
-                      {result.testMethod && (
-                        <Col span={12}>
-                          <Text type="secondary">Phương pháp: </Text>
-                          <Text>{result.testMethod}</Text>
-                        </Col>
-                      )}
-                      {result.specimenType && (
-                        <Col span={12}>
-                          <Text type="secondary">Loại mẫu: </Text>
-                          <Text>{result.specimenType}</Text>
-                        </Col>
-                      )}
-                    </Row>
-                  </div>
-                )}
-              </Card>
-            )}
-
-            {/* Chẩn đoán */}
             {result.diagnosis && (
               <Alert
-                message="Chẩn đoán của bác sĩ"
+                message="Chẩn đoán"
                 description={result.diagnosis}
                 type={severity.level}
                 showIcon
@@ -600,68 +511,92 @@ const MedicalResultViewer = ({ result, compact = false, onClose }) => {
               />
             )}
 
-            {/* Kế hoạch điều trị */}
-            {result.treatmentPlan && (
+            {labData && (
               <Card
                 size="small"
-                title={
-                  <Space>
-                    <HeartOutlined />
-                    <span>Kế hoạch điều trị</span>
-                  </Space>
-                }
-                style={{ marginBottom: 16 }}
+                title="Chỉ số xét nghiệm"
+                className="lab-values-card"
               >
-                <Paragraph style={{ margin: 0 }}>
-                  {result.treatmentPlan}
-                </Paragraph>
+                <Row gutter={16}>
+                  <Col span={8}>
+                    <Statistic
+                      title="Kết quả"
+                      value={labData.value}
+                      precision={2}
+                      valueStyle={{ color: severity.color, fontSize: "24px" }}
+                    />
+                  </Col>
+                  <Col span={8}>
+                    <Statistic
+                      title="Giá trị bình thường"
+                      value={result.normalRange}
+                      valueStyle={{ fontSize: "16px" }}
+                    />
+                  </Col>
+                  <Col span={8}>
+                    <div className="result-status-indicator">
+                      <Text>Trạng thái</Text>
+                      <div style={{ marginTop: 8 }}>
+                        <Badge status={severity.level} text={severity.label} />
+                      </div>
+                    </div>
+                  </Col>
+                </Row>
+
+                {labData.percentage !== undefined && (
+                  <div style={{ marginTop: 16 }}>
+                    <Text type="secondary">
+                      Vị trí trong khoảng bình thường:
+                    </Text>
+                    <Progress
+                      percent={labData.percentage}
+                      status={
+                        labData.status === "normal" ? "success" : "exception"
+                      }
+                      strokeColor={severity.color}
+                    />
+                  </div>
+                )}
               </Card>
             )}
 
-            {/* Thông tin bổ sung */}
-            <Card size="small" title="Thông tin chi tiết">
-              <Descriptions column={1} size="small">
-                <Descriptions.Item label="Loại kết quả">
-                  {result.resultType === "LAB_TEST" ? "Xét nghiệm" : "Tư vấn"}
-                </Descriptions.Item>
-                {result.sampleCollectedAt && (
-                  <Descriptions.Item label="Thời gian lấy mẫu">
-                    {new Date(result.sampleCollectedAt).toLocaleString("vi-VN")}
-                  </Descriptions.Item>
-                )}
-                <Descriptions.Item label="Ngày có kết quả">
-                  {result.createdAt
-                    ? new Date(result.createdAt).toLocaleDateString("vi-VN")
-                    : "N/A"}
-                </Descriptions.Item>
-                {result.doctorName && (
-                  <Descriptions.Item label="Bác sĩ thực hiện">
-                    {result.doctorName}
-                  </Descriptions.Item>
-                )}
-              </Descriptions>
-
-              {result.labNotes && (
-                <div
-                  style={{
-                    marginTop: 16,
-                    padding: 12,
-                    backgroundColor: "#f0f8ff",
-                    borderRadius: 6,
-                  }}
-                >
-                  <Text strong style={{ color: "#1890ff" }}>
-                    Ghi chú từ phòng lab:
-                  </Text>
-                  <Paragraph
-                    style={{ marginTop: 8, marginBottom: 0, fontSize: "13px" }}
-                  >
-                    {result.labNotes}
-                  </Paragraph>
-                </div>
-              )}
-            </Card>
+            {result.treatmentPlan && (
+              <Card
+                size="small"
+                title="Kế hoạch điều trị"
+                style={{ marginTop: 16 }}
+              >
+                <Paragraph>{result.treatmentPlan}</Paragraph>
+              </Card>
+            )}
           </div>
+        </Col>
+
+        <Col span={8}>
+          <Card size="small" title="Thông tin bổ sung">
+            <Descriptions column={1} size="small">
+              <Descriptions.Item label="Loại xét nghiệm">
+                {getTestTypeDisplay(result.resultType)}
+              </Descriptions.Item>
+              <Descriptions.Item label="Ngày thực hiện">
+                {result.createdAt
+                  ? new Date(result.createdAt).toLocaleDateString("vi-VN")
+                  : "N/A"}
+              </Descriptions.Item>
+              <Descriptions.Item label="Bác sĩ thực hiện">
+                {result.doctorName || "N/A"}
+              </Descriptions.Item>
+            </Descriptions>
+
+            {result.labNotes && (
+              <div style={{ marginTop: 16 }}>
+                <Text strong>Ghi chú từ phòng lab:</Text>
+                <Paragraph style={{ marginTop: 8, fontSize: "12px" }}>
+                  {result.labNotes}
+                </Paragraph>
+              </div>
+            )}
+          </Card>
         </Col>
       </Row>
     </Card>
@@ -697,34 +632,579 @@ const getTestTypeDisplay = (type) => {
   );
 };
 
+// Professional Medical Result Display Component
+const ProfessionalResultDisplay = ({ result }) => {
+  const getSeverityInfo = (testStatus) => {
+    switch (testStatus) {
+      case "NORMAL":
+        return {
+          color: "#52c41a",
+          bgColor: "#f6ffed",
+          borderColor: "#b7eb8f",
+          icon: <CheckCircleOutlined />,
+          label: "Bình thường",
+          description: "Kết quả trong giới hạn bình thường",
+        };
+      case "ABNORMAL":
+        return {
+          color: "#fa8c16",
+          bgColor: "#fff7e6",
+          borderColor: "#ffd591",
+          icon: <ExclamationCircleOutlined />,
+          label: "Bất thường",
+          description: "Kết quả nằm ngoài giới hạn bình thường",
+        };
+      case "CRITICAL":
+        return {
+          color: "#ff4d4f",
+          bgColor: "#fff2f0",
+          borderColor: "#ffadd2",
+          icon: <CloseCircleOutlined />,
+          label: "Nguy hiểm",
+          description: "Kết quả cần được xử lý khẩn cấp",
+        };
+      default:
+        return {
+          color: "#1890ff",
+          bgColor: "#f0f5ff",
+          borderColor: "#adc6ff",
+          icon: <ClockCircleOutlined />,
+          label: "Đang xử lý",
+          description: "Kết quả đang được xử lý",
+        };
+    }
+  };
+
+  const severity = getSeverityInfo(result.testStatus);
+
+  return (
+    <div
+      style={{
+        fontFamily:
+          "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
+        lineHeight: 1.6,
+      }}
+    >
+      {/* Header Section */}
+      <div
+        style={{
+          background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+          color: "white",
+          padding: "24px",
+          borderRadius: "12px",
+          marginBottom: "24px",
+          position: "relative",
+          overflow: "hidden",
+        }}
+      >
+        <div
+          style={{
+            position: "absolute",
+            top: 0,
+            right: 0,
+            width: "200px",
+            height: "200px",
+            background: "rgba(255,255,255,0.1)",
+            borderRadius: "50%",
+            transform: "translate(50%, -50%)",
+          }}
+        />
+
+        <Row gutter={24} align="middle">
+          <Col span={16}>
+            <div
+              style={{
+                fontSize: "24px",
+                fontWeight: "700",
+                marginBottom: "8px",
+              }}
+            >
+              {result.testName || result.serviceName}
+            </div>
+            <div style={{ fontSize: "14px", opacity: 0.9 }}>
+              Mã xét nghiệm: <strong>{result.id || "N/A"}</strong> • Ngày thực
+              hiện:{" "}
+              <strong>
+                {new Date(result.createdAt || Date.now()).toLocaleDateString(
+                  "vi-VN"
+                )}
+              </strong>
+            </div>
+          </Col>
+          <Col span={8} style={{ textAlign: "right" }}>
+            <div
+              style={{
+                background: severity.color,
+                color: "white",
+                padding: "12px 20px",
+                borderRadius: "25px",
+                fontSize: "16px",
+                fontWeight: "600",
+                display: "inline-flex",
+                alignItems: "center",
+                gap: "8px",
+              }}
+            >
+              {severity.icon}
+              {severity.label}
+            </div>
+          </Col>
+        </Row>
+      </div>
+
+      {/* Main Content */}
+      <Row gutter={24}>
+        {/* Left Column - Test Results */}
+        <Col span={14}>
+          {/* Test Result Card */}
+          <Card
+            style={{
+              marginBottom: "20px",
+              borderRadius: "12px",
+              boxShadow: "0 2px 8px rgba(0,0,0,0.06)",
+            }}
+            styles={{ body: { padding: "24px" } }}
+          >
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                marginBottom: "20px",
+                paddingBottom: "16px",
+                borderBottom: "2px solid #f0f0f0",
+              }}
+            >
+              <div
+                style={{
+                  width: "48px",
+                  height: "48px",
+                  borderRadius: "12px",
+                  background: severity.bgColor,
+                  border: `2px solid ${severity.borderColor}`,
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  fontSize: "20px",
+                  color: severity.color,
+                  marginRight: "16px",
+                }}
+              >
+                <ExperimentOutlined />
+              </div>
+              <div>
+                <div
+                  style={{
+                    fontSize: "18px",
+                    fontWeight: "600",
+                    color: "#1a1a1a",
+                  }}
+                >
+                  Kết quả xét nghiệm
+                </div>
+                <div style={{ fontSize: "14px", color: "#666" }}>
+                  {severity.description}
+                </div>
+              </div>
+            </div>
+
+            <div
+              style={{
+                background: severity.bgColor,
+                border: `1px solid ${severity.borderColor}`,
+                borderRadius: "8px",
+                padding: "20px",
+                textAlign: "center",
+                marginBottom: "20px",
+              }}
+            >
+              <div
+                style={{
+                  fontSize: "32px",
+                  fontWeight: "700",
+                  color: severity.color,
+                  marginBottom: "8px",
+                }}
+              >
+                {result.testResult || "N/A"}
+              </div>
+              <div style={{ fontSize: "14px", color: "#666" }}>
+                Giá trị bình thường:{" "}
+                <strong>{result.normalRange || "N/A"}</strong>
+              </div>
+            </div>
+
+            {/* Technical Details */}
+            <Row gutter={16}>
+              <Col span={12}>
+                <div
+                  style={{
+                    background: "#fafafa",
+                    padding: "16px",
+                    borderRadius: "8px",
+                    border: "1px solid #f0f0f0",
+                  }}
+                >
+                  <div
+                    style={{
+                      fontSize: "12px",
+                      color: "#666",
+                      marginBottom: "4px",
+                    }}
+                  >
+                    PHƯƠNG PHÁP
+                  </div>
+                  <div style={{ fontSize: "14px", fontWeight: "500" }}>
+                    {result.testMethod || "N/A"}
+                  </div>
+                </div>
+              </Col>
+              <Col span={12}>
+                <div
+                  style={{
+                    background: "#fafafa",
+                    padding: "16px",
+                    borderRadius: "8px",
+                    border: "1px solid #f0f0f0",
+                  }}
+                >
+                  <div
+                    style={{
+                      fontSize: "12px",
+                      color: "#666",
+                      marginBottom: "4px",
+                    }}
+                  >
+                    MẪU XÉT NGHIỆM
+                  </div>
+                  <div style={{ fontSize: "14px", fontWeight: "500" }}>
+                    {result.specimenType || "N/A"}
+                  </div>
+                </div>
+              </Col>
+            </Row>
+          </Card>
+
+          {/* Clinical Information */}
+          {(result.diagnosis || result.treatmentPlan) && (
+            <Card
+              style={{
+                borderRadius: "12px",
+                boxShadow: "0 2px 8px rgba(0,0,0,0.06)",
+              }}
+              styles={{ body: { padding: "24px" } }}
+            >
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  marginBottom: "20px",
+                  paddingBottom: "16px",
+                  borderBottom: "2px solid #f0f0f0",
+                }}
+              >
+                <div
+                  style={{
+                    width: "48px",
+                    height: "48px",
+                    borderRadius: "12px",
+                    background: "#e6f7ff",
+                    border: "2px solid #91d5ff",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    fontSize: "20px",
+                    color: "#1890ff",
+                    marginRight: "16px",
+                  }}
+                >
+                  <MedicineBoxOutlined />
+                </div>
+                <div>
+                  <div
+                    style={{
+                      fontSize: "18px",
+                      fontWeight: "600",
+                      color: "#1a1a1a",
+                    }}
+                  >
+                    Thông tin lâm sàng
+                  </div>
+                  <div style={{ fontSize: "14px", color: "#666" }}>
+                    Chẩn đoán và kế hoạch điều trị
+                  </div>
+                </div>
+              </div>
+
+              {result.diagnosis && (
+                <div style={{ marginBottom: "20px" }}>
+                  <div
+                    style={{
+                      fontSize: "14px",
+                      fontWeight: "600",
+                      color: "#1a1a1a",
+                      marginBottom: "8px",
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "8px",
+                    }}
+                  >
+                    <CheckCircleOutlined style={{ color: "#52c41a" }} />
+                    Chẩn đoán
+                  </div>
+                  <div
+                    style={{
+                      background: "#f6ffed",
+                      border: "1px solid #b7eb8f",
+                      borderRadius: "8px",
+                      padding: "16px",
+                      fontSize: "14px",
+                      lineHeight: 1.6,
+                    }}
+                  >
+                    {result.diagnosis}
+                  </div>
+                </div>
+              )}
+
+              {result.treatmentPlan && (
+                <div>
+                  <div
+                    style={{
+                      fontSize: "14px",
+                      fontWeight: "600",
+                      color: "#1a1a1a",
+                      marginBottom: "8px",
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "8px",
+                    }}
+                  >
+                    <MedicineBoxOutlined style={{ color: "#1890ff" }} />
+                    Kế hoạch điều trị
+                  </div>
+                  <div
+                    style={{
+                      background: "#f0f5ff",
+                      border: "1px solid #adc6ff",
+                      borderRadius: "8px",
+                      padding: "16px",
+                      fontSize: "14px",
+                      lineHeight: 1.6,
+                    }}
+                  >
+                    {result.treatmentPlan}
+                  </div>
+                </div>
+              )}
+            </Card>
+          )}
+        </Col>
+
+        {/* Right Column - Additional Info */}
+        <Col span={10}>
+          {/* Patient Info */}
+          <Card
+            style={{
+              marginBottom: "20px",
+              borderRadius: "12px",
+              boxShadow: "0 2px 8px rgba(0,0,0,0.06)",
+            }}
+            styles={{ body: { padding: "20px" } }}
+          >
+            <div
+              style={{
+                fontSize: "16px",
+                fontWeight: "600",
+                marginBottom: "16px",
+                color: "#1a1a1a",
+              }}
+            >
+              Thông tin bổ sung
+            </div>
+
+            <div style={{ marginBottom: "16px" }}>
+              <div
+                style={{ fontSize: "12px", color: "#666", marginBottom: "4px" }}
+              >
+                LOẠI XÉT NGHIỆM
+              </div>
+              <Tag color="blue" style={{ fontSize: "12px" }}>
+                {result.resultType === "LAB_TEST" ? "Xét nghiệm" : "Tư vấn"}
+              </Tag>
+            </div>
+
+            <div style={{ marginBottom: "16px" }}>
+              <div
+                style={{ fontSize: "12px", color: "#666", marginBottom: "4px" }}
+              >
+                NGÀY THỰC HIỆN
+              </div>
+              <div style={{ fontSize: "14px", fontWeight: "500" }}>
+                {new Date(result.createdAt || Date.now()).toLocaleDateString(
+                  "vi-VN"
+                )}
+              </div>
+            </div>
+
+            <div style={{ marginBottom: "16px" }}>
+              <div
+                style={{ fontSize: "12px", color: "#666", marginBottom: "4px" }}
+              >
+                BÁC SĨ THỰC HIỆN
+              </div>
+              <div style={{ fontSize: "14px", fontWeight: "500" }}>
+                {result.doctorName || "N/A"}
+              </div>
+            </div>
+
+            {result.sampleCollectedAt && (
+              <div style={{ marginBottom: "16px" }}>
+                <div
+                  style={{
+                    fontSize: "12px",
+                    color: "#666",
+                    marginBottom: "4px",
+                  }}
+                >
+                  THỜI GIAN LẤY MẪU
+                </div>
+                <div style={{ fontSize: "14px", fontWeight: "500" }}>
+                  {new Date(result.sampleCollectedAt).toLocaleString("vi-VN")}
+                </div>
+              </div>
+            )}
+          </Card>
+
+          {/* Lab Notes */}
+          {result.labNotes && (
+            <Card
+              style={{
+                borderRadius: "12px",
+                boxShadow: "0 2px 8px rgba(0,0,0,0.06)",
+              }}
+              styles={{ body: { padding: "20px" } }}
+            >
+              <div
+                style={{
+                  fontSize: "16px",
+                  fontWeight: "600",
+                  marginBottom: "16px",
+                  color: "#1a1a1a",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "8px",
+                }}
+              >
+                <FileTextOutlined style={{ color: "#1890ff" }} />
+                Ghi chú từ phòng lab
+              </div>
+              <div
+                style={{
+                  background: "#fafafa",
+                  border: "1px solid #f0f0f0",
+                  borderRadius: "8px",
+                  padding: "16px",
+                  fontSize: "14px",
+                  lineHeight: 1.6,
+                  color: "#666",
+                }}
+              >
+                {result.labNotes}
+              </div>
+            </Card>
+          )}
+        </Col>
+      </Row>
+    </div>
+  );
+};
+
 const DetailModal = ({ visible, onClose, result, severity, labData }) => (
   <Modal
     title={
-      <Space>
-        {severity.icon}
-        <span>Chi tiết kết quả: {result.testName || result.serviceName}</span>
-      </Space>
+      <div
+        style={{
+          display: "flex",
+          alignItems: "center",
+          gap: "12px",
+          padding: "8px 0",
+        }}
+      >
+        <div
+          style={{
+            width: "40px",
+            height: "40px",
+            borderRadius: "50%",
+            backgroundColor: severity.color + "20",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            fontSize: "18px",
+            color: severity.color,
+          }}
+        >
+          {severity.icon}
+        </div>
+        <div>
+          <div
+            style={{
+              fontSize: "18px",
+              fontWeight: "600",
+              color: "#1a1a1a",
+              marginBottom: "2px",
+            }}
+          >
+            Chi tiết kết quả: {result.testName || result.serviceName}
+          </div>
+          <div
+            style={{
+              fontSize: "12px",
+              color: "#666",
+              fontWeight: "normal",
+            }}
+          >
+            Mã xét nghiệm: {result.id || "N/A"} •{" "}
+            {new Date(result.createdAt || Date.now()).toLocaleDateString(
+              "vi-VN"
+            )}
+          </div>
+        </div>
+      </div>
     }
     open={visible}
     onCancel={onClose}
     footer={[
       <Button
+        key="download"
+        icon={<DownloadOutlined />}
+        type="primary"
+        onClick={() => generatePDF(result)}
+        style={{ borderRadius: "6px" }}
+      >
+        Tải xuống PDF
+      </Button>,
+      <Button
         key="print"
         icon={<PrinterOutlined />}
-        type="primary"
         onClick={() => handlePrint(result)}
+        style={{ borderRadius: "6px" }}
       >
-        In kết quả
+        In
       </Button>,
-      <Button key="close" onClick={onClose} type="default">
+      <Button
+        key="close"
+        onClick={onClose}
+        icon={<CloseOutlined />}
+        style={{ borderRadius: "6px" }}
+      >
         Đóng
       </Button>,
     ]}
-    width={900}
+    width={1000}
     style={{ top: 20 }}
-    destroyOnClose
+    styles={{ body: { padding: "24px" } }}
   >
-    <MedicalResultViewer result={result} compact={false} />
+    <ProfessionalResultDisplay result={result} />
   </Modal>
 );
 

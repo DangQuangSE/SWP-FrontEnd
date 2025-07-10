@@ -1,4 +1,5 @@
 import api, { upload } from "../configs/api";
+import dayjs from "dayjs";
 
 export const fetchBlogs = (page = 0, size = 10) => {
   // Try different parameters to get all blogs including drafts
@@ -40,13 +41,11 @@ export const uploadImage = (file) => {
 };
 
 export const fetchConsultantSchedule = (userId) => {
-  const today = new Date().toISOString().slice(0, 10);
-  const oneMonthLater = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000)
-    .toISOString()
-    .slice(0, 10);
-  // Ví dụ truyền thêm from/to
+  const today = dayjs().format("YYYY-MM-DD");
+  const oneMonthLater = dayjs().add(30, "day").format("YYYY-MM-DD");
+  // Use dynamic date range instead of hardcoded dates
   return api.get(
-    `/schedules/view?consultant_id=${userId}&from=2025-06-01&to=2025-07-30`
+    `/schedules/view?consultant_id=${userId}&from=${today}&to=${oneMonthLater}`
   );
 };
 
@@ -219,17 +218,17 @@ export const fetchAvailableSlots = (serviceId, from, to) => {
 };
 
 // Get my schedule (for current logged-in consultant)
-export const getMySchedule = (from, to) => {
+export const getMySchedule = (date, status) => {
   const params = new URLSearchParams();
-  if (from) params.append("from", from);
-  if (to) params.append("to", to);
+  if (date) params.append("date", date);
+  if (status) params.append("status", status);
 
-  return api.get(`/schedules/my-schedule?${params.toString()}`);
+  return api.get(`/appointment/my-schedule?${params.toString()}`);
 };
 
 // Update appointment detail status
 export const updateAppointmentDetailStatus = (appointmentDetailId, status) => {
-  return api.put(`/appointment-details/${appointmentDetailId}/status`, {
-    status: status,
-  });
+  return api.patch(
+    `/appointment/detail/${appointmentDetailId}/status?status=${status}`
+  );
 };

@@ -40,6 +40,7 @@ import Noti from "./features/NotificationCenter/Noti";
 import BookingConfirmation from "./features/Services/Booking/BookingConfirmation";
 import Payment from "./features/Services/Payment/Payment";
 import ProtectedRoute from "./components/ProtectedRoute";
+import CustomerChatWidget from "./features/Chat/CustomerChatWidget";
 
 function App() {
   const [rehydrated, setRehydrated] = useState(false);
@@ -114,6 +115,8 @@ function App() {
                 }
               /> 
               <Route path="/admin" element={<Admin />} />
+              <Route path="/staff" element={<Staff />} />
+              <Route path="/consultant" element={<Consultant />} />
               <Route path="/settings" element={<Settings />} />
               <Route path="/user" element={<UserProfile />}>
                 <Route index element={<Profile />} />
@@ -134,6 +137,9 @@ function App() {
             </Routes>
           </main>
           <Footer />
+
+          {/* Customer Chat Widget - Always visible */}
+          <CustomerChatWidget />
         </div>
       </PersistGate>
     </Provider>

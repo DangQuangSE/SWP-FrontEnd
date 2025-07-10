@@ -163,7 +163,7 @@ const MedicalResultForm = ({
       if (form && form.setFieldsValue) {
         try {
           form.setFieldsValue(formValues);
-          console.log("✅ Form values set successfully");
+          console.log(" Form values set successfully");
         } catch (setFieldsError) {
           console.warn("Error setting form fields:", setFieldsError);
           // Try setting fields individually if batch setting fails
@@ -203,16 +203,16 @@ const MedicalResultForm = ({
       // Validate form first to prevent useFieldsInvalidate errors
       try {
         await form.validateFields();
-        console.log("✅ Form validation passed");
+        console.log(" Form validation passed");
       } catch (validationError) {
-        console.warn("❌ Form validation failed:", validationError);
+        console.warn(" Form validation failed:", validationError);
         // Let Ant Design handle the validation display
         return;
       }
 
       // Validate and normalize form data
       const normalizedValues = validateFormData(values);
-      console.log("✅ Normalized values:", normalizedValues);
+      console.log(" Normalized values:", normalizedValues);
 
       // Create request matching backend ResultRequest structure
       const submitData = {
@@ -691,18 +691,7 @@ const MedicalResultForm = ({
         {/* Action Buttons */}
         <Row justify="end" gutter={16}>
           <Col>
-            <Button
-              onClick={() => {
-                console.log("🔄 Cancel button clicked in form");
-                if (onCancel) {
-                  console.log("🔄 Calling onCancel function");
-                  onCancel();
-                } else {
-                  console.warn("⚠️ onCancel function not provided");
-                }
-              }}
-              size="large"
-            >
+            <Button onClick={onCancel} size="large">
               Hủy
             </Button>
           </Col>
