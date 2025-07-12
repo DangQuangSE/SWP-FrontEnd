@@ -41,6 +41,7 @@ import BookingConfirmation from "./features/Services/Booking/BookingConfirmation
 import Payment from "./features/Services/Payment/Payment";
 import ProtectedRoute from "./components/ProtectedRoute";
 import CustomerChatWidget from "./features/Chat/CustomerChatWidget";
+import RatingNotification from "./components/RatingNotification/RatingNotification";
 
 function App() {
   const [rehydrated, setRehydrated] = useState(false);
@@ -138,8 +139,11 @@ function App() {
           </main>
           <Footer />
 
-          {/* Customer Chat Widget - Always visible */}
+          {/* Customer Chat Widget */}
           <CustomerChatWidget />
+
+          {/* Rating Notification */}
+          <RatingNotification />
         </div>
       </PersistGate>
     </Provider>
