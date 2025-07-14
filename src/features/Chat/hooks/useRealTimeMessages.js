@@ -128,7 +128,7 @@ export const useRealTimeMessages = (
                 messageIdsRef.current.add(msg.clientId);
               }
             } else {
-              console.log("🔄 [REAL-TIME] Skipping duplicate message:", {
+              console.log(" [REAL-TIME] Skipping duplicate message:", {
                 instanceId: instanceId.current,
                 id: msg.id,
                 clientId: msg.clientId,
@@ -282,7 +282,7 @@ export const useRealTimeMessages = (
     };
 
     pollingIntervalRef.current = setInterval(poll, getPollingInterval());
-    console.log(`🔄 [REAL-TIME] Polling started for session: ${sessionId}`);
+    console.log(` [REAL-TIME] Polling started for session: ${sessionId}`);
   }, [sessionId, isActive, fetchMessages]);
 
   const stopPolling = useCallback(() => {

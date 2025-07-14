@@ -239,7 +239,7 @@ const BlogManagement = ({ userId, selectedTab }) => {
   // Admin actions for blog approval
   const handleApproveBlog = async (id) => {
     try {
-      console.log("🔄 Đang duyệt blog ID:", id);
+      console.log(" Đang duyệt blog ID:", id);
       const blogBefore = blogs.find((b) => b.id === id);
       console.log("📋 Blog trước khi duyệt:", blogBefore);
 
@@ -962,7 +962,7 @@ const BlogManagement = ({ userId, selectedTab }) => {
             type="default"
             icon={<ReloadOutlined />}
             onClick={() => {
-              console.log("🔄 Manual refresh triggered");
+              console.log(" Manual refresh triggered");
               loadBlogs();
             }}
             style={{ marginRight: 8 }}

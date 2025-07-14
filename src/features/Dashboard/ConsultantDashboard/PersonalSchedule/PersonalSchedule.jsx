@@ -1074,7 +1074,7 @@ const PersonalSchedule = ({ userId }) => {
             // Update appointment detail status to COMPLETED after submitting medical result
             if (selectedAppointmentDetail?.id) {
               console.log(
-                "🔄 [STATUS] Updating appointment detail status to COMPLETED"
+                " [STATUS] Updating appointment detail status to COMPLETED"
               );
               await updateAppointmentDetailStatus(
                 selectedAppointmentDetail.id,
@@ -1108,14 +1108,14 @@ const PersonalSchedule = ({ userId }) => {
           const currentStatus = statusMap[activeTab] || "CHECKED";
 
           console.log(
-            "🔄 [RELOAD] Reloading tabs after medical result submission"
+            " [RELOAD] Reloading tabs after medical result submission"
           );
 
           // Refetch current tab data (WAITING_RESULT)
           loadAppointmentsByStatus(date, currentStatus, false);
 
           // Also reload COMPLETED tab since the appointment is now completed
-          console.log("🔄 [RELOAD] Also reloading COMPLETED tab");
+          console.log(" [RELOAD] Also reloading COMPLETED tab");
           loadAppointmentsByStatus(date, "COMPLETED", false);
 
           // Update cache for both tabs

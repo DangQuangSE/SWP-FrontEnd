@@ -134,7 +134,7 @@ export const useMedicalResultModal = () => {
 
   const openModal = (detail) => {
     try {
-      console.log("🔄 Opening medical result modal for:", detail);
+      console.log(" Opening medical result modal for:", detail);
       setAppointmentDetail(detail);
       setVisible(true);
     } catch (error) {
@@ -144,7 +144,7 @@ export const useMedicalResultModal = () => {
 
   const closeModal = () => {
     try {
-      console.log("🔄 Closing medical result modal");
+      console.log(" Closing medical result modal");
       setVisible(false);
       setAppointmentDetail(null);
     } catch (error) {

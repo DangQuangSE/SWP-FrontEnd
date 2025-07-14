@@ -146,12 +146,12 @@ const StaffChatInterface = ({ defaultTab = "waiting", hideTabs = false }) => {
       let sessionsData;
       if (tabKey === "waiting") {
         // Always fetch fresh data when clicking tab
-        console.log("🔄 [STAFF CHAT] Fetching fresh WAITING sessions");
+        console.log(" [STAFF CHAT] Fetching fresh WAITING sessions");
         sessionsData = await fetchChatSessionsByStatus("WAITING");
         setWaitingSessions(sessionsData);
       } else if (tabKey === "active") {
         // Always fetch fresh data when clicking tab
-        console.log("🔄 [STAFF CHAT] Fetching fresh ACTIVE sessions");
+        console.log(" [STAFF CHAT] Fetching fresh ACTIVE sessions");
         sessionsData = await fetchChatSessionsByStatus("ACTIVE");
         setActiveSessions(sessionsData);
       }
@@ -237,7 +237,7 @@ const StaffChatInterface = ({ defaultTab = "waiting", hideTabs = false }) => {
 
   // Handle tab change - call API only when user clicks tab
   const handleTabChange = (key) => {
-    console.log("🔄 [STAFF CHAT] Tab changed to:", key);
+    console.log(" [STAFF CHAT] Tab changed to:", key);
     console.log("🎯 [STAFF CHAT] handleTabChange function is being called!");
     setActiveTab(key);
     setSelectedSession(null); // Clear selection when switching tabs
@@ -487,7 +487,7 @@ const StaffChatInterface = ({ defaultTab = "waiting", hideTabs = false }) => {
         }, 500);
       } else {
         // Normal session selection - clear messages first
-        console.log("🔄 [STAFF CHAT] Switching to session:", session.sessionId);
+        console.log(" [STAFF CHAT] Switching to session:", session.sessionId);
 
         // Clear previous messages immediately
         clearMessages();
@@ -681,7 +681,7 @@ const StaffChatInterface = ({ defaultTab = "waiting", hideTabs = false }) => {
                 type="text"
                 icon={<ReloadOutlined />}
                 onClick={() => {
-                  console.log("🔄 [STAFF CHAT] Refresh button clicked");
+                  console.log(" [STAFF CHAT] Refresh button clicked");
                   // Clear cache and reload all sessions
                   setWaitingSessions([]);
                   setActiveSessions([]);

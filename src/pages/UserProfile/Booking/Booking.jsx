@@ -49,6 +49,10 @@ const Booking = () => {
   const [ratingModalVisible, setRatingModalVisible] = useState(false);
   const [appointmentToRate, setAppointmentToRate] = useState(null);
 
+  // State cho modal hiển thị kết quả khám
+  const [resultModalVisible, setResultModalVisible] = useState(false);
+  const [selectedResult, setSelectedResult] = useState(null);
+
   // Thêm hàm xử lý hiển thị modal đánh giá
   const handleRateService = (appointment) => {
     setAppointmentToRate(appointment);
@@ -71,6 +75,33 @@ const Booking = () => {
 
     message.success("Cảm ơn bạn đã đánh giá!");
     setRatingModalVisible(false);
+  };
+
+  // Hàm xử lý hiển thị kết quả khám
+  const handleViewResult = (appointment) => {
+    console.log(
+      "📋 [BOOKING] Viewing medical result for appointment:",
+      appointment.id
+    );
+    console.log("📋 [BOOKING] Full appointment data:", appointment);
+
+    // Lấy customerMedicalProfile trực tiếp từ appointment (theo API response)
+    const medicalProfile = appointment.customerMedicalProfile;
+
+    console.log("📋 [BOOKING] customerMedicalProfile:", medicalProfile);
+
+    if (medicalProfile && Object.keys(medicalProfile).length > 0) {
+      setSelectedResult({
+        appointment: appointment,
+        medicalProfile: medicalProfile,
+      });
+      setResultModalVisible(true);
+    } else {
+      console.log(
+        "❌ [BOOKING] No medicalProfile found in appointment structure"
+      );
+      message.warning("Chưa có kết quả khám cho lịch hẹn này!");
+    }
   };
 
   // Function to verify VNPay payment with backend
@@ -407,6 +438,17 @@ const Booking = () => {
                   );
                 }
               })()}
+
+            {/* Nút Kết quả cho appointments đã hoàn thành */}
+            {appointment.status === "COMPLETED" && (
+              <button
+                className="result-button-profile"
+                onClick={() => handleViewResult(appointment)}
+                title="Xem kết quả khám bệnh"
+              >
+                Kết quả
+              </button>
+            )}
           </div>
         </div>
       </div>
@@ -591,6 +633,160 @@ const Booking = () => {
                   )}
                 </div>
               )}
+          </div>
+        )}
+      </Modal>
+
+      {/* Modal hiển thị kết quả khám */}
+      <Modal
+        title="Kết quả khám bệnh"
+        open={resultModalVisible}
+        onCancel={() => setResultModalVisible(false)}
+        footer={null}
+        width={800}
+        className="medical-result-modal"
+      >
+        {selectedResult && (
+          <div className="medical-result-content">
+            <div className="result-header">
+              <h3>Thông tin lịch hẹn</h3>
+              <div className="appointment-info">
+                <p>
+                  <strong>Ngày khám:</strong>{" "}
+                  {selectedResult.appointment.preferredDate}
+                </p>
+                <p>
+                  <strong>Dịch vụ:</strong>{" "}
+                  {selectedResult.appointment.serviceName}
+                </p>
+                <p>
+                  <strong>Bác sĩ:</strong>{" "}
+                  {selectedResult.appointment.appointmentDetails?.[0]
+                    ?.consultantName || "Không có"}
+                </p>
+              </div>
+            </div>
+
+            {/* Hiển thị kết quả khám nếu có */}
+            {selectedResult.appointment.appointmentDetails?.[0]
+              ?.medicalResult && (
+              <div className="result-body">
+                <h3>Kết quả khám bệnh</h3>
+                <div className="medical-profile-details">
+                  {(() => {
+                    const medicalResult =
+                      selectedResult.appointment.appointmentDetails[0]
+                        .medicalResult;
+                    return (
+                      <>
+                        {medicalResult.description && (
+                          <div className="result-item">
+                            <span className="result-label">Mô tả:</span>
+                            <span className="result-value">
+                              {medicalResult.description}
+                            </span>
+                          </div>
+                        )}
+
+                        {medicalResult.diagnosis && (
+                          <div className="result-item">
+                            <span className="result-label">Chẩn đoán:</span>
+                            <span className="result-value">
+                              {medicalResult.diagnosis}
+                            </span>
+                          </div>
+                        )}
+
+                        {medicalResult.treatmentPlan && (
+                          <div className="result-item">
+                            <span className="result-label">
+                              Kế hoạch điều trị:
+                            </span>
+                            <span className="result-value">
+                              {medicalResult.treatmentPlan}
+                            </span>
+                          </div>
+                        )}
+
+                        {medicalResult.testResult && (
+                          <div className="result-item">
+                            <span className="result-label">
+                              Kết quả xét nghiệm:
+                            </span>
+                            <span className="result-value">
+                              {medicalResult.testResult}
+                            </span>
+                          </div>
+                        )}
+
+                        {medicalResult.normalRange && (
+                          <div className="result-item">
+                            <span className="result-label">
+                              Giá trị bình thường:
+                            </span>
+                            <span className="result-value">
+                              {medicalResult.normalRange}
+                            </span>
+                          </div>
+                        )}
+
+                        {medicalResult.labNotes && (
+                          <div className="result-item">
+                            <span className="result-label">
+                              Ghi chú phòng lab:
+                            </span>
+                            <span className="result-value">
+                              {medicalResult.labNotes}
+                            </span>
+                          </div>
+                        )}
+                      </>
+                    );
+                  })()}
+                </div>
+              </div>
+            )}
+
+            <div className="result-body">
+              <h3>Thông tin y tế cá nhân</h3>
+              <div className="medical-profile-details">
+                {selectedResult.medicalProfile.allergies && (
+                  <div className="result-item">
+                    <span className="result-label">Dị ứng:</span>
+                    <span className="result-value">
+                      {selectedResult.medicalProfile.allergies}
+                    </span>
+                  </div>
+                )}
+
+                {selectedResult.medicalProfile.chronicConditions && (
+                  <div className="result-item">
+                    <span className="result-label">Bệnh mãn tính:</span>
+                    <span className="result-value">
+                      {selectedResult.medicalProfile.chronicConditions}
+                    </span>
+                  </div>
+                )}
+
+                {selectedResult.medicalProfile.familyHistory && (
+                  <div className="result-item">
+                    <span className="result-label">Tiền sử gia đình:</span>
+                    <span className="result-value">
+                      {selectedResult.medicalProfile.familyHistory}
+                    </span>
+                  </div>
+                )}
+
+                {selectedResult.medicalProfile.specialNotes && (
+                  <div className="result-item">
+                    <span className="result-label">Ghi chú đặc biệt:</span>
+                    <span className="result-value">
+                      {selectedResult.medicalProfile.specialNotes}
+                    </span>
+                  </div>
+                )}
+              </div>
+            </div>
           </div>
         )}
       </Modal>

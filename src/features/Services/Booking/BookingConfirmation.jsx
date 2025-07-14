@@ -235,7 +235,7 @@ const BookingConfirmation = () => {
         JSON.stringify(pendingBookingData)
       );
 
-      console.log("🔄 [DEBUG] Navigating to /payment");
+      console.log(" [DEBUG] Navigating to /payment");
       // Chuyển đến trang Payment để xử lý create-off
       navigate("/payment");
     } catch (error) {

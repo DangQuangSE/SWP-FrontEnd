@@ -119,7 +119,7 @@ class CustomerChatAPIService {
 
       // If public endpoint fails, try the original endpoint
       try {
-        console.log("🔄 [CUSTOMER CHAT API] Trying alternative endpoint...");
+        console.log(" [CUSTOMER CHAT API] Trying alternative endpoint...");
         const response = await this.api.get(
           `/chat/sessions/${sessionId}/messages`
         );

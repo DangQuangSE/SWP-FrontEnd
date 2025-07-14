@@ -32,7 +32,7 @@ const Payment = () => {
         setLoading(false);
 
         setTimeout(() => {
-          console.log("🔄 [DEBUG] VNPay - Navigating to /user/booking");
+          console.log(" [DEBUG] VNPay - Navigating to /user/booking");
           navigate("/user/booking");
         }, 2000);
       } else {
@@ -107,7 +107,7 @@ const Payment = () => {
             );
             // Chuyển hướng sau 5 giây
             setTimeout(() => {
-              console.log("🔄 [DEBUG] Redirecting now to:", payUrl);
+              console.log(" [DEBUG] Redirecting now to:", payUrl);
               window.location.href = payUrl;
             }, 5000);
           } else if (res.data.responseCode === 0 && !res.data.url) {
@@ -122,7 +122,7 @@ const Payment = () => {
             setLoading(false);
 
             setTimeout(() => {
-              console.log("🔄 [DEBUG] Navigating to /user/booking");
+              console.log(" [DEBUG] Navigating to /user/booking");
               navigate("/user/booking");
             }, 2000);
           } else {

@@ -98,7 +98,7 @@ const BookingDashboard = () => {
           });
 
           // Fallback: try alternative endpoints
-          console.log(`🔄 Trying fallback endpoints...`);
+          console.log(` Trying fallback endpoints...`);
           try {
             // Try without query parameter
             const fallbackResponse = await api.get(`/appointments`);

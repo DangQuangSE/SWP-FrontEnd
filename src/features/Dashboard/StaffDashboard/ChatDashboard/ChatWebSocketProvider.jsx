@@ -59,10 +59,10 @@ export const ChatWebSocketProvider = ({ children }) => {
 
         // Retry connection sau 10 giây (tăng thời gian để tránh spam)
         console.log(
-          "🔄 [WEBSOCKET PROVIDER] Will retry connection in 10 seconds..."
+          " [WEBSOCKET PROVIDER] Will retry connection in 10 seconds..."
         );
         setTimeout(() => {
-          console.log("🔄 [WEBSOCKET PROVIDER] Retrying connection...");
+          console.log(" [WEBSOCKET PROVIDER] Retrying connection...");
           setInitialized(false);
         }, 10000);
       }

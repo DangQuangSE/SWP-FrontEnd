@@ -91,7 +91,7 @@ const OnlineConsultation = ({ setIsConsultationModalVisible, userId }) => {
       );
 
       console.log(
-        `✅ [API] Loaded ${onlineConsultationData.length} ${status} online consultations`
+        ` [API] Loaded ${onlineConsultationData.length} ${status} online consultations`
       );
 
       // Cập nhật state cho tab cụ thể
@@ -102,7 +102,7 @@ const OnlineConsultation = ({ setIsConsultationModalVisible, userId }) => {
 
       return onlineConsultationData;
     } catch (error) {
-      console.error(`❌ Error loading ${status} appointments:`, error);
+      console.error(` Error loading ${status} appointments:`, error);
       message.error(`Không thể tải danh sách ${status}`);
       return [];
     }
@@ -133,10 +133,10 @@ const OnlineConsultation = ({ setIsConsultationModalVisible, userId }) => {
         const status = statuses[index];
         if (result.status === "fulfilled") {
           console.log(
-            `✅ [PARALLEL] ${status}: ${result.value.length} appointments`
+            ` [PARALLEL] ${status}: ${result.value.length} appointments`
           );
         } else {
-          console.error(`❌ [PARALLEL] ${status} failed:`, result.reason);
+          console.error(` [PARALLEL] ${status} failed:`, result.reason);
         }
       });
 
@@ -145,7 +145,7 @@ const OnlineConsultation = ({ setIsConsultationModalVisible, userId }) => {
       ).length;
       toast.success(`Đã tải ${successCount}/${statuses.length} tab thành công`);
     } catch (error) {
-      console.error("❌ Error loading all tabs data:", error);
+      console.error(" Error loading all tabs data:", error);
       toast.error("Lỗi khi tải dữ liệu");
     } finally {
       setIsLoadingData(false);
@@ -211,19 +211,19 @@ const OnlineConsultation = ({ setIsConsultationModalVisible, userId }) => {
 
       if (!confirmed) return;
 
-      console.log("🔄 Updating appointment detail status:", {
+      console.log(" Updating appointment detail status:", {
         appointmentDetailId: detailId,
         newStatus: newStatus,
       });
 
       const response = await updateAppointmentDetailStatus(detailId, newStatus);
-      console.log("✅ Status update response:", response);
+      console.log(" Status update response:", response);
 
       toast.success(`Cập nhật trạng thái thành công: ${newStatus}`);
 
       // Smart refetch: Reload dữ liệu để cập nhật UI (giống PersonalSchedule)
       const date = dayjs(currentSelectedDate).format("YYYY-MM-DD");
-      console.log("🔄 Reloading data after status update...");
+      console.log(" Reloading data after status update...");
 
       // Reload both current status and new status tabs
       const statusMapping = {
@@ -244,10 +244,10 @@ const OnlineConsultation = ({ setIsConsultationModalVisible, userId }) => {
 
       await Promise.allSettled(refetchPromises);
       console.log(
-        `✅ [STATUS UPDATE] Refetched ${statusesToRefetch.length} tab(s) successfully`
+        ` [STATUS UPDATE] Refetched ${statusesToRefetch.length} tab(s) successfully`
       );
     } catch (error) {
-      console.error("❌ Error updating appointment detail status:", error);
+      console.error(" Error updating appointment detail status:", error);
       console.error("Error response:", error.response?.data);
       toast.error("Không thể cập nhật trạng thái. Vui lòng thử lại!");
     }
@@ -691,14 +691,14 @@ const OnlineConsultation = ({ setIsConsultationModalVisible, userId }) => {
               // Cập nhật trạng thái thành COMPLETED sau khi lưu kết quả (không cần confirmation)
               try {
                 console.log(
-                  "🔄 [STATUS] Updating appointment detail status to COMPLETED"
+                  " [STATUS] Updating appointment detail status to COMPLETED"
                 );
                 await updateAppointmentDetailStatus(
                   selectedAppointmentDetail.id,
                   "COMPLETED"
                 );
                 console.log(
-                  "✅ [STATUS] Appointment detail status updated to COMPLETED"
+                  " [STATUS] Appointment detail status updated to COMPLETED"
                 );
 
                 // Reload dữ liệu để cập nhật UI
@@ -707,7 +707,7 @@ const OnlineConsultation = ({ setIsConsultationModalVisible, userId }) => {
                 await loadAppointmentsByStatus(date, "COMPLETED");
               } catch (error) {
                 console.error(
-                  "❌ [STATUS] Error updating appointment detail status:",
+                  " [STATUS] Error updating appointment detail status:",
                   error
                 );
                 // Don't show error to user as medical result was saved successfully
