@@ -24,19 +24,22 @@ import {
   ExclamationCircleOutlined,
   EditOutlined,
   FileTextOutlined,
+  CloseCircleOutlined,
+  QuestionCircleOutlined,
 } from "@ant-design/icons";
-import axios from "axios";
+
 import dayjs from "dayjs";
 import { toast } from "react-toastify";
+import {
+  updateAppointmentDetailStatus,
+  getMySchedule,
+} from "../../../../api/consultantAPI";
 import MedicalResultViewer from "../../../../components/MedicalResult/MedicalResultViewer";
-import MedicalResultFormWrapper from "../../../../components/MedicalResult/MedicalResultFormWrapper";
+import MedicalResultForm from "../../../../components/MedicalResult/MedicalResultForm";
 import PatientDetailButton from "../PatientHistory/PatientDetailButton";
 import "./OnlineConsultation.css";
 
 const OnlineConsultation = ({ setIsConsultationModalVisible, userId }) => {
-  // State để lưu tất cả dữ liệu tư vấn từ API
-  const [allOnlineConsultations, setAllOnlineConsultations] = useState([]);
-
   // State để lưu dữ liệu đã được lọc theo ngày theo từng tab
   const [tabsData, setTabsData] = useState({
     CONFIRMED: [], // Đã xác nhận - sẵn sàng tư vấn
@@ -62,30 +65,16 @@ const OnlineConsultation = ({ setIsConsultationModalVisible, userId }) => {
   // Form cho modal tư vấn
   const [consultForm] = Form.useForm();
 
-  // Hàm để lấy tất cả dữ liệu tư vấn trực tuyến từ API
-  const fetchAllOnlineConsultations = async () => {
-    // Bắt đầu loading
-    setIsLoadingData(true);
-
+  // Hàm để lấy dữ liệu tư vấn trực tuyến theo status (giống PersonalSchedule)
+  const loadAppointmentsByStatus = async (date, status) => {
     try {
-      // Lấy token từ localStorage để xác thực
-      const authToken = localStorage.getItem("token");
+      console.log(`📡 [API] Loading ${status} appointments for ${date}`);
 
-      // Gọi API để lấy tất cả cuộc hẹn có status CONFIRMED
-      // Thêm userId vào query để lọc theo consultant hiện tại
-      const apiResponse = await axios.get(
-        `/api/appointment/by-status?status=CONFIRMED${
-          userId ? `&consultantId=${userId}` : ""
-        }`,
-        {
-          headers: {
-            Authorization: `Bearer ${authToken}`,
-          },
-        }
-      );
+      const response = await getMySchedule(date, status);
+      const appointments = response.data || [];
 
       // Lọc chỉ lấy những cuộc hẹn tư vấn trực tuyến có startUrl
-      const onlineConsultationData = apiResponse.data.filter(
+      const onlineConsultationData = appointments.filter(
         (singleAppointment) => {
           // Kiểm tra xem có phải là tư vấn trực tuyến không
           const isOnlineConsultation =
@@ -101,72 +90,74 @@ const OnlineConsultation = ({ setIsConsultationModalVisible, userId }) => {
         }
       );
 
-      // Lưu tất cả dữ liệu vào state
-      setAllOnlineConsultations(onlineConsultationData);
+      console.log(
+        `✅ [API] Loaded ${onlineConsultationData.length} ${status} online consultations`
+      );
 
-      // Phân chia dữ liệu theo status và ngày được chọn
-      organizeDataByTabsAndDate(onlineConsultationData, currentSelectedDate);
+      // Cập nhật state cho tab cụ thể
+      setTabsData((prev) => ({
+        ...prev,
+        [status]: onlineConsultationData,
+      }));
+
+      return onlineConsultationData;
     } catch (error) {
-      console.error("Lỗi khi tải dữ liệu tư vấn trực tuyến:", error);
-      message.error("Không thể tải danh sách tư vấn trực tuyến");
-    } finally {
-      // Kết thúc loading
-      setIsLoadingData(false);
+      console.error(`❌ Error loading ${status} appointments:`, error);
+      message.error(`Không thể tải danh sách ${status}`);
+      return [];
     }
   };
 
-  // Hàm để phân chia dữ liệu theo tabs và lọc theo ngày
-  const organizeDataByTabsAndDate = (allConsultations, dateToFilter) => {
-    // Chuyển ngày được chọn thành chuỗi định dạng YYYY-MM-DD
-    const selectedDateString = dayjs(dateToFilter).format("YYYY-MM-DD");
+  // Hàm để tải tất cả tabs (giống PersonalSchedule)
+  const loadAllTabsData = async (targetDate) => {
+    setIsLoadingData(true);
 
-    // Lọc dữ liệu theo ngày trước
-    const consultationsOnSelectedDate = allConsultations.filter(
-      (singleAppointment) => {
-        const appointmentSlotTime =
-          singleAppointment.appointmentDetails?.[0]?.slotTime;
-        if (!appointmentSlotTime) return false;
+    try {
+      const statuses = [
+        "CONFIRMED",
+        "IN_PROGRESS",
+        "WAITING_RESULT",
+        "COMPLETED",
+      ];
 
-        const appointmentDateString =
-          dayjs(appointmentSlotTime).format("YYYY-MM-DD");
-        return appointmentDateString === selectedDateString;
-      }
-    );
+      // Load all statuses in parallel
+      const promises = statuses.map((status) => {
+        console.log(`📡 [API_CALL] Loading ${status} for ${targetDate}`);
+        return loadAppointmentsByStatus(targetDate, status);
+      });
 
-    // Phân chia theo status của appointmentDetails
-    const organizedData = {
-      CONFIRMED: [], // Đã xác nhận - sẵn sàng tư vấn
-      IN_PROGRESS: [], // Đang tư vấn
-      WAITING_RESULT: [], // Chờ kết quả
-      COMPLETED: [], // Hoàn thành
-    };
+      const results = await Promise.allSettled(promises);
 
-    consultationsOnSelectedDate.forEach((appointment) => {
-      // Lấy status từ appointmentDetails đầu tiên
-      const appointmentDetailStatus =
-        appointment.appointmentDetails?.[0]?.status;
+      // Log results
+      results.forEach((result, index) => {
+        const status = statuses[index];
+        if (result.status === "fulfilled") {
+          console.log(
+            `✅ [PARALLEL] ${status}: ${result.value.length} appointments`
+          );
+        } else {
+          console.error(`❌ [PARALLEL] ${status} failed:`, result.reason);
+        }
+      });
 
-      // Phân loại theo status
-      if (appointmentDetailStatus === "CONFIRMED") {
-        organizedData.CONFIRMED.push(appointment);
-      } else if (appointmentDetailStatus === "IN_PROGRESS") {
-        organizedData.IN_PROGRESS.push(appointment);
-      } else if (appointmentDetailStatus === "WAITING_RESULT") {
-        organizedData.WAITING_RESULT.push(appointment);
-      } else if (appointmentDetailStatus === "COMPLETED") {
-        organizedData.COMPLETED.push(appointment);
-      }
-    });
-
-    // Cập nhật state với dữ liệu đã phân chia
-    setTabsData(organizedData);
+      const successCount = results.filter(
+        (r) => r.status === "fulfilled"
+      ).length;
+      toast.success(`Đã tải ${successCount}/${statuses.length} tab thành công`);
+    } catch (error) {
+      console.error("❌ Error loading all tabs data:", error);
+      toast.error("Lỗi khi tải dữ liệu");
+    } finally {
+      setIsLoadingData(false);
+    }
   };
 
   // useEffect chạy khi component được mount (hiển thị lần đầu) hoặc khi userId thay đổi
   useEffect(() => {
     // Chỉ gọi API khi có userId
     if (userId) {
-      fetchAllOnlineConsultations();
+      const today = dayjs().format("YYYY-MM-DD");
+      loadAllTabsData(today);
     }
   }, [userId]); // Chạy lại khi userId thay đổi
 
@@ -177,12 +168,13 @@ const OnlineConsultation = ({ setIsConsultationModalVisible, userId }) => {
 
     // Chuyển từ dayjs object thành JavaScript Date object
     const javascriptDateObject = dateToUse.toDate();
+    const dateString = dateToUse.format("YYYY-MM-DD");
 
     // Cập nhật state với ngày mới được chọn
     setCurrentSelectedDate(javascriptDateObject);
 
-    // Phân chia lại dữ liệu theo ngày mới
-    organizeDataByTabsAndDate(allOnlineConsultations, javascriptDateObject);
+    // Load lại tất cả tabs cho ngày mới
+    loadAllTabsData(dateString);
   };
 
   // Hàm xử lý khi thay đổi tab
@@ -203,6 +195,87 @@ const OnlineConsultation = ({ setIsConsultationModalVisible, userId }) => {
     return tabsData[currentStatus] || [];
   };
 
+  // Hàm cập nhật trạng thái appointment detail với confirmation (giống PersonalSchedule)
+  const handleStatusUpdate = async (detailId, newStatus, confirmMessage) => {
+    try {
+      const confirmed = await new Promise((resolve) => {
+        Modal.confirm({
+          title: "Xác nhận thay đổi trạng thái",
+          content: confirmMessage,
+          okText: "Xác nhận",
+          cancelText: "Hủy",
+          onOk: () => resolve(true),
+          onCancel: () => resolve(false),
+        });
+      });
+
+      if (!confirmed) return;
+
+      console.log("🔄 Updating appointment detail status:", {
+        appointmentDetailId: detailId,
+        newStatus: newStatus,
+      });
+
+      const response = await updateAppointmentDetailStatus(detailId, newStatus);
+      console.log("✅ Status update response:", response);
+
+      toast.success(`Cập nhật trạng thái thành công: ${newStatus}`);
+
+      // Smart refetch: Reload dữ liệu để cập nhật UI (giống PersonalSchedule)
+      const date = dayjs(currentSelectedDate).format("YYYY-MM-DD");
+      console.log("🔄 Reloading data after status update...");
+
+      // Reload both current status and new status tabs
+      const statusMapping = {
+        confirmed: "CONFIRMED",
+        in_progress: "IN_PROGRESS",
+        waiting_result: "WAITING_RESULT",
+        completed: "COMPLETED",
+      };
+      const currentStatus = statusMapping[activeTab] || "CONFIRMED";
+
+      // Create array of statuses to refetch (avoid duplicates)
+      const statusesToRefetch = [...new Set([currentStatus, newStatus])];
+
+      // Refetch both statuses in parallel
+      const refetchPromises = statusesToRefetch.map((status) =>
+        loadAppointmentsByStatus(date, status)
+      );
+
+      await Promise.allSettled(refetchPromises);
+      console.log(
+        `✅ [STATUS UPDATE] Refetched ${statusesToRefetch.length} tab(s) successfully`
+      );
+    } catch (error) {
+      console.error("❌ Error updating appointment detail status:", error);
+      console.error("Error response:", error.response?.data);
+      toast.error("Không thể cập nhật trạng thái. Vui lòng thử lại!");
+    }
+  };
+
+  // Hàm bắt đầu tư vấn (CONFIRMED -> IN_PROGRESS) - giống PersonalSchedule
+  const handleStartConsultation = (appointmentDetail, startUrl) => {
+    handleStatusUpdate(
+      appointmentDetail.id,
+      "IN_PROGRESS",
+      "Bạn có chắc chắn muốn bắt đầu tư vấn trực tuyến cho dịch vụ này?"
+    ).then(() => {
+      // Mở link tư vấn trong tab mới sau khi cập nhật trạng thái thành công
+      if (startUrl) {
+        window.open(startUrl, "_blank");
+      }
+    });
+  };
+
+  // Hàm hoàn thành tư vấn (IN_PROGRESS -> WAITING_RESULT) - giống PersonalSchedule
+  const handleCompleteConsultation = (appointmentDetail) => {
+    handleStatusUpdate(
+      appointmentDetail.id,
+      "WAITING_RESULT",
+      "Bạn có chắc chắn đã hoàn thành tư vấn và chuyển sang chờ kết quả?"
+    );
+  };
+
   // Format date and time
   const formatDateTime = (dateString) => {
     if (!dateString) return "Không có";
@@ -210,30 +283,55 @@ const OnlineConsultation = ({ setIsConsultationModalVisible, userId }) => {
     return date.toLocaleString("vi-VN");
   };
 
-  // Get status color
-  const getStatusColor = (status) => {
-    const statusColors = {
-      PENDING: "orange",
-      CONFIRMED: "blue",
-      CHECKED: "green",
-      COMPLETED: "success",
-      CANCELED: "red",
-      ABSENT: "default",
+  // Get status info for display (giống PersonalSchedule)
+  const getStatusInfo = (status) => {
+    const statusMap = {
+      CONFIRMED: {
+        color: "cyan",
+        icon: <CheckCircleOutlined />,
+        text: "Đã xác nhận",
+        description: "Sẵn sàng tư vấn trực tuyến",
+      },
+      IN_PROGRESS: {
+        color: "purple",
+        icon: <ClockCircleOutlined />,
+        text: "Đang tư vấn",
+        description: "Đang trong quá trình tư vấn",
+      },
+      WAITING_RESULT: {
+        color: "orange",
+        icon: <ExclamationCircleOutlined />,
+        text: "Chờ kết quả",
+        description: "Chờ tư vấn viên nhập kết quả",
+      },
+      COMPLETED: {
+        color: "green",
+        icon: <CheckCircleOutlined />,
+        text: "Hoàn thành",
+        description: "Đã hoàn tất tư vấn",
+      },
+      // Keep some old statuses for compatibility
+      PENDING: {
+        color: "orange",
+        icon: <ExclamationCircleOutlined />,
+        text: "Đang chờ",
+        description: "Chờ xác nhận",
+      },
+      CANCELED: {
+        color: "red",
+        icon: <CloseCircleOutlined />,
+        text: "Đã hủy",
+        description: "Tư vấn đã bị hủy",
+      },
     };
-    return statusColors[status] || "default";
-  };
-
-  // Get status text in Vietnamese
-  const getStatusText = (status) => {
-    const statusTexts = {
-      PENDING: "Chờ xác nhận",
-      CONFIRMED: "Đã xác nhận",
-      CHECKED: "Đã check in",
-      COMPLETED: "Hoàn thành",
-      CANCELED: "Đã hủy",
-      ABSENT: "Vắng mặt",
-    };
-    return statusTexts[status] || status;
+    return (
+      statusMap[status] || {
+        color: "default",
+        icon: <QuestionCircleOutlined />,
+        text: status,
+        description: "Trạng thái không xác định",
+      }
+    );
   };
 
   // Table columns với các chức năng mở rộng
@@ -289,16 +387,22 @@ const OnlineConsultation = ({ setIsConsultationModalVisible, userId }) => {
       {
         title: "Trạng thái",
         key: "status",
+        width: 150,
         render: (_, record) => {
           const detail = record.appointmentDetails?.[0];
           const status = detail?.status || record.status;
+          const statusInfo = getStatusInfo(status);
           return (
-            <Tag
-              color={getStatusColor(status)}
-              className="consultation-status-tag"
-            >
-              {getStatusText(status)}
-            </Tag>
+            <div>
+              <Tag color={statusInfo.color} icon={statusInfo.icon}>
+                {statusInfo.text}
+              </Tag>
+              <div
+                style={{ fontSize: "11px", color: "#999", marginTop: "2px" }}
+              >
+                {statusInfo.description}
+              </div>
+            </div>
           );
         },
       },
@@ -319,9 +423,22 @@ const OnlineConsultation = ({ setIsConsultationModalVisible, userId }) => {
                   icon={<VideoCameraOutlined />}
                   size="small"
                   className="start-consultation-btn"
-                  onClick={() => window.open(startUrl, "_blank")}
+                  onClick={() => handleStartConsultation(detail, startUrl)}
                 >
                   Bắt đầu tư vấn
+                </Button>
+              )}
+
+              {/* Nút hoàn thành tư vấn cho status IN_PROGRESS */}
+              {status === "IN_PROGRESS" && (
+                <Button
+                  type="primary"
+                  size="small"
+                  icon={<CheckCircleOutlined />}
+                  onClick={() => handleCompleteConsultation(detail)}
+                  style={{ backgroundColor: "#faad14", borderColor: "#faad14" }}
+                >
+                  Hoàn thành tư vấn
                 </Button>
               )}
 
@@ -558,16 +675,43 @@ const OnlineConsultation = ({ setIsConsultationModalVisible, userId }) => {
         }}
         footer={null}
         width={800}
+        destroyOnClose={true}
+        key={selectedAppointmentDetail?.id || "medical-result-modal"}
       >
         {selectedAppointmentDetail && (
-          <MedicalResultFormWrapper
+          <MedicalResultForm
+            key={`medical-form-${selectedAppointmentDetail.id}`}
             appointmentDetail={selectedAppointmentDetail}
-            onSuccess={() => {
+            consultationType="online"
+            onSuccess={async () => {
               setIsResultModalVisible(false);
               setSelectedAppointmentDetail(null);
               toast.success("Kết quả đã được lưu thành công!");
-              // Reload data để cập nhật
-              fetchAllOnlineConsultations();
+
+              // Cập nhật trạng thái thành COMPLETED sau khi lưu kết quả (không cần confirmation)
+              try {
+                console.log(
+                  "🔄 [STATUS] Updating appointment detail status to COMPLETED"
+                );
+                await updateAppointmentDetailStatus(
+                  selectedAppointmentDetail.id,
+                  "COMPLETED"
+                );
+                console.log(
+                  "✅ [STATUS] Appointment detail status updated to COMPLETED"
+                );
+
+                // Reload dữ liệu để cập nhật UI
+                const date = dayjs(currentSelectedDate).format("YYYY-MM-DD");
+                await loadAppointmentsByStatus(date, "WAITING_RESULT");
+                await loadAppointmentsByStatus(date, "COMPLETED");
+              } catch (error) {
+                console.error(
+                  "❌ [STATUS] Error updating appointment detail status:",
+                  error
+                );
+                // Don't show error to user as medical result was saved successfully
+              }
             }}
             onCancel={() => {
               setIsResultModalVisible(false);

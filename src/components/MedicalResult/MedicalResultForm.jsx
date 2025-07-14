@@ -104,6 +104,7 @@ const MedicalResultForm = ({
   onSuccess,
   onCancel,
   initialData = {},
+  consultationType = "personal", // "personal" hoặc "online"
 }) => {
   const [form] = Form.useForm();
 
@@ -313,15 +314,25 @@ const MedicalResultForm = ({
     "Other",
   ];
 
+  // Tạo title dựa trên loại tư vấn
+  const getTitle = () => {
+    const titleText =
+      consultationType === "online"
+        ? "Nhập kết quả tư vấn trực tuyến"
+        : "Nhập kết quả khám bệnh";
+
+    return (
+      <Space>
+        <ExperimentOutlined />
+        <span>{titleText}</span>
+        {appointmentDetail && <Tag color="blue">#{appointmentDetail.id}</Tag>}
+      </Space>
+    );
+  };
+
   return (
     <Card
-      title={
-        <Space>
-          <ExperimentOutlined />
-          <span>Nhập kết quả khám bệnh</span>
-          {appointmentDetail && <Tag color="blue">#{appointmentDetail.id}</Tag>}
-        </Space>
-      }
+      title={getTitle()}
       extra={
         <Space>
           <Tooltip title="Làm mới form">

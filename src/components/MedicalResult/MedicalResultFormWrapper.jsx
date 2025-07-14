@@ -13,6 +13,7 @@ const MedicalResultFormWrapper = ({
   onClose,
   appointmentDetail,
   onSuccess,
+  consultationType = "personal", // "personal" hoặc "online"
 }) => {
   const [formError, setFormError] = useState(null);
 
@@ -117,6 +118,7 @@ const MedicalResultFormWrapper = ({
           onSuccess={handleSuccess}
           onCancel={handleCancel}
           onError={handleFormError}
+          consultationType={consultationType}
         />
       </div>
     </Modal>
