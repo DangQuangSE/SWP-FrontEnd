@@ -1,1 +1,198 @@
- 
+/* Online Consultation Container */
+.online-consultation-container {
+  padding: 10px;
+}
+
+/* Header Styles */
+.online-consultation-header {
+  margin-bottom: 24px;
+}
+
+.online-consultation-title {
+  margin: 0;
+  font-size: 19px;
+  color: #1890ff;
+}
+
+.online-consultation-description {
+  color: #666;
+  margin: 8px 0 0 0;
+}
+
+/* Statistics Cards */
+.statistics-cards-container {
+  margin-bottom: 16px;
+}
+
+.statistics-card {
+  text-align: center;
+}
+
+.statistics-card-content {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.statistics-icon {
+  font-size: 18px;
+}
+
+.statistics-text {
+  font-size: 16px;
+  font-weight: 500;
+}
+
+.statistics-total {
+  color: #1890ff;
+}
+
+.statistics-confirmed {
+  color: #f4af24;
+}
+
+.statistics-waiting {
+  color: #f46d0b;
+}
+
+.statistics-completed {
+  color: #52c41a;
+}
+
+/* Date Picker */
+.date-picker-container {
+  margin-bottom: 16px;
+}
+
+.date-picker-content {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.date-picker-label {
+  font-weight: bold;
+}
+
+.date-picker-input {
+  width: 200px;
+}
+
+.date-picker-info {
+  color: #666;
+}
+
+/* Table Styles */
+.online-consultation-table .ant-table-thead > tr > th {
+  background-color: #f8f9fa;
+  font-weight: 600;
+  color: #2753d0;
+}
+
+.online-consultation-table .ant-btn-primary {
+  background-color: #2753d0;
+  border-color: #2753d0;
+}
+
+.online-consultation-table .ant-btn-primary:hover {
+  background-color: #086ce4;
+  border-color: #086ce4;
+}
+
+/* Patient Info */
+.patient-name {
+  font-weight: bold;
+  color: #1890ff;
+  font-size: 14px;
+}
+
+.patient-date {
+  font-size: 12px;
+  color: #666;
+  margin-top: 4px;
+}
+
+.patient-id {
+  font-size: 12px;
+  color: #666;
+}
+
+.patient-buttons {
+  margin-top: 6px;
+  display: flex;
+  gap: 8px;
+}
+
+.medical-info-button {
+  padding: 2px 8px;
+  color: #52c41a;
+}
+
+/* Service Info */
+.service-name {
+  font-weight: bold;
+  margin-bottom: 4px;
+}
+
+.service-time {
+  font-size: 12px;
+  color: #666;
+}
+
+.service-consultant {
+  font-size: 12px;
+  color: #666;
+}
+
+/* Status Tag */
+.consultation-status-tag {
+  font-weight: 500;
+  border-radius: 4px;
+}
+
+/* Action Buttons */
+.start-consultation-btn {
+  background: linear-gradient(135deg, #28a745, #20c997);
+  border: none;
+  box-shadow: 0 2px 4px rgba(40, 167, 69, 0.2);
+}
+
+.start-consultation-btn:hover {
+  background: linear-gradient(135deg, #218838, #1ea080);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(40, 167, 69, 0.3);
+}
+
+.result-input-btn {
+  background-color: #52c41a;
+  border-color: #52c41a;
+}
+
+.completed-status {
+  color: #52c41a;
+  font-size: 12px;
+  font-weight: bold;
+}
+
+/* Empty State */
+.empty-state-container {
+  padding: 40px;
+  text-align: center;
+}
+
+.empty-state-icon {
+  font-size: 48px;
+  color: #ccc;
+  margin-bottom: 16px;
+}
+
+.empty-state-message {
+  color: #999;
+}
+
+.empty-state-hint {
+  color: #ccc;
+  font-size: 12px;
+  margin-top: 8px;
+}

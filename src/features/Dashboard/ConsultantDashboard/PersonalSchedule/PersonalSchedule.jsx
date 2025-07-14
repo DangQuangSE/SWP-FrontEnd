@@ -442,13 +442,6 @@ const PersonalSchedule = ({ userId }) => {
   const getDetailColumns = () => {
     const baseColumns = [
       {
-        title: "Mã dịch vụ",
-        dataIndex: "id",
-        key: "detailId",
-        width: 100,
-        render: (id) => <strong>#{id}</strong>,
-      },
-      {
         title: "Thông tin bệnh nhân",
         key: "patientInfo",
         width: 200,
