@@ -1379,17 +1379,15 @@ const StaffChatInterface = ({ defaultTab = "waiting", hideTabs = false }) => {
                     onKeyDown={handleKeyPress}
                     placeholder={`Nhập tin nhắn cho ${selectedSession.customerName}...`}
                     autoSize={{ minRows: 1, maxRows: 4 }}
-                    style={{ flex: 1 }}
+                    style={{ flex: 1, marginRight: "8px" }}
                   />
                   <Button
                     type="primary"
                     icon={<SendOutlined />}
                     onClick={handleSendMessage}
                     disabled={!inputMessage.trim()}
-                    style={{ height: "auto" }}
-                  >
-                    Gửi
-                  </Button>
+                    style={{ height: "auto", color: "white" }}
+                  ></Button>
                 </Space.Compact>
               </div>
             </Card>
