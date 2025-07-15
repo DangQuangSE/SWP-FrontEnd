@@ -30,6 +30,7 @@ import {
   getAvatarColor,
   getMessageBubbleStyle,
 } from "./chatColors";
+import { WEBSOCKET_URL } from "../../configs/serverConfig";
 import "./CustomerChatWidget.css";
 
 const { Text } = Typography;
@@ -121,7 +122,7 @@ const CustomerChatWidget = () => {
     if (wsConnectedRef.current || !sessionId) return;
 
     try {
-      const socket = new SockJS("http://localhost:8080/ws/chat");
+      const socket = new SockJS(WEBSOCKET_URL);
       const stompClient = Stomp.over(socket);
 
       // Disable debug logging

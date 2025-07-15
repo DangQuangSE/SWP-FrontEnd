@@ -1,14 +1,15 @@
 import axios from "axios";
+import { API_BASE_URL } from "./serverConfig";
 
 /**
  * Chat API instance - No authentication required
  * Separate from main API to avoid automatic auth headers
  */
 const chatApi = axios.create({
-  baseURL: "http://localhost:8080/api",
+  baseURL: API_BASE_URL,
   timeout: 10000,
   headers: {
-    'Content-Type': 'application/json',
+    "Content-Type": "application/json",
   },
 });
 

@@ -1,6 +1,7 @@
 import SockJS from "sockjs-client";
 import { Stomp } from "@stomp/stompjs";
 import { chatNotificationService } from "./ChatNotification";
+import { WEBSOCKET_URL } from "../../../configs/serverConfig";
 
 /**
  * WebSocket Service for Chat Dashboard
@@ -34,11 +35,11 @@ class ChatWebSocketService {
 
       try {
         console.log(
-          "🔌 [WEBSOCKET] Creating SockJS connection to: http://localhost:8080/ws/chat"
+          `🔌 [WEBSOCKET] Creating SockJS connection to: ${WEBSOCKET_URL}`
         );
 
         // Tạo SockJS connection đến endpoint /ws/chat
-        const socket = new SockJS("http://localhost:8080/ws/chat");
+        const socket = new SockJS(WEBSOCKET_URL);
 
         // Log SockJS events
         socket.onopen = () => {

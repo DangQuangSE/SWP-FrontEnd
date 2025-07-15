@@ -4,6 +4,7 @@ import { Link } from "react-router-dom";
 import { useState, useEffect } from "react";
 import "./allBlog.css";
 import Breadcrumb from "../../components/Breadcrumb/Breadcrumb";
+import { API_BASE_URL } from "../../configs/serverConfig";
 
 const AllBlog = () => {
   const [loading, setLoading] = useState(true);
@@ -14,7 +15,7 @@ const AllBlog = () => {
 
   // Lấy tất cả tag
   useEffect(() => {
-    fetch("http://localhost:8080/api/tags")
+    fetch(`${API_BASE_URL}/tags`)
       .then((res) => res.json())
       .then((data) => setTags(data || []))
       .catch(() => setTags([]));
@@ -27,16 +28,14 @@ const AllBlog = () => {
       try {
         let blogs = [];
         if (selectedTag === "all") {
-          const response = await fetch(
-            "http://localhost:8080/api/blog?page=0&size=50"
-          );
+          const response = await fetch(`${API_BASE_URL}/blog?page=0&size=50`);
           const data = await response.json();
           blogs = (data?.content || []).filter(
             (blog) => blog.status === "PUBLISHED"
           );
         } else {
           const response = await fetch(
-            `http://localhost:8080/api/blog/by-tag/${selectedTag}?page=0&size=50`
+            `${API_BASE_URL}/blog/by-tag/${selectedTag}?page=0&size=50`
           );
           const data = await response.json();
           blogs = (data?.content || []).filter(
@@ -82,7 +81,7 @@ const AllBlog = () => {
         </header>
         <div style={{ textAlign: "center", padding: "100px 20px" }}>
           <div style={{ fontSize: "18px", marginBottom: "10px" }}>
-             Đang tải dữ liệu blog...
+            Đang tải dữ liệu blog...
           </div>
           <div style={{ color: "#666" }}>Vui lòng chờ trong giây lát</div>
         </div>
@@ -103,10 +102,18 @@ const AllBlog = () => {
       </header>
 
       {/* Filter tag group - căn giữa, đặt ngay dưới header */}
-      <div className="medpro-all-blog-container" style={{ marginTop: 32, marginBottom: 18 }}>
-        <div className="blog-tag-filter-group" style={{ justifyContent: "center" }}>
+      <div
+        className="medpro-all-blog-container"
+        style={{ marginTop: 32, marginBottom: 18 }}
+      >
+        <div
+          className="blog-tag-filter-group"
+          style={{ justifyContent: "center" }}
+        >
           <button
-            className={`blog-tag-filter-btn${selectedTag === "all" ? " active" : ""}`}
+            className={`blog-tag-filter-btn${
+              selectedTag === "all" ? " active" : ""
+            }`}
             onClick={() => handleFilterTag("all")}
           >
             Tất cả
@@ -114,7 +121,9 @@ const AllBlog = () => {
           {tags.map((tag) => (
             <button
               key={tag.id}
-              className={`blog-tag-filter-btn${selectedTag === tag.id ? " active" : ""}`}
+              className={`blog-tag-filter-btn${
+                selectedTag === tag.id ? " active" : ""
+              }`}
               onClick={() => handleFilterTag(tag.id)}
             >
               {tag.name}
@@ -134,10 +143,14 @@ const AllBlog = () => {
         <div className="medpro-all-blog-container">
           {/* All Blogs Section */}
           <section className="medpro-all-blog-all-section">
-            <div className="medpro-all-blog-section-header" style={{marginTop: 8}}>
+            <div
+              className="medpro-all-blog-section-header"
+              style={{ marginTop: 8 }}
+            >
               <h2 className="medpro-all-blog-section-title">Tất cả tin tức</h2>
               <p className="medpro-all-blog-section-description">
-                Khám phá các bài viết, tin tức và kiến thức y khoa nổi bật mỗi ngày!
+                Khám phá các bài viết, tin tức và kiến thức y khoa nổi bật mỗi
+                ngày!
               </p>
             </div>
             {allBlogs.length > 0 ? (
@@ -228,4 +241,3 @@ const AllBlog = () => {
 };
 
 export default AllBlog;
-
