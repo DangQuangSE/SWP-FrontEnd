@@ -16,6 +16,7 @@ import {
   Tabs,
   Spin,
   message,
+  Modal,
 } from "antd";
 import {
   MessageOutlined,
@@ -24,6 +25,7 @@ import {
   ClockCircleOutlined,
   CheckCircleOutlined,
   ReloadOutlined,
+  StopOutlined,
 } from "@ant-design/icons";
 import { useSelector } from "react-redux";
 import chatAPIService from "./chatAPI";
@@ -67,6 +69,26 @@ const StaffChatInterface = ({ defaultTab = "waiting", hideTabs = false }) => {
     true, // isStaff
     true // isActive
   );
+
+  // Auto mark-read function
+  const markMessagesAsRead = async (sessionId) => {
+    if (!sessionId) return;
+
+    try {
+      const readerName = "Nhân viên hỗ trợ"; // Staff reader name
+      await chatAPIService.markMessagesAsRead(sessionId, readerName);
+      console.log(
+        `✅ [MARK READ] Messages marked as read for session: ${sessionId}`
+      );
+
+      // Refresh unread counts after marking as read
+      setTimeout(() => {
+        refreshUnreadCounts();
+      }, 500);
+    } catch (error) {
+      console.error("❌ [MARK READ] Failed to mark messages as read:", error);
+    }
+  };
   const subscriptionRef = useRef(null); // Track subscription to prevent duplicates
   const processedSessionsRef = useRef(new Set()); // Track processed sessions
   const notificationTimeoutRef = useRef({}); // Track notification timeouts
@@ -80,29 +102,21 @@ const StaffChatInterface = ({ defaultTab = "waiting", hideTabs = false }) => {
     useChatWebSocket();
   const inputRef = useRef(null);
 
+  // Auto mark-read when new messages arrive
+  useEffect(() => {
+    if (selectedSession?.sessionId && realTimeMessages.length > 0) {
+      // Mark messages as read when user is actively viewing the chat
+      markMessagesAsRead(selectedSession.sessionId);
+    }
+  }, [realTimeMessages.length, selectedSession?.sessionId]);
+
   // Fetch chat sessions for specific status
   const fetchChatSessionsByStatus = async (status) => {
     try {
-      console.log("🚀 [STAFF CHAT] Fetching sessions with status:", status);
       const response = await chatAPIService.getChatSessions(status);
-      console.log(`✅ [STAFF CHAT] ${status} sessions fetched:`, response);
-
-      // Debug: Check each session's actual status
-      response.forEach((session, index) => {
-        console.log(`🔍 [STAFF CHAT] Session ${index + 1}:`, {
-          sessionId: session.sessionId,
-          customerName: session.customerName,
-          status: session.status,
-          expectedStatus: status,
-        });
-      });
-
       return response;
     } catch (error) {
-      console.error(
-        `❌ [STAFF CHAT] Error fetching ${status} sessions:`,
-        error
-      );
+      console.error(`Error fetching ${status} sessions:`, error);
       throw error;
     }
   };
@@ -111,7 +125,6 @@ const StaffChatInterface = ({ defaultTab = "waiting", hideTabs = false }) => {
   const loadAllSessions = async () => {
     try {
       setLoading(true);
-      console.log("🚀 [STAFF CHAT] Loading all sessions (WAITING + ACTIVE)...");
 
       // Fetch both WAITING and ACTIVE sessions in parallel
       const [waitingData, activeData] = await Promise.all([
@@ -119,23 +132,105 @@ const StaffChatInterface = ({ defaultTab = "waiting", hideTabs = false }) => {
         fetchChatSessionsByStatus("ACTIVE"),
       ]);
 
+      // Fetch unread counts for both waiting and active sessions
+      // For staff: use customerName as readerName to count messages from customer
+      const [waitingWithUnread, activeWithUnread] = await Promise.all([
+        // Don't fetch unread counts for waiting sessions - they don't have messages yet
+        Promise.resolve(waitingData),
+        fetchUnreadCountsForSessions(activeData, "STAFF"),
+      ]);
+
       // Store sessions by status
-      setWaitingSessions(waitingData);
-      setActiveSessions(activeData);
+      setWaitingSessions(waitingWithUnread);
+      setActiveSessions(activeWithUnread);
 
       // Set current tab sessions
       if (activeTab === "waiting") {
-        setSessions(waitingData);
+        setSessions(waitingWithUnread);
       } else if (activeTab === "active") {
-        setSessions(activeData);
+        setSessions(activeWithUnread);
       }
-
-      console.log("✅ [STAFF CHAT] All sessions loaded successfully");
     } catch (error) {
-      console.error("❌ [STAFF CHAT] Error loading all sessions:", error);
+      console.error("Error loading all sessions:", error);
       message.error("Không thể tải danh sách chat sessions");
     } finally {
       setLoading(false);
+    }
+  };
+
+  // Fetch unread count for sessions
+  const fetchUnreadCountsForSessions = async (sessions, readerType) => {
+    try {
+      console.log(
+        `📊 [STAFF CHAT] Fetching unread counts for ${sessions.length} sessions, readerType: ${readerType}`
+      );
+
+      // Fetch unread counts for all sessions in parallel
+      const unreadCountPromises = sessions.map(async (session) => {
+        try {
+          // For staff dashboard: we want to count messages from customers
+          // So we pass "Nhân viên hỗ trợ" as readerName to exclude staff messages
+          const readerName =
+            readerType === "STAFF" ? "Nhân viên hỗ trợ" : session.customerName;
+
+          console.log(
+            `📊 [STAFF CHAT] Getting unread count for session ${session.sessionId}, reader: ${readerName}`
+          );
+
+          const unreadCount = await chatAPIService.getUnreadCount(
+            session.sessionId,
+            readerName
+          );
+
+          console.log(
+            `✅ [STAFF CHAT] Unread count for session ${session.sessionId}: ${unreadCount}`
+          );
+
+          return {
+            sessionId: session.sessionId,
+            unreadCount: unreadCount || 0,
+          };
+        } catch (error) {
+          console.error(
+            `❌ [STAFF CHAT] Error getting unread count for session ${session.sessionId}:`,
+            error
+          );
+          return {
+            sessionId: session.sessionId,
+            unreadCount: 0,
+          };
+        }
+      });
+
+      const unreadCounts = await Promise.all(unreadCountPromises);
+
+      // Map unread counts back to sessions
+      const sessionsWithUnreadCount = sessions.map((session) => {
+        const unreadData = unreadCounts.find(
+          (uc) => uc.sessionId === session.sessionId
+        );
+        return {
+          ...session,
+          unreadCount: unreadData ? unreadData.unreadCount : 0,
+        };
+      });
+
+      console.log(
+        `✅ [STAFF CHAT] Successfully fetched unread counts for ${sessionsWithUnreadCount.length} sessions`
+      );
+
+      return sessionsWithUnreadCount;
+    } catch (error) {
+      console.error("❌ [STAFF CHAT] Error fetching unread counts:", error);
+      // Return sessions without unread count if error
+      const fallbackSessions = sessions.map((session) => ({
+        ...session,
+        unreadCount: 0,
+      }));
+      console.warn(
+        `⚠️ [STAFF CHAT] Returning ${fallbackSessions.length} sessions with 0 unread count due to error`
+      );
+      return fallbackSessions;
     }
   };
 
@@ -143,27 +238,25 @@ const StaffChatInterface = ({ defaultTab = "waiting", hideTabs = false }) => {
   const loadSessionsForTab = async (tabKey) => {
     try {
       setLoading(true);
-      console.log("🚀 [STAFF CHAT] Loading sessions for tab:", tabKey);
-      console.log(
-        "🔍 [STAFF CHAT] Function loadSessionsForTab is being called!"
-      );
 
       let sessionsData;
       if (tabKey === "waiting") {
-        // Always fetch fresh data when clicking tab
-        console.log("🔄 [STAFF CHAT] Fetching fresh WAITING sessions");
         sessionsData = await fetchChatSessionsByStatus("WAITING");
+        // No need to fetch unread counts for waiting sessions - they don't have messages yet
         setWaitingSessions(sessionsData);
+        setSessions(sessionsData);
       } else if (tabKey === "active") {
-        // Always fetch fresh data when clicking tab
-        console.log("🔄 [STAFF CHAT] Fetching fresh ACTIVE sessions");
         sessionsData = await fetchChatSessionsByStatus("ACTIVE");
+        // Fetch unread counts for active sessions
+        sessionsData = await fetchUnreadCountsForSessions(
+          sessionsData,
+          "STAFF"
+        );
         setActiveSessions(sessionsData);
+        setSessions(sessionsData);
       }
-
-      setSessions(sessionsData);
     } catch (error) {
-      console.error("❌ [STAFF CHAT] Error loading sessions for tab:", error);
+      console.error("Error loading sessions for tab:", error);
       message.error("Không thể tải danh sách chat sessions");
     } finally {
       setLoading(false);
@@ -177,79 +270,14 @@ const StaffChatInterface = ({ defaultTab = "waiting", hideTabs = false }) => {
 
   // Mock data removed - using real API data
 
-  const mockMessages = {
-    1: [
-      {
-        id: 1,
-        message: "Xin chào! Tôi cần hỗ trợ đặt lịch khám.",
-        senderName: "Nguyễn Văn A",
-        senderType: "CUSTOMER",
-        timestamp: "2024-01-15T10:25:00Z",
-      },
-      {
-        id: 2,
-        message:
-          "Chào bạn! Tôi sẽ hỗ trợ bạn đặt lịch. Bạn muốn đặt lịch cho dịch vụ nào?",
-        senderName: "Staff Support",
-        senderType: "STAFF",
-        timestamp: "2024-01-15T10:26:00Z",
-      },
-      {
-        id: 3,
-        message: "Tôi muốn đặt lịch khám tổng quát.",
-        senderName: "Nguyễn Văn A",
-        senderType: "CUSTOMER",
-        timestamp: "2024-01-15T10:30:00Z",
-      },
-    ],
-    2: [
-      {
-        id: 1,
-        message: "Cho em hỏi về gói khám sức khỏe ạ",
-        senderName: "Trần Thị B",
-        senderType: "CUSTOMER",
-        timestamp: "2024-01-15T09:15:00Z",
-      },
-    ],
-    3: [
-      {
-        id: 1,
-        message: "Tôi đã thanh toán nhưng chưa nhận được xác nhận",
-        senderName: "Lê Văn C",
-        senderType: "CUSTOMER",
-        timestamp: "2024-01-15T08:40:00Z",
-      },
-      {
-        id: 2,
-        message: "Tôi đã kiểm tra và xác nhận thanh toán của bạn. Cảm ơn bạn!",
-        senderName: "Staff Support",
-        senderType: "STAFF",
-        timestamp: "2024-01-15T08:42:00Z",
-      },
-      {
-        id: 3,
-        message: "Cảm ơn bạn đã hỗ trợ!",
-        senderName: "Lê Văn C",
-        senderType: "CUSTOMER",
-        timestamp: "2024-01-15T08:45:00Z",
-      },
-    ],
-  };
-
   // Note: Sessions are now fetched directly from API with status filter
 
   // Note: Sessions are now fetched via API calls, not filtered from mock data
 
   // Handle tab change - call API only when user clicks tab
   const handleTabChange = (key) => {
-    console.log("🔄 [STAFF CHAT] Tab changed to:", key);
-    console.log("🎯 [STAFF CHAT] handleTabChange function is being called!");
     setActiveTab(key);
     setSelectedSession(null); // Clear selection when switching tabs
-
-    // Call API for the selected tab
-    console.log("🚀 [STAFF CHAT] User clicked tab, loading data for:", key);
-    console.log("🔥 [STAFF CHAT] About to call loadSessionsForTab...");
     loadSessionsForTab(key);
   };
 
@@ -279,16 +307,8 @@ const StaffChatInterface = ({ defaultTab = "waiting", hideTabs = false }) => {
 
   // Handle new session notification from WebSocket with duplicate prevention
   const handleNewSessionNotification = (newSession) => {
-    console.log("🆕 [STAFF CHAT] Processing new session:", newSession);
-    console.log("🔍 [STAFF CHAT] New session status:", newSession.status);
-    console.log("🔍 [STAFF CHAT] Current active tab:", activeTab);
-
     // Strong duplicate prevention using ref
     if (processedSessionsRef.current.has(newSession.sessionId)) {
-      console.log(
-        "⚠️ [STAFF CHAT] Session already processed, ignoring:",
-        newSession.sessionId
-      );
       return;
     }
 
@@ -305,10 +325,6 @@ const StaffChatInterface = ({ defaultTab = "waiting", hideTabs = false }) => {
     if (newSession.status === "WAITING") {
       setWaitingSessions((prev) => {
         if (sessionExists(prev)) {
-          console.log(
-            "⚠️ [STAFF CHAT] Duplicate WAITING session ignored:",
-            newSession.sessionId
-          );
           return prev;
         }
         return [newSession, ...prev];
@@ -318,7 +334,6 @@ const StaffChatInterface = ({ defaultTab = "waiting", hideTabs = false }) => {
       if (activeTab === "waiting") {
         setSessions((prev) => {
           if (sessionExists(prev)) {
-            console.log("⚠️ [STAFF CHAT] Duplicate session in display ignored");
             return prev;
           }
           return [newSession, ...prev];
@@ -327,10 +342,6 @@ const StaffChatInterface = ({ defaultTab = "waiting", hideTabs = false }) => {
     } else if (newSession.status === "ACTIVE") {
       setActiveSessions((prev) => {
         if (sessionExists(prev)) {
-          console.log(
-            "⚠️ [STAFF CHAT] Duplicate ACTIVE session ignored:",
-            newSession.sessionId
-          );
           return prev;
         }
         return [newSession, ...prev];
@@ -340,7 +351,6 @@ const StaffChatInterface = ({ defaultTab = "waiting", hideTabs = false }) => {
       if (activeTab === "active") {
         setSessions((prev) => {
           if (sessionExists(prev)) {
-            console.log("⚠️ [STAFF CHAT] Duplicate session in display ignored");
             return prev;
           }
           return [newSession, ...prev];
@@ -392,7 +402,93 @@ const StaffChatInterface = ({ defaultTab = "waiting", hideTabs = false }) => {
     };
   }, []);
 
-  // Subscribe to new session notifications when WebSocket is connected
+  // Handle new message from WebSocket to update unread count and display message
+  const handleNewMessage = (message) => {
+    console.log("📨 [STAFF CHAT] New message received:", message);
+    console.log(
+      "📨 [STAFF CHAT] Current selected session:",
+      selectedSession?.sessionId
+    );
+    console.log("📨 [STAFF CHAT] Message session:", message.sessionId);
+
+    // If this is the currently selected session, add message to display immediately
+    if (selectedSession?.sessionId === message.sessionId) {
+      console.log(
+        "📨 [STAFF CHAT] Adding message to current session:",
+        message
+      );
+
+      // Double check session ID match before adding message
+      if (selectedSession.sessionId === message.sessionId) {
+        // Add message to current chat interface using the addMessage method
+        if (addMessage && typeof addMessage === "function") {
+          console.log("📨 [STAFF CHAT] Calling addMessage with:", message);
+          addMessage(message);
+        } else {
+          console.warn("⚠️ [STAFF CHAT] addMessage function not available");
+        }
+
+        // Also trigger a refresh to ensure sync
+        setTimeout(() => {
+          if (refetchMessages && typeof refetchMessages === "function") {
+            refetchMessages();
+          }
+        }, 500);
+      } else {
+        console.warn("⚠️ [STAFF CHAT] Session ID mismatch, not adding message");
+      }
+    } else {
+      // Update unread count for other sessions
+      console.log(
+        "📨 [STAFF CHAT] Updating unread count for session:",
+        message.sessionId
+      );
+
+      // Update waiting sessions
+      setWaitingSessions((prev) =>
+        prev.map((session) =>
+          session.sessionId === message.sessionId
+            ? {
+                ...session,
+                unreadCount: (session.unreadCount || 0) + 1,
+                lastMessage: message.message,
+                lastMessageTime: message.timestamp || new Date().toISOString(),
+              }
+            : session
+        )
+      );
+
+      // Update active sessions
+      setActiveSessions((prev) =>
+        prev.map((session) =>
+          session.sessionId === message.sessionId
+            ? {
+                ...session,
+                unreadCount: (session.unreadCount || 0) + 1,
+                lastMessage: message.message,
+                lastMessageTime: message.timestamp || new Date().toISOString(),
+              }
+            : session
+        )
+      );
+
+      // Update current sessions display
+      setSessions((prev) =>
+        prev.map((session) =>
+          session.sessionId === message.sessionId
+            ? {
+                ...session,
+                unreadCount: (session.unreadCount || 0) + 1,
+                lastMessage: message.message,
+                lastMessageTime: message.timestamp || new Date().toISOString(),
+              }
+            : session
+        )
+      );
+    }
+  };
+
+  // Subscribe to new session notifications and staff messages when WebSocket is connected
   useEffect(() => {
     // Prevent multiple subscriptions
     if (subscriptionRef.current) {
@@ -401,42 +497,116 @@ const StaffChatInterface = ({ defaultTab = "waiting", hideTabs = false }) => {
     }
 
     if (wsConnected && chatWebSocketService) {
-      console.log("🔔 [STAFF CHAT] Setting up new session subscription...");
+      console.log("🔔 [STAFF CHAT] Setting up WebSocket subscriptions...");
 
-      const subscription = chatWebSocketService.subscribeToNewSessions(
-        (newSession) => {
+      // Subscribe to new session notifications
+      const newSessionSubscription =
+        chatWebSocketService.subscribeToNewSessions((newSession) => {
           console.log(
             "🔔 [STAFF CHAT] New session notification received:",
             newSession
           );
           handleNewSessionNotification(newSession);
-        }
-      );
+        });
 
-      if (subscription) {
-        subscriptionRef.current = subscription;
+      // Subscribe to staff messages for unread count updates
+      const staffMessagesSubscription =
+        chatWebSocketService.subscribeToStaffMessages((message) => {
+          console.log("📨 [STAFF CHAT] Staff message received:", message);
+          handleNewMessage(message);
+        });
+
+      if (newSessionSubscription || staffMessagesSubscription) {
+        subscriptionRef.current = {
+          newSession: newSessionSubscription,
+          staffMessages: staffMessagesSubscription,
+        };
         console.log(
-          "✅ [STAFF CHAT] Successfully subscribed to new session notifications"
+          "✅ [STAFF CHAT] Successfully subscribed to WebSocket notifications"
         );
       }
     }
 
     // Cleanup function to prevent multiple subscriptions
     return () => {
-      if (
-        subscriptionRef.current &&
-        typeof subscriptionRef.current.unsubscribe === "function"
-      ) {
-        console.log("🧹 [STAFF CHAT] Cleaning up WebSocket subscription...");
-        subscriptionRef.current.unsubscribe();
+      if (subscriptionRef.current) {
+        console.log("🧹 [STAFF CHAT] Cleaning up WebSocket subscriptions...");
+
+        // Unsubscribe from all subscriptions
+        if (subscriptionRef.current.newSession) {
+          subscriptionRef.current.newSession.unsubscribe();
+        }
+        if (subscriptionRef.current.staffMessages) {
+          subscriptionRef.current.staffMessages.unsubscribe();
+        }
+
         subscriptionRef.current = null;
+        console.log("✅ [STAFF CHAT] WebSocket subscriptions cleaned up");
       }
     };
   }, [wsConnected, chatWebSocketService]);
 
+  // Reset unread count when user selects a session
+  const resetUnreadCountForSession = (sessionId) => {
+    console.log(
+      `🔄 [STAFF CHAT] Resetting unread count for session: ${sessionId}`
+    );
+
+    // Update waiting sessions
+    setWaitingSessions((prev) =>
+      prev.map((session) =>
+        session.sessionId === sessionId
+          ? { ...session, unreadCount: 0 }
+          : session
+      )
+    );
+
+    // Update active sessions
+    setActiveSessions((prev) =>
+      prev.map((session) =>
+        session.sessionId === sessionId
+          ? { ...session, unreadCount: 0 }
+          : session
+      )
+    );
+
+    // Update current sessions display
+    setSessions((prev) =>
+      prev.map((session) =>
+        session.sessionId === sessionId
+          ? { ...session, unreadCount: 0 }
+          : session
+      )
+    );
+  };
+
+  // Refresh unread counts for current sessions
+  const refreshUnreadCounts = async () => {
+    try {
+      if (sessions.length === 0) return;
+
+      // Only refresh unread counts for active sessions (waiting sessions don't need it)
+      if (activeTab === "active") {
+        const updatedSessions = await fetchUnreadCountsForSessions(
+          sessions,
+          "STAFF"
+        );
+        setActiveSessions(updatedSessions);
+        setSessions(updatedSessions);
+      }
+      // For waiting tab, no need to refresh unread counts
+    } catch (error) {
+      console.error("Error refreshing unread counts:", error);
+    }
+  };
+
   // Handle session selection
   const handleSessionSelect = async (session) => {
-    console.log("📱 [STAFF CHAT] Selecting session:", session.sessionId);
+    // Reset unread count for the selected session
+    resetUnreadCountForSession(session.sessionId);
+
+    // Always mark messages as read when clicking on a session (even if already selected)
+    await markMessagesAsRead(session.sessionId);
 
     try {
       // If this is a WAITING session in the waiting tab, join it first
@@ -446,39 +616,34 @@ const StaffChatInterface = ({ defaultTab = "waiting", hideTabs = false }) => {
           session.sessionId
         );
         console.log(
-          "✅ [STAFF CHAT] Session joined successfully:",
+          " [STAFF CHAT] Session joined successfully:",
           joinedSession
         );
 
         // Send automatic greeting message when staff joins
         try {
-          const staffName = currentUser?.name || "Nhân viên hỗ trợ";
+          const staffName = "Nhân viên hỗ trợ";
           const greetingMessage = "Xin chào, tôi có thể giúp gì cho bạn?";
 
-          console.log("📤 [STAFF CHAT] Sending automatic greeting message...");
-
           // Send greeting message via unified API
-          const sentMessage = await unifiedChatAPI.sendMessage(
+          await unifiedChatAPI.sendMessage(
             session.sessionId,
             greetingMessage,
             staffName,
             true // isStaff = true
           );
 
-          console.log(
-            "✅ [STAFF CHAT] Greeting message sent successfully:",
-            sentMessage
-          );
-
           // Show success notification
           message.success(
             `Đã gửi tin nhắn chào hỏi tới ${session.customerName}`
           );
+
+          // Refresh unread counts after sending greeting message
+          setTimeout(() => {
+            refreshUnreadCounts();
+          }, 1000);
         } catch (error) {
-          console.error(
-            "❌ [STAFF CHAT] Failed to send greeting message:",
-            error
-          );
+          console.error("Failed to send greeting message:", error);
           message.error("Không thể gửi tin nhắn chào hỏi");
         }
 
@@ -492,7 +657,7 @@ const StaffChatInterface = ({ defaultTab = "waiting", hideTabs = false }) => {
         }, 500);
       } else {
         // Normal session selection - clear messages first
-        console.log("🔄 [STAFF CHAT] Switching to session:", session.sessionId);
+        console.log(" [STAFF CHAT] Switching to session:", session.sessionId);
 
         // Clear previous messages immediately
         clearMessages();
@@ -521,7 +686,7 @@ const StaffChatInterface = ({ defaultTab = "waiting", hideTabs = false }) => {
         }
       }, 200);
     } catch (error) {
-      console.error("❌ [STAFF CHAT] Error handling session selection:", error);
+      console.error("Error handling session selection:", error);
       message.error("Không thể tham gia chat session");
     }
   };
@@ -546,8 +711,6 @@ const StaffChatInterface = ({ defaultTab = "waiting", hideTabs = false }) => {
         true // isStaff = true
       );
 
-      console.log("✅ [STAFF CHAT] Message sent successfully");
-
       // Trigger immediate refetch to get the sent message
       if (refetchMessages) {
         setTimeout(() => {
@@ -559,6 +722,11 @@ const StaffChatInterface = ({ defaultTab = "waiting", hideTabs = false }) => {
       setTimeout(() => {
         scrollToBottom();
       }, 100);
+
+      // Refresh unread counts after sending message
+      setTimeout(() => {
+        refreshUnreadCounts();
+      }, 1000);
 
       // Update session's last message
       setSessions((prev) =>
@@ -573,11 +741,67 @@ const StaffChatInterface = ({ defaultTab = "waiting", hideTabs = false }) => {
         )
       );
     } catch (error) {
-      console.error("❌ [STAFF CHAT] Error sending message:", error);
+      console.error("Error sending message:", error);
       message.error("Không thể gửi tin nhắn. Vui lòng thử lại.");
 
       // Restore input text on error
       setInputMessage(messageText);
+    }
+  };
+
+  // Handle end session
+  const handleEndSession = async (sessionId, customerName, event) => {
+    // Prevent event bubbling to avoid triggering session selection
+    event.stopPropagation();
+
+    try {
+      console.log(`🔚 [STAFF CHAT] Ending session: ${sessionId}`);
+
+      // Show confirmation modal
+      Modal.confirm({
+        title: "Kết thúc cuộc trò chuyện",
+        content: `Bạn có chắc chắn muốn kết thúc cuộc trò chuyện với ${customerName}?`,
+        okText: "Kết thúc",
+        cancelText: "Hủy",
+        okType: "danger",
+        onOk: async () => {
+          try {
+            // Call end session API
+            await chatAPIService.endSession(sessionId);
+
+            console.log(
+              `✅ [STAFF CHAT] Successfully ended session: ${sessionId}`
+            );
+
+            // Show success message
+            message.success(`Đã kết thúc cuộc trò chuyện với ${customerName}`);
+
+            // Remove from active sessions
+            setActiveSessions((prev) =>
+              prev.filter((s) => s.sessionId !== sessionId)
+            );
+
+            // Clear selected session if it was the ended one
+            if (selectedSession?.sessionId === sessionId) {
+              setSelectedSession(null);
+              clearMessages();
+            }
+
+            // Refresh sessions
+            setTimeout(() => {
+              loadSessionsForTab("active");
+            }, 500);
+          } catch (error) {
+            console.error("❌ [STAFF CHAT] Error ending session:", error);
+            message.error(
+              "Không thể kết thúc cuộc trò chuyện. Vui lòng thử lại."
+            );
+          }
+        },
+      });
+    } catch (error) {
+      console.error("❌ [STAFF CHAT] Error in handleEndSession:", error);
+      message.error("Có lỗi xảy ra. Vui lòng thử lại.");
     }
   };
 
@@ -686,7 +910,7 @@ const StaffChatInterface = ({ defaultTab = "waiting", hideTabs = false }) => {
                 type="text"
                 icon={<ReloadOutlined />}
                 onClick={() => {
-                  console.log("🔄 [STAFF CHAT] Refresh button clicked");
+                  console.log(" [STAFF CHAT] Refresh button clicked");
                   // Clear cache and reload all sessions
                   setWaitingSessions([]);
                   setActiveSessions([]);
@@ -910,35 +1134,28 @@ const StaffChatInterface = ({ defaultTab = "waiting", hideTabs = false }) => {
                           </div>
 
                           <div
-                            className="session-tags"
+                            className="session-tags-and-actions"
                             style={{
                               display: "flex",
-                              gap: "4px",
-                              flexWrap: "wrap",
+                              justifyContent: "space-between",
+                              alignItems: "center",
+                              gap: "8px",
                             }}
                           >
-                            <Tag
-                              color={
-                                session.status === "WAITING"
-                                  ? "orange"
-                                  : "green"
-                              }
+                            <div
+                              className="session-tags"
                               style={{
-                                fontSize: "10px",
-                                padding: "2px 8px",
-                                borderRadius: "12px",
-                                border: "none",
-                                fontWeight: "500",
-                                margin: 0,
+                                display: "flex",
+                                gap: "4px",
+                                flexWrap: "wrap",
                               }}
                             >
-                              {session.status === "WAITING"
-                                ? "Chờ phản hồi"
-                                : "Đang hoạt động"}
-                            </Tag>
-                            {session.staffName && (
                               <Tag
-                                color="blue"
+                                color={
+                                  session.status === "WAITING"
+                                    ? "orange"
+                                    : "green"
+                                }
                                 style={{
                                   fontSize: "10px",
                                   padding: "2px 8px",
@@ -948,9 +1165,55 @@ const StaffChatInterface = ({ defaultTab = "waiting", hideTabs = false }) => {
                                   margin: 0,
                                 }}
                               >
-                                {session.staffName}
+                                {session.status === "WAITING"
+                                  ? "Chờ phản hồi"
+                                  : "Đang hoạt động"}
                               </Tag>
-                            )}
+                              {session.staffName && (
+                                <Tag
+                                  color="blue"
+                                  style={{
+                                    fontSize: "10px",
+                                    padding: "2px 8px",
+                                    borderRadius: "12px",
+                                    border: "none",
+                                    fontWeight: "500",
+                                    margin: 0,
+                                  }}
+                                >
+                                  {session.staffName}
+                                </Tag>
+                              )}
+                            </div>
+
+                            {/* End Session Button - Only show in active tab */}
+                            {activeTab === "active" &&
+                              session.status === "ACTIVE" && (
+                                <Button
+                                  type="text"
+                                  size="small"
+                                  danger
+                                  icon={<StopOutlined />}
+                                  onClick={(e) =>
+                                    handleEndSession(
+                                      session.sessionId,
+                                      session.customerName,
+                                      e
+                                    )
+                                  }
+                                  style={{
+                                    fontSize: "12px",
+                                    padding: "4px 8px",
+                                    height: "28px",
+                                    minWidth: "28px",
+                                    borderRadius: "6px",
+                                    display: "flex",
+                                    alignItems: "center",
+                                    justifyContent: "center",
+                                  }}
+                                  title="Kết thúc cuộc trò chuyện"
+                                />
+                              )}
                           </div>
                         </div>
                       </div>
@@ -1116,17 +1379,15 @@ const StaffChatInterface = ({ defaultTab = "waiting", hideTabs = false }) => {
                     onKeyDown={handleKeyPress}
                     placeholder={`Nhập tin nhắn cho ${selectedSession.customerName}...`}
                     autoSize={{ minRows: 1, maxRows: 4 }}
-                    style={{ flex: 1 }}
+                    style={{ flex: 1, marginRight: "8px" }}
                   />
                   <Button
                     type="primary"
                     icon={<SendOutlined />}
                     onClick={handleSendMessage}
                     disabled={!inputMessage.trim()}
-                    style={{ height: "auto" }}
-                  >
-                    Gửi
-                  </Button>
+                    style={{ height: "auto", color: "white" }}
+                  ></Button>
                 </Space.Compact>
               </div>
             </Card>

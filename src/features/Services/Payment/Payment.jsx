@@ -11,75 +11,6 @@ const Payment = () => {
 
   const booking = JSON.parse(localStorage.getItem("pendingBooking"));
 
-  // Function to create Zoom meeting if service type is CONSULTING_ON
-  const createZoomMeetingIfNeeded = async (appointmentId) => {
-    try {
-      console.log(
-        " [DEBUG] Checking if need to create Zoom meeting for appointment:",
-        appointmentId
-      );
-
-      // Lấy thông tin appointment để kiểm tra service type
-      const appointmentResponse = await api.get(
-        `/appointment/${appointmentId}`
-      );
-      const appointment = appointmentResponse.data;
-
-      console.log("📋 [DEBUG] Appointment details:", appointment);
-      console.log(
-        "📋 [DEBUG] Appointment details length:",
-        appointment.appointmentDetails?.length
-      );
-
-      // Kiểm tra nếu là dịch vụ CONSULTING_ON
-      if (
-        appointment.appointmentDetails &&
-        appointment.appointmentDetails.length > 0
-      ) {
-        console.log(" [DEBUG] Checking service types in appointment details:");
-        appointment.appointmentDetails.forEach((detail, index) => {
-          console.log(`📋 [DEBUG] Detail ${index}:`, detail);
-          console.log(`📋 [DEBUG] Service type ${index}:`, detail.serviceType);
-        });
-
-        const hasConsultingOnService = appointment.appointmentDetails.some(
-          (detail) => detail.serviceType === "CONSULTING_ON"
-        );
-
-        console.log(
-          " [DEBUG] Has CONSULTING_ON service:",
-          hasConsultingOnService
-        );
-
-        if (hasConsultingOnService) {
-          console.log(
-            "🎥 [DEBUG] Creating Zoom meeting for CONSULTING_ON service..."
-          );
-
-          // Gọi API tạo Zoom meeting
-          const zoomResponse = await api.get(
-            `/zoom/test-create-meeting?appointmentId=${appointmentId}`
-          );
-          console.log("📹 [DEBUG] Zoom meeting created:", zoomResponse.data);
-          console.log("📹 [DEBUG] Zoom response status:", zoomResponse.status);
-
-          message.success("Đã tạo phòng tư vấn online!");
-        } else {
-          console.log(
-            " [DEBUG] No CONSULTING_ON service found, skipping Zoom creation"
-          );
-        }
-      } else {
-        console.log(" [DEBUG] No appointment details found");
-      }
-    } catch (error) {
-      console.error("❌ [DEBUG] Error creating Zoom meeting:", error);
-      console.error("❌ [DEBUG] Zoom error response:", error.response);
-      console.error("❌ [DEBUG] Zoom error data:", error.response?.data);
-      // Không hiển thị error message để không làm phiền user
-    }
-  };
-
   // Check VNPay return parameters
   useEffect(() => {
     const urlParams = new URLSearchParams(location.search);
@@ -88,8 +19,8 @@ const Payment = () => {
     if (vnpResponseCode) {
       // User quay lại từ VNPay
       if (vnpResponseCode === "00") {
-        console.log("✅ [DEBUG] VNPay payment successful");
-        console.log("✅ [DEBUG] VNPay booking data:", booking);
+        console.log(" [DEBUG] VNPay payment successful");
+        console.log(" [DEBUG] VNPay booking data:", booking);
 
         // Thanh toán thành công
         const appointmentId = booking?.appointmentId;
@@ -100,16 +31,8 @@ const Payment = () => {
         setPaymentSuccess(true);
         setLoading(false);
 
-        // Tạo Zoom meeting nếu là dịch vụ CONSULTING_ON
-        if (appointmentId) {
-          console.log("🎥 [DEBUG] VNPay - Creating Zoom meeting...");
-          createZoomMeetingIfNeeded(appointmentId);
-        } else {
-          console.log("⚠️ [DEBUG] VNPay - No appointmentId for Zoom creation");
-        }
-
         setTimeout(() => {
-          console.log("🔄 [DEBUG] VNPay - Navigating to /user/booking");
+          console.log(" [DEBUG] VNPay - Navigating to /user/booking");
           navigate("/user/booking");
         }, 2000);
       } else {
@@ -171,7 +94,7 @@ const Payment = () => {
 
           // Kiểm tra responseCode để xử lý kết quả tạo payment giống VNPay
           if (res.data.responseCode === 0 && res.data.url) {
-            console.log("✅ [DEBUG] Payment URL created successfully");
+            console.log(" [DEBUG] Payment URL created successfully");
             // Tạo payment URL thành công, chuyển hướng đến VNPay
             const payUrl = res.data.url;
             console.log("🔗 [DEBUG] Payment URL:", payUrl);
@@ -184,11 +107,11 @@ const Payment = () => {
             );
             // Chuyển hướng sau 5 giây
             setTimeout(() => {
-              console.log("🔄 [DEBUG] Redirecting now to:", payUrl);
+              console.log(" [DEBUG] Redirecting now to:", payUrl);
               window.location.href = payUrl;
             }, 5000);
           } else if (res.data.responseCode === 0 && !res.data.url) {
-            console.log("✅ [DEBUG] Direct payment successful without URL");
+            console.log(" [DEBUG] Direct payment successful without URL");
             // Trường hợp đặc biệt: responseCode = 0 nhưng không có URL
             const appointmentId = booking.appointmentId;
             console.log("🆔 [DEBUG] AppointmentId for Zoom:", appointmentId);
@@ -198,20 +121,14 @@ const Payment = () => {
             setPaymentSuccess(true);
             setLoading(false);
 
-            // Tạo Zoom meeting nếu là dịch vụ CONSULTING_ON
-            if (appointmentId) {
-              console.log("🎥 [DEBUG] Creating Zoom meeting...");
-              createZoomMeetingIfNeeded(appointmentId);
-            }
-
             setTimeout(() => {
-              console.log("🔄 [DEBUG] Navigating to /user/booking");
+              console.log(" [DEBUG] Navigating to /user/booking");
               navigate("/user/booking");
             }, 2000);
           } else {
-            console.error("❌ [DEBUG] Payment creation failed");
-            console.error("❌ [DEBUG] Response code:", res.data.responseCode);
-            console.error("❌ [DEBUG] Response message:", res.data.message);
+            console.error(" [DEBUG] Payment creation failed");
+            console.error(" [DEBUG] Response code:", res.data.responseCode);
+            console.error(" [DEBUG] Response message:", res.data.message);
 
             // Lỗi tạo payment
             localStorage.removeItem("pendingBooking");
@@ -224,14 +141,11 @@ const Payment = () => {
             }, 3000);
           }
         } catch (error) {
-          console.error("❌ [DEBUG] Error in direct payment:", error);
-          console.error("❌ [DEBUG] Error response:", error.response);
+          console.error(" [DEBUG] Error in direct payment:", error);
+          console.error(" [DEBUG] Error response:", error.response);
+          console.error(" [DEBUG] Error response data:", error.response?.data);
           console.error(
-            "❌ [DEBUG] Error response data:",
-            error.response?.data
-          );
-          console.error(
-            "❌ [DEBUG] Error response status:",
+            " [DEBUG] Error response status:",
             error.response?.status
           );
 

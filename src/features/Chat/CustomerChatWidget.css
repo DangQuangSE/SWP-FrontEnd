@@ -30,6 +30,42 @@
   background: linear-gradient(135deg, #52c41a, #73d13d) !important;
 }
 
+/* Unread Count Badge - Messenger Style */
+.chat-widget-button .ant-badge-count {
+  background: #ff4d4f !important;
+  color: white !important;
+  font-weight: bold !important;
+  font-size: 12px !important;
+  min-width: 20px !important;
+  height: 20px !important;
+  line-height: 20px !important;
+  border-radius: 10px !important;
+  border: 2px solid white !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15) !important;
+  animation: pulse 2s infinite !important;
+}
+
+/* Pulse animation for unread badge */
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  }
+  50% {
+    transform: scale(1.1);
+    box-shadow: 0 4px 12px rgba(255, 77, 79, 0.4);
+  }
+  100% {
+    transform: scale(1);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  }
+}
+
+/* Hide badge when count is 0 */
+.chat-widget-button .ant-badge-count[title="0"] {
+  display: none !important;
+}
+
 /* Chat Widget Panel */
 .chat-widget-panel {
   position: fixed;

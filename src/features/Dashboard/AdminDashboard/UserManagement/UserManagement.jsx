@@ -321,13 +321,15 @@ const UserManagement = ({ form }) => {
             Sửa
           </Button>
           <Popconfirm
-            title="Bạn có chắc chắn muốn xóa người dùng này?"
+            title="Vô hiệu hóa người dùng"
+            description="Bạn có chắc chắn muốn vô hiệu hóa người dùng này? Tài khoản sẽ bị khóa nhưng dữ liệu vẫn được lưu trữ."
             onConfirm={() => handleDeleteUser(record.id)}
-            okText="Có"
-            cancelText="Không"
+            okText="Vô hiệu hóa"
+            cancelText="Hủy"
+            okType="danger"
           >
             <Button size="small" danger icon={<DeleteOutlined />}>
-              Xóa
+              Vô hiệu hóa
             </Button>
           </Popconfirm>
         </Space>
@@ -423,13 +425,15 @@ const UserManagement = ({ form }) => {
             Sửa
           </Button>
           <Popconfirm
-            title="Bạn có chắc chắn muốn xóa người dùng này?"
+            title="Vô hiệu hóa người dùng"
+            description="Bạn có chắc chắn muốn vô hiệu hóa người dùng này? Tài khoản sẽ bị khóa nhưng dữ liệu vẫn được lưu trữ."
             onConfirm={() => handleDeleteUser(record.id)}
-            okText="Có"
-            cancelText="Không"
+            okText="Vô hiệu hóa"
+            cancelText="Hủy"
+            okType="danger"
           >
             <Button size="small" danger icon={<DeleteOutlined />}>
-              Xóa
+              Vô hiệu hóa
             </Button>
           </Popconfirm>
         </Space>

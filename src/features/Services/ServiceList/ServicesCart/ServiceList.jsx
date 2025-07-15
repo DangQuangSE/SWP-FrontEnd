@@ -4,6 +4,17 @@ import { useNavigate } from "react-router-dom";
 import "./ServiceList.css";
 import { Button } from "antd";
 
+// Thêm component hiển thị đánh giá sao
+const StarRating = ({ rating }) => {
+  const stars = [];
+  for (let i = 1; i <= 5; i++) {
+    stars.push(
+      <span key={i} className={i <= rating ? 'star filled' : 'star'}>★</span>
+    );
+  }
+  return <div className="star-rating">{stars}</div>;
+};
+
 const TABS = {
   ALL: "Tất cả dịch vụ",
   CONSULTING: "Dịch vụ tư vấn",
@@ -15,20 +26,43 @@ const ServiceList = () => {
   const [services, setServices] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [activeTab, setActiveTab] = useState("ALL");
+  const [serviceRatings, setServiceRatings] = useState({});
   const navigate = useNavigate();
 
+  // Fetch dịch vụ
   useEffect(() => {
     axios
       .get("/api/services")
       .then((res) => {
         setServices(res.data);
-        console.log(res.data);
+        // Sau khi lấy danh sách dịch vụ, lấy đánh giá cho từng dịch vụ
+        res.data.forEach(service => {
+          fetchServiceRating(service.id);
+        });
       })
       .catch((err) => {
         console.error("Lỗi khi tải service:", err);
         setServices([]);
       });
   }, []);
+
+  // Hàm lấy đánh giá trung bình cho dịch vụ
+  const fetchServiceRating = (serviceId) => {
+    axios
+      .get(`/api/feedback/average-rating/${serviceId}`)
+      .then((res) => {
+        setServiceRatings(prev => ({
+          ...prev,
+          [serviceId]: {
+            averageRating: res.data.averageRating || 0,
+            totalRatings: res.data.totalAppointment || 0
+          }
+        }));
+      })
+      .catch((err) => {
+        console.error(`Lỗi khi lấy đánh giá cho dịch vụ ${serviceId}:`, err);
+      });
+  };
 
   const filteredServices = services.filter((s) =>
     s.name.toLowerCase().includes(searchTerm.toLowerCase())
@@ -57,6 +91,7 @@ const ServiceList = () => {
         const isCombo = service.isCombo === true;
         const discount = service.discountPercent || 0;
         const basePrice = service.price || 0;
+        const rating = serviceRatings[service.id] || { averageRating: 0, totalRatings: 0 };
 
         let originalPrice = basePrice;
         let finalPrice = basePrice;
@@ -114,6 +149,12 @@ const ServiceList = () => {
                 >
                   <span>Đặt Lịch Hẹn</span>
                 </Button>
+                <div className="service-rating">
+                  <StarRating rating={rating.averageRating} />
+                  <span className="rating-text">
+                    {rating.averageRating.toFixed(1)} ({rating.totalRatings} đánh giá)
+                  </span>
+                </div>
               </div>
             </div>
           </div>
@@ -137,9 +178,8 @@ const ServiceList = () => {
         {Object.entries(TABS).map(([key, label]) => (
           <button
             key={key}
-            className={`service-tab-button ${
-              activeTab === key ? "active" : ""
-            }`}
+            className={`service-tab-button ${activeTab === key ? "active" : ""
+              }`}
             onClick={() => setActiveTab(key)}
           >
             {label}

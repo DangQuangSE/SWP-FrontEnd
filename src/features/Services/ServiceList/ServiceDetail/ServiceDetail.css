@@ -11,13 +11,16 @@
   border-radius: 10px;
   height: auto;
 }
+
 .service-info-detail {
   width: 50%;
 }
+
 /* Bên trái chứa thông tin dịch vụ */
 .service-detail-left {
   flex: 1;
-  max-width: calc(100% - 440px); /* giữ đủ chỗ cho bên phải */
+  max-width: calc(100% - 440px);
+  /* giữ đủ chỗ cho bên phải */
   min-width: 0;
 }
 
@@ -96,6 +99,7 @@
     max-width: 100%;
   }
 }
+
 /* Tab items */
 
 .ant-tabs-tab {
@@ -120,4 +124,62 @@
   height: 4px;
   background-color: #0288d1 !important;
   border-radius: 2px;
+}
+
+/* Thêm CSS cho phần đánh giá */
+.star-rating {
+  display: inline-flex;
+  margin-right: 8px;
+}
+
+.star {
+  color: #e0e0e0;
+  font-size: 24px;
+}
+
+.star.filled {
+  color: #FFD700;
+}
+
+/* CSS cho danh sách đánh giá */
+.feedback-list {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  padding: 16px 0;
+}
+
+.feedback-card {
+  background-color: #f9fafb;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 16px;
+  margin-bottom: 16px;
+}
+
+.feedback-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.feedback-author {
+  font-size: 16px;
+  font-weight: 600;
+  color: #1f2937;
+  margin: 0;
+}
+
+.feedback-date {
+  font-size: 14px;
+  color: #6b7280;
+  margin: 0 0 12px 0;
+}
+
+.feedback-comment {
+  font-size: 15px;
+  color: #374151;
+  line-height: 1.6;
+  margin: 0;
 }

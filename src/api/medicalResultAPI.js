@@ -12,7 +12,7 @@ import api from "../configs/api";
  */
 export const submitMedicalResult = async (resultData) => {
   try {
-    console.log("🔄 [API] Submitting medical result:", resultData);
+    console.log(" [API] Submitting medical result:", resultData);
 
     const response = await api.post("/result", resultData);
 
@@ -36,7 +36,7 @@ export const submitMedicalResult = async (resultData) => {
  */
 export const getMedicalResult = async (resultId) => {
   try {
-    console.log(`🔄 [API] Fetching medical result ID: ${resultId}`);
+    console.log(` [API] Fetching medical result ID: ${resultId}`);
 
     const response = await api.get(`/result/${resultId}`);
 
@@ -56,7 +56,7 @@ export const getMedicalResult = async (resultId) => {
  */
 export const updateMedicalResult = async (resultId, updateData) => {
   try {
-    console.log(`🔄 [API] Updating medical result ID: ${resultId}`, updateData);
+    console.log(` [API] Updating medical result ID: ${resultId}`, updateData);
 
     const response = await api.put(`/result/${resultId}`, updateData);
 
@@ -75,7 +75,7 @@ export const updateMedicalResult = async (resultId, updateData) => {
  */
 export const deleteMedicalResult = async (resultId) => {
   try {
-    console.log(`🔄 [API] Deleting medical result ID: ${resultId}`);
+    console.log(` [API] Deleting medical result ID: ${resultId}`);
 
     const response = await api.delete(`/result/${resultId}`);
 
@@ -97,7 +97,7 @@ export const getMedicalResultsByAppointmentDetail = async (
 ) => {
   try {
     console.log(
-      `🔄 [API] Fetching medical results for appointment detail: ${appointmentDetailId}`
+      ` [API] Fetching medical results for appointment detail: ${appointmentDetailId}`
     );
 
     const response = await api.get(

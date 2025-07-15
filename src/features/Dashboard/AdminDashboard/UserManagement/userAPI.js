@@ -58,12 +58,16 @@ export const updateUser = async (id, user) => {
   }
 };
 
-// Xóa user
+// Vô hiệu hóa user (Soft Delete)
 export const deleteUser = async (id) => {
   try {
-    await api.delete(`/admin/user/${id}`);
+    console.log(`🗑️ [USER API] Soft deleting user with ID: ${id}`);
+    const response = await api.delete(`/admin/user/${id}`);
+    console.log(`✅ [USER API] User ${id} soft deleted successfully`);
+    return response.data;
   } catch (error) {
-    console.error("Lỗi xóa user:", error);
+    console.error(`❌ [USER API] Error soft deleting user ${id}:`, error);
+    console.error("Error details:", error.response?.data);
     throw error;
   }
 };

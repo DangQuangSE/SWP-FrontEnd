@@ -48,15 +48,15 @@ function Staff() {
     // Check if there's a saved menu item from chat widget navigation
     const savedMenuItem = localStorage.getItem("staffSelectedMenuItem");
     console.log(
-      "🔍 [STAFF] Checking localStorage staffSelectedMenuItem:",
+      " [STAFF] Checking localStorage staffSelectedMenuItem:",
       savedMenuItem
     );
     if (savedMenuItem) {
-      console.log("✅ [STAFF] Found saved menu item:", savedMenuItem);
+      console.log(" [STAFF] Found saved menu item:", savedMenuItem);
       localStorage.removeItem("staffSelectedMenuItem"); // Clear after use
       return savedMenuItem;
     }
-    console.log("🔍 [STAFF] No saved menu item, using default");
+    console.log(" [STAFF] No saved menu item, using default");
     return "appointments_view_all"; // Default selected item
   });
 
@@ -77,28 +77,28 @@ function Staff() {
     {
       key: "appointments",
       icon: React.createElement(CalendarOutlined),
-      label: "Appointments",
+      label: "Lịch hẹn",
       children: [
-        { key: "appointments_view_all", label: "View All" },
+        { key: "appointments_view_all", label: "Xem tất cả" },
         {
           key: "appointments_consultant_schedule",
-          label: "Consultant Schedule",
+          label: "Lịch tư vấn viên",
         },
       ],
     },
     {
       key: "customers",
       icon: React.createElement(UserOutlined),
-      label: "Customers",
+      label: "Khách hàng",
       children: [
-        { key: "customers_profiles", label: "Profiles" },
-        { key: "customers_history", label: "History" },
+        { key: "customers_profiles", label: "Hồ sơ" },
+        { key: "customers_history", label: "Lịch sử" },
       ],
     },
     {
       key: "qa",
       icon: React.createElement(QuestionCircleOutlined),
-      label: "Q&A",
+      label: "Hỏi đáp",
       // children: [
       //   { key: "qa_waiting", label: "Đang chờ" },
       //   { key: "qa_active", label: "Đang hoạt động" },
@@ -160,7 +160,7 @@ function Staff() {
 
   const renderContent = () => {
     console.log(
-      "🔍 [STAFF] Rendering content for selectedMenuItem:",
+      " [STAFF] Rendering content for selectedMenuItem:",
       selectedMenuItem
     );
     switch (selectedMenuItem) {
@@ -173,10 +173,10 @@ function Staff() {
               <Col xs={24} md={12} key={schedule.id}>
                 <Card title={schedule.consultant}>
                   <p>
-                    <strong>Date:</strong> {schedule.date}
+                    <strong>Ngày:</strong> {schedule.date}
                   </p>
                   <p>
-                    <strong>Available Slots:</strong>
+                    <strong>Khung giờ có sẵn:</strong>
                   </p>
                   <Space wrap>
                     {schedule.slots.map((slot, index) => (
@@ -201,15 +201,15 @@ function Staff() {
                   title={profile.name}
                   extra={
                     <Button type="primary" icon={<EyeOutlined />}>
-                      View Details
+                      Xem chi tiết
                     </Button>
                   }
                 >
                   <p>
-                    <strong>Medical History:</strong> {profile.medicalHistory}
+                    <strong>Tiền sử bệnh:</strong> {profile.medicalHistory}
                   </p>
                   <p>
-                    <strong>Last Visit:</strong> {profile.lastVisit}
+                    <strong>Lần khám cuối:</strong> {profile.lastVisit}
                   </p>
                 </Card>
               </List.Item>
@@ -229,8 +229,8 @@ function Staff() {
         return <StaffChatInterface defaultTab="waiting" hideTabs={false} />;
       case "customers_history":
         return (
-          <Card title="Customer History">
-            <p>Customer history details will be displayed here.</p>
+          <Card title="Lịch sử khách hàng">
+            <p>Chi tiết lịch sử khách hàng sẽ được hiển thị ở đây.</p>
           </Card>
         );
       case "qa_active":
@@ -270,7 +270,7 @@ function Staff() {
               style={{ height: "100%", borderRight: 0 }}
               items={items2}
               onSelect={({ key }) => {
-                console.log("🔍 [STAFF] Menu item selected:", key);
+                console.log(" [STAFF] Menu item selected:", key);
                 setSelectedMenuItem(key);
               }}
             />
@@ -300,7 +300,7 @@ function Staff() {
 
         {/* Create Appointment Modal */}
         <Modal
-          title="Create New Appointment"
+          title="Tạo lịch hẹn mới"
           visible={isAppointmentModalVisible}
           onOk={handleAppointmentModalOk}
           onCancel={() => setIsAppointmentModalVisible(false)}
@@ -343,7 +343,7 @@ function Staff() {
 
         {/* Create Q&A Modal */}
         <Modal
-          title="New Q&A"
+          title="Hỏi đáp mới"
           visible={isQAModalVisible}
           onOk={handleQAModalOk}
           onCancel={() => setIsQAModalVisible(false)}

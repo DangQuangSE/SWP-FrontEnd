@@ -5,19 +5,20 @@ Hệ thống components để hiển thị hồ sơ bệnh án và lịch sử k
 ## 📋 Components
 
 ### 1. PatientDetailButton
+
 **Nút "Chi tiết" để mở modal hồ sơ bệnh án**
 
 ```jsx
 import { PatientDetailButton } from './features/Dashboard/ConsultantDashboard/PatientHistory';
 
 // Sử dụng cơ bản
-<PatientDetailButton 
+<PatientDetailButton
   patientId={3}
   patientName="Nguyễn Văn A"
 />
 
 // Tùy chỉnh
-<PatientDetailButton 
+<PatientDetailButton
   patientId={3}
   patientName="Nguyễn Văn A"
   buttonText="Xem hồ sơ"
@@ -27,6 +28,7 @@ import { PatientDetailButton } from './features/Dashboard/ConsultantDashboard/Pa
 ```
 
 **Props:**
+
 - `patientId` (number, required): ID bệnh nhân
 - `patientName` (string): Tên bệnh nhân hiển thị trong modal
 - `buttonText` (string): Text hiển thị trên nút (default: "Chi tiết")
@@ -35,10 +37,11 @@ import { PatientDetailButton } from './features/Dashboard/ConsultantDashboard/Pa
 - `disabled` (boolean): Vô hiệu hóa nút
 
 ### 2. PatientInfoCard
+
 **Thẻ hiển thị thông tin bệnh nhân với nút Chi tiết**
 
 ```jsx
-import { PatientInfoCard } from './features/Dashboard/ConsultantDashboard/PatientHistory';
+import { PatientInfoCard } from "./features/Dashboard/ConsultantDashboard/PatientHistory";
 
 <PatientInfoCard
   patientId={3}
@@ -49,10 +52,11 @@ import { PatientInfoCard } from './features/Dashboard/ConsultantDashboard/Patien
   patientPhone="0123456789"
   appointmentDate="2025-07-03"
   appointmentCount={4}
-/>
+/>;
 ```
 
 **Props:**
+
 - `patientId` (number): ID bệnh nhân
 - `patientName` (string): Tên bệnh nhân
 - `patientAge` (number): Tuổi
@@ -64,22 +68,25 @@ import { PatientInfoCard } from './features/Dashboard/ConsultantDashboard/Patien
 - `showDetailButton` (boolean): Hiển thị nút Chi tiết (default: true)
 
 ### 3. PatientMedicalHistory
+
 **Component chính hiển thị hồ sơ bệnh án đầy đủ**
 
 ```jsx
-import { PatientMedicalHistory } from './features/Dashboard/ConsultantDashboard/PatientHistory';
+import { PatientMedicalHistory } from "./features/Dashboard/ConsultantDashboard/PatientHistory";
 
-<PatientMedicalHistory patientId={3} />
+<PatientMedicalHistory patientId={3} />;
 ```
 
 **Props:**
+
 - `patientId` (number, required): ID bệnh nhân
 
 ## 🔧 API Functions
 
 ### getPatientMedicalHistory
+
 ```jsx
-import { getPatientMedicalHistory } from './api/patientHistoryAPI';
+import { getPatientMedicalHistory } from "./api/patientHistoryAPI";
 
 const response = await getPatientMedicalHistory(patientId, page, size);
 ```
@@ -87,6 +94,7 @@ const response = await getPatientMedicalHistory(patientId, page, size);
 **Endpoint:** `GET /api/medical-profile/patient/{patientId}/history`
 
 **Parameters:**
+
 - `patientId` (number): ID bệnh nhân
 - `page` (number): Số trang (0-based)
 - `size` (number): Kích thước trang
@@ -94,25 +102,27 @@ const response = await getPatientMedicalHistory(patientId, page, size);
 ## 🎯 Cách tích hợp vào project hiện có
 
 ### 1. Trong Consultant Dashboard
+
 ```jsx
 // Thêm vào PersonalSchedule.jsx hoặc component khác
-import { PatientDetailButton } from '../PatientHistory';
+import { PatientDetailButton } from "../PatientHistory";
 
 // Trong render của appointment detail
-<PatientDetailButton 
+<PatientDetailButton
   patientId={appointment.customerId}
   patientName={appointment.customerName}
-/>
+/>;
 ```
 
 ### 2. Trong bảng danh sách bệnh nhân
+
 ```jsx
 // Thêm column "Chi tiết" vào Table
 {
   title: "Thao tác",
   key: "action",
   render: (_, record) => (
-    <PatientDetailButton 
+    <PatientDetailButton
       patientId={record.id}
       patientName={record.name}
     />
@@ -121,6 +131,7 @@ import { PatientDetailButton } from '../PatientHistory';
 ```
 
 ### 3. Trong thẻ thông tin bệnh nhân
+
 ```jsx
 // Sử dụng PatientInfoCard thay thế cho card hiện có
 <PatientInfoCard
@@ -135,20 +146,20 @@ import { PatientDetailButton } from '../PatientHistory';
 
 ## 🎨 Thiết kế
 
-- ✅ **Chuyên nghiệp y tế**: Màu sắc nhẹ nhàng, không lòe loẹt
-- ✅ **Tiếng Việt**: Toàn bộ interface bằng tiếng Việt
-- ✅ **Responsive**: Tương thích mobile và desktop
-- ✅ **Modal**: Hiển thị hồ sơ trong modal không ảnh hưởng workflow
-- ✅ **Loading states**: Có loading và error handling
+- **Chuyên nghiệp y tế**: Màu sắc nhẹ nhàng, không lòe loẹt
+- **Tiếng Việt**: Toàn bộ interface bằng tiếng Việt
+- **Responsive**: Tương thích mobile và desktop
+- **Modal**: Hiển thị hồ sơ trong modal không ảnh hưởng workflow
+- **Loading states**: Có loading và error handling
 
 ## 🚀 Demo
 
 Chạy `PatientHistoryDemo` component để xem demo đầy đủ:
 
 ```jsx
-import { PatientHistoryDemo } from './features/Dashboard/ConsultantDashboard/PatientHistory';
+import { PatientHistoryDemo } from "./features/Dashboard/ConsultantDashboard/PatientHistory";
 
-<PatientHistoryDemo />
+<PatientHistoryDemo />;
 ```
 
 ## 📱 User Experience
@@ -160,4 +171,4 @@ import { PatientHistoryDemo } from './features/Dashboard/ConsultantDashboard/Pat
    - Kết quả xét nghiệm gần đây
 3. **Click "Đóng"** → Đóng modal, quay về màn hình chính
 
-**Không ảnh hưởng đến workflow hiện có!** ✅
+**Không ảnh hưởng đến workflow hiện có!**

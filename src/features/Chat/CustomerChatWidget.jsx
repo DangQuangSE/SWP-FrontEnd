@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import {
   Button,
   Input,
@@ -47,7 +47,12 @@ const CustomerChatWidget = () => {
   const [staffOnline, setStaffOnline] = useState(false);
   const [staffTyping, setStaffTyping] = useState(false);
   const [sessionStatus, setSessionStatus] = useState("WAITING"); // WAITING, ACTIVE, COMPLETED
-  const [unreadCount, setUnreadCount] = useState(0);
+  const [unreadCount, setUnreadCount] = useState(() => {
+    // Load unread count from localStorage on init
+    const saved = localStorage.getItem("chat_unread_count");
+    return saved ? parseInt(saved, 10) : 0;
+  });
+  const [lastReadMessageId, setLastReadMessageId] = useState(null);
 
   // Real-time messages hook
   const {
@@ -66,6 +71,28 @@ const CustomerChatWidget = () => {
   const inputRef = useRef(null);
   const stompClientRef = useRef(null);
   const wsConnectedRef = useRef(false);
+
+  // Auto mark-read function for customer
+  const markMessagesAsRead = async (sessionId) => {
+    if (!sessionId || !customerName) return;
+
+    try {
+      const readerName = customerName; // Customer reader name
+      await customerChatAPI.markMessagesAsRead(sessionId, readerName);
+      console.log(
+        `✅ [CUSTOMER MARK READ] Messages marked as read for session: ${sessionId}`
+      );
+
+      // Reset unread count after marking as read
+      setUnreadCount(0);
+      localStorage.setItem("chat_unread_count", "0");
+    } catch (error) {
+      console.error(
+        "❌ [CUSTOMER MARK READ] Failed to mark messages as read:",
+        error
+      );
+    }
+  };
   const navigate = useNavigate();
 
   // Get current user info from Redux store first, then fallback to localStorage
@@ -81,30 +108,30 @@ const CustomerChatWidget = () => {
   const currentUser = reduxUser || localStorageUser;
   const userRole = currentUser?.role || "CUSTOMER";
 
-  console.log("🔍 [WIDGET] Redux user:", reduxUser);
-  console.log("🔍 [WIDGET] Redux token:", !!reduxToken);
-  console.log("🔍 [WIDGET] LocalStorage user:", localStorageUser);
-  console.log("🔍 [WIDGET] Final user:", currentUser);
-  console.log("🔍 [WIDGET] Final role:", userRole);
-  console.log("🔍 [WIDGET] All localStorage keys:", Object.keys(localStorage));
+  // Auto mark-read when new messages arrive and chat is open
+  useEffect(() => {
+    if (sessionId && messages.length > 0 && isOpen) {
+      // Mark messages as read when user is actively viewing the chat
+      markMessagesAsRead(sessionId);
+    }
+  }, [messages.length, sessionId, isOpen]);
 
   // WebSocket connection for real-time updates
   const connectWebSocket = () => {
     if (wsConnectedRef.current || !sessionId) return;
 
     try {
-      console.log("🔌 [CUSTOMER WS] Connecting to WebSocket...");
       const socket = new SockJS("http://localhost:8080/ws/chat");
       const stompClient = Stomp.over(socket);
 
-      stompClient.debug = (str) => {
-        console.log("🔍 [CUSTOMER STOMP]:", str);
+      // Disable debug logging
+      stompClient.debug = function (str) {
+        // Silent debug - no console output
       };
 
       stompClient.connect(
         {},
         (frame) => {
-          console.log("✅ [CUSTOMER WS] Connected:", frame);
           wsConnectedRef.current = true;
           stompClientRef.current = stompClient;
 
@@ -112,7 +139,6 @@ const CustomerChatWidget = () => {
           stompClient.subscribe(`/topic/chat/${sessionId}`, (message) => {
             try {
               const data = JSON.parse(message.body);
-              console.log("📨 [CUSTOMER WS] Message received:", data);
 
               // Handle real-time message via WebSocket
               if (data.message) {
@@ -121,24 +147,24 @@ const CustomerChatWidget = () => {
                   data.senderType === "STAFF" &&
                   sessionStatus === "WAITING"
                 ) {
-                  console.log(
-                    "👨‍💼 [CUSTOMER WS] First staff message received - session now ACTIVE"
-                  );
                   setStaffOnline(true);
                   setSessionStatus("ACTIVE");
 
                   // Clear bot messages - let polling fetch the real message
                   clearMessages();
-                } else {
-                  // Don't add optimistically - let polling fetch it
-                  console.log(
-                    "📥 [CUSTOMER WS] Message received, triggering refetch"
-                  );
                 }
 
-                // Update unread count if widget is closed
-                if (!isOpen) {
-                  setUnreadCount((prev) => prev + 1);
+                // Update unread count if widget is closed and message is from staff
+                if (!isOpen && data.senderType === "STAFF") {
+                  setUnreadCount((prev) => {
+                    const newCount = prev + 1;
+                    // Save to localStorage
+                    localStorage.setItem(
+                      "chat_unread_count",
+                      newCount.toString()
+                    );
+                    return newCount;
+                  });
                 }
 
                 // Trigger refetch to sync with backend (get real message from server)
@@ -152,7 +178,7 @@ const CustomerChatWidget = () => {
                 setStaffTyping(false);
               }
             } catch (error) {
-              console.error("❌ [CUSTOMER WS] Error parsing message:", error);
+              console.error("Error parsing message:", error);
             }
           });
 
@@ -162,7 +188,6 @@ const CustomerChatWidget = () => {
             (message) => {
               try {
                 const data = JSON.parse(message.body);
-                console.log("📊 [CUSTOMER WS] Status update:", data);
 
                 if (data.status) {
                   setSessionStatus(data.status);
@@ -171,19 +196,16 @@ const CustomerChatWidget = () => {
                     setStaffOnline(true);
                   } else if (data.status === "COMPLETED") {
                     setStaffOnline(false);
-                    // Don't add completion message optimistically
-                    // Let the system handle session completion naturally
-                    console.log("📋 [CUSTOMER WS] Session completed");
                   }
                 }
               } catch (error) {
-                console.error("❌ [CUSTOMER WS] Error parsing status:", error);
+                console.error("Error parsing status:", error);
               }
             }
           );
         },
         (error) => {
-          console.error("❌ [CUSTOMER WS] Connection error:", error);
+          console.error("Connection error:", error);
           wsConnectedRef.current = false;
 
           // Retry connection after 5 seconds
@@ -193,14 +215,13 @@ const CustomerChatWidget = () => {
         }
       );
     } catch (error) {
-      console.error("❌ [CUSTOMER WS] Failed to create connection:", error);
+      console.error("Failed to create connection:", error);
     }
   };
 
   // Disconnect WebSocket
   const disconnectWebSocket = () => {
     if (stompClientRef.current && wsConnectedRef.current) {
-      console.log("🔌 [CUSTOMER WS] Disconnecting...");
       stompClientRef.current.disconnect();
       wsConnectedRef.current = false;
       stompClientRef.current = null;
@@ -210,27 +231,22 @@ const CustomerChatWidget = () => {
   // Start chat session API call (no auth required)
   const startChatSession = async (name) => {
     try {
-      console.log("🚀 [CHAT API] Starting chat session (no auth)...");
-      console.log("🔍 [CHAT API] Customer name:", name);
-
       const requestBody = {
         customerName: name || "Khách hàng",
       };
 
-      console.log("🔍 [CHAT API] Request body:", requestBody);
-
       // Call chat API (no auth required)
       const response = await chatApi.post("/chat/start", requestBody);
 
-      console.log("✅ [CHAT API] Response received:");
-      console.log("🔍 [CHAT API] Full response:", response);
-      console.log("🔍 [CHAT API] Response data:", response.data);
-      console.log("🔍 [CHAT API] Response status:", response.status);
-      console.log("🔍 [CHAT API] Response headers:", response.headers);
+      console.log(" [CHAT API] Response received:");
+      console.log(" [CHAT API] Full response:", response);
+      console.log(" [CHAT API] Response data:", response.data);
+      console.log(" [CHAT API] Response status:", response.status);
+      console.log(" [CHAT API] Response headers:", response.headers);
 
       if (response.data && response.data.sessionId) {
         setSessionId(response.data.sessionId);
-        console.log("✅ [CHAT API] Session ID set:", response.data.sessionId);
+        console.log(" [CHAT API] Session ID set:", response.data.sessionId);
         setIsConnected(true);
         setShowNameForm(false);
 
@@ -246,15 +262,15 @@ const CustomerChatWidget = () => {
 
       return response.data;
     } catch (error) {
-      console.error("❌ [CHAT API] Error starting chat session:");
-      console.error("🔍 [CHAT API] Error object:", error);
-      console.error("🔍 [CHAT API] Error response:", error.response);
-      console.error("🔍 [CHAT API] Error message:", error.message);
+      console.error(" [CHAT API] Error starting chat session:");
+      console.error(" [CHAT API] Error object:", error);
+      console.error(" [CHAT API] Error response:", error.response);
+      console.error(" [CHAT API] Error message:", error.message);
 
       if (error.response) {
-        console.error("🔍 [CHAT API] Error status:", error.response.status);
-        console.error("🔍 [CHAT API] Error data:", error.response.data);
-        console.error("🔍 [CHAT API] Error headers:", error.response.headers);
+        console.error(" [CHAT API] Error status:", error.response.status);
+        console.error(" [CHAT API] Error data:", error.response.data);
+        console.error(" [CHAT API] Error headers:", error.response.headers);
       }
 
       throw error;
@@ -264,16 +280,16 @@ const CustomerChatWidget = () => {
   // Handle name form submission
   const handleNameSubmit = async () => {
     if (!customerName.trim()) {
-      console.log("❌ [NAME FORM] Customer name is required");
+      console.log(" [NAME FORM] Customer name is required");
       return;
     }
 
     console.log("🚀 [NAME FORM] Submitting name:", customerName);
     try {
       await startChatSession(customerName);
-      console.log("✅ [NAME FORM] Chat session started successfully");
+      console.log(" [NAME FORM] Chat session started successfully");
     } catch (error) {
-      console.error("❌ [NAME FORM] Failed to start chat session:", error);
+      console.error(" [NAME FORM] Failed to start chat session:", error);
     }
   };
 
@@ -312,12 +328,104 @@ const CustomerChatWidget = () => {
     };
   }, [sessionId]);
 
+  // Save unread count to localStorage
+  const saveUnreadCount = (count) => {
+    localStorage.setItem("chat_unread_count", count.toString());
+  };
+
+  // Update unread count with persistence
+  const updateUnreadCount = useCallback(
+    (newCount) => {
+      console.log(
+        `📊 [CUSTOMER CHAT] Updating unread count: ${unreadCount} → ${newCount}`
+      );
+      setUnreadCount(newCount);
+      saveUnreadCount(newCount);
+    },
+    [unreadCount]
+  );
+
+  // Fetch unread count from server
+  const fetchUnreadCount = async () => {
+    if (!sessionId || !customerName) return;
+
+    try {
+      console.log("📊 [CUSTOMER CHAT] Fetching unread count from server...");
+      const count = await customerChatAPI.getUnreadCount(
+        sessionId,
+        customerName
+      );
+      console.log("✅ [CUSTOMER CHAT] Server unread count:", count);
+      updateUnreadCount(count);
+    } catch (error) {
+      console.error("❌ [CUSTOMER CHAT] Error fetching unread count:", error);
+    }
+  };
+
+  // Load unread count when session is established
+  useEffect(() => {
+    if (sessionId && customerName && !isOpen) {
+      fetchUnreadCount();
+    }
+  }, [sessionId, customerName, isOpen]);
+
+  // Handle new messages for unread count - track previous message count
+  const prevMessageCountRef = useRef(0);
+
+  useEffect(() => {
+    if (!isOpen && messages.length > 0) {
+      // Only count messages from staff when widget is closed
+      const staffMessages = messages.filter(
+        (msg) => msg.senderType === "STAFF" && msg.senderName !== customerName
+      );
+
+      // Check if we have new staff messages compared to previous count
+      const currentStaffCount = staffMessages.length;
+      const previousStaffCount = prevMessageCountRef.current;
+
+      if (currentStaffCount > previousStaffCount) {
+        const newMessagesCount = currentStaffCount - previousStaffCount;
+        console.log(
+          `📊 [CUSTOMER CHAT] Found ${newMessagesCount} new staff messages (${previousStaffCount} → ${currentStaffCount})`
+        );
+
+        // Increment unread count by the number of new messages
+        setUnreadCount((prev) => {
+          const newCount = prev + newMessagesCount;
+          saveUnreadCount(newCount);
+          return newCount;
+        });
+      }
+
+      // Update the reference for next comparison
+      prevMessageCountRef.current = currentStaffCount;
+    }
+  }, [messages, isOpen, customerName]);
+
   // Reset unread count when widget opens
   useEffect(() => {
     if (isOpen) {
-      setUnreadCount(0);
+      console.log("🔄 [CUSTOMER CHAT] Widget opened - resetting unread count");
+      updateUnreadCount(0);
+
+      // Reset the message count reference when opening
+      const staffMessages = messages.filter(
+        (msg) => msg.senderType === "STAFF" && msg.senderName !== customerName
+      );
+      prevMessageCountRef.current = staffMessages.length;
+
+      // Save current timestamp as last seen
+      localStorage.setItem(
+        "chat_last_seen_timestamp",
+        new Date().toISOString()
+      );
+
+      // Mark messages as read on server if session exists
+      if (sessionId && customerName) {
+        markMessagesAsRead(sessionId);
+      }
     }
-  }, [isOpen]);
+  }, [isOpen, sessionId, customerName, messages]);
 
   // Handle send message
   const handleSendMessage = async () => {
@@ -341,7 +449,7 @@ const CustomerChatWidget = () => {
         false // isStaff = false for customer
       );
 
-      console.log("✅ [CUSTOMER CHAT] Message sent successfully:", sentMessage);
+      console.log(" [CUSTOMER CHAT] Message sent successfully:", sentMessage);
 
       // Trigger immediate refetch to get the sent message
       if (refetchMessages) {
@@ -353,10 +461,10 @@ const CustomerChatWidget = () => {
       // Don't send via WebSocket - REST API is sufficient
       // WebSocket will receive the message from server after API processes it
       console.log(
-        "✅ [CUSTOMER CHAT] Message sent via REST API only, WebSocket will receive from server"
+        " [CUSTOMER CHAT] Message sent via REST API only, WebSocket will receive from server"
       );
     } catch (error) {
-      console.error("❌ [CUSTOMER CHAT] Failed to send message:", error);
+      console.error(" [CUSTOMER CHAT] Failed to send message:", error);
 
       // Don't add error message optimistically
       // Just log the error and let user retry
@@ -375,11 +483,11 @@ const CustomerChatWidget = () => {
   // Toggle widget or navigate to staff dashboard
   const toggleWidget = () => {
     console.log("🚀 [WIDGET] Chat button clicked!");
-    console.log("🔍 [WIDGET] Redux user:", reduxUser);
-    console.log("🔍 [WIDGET] LocalStorage user:", localStorageUser);
-    console.log("🔍 [WIDGET] Final user:", currentUser);
-    console.log("🔍 [WIDGET] Final role:", userRole);
-    console.log("🔍 [WIDGET] Role comparison:", {
+    console.log(" [WIDGET] Redux user:", reduxUser);
+    console.log(" [WIDGET] LocalStorage user:", localStorageUser);
+    console.log(" [WIDGET] Final user:", currentUser);
+    console.log(" [WIDGET] Final role:", userRole);
+    console.log(" [WIDGET] Role comparison:", {
       userRole,
       isStaff: userRole === "STAFF",
       isStaffUpperCase: userRole?.toUpperCase() === "STAFF",
@@ -394,31 +502,31 @@ const CustomerChatWidget = () => {
       currentUser?.role === "STAFF" ||
       reduxUser?.role === "STAFF";
 
-    console.log("🔍 [WIDGET] Is staff check:", isStaff);
+    console.log(" [WIDGET] Is staff check:", isStaff);
 
     // If user is staff, navigate to Q&A Waiting page
     if (isStaff) {
-      console.log(
-        "✅ [WIDGET] Staff detected! Navigating to staff dashboard..."
-      );
-      console.log("🔍 [WIDGET] Current location:", window.location.pathname);
+      console.log(" [WIDGET] Staff detected! Navigating to staff dashboard...");
+      console.log(" [WIDGET] Current location:", window.location.pathname);
 
       // Set selected menu item BEFORE navigation
       localStorage.setItem("staffSelectedMenuItem", "qa_waiting");
       console.log(
-        "🔍 [WIDGET] Set localStorage staffSelectedMenuItem to qa_waiting"
+        " [WIDGET] Set localStorage staffSelectedMenuItem to qa_waiting"
       );
 
       // Navigate to staff dashboard
       navigate("/staff");
-      console.log("🔍 [WIDGET] Navigation called to /staff");
+      console.log(" [WIDGET] Navigation called to /staff");
       return;
     }
 
     console.log("👤 [WIDGET] Customer detected - opening chat widget...");
+
     // For customers, toggle chat widget
     setIsOpen(!isOpen);
     if (!isOpen) {
+      // Opening chat widget
       // Show name form if no session exists
       if (!sessionId) {
         setShowNameForm(true);
@@ -427,6 +535,23 @@ const CustomerChatWidget = () => {
       setTimeout(() => {
         inputRef.current?.focus();
       }, 100);
+
+      // Mark messages as read when customer opens chat widget
+      if (sessionId) {
+        markMessagesAsRead(sessionId);
+      }
+    } else {
+      // Closing chat widget - save current timestamp and fetch unread count
+      localStorage.setItem(
+        "chat_last_seen_timestamp",
+        new Date().toISOString()
+      );
+
+      if (sessionId && customerName) {
+        setTimeout(() => {
+          fetchUnreadCount();
+        }, 500); // Small delay to ensure any pending messages are processed
+      }
     }
   };
 
@@ -450,13 +575,34 @@ const CustomerChatWidget = () => {
           }
           placement="left"
         >
-          <Badge count={unreadCount} offset={[-8, 8]}>
+          <Badge
+            count={unreadCount}
+            offset={[-8, 8]}
+            style={{
+              backgroundColor: "#ff4d4f",
+              color: "white",
+              fontWeight: "bold",
+              fontSize: "12px",
+              minWidth: "20px",
+              height: "20px",
+              lineHeight: "20px",
+              borderRadius: "10px",
+              border: "2px solid white",
+              boxShadow: "0 2px 8px rgba(0,0,0,0.15)",
+            }}
+            showZero={false}
+          >
             <Button
               type="primary"
               shape="circle"
               size="large"
               icon={isOpen ? <CloseOutlined /> : <MessageOutlined />}
               className={`chat-toggle-btn ${isOpen ? "open" : ""}`}
+              style={{
+                position: "relative",
+                boxShadow: "0 4px 12px rgba(24, 144, 255, 0.3)",
+                transition: "all 0.3s ease",
+              }}
             />
           </Badge>
         </Tooltip>
