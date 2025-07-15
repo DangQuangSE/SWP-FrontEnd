@@ -25,6 +25,7 @@ import { RoomManagement } from "./Room";
 import BlogManagement from "./Blog/BlogManagement";
 
 import { UserManagement } from "./UserManagement";
+import { DashboardReports } from "./DashboardReports";
 
 import BookingDashboard from "./BookingDashboard/BookingDashboard";
 
@@ -126,13 +127,7 @@ function Admin() {
       case "manage_articles":
         return <BlogManagement userId={null} selectedTab="write_blogs" />;
       case "dashboard_reports":
-        return (
-          <Card title="Dashboard & Reports">
-            <p>
-              Admin dashboard with analytics and reports will be displayed here.
-            </p>
-          </Card>
-        );
+        return <DashboardReports />;
       case "handle_feedback":
         return (
           <Card title="Handle Service/Consultant Feedback">
