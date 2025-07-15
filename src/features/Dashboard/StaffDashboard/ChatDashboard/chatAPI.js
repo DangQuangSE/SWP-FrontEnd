@@ -1,5 +1,5 @@
 import axios from "axios";
-import { API_BASE_URL } from "../../../configs/serverConfig.js";
+import { API_BASE_URL } from "../../../../configs/serverConfig.js";
 
 /**
  * Chat API Service for Staff Dashboard

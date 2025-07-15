@@ -1,7 +1,7 @@
 import SockJS from "sockjs-client";
 import { Stomp } from "@stomp/stompjs";
 import { chatNotificationService } from "./ChatNotification";
-import { WEBSOCKET_URL } from "../../../configs/serverConfig";
+import { WEBSOCKET_URL } from "../../../../configs/serverConfig";
 
 /**
  * WebSocket Service for Chat Dashboard
