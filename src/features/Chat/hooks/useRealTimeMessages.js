@@ -99,50 +99,62 @@ export const useRealTimeMessages = (
         // Transform messages
         const transformedMessages = apiMessages.map(transformMessage);
 
-        // Update state with complete deduplication
+        // Update state with smart deduplication - only replace if there are new messages
         setMessages((prev) => {
-          // Create a map of existing messages by ID for fast lookup
-          const existingMap = new Map();
+          // Create a set of existing message IDs for fast lookup
+          const existingIds = new Set();
+          const existingClientIds = new Set();
 
-          // Add existing messages, checking for duplicates by ID and clientId
           prev.forEach((msg) => {
-            existingMap.set(msg.id, msg);
+            existingIds.add(msg.id);
             if (msg.clientId) {
-              existingMap.set(`clientId_${msg.clientId}`, msg);
+              existingClientIds.add(msg.clientId);
             }
           });
 
-          // Add new messages, avoiding duplicates by both ID and clientId
-          transformedMessages.forEach((msg) => {
-            const isDuplicateById = existingMap.has(msg.id);
+          // Find truly new messages
+          const newMessages = transformedMessages.filter((msg) => {
+            const isDuplicateById = existingIds.has(msg.id);
             const isDuplicateByClientId =
-              msg.clientId && existingMap.has(`clientId_${msg.clientId}`);
+              msg.clientId && existingClientIds.has(msg.clientId);
 
-            if (!isDuplicateById && !isDuplicateByClientId) {
-              existingMap.set(msg.id, msg);
-              if (msg.clientId) {
-                existingMap.set(`clientId_${msg.clientId}`, msg);
+            if (isDuplicateById || isDuplicateByClientId) {
+              // Only log if this is actually a duplicate (not just existing message from polling)
+              if (prev.length > 0) {
+                console.log("🔄 [REAL-TIME] Skipping duplicate message:", {
+                  instanceId: instanceId.current,
+                  id: msg.id,
+                  clientId: msg.clientId,
+                  message: msg.message.substring(0, 50),
+                  isDuplicateById,
+                  isDuplicateByClientId,
+                });
               }
-              messageIdsRef.current.add(msg.id);
-              if (msg.clientId) {
-                messageIdsRef.current.add(msg.clientId);
-              }
-            } else {
-              console.log(" [REAL-TIME] Skipping duplicate message:", {
-                instanceId: instanceId.current,
-                id: msg.id,
-                clientId: msg.clientId,
-                message: msg.message.substring(0, 50),
-                isDuplicateById,
-                isDuplicateByClientId,
-              });
+              return false;
             }
+            return true;
           });
 
-          // Convert back to array, filtering out clientId keys and sort by timestamp
-          const allMessages = Array.from(existingMap.values())
-            .filter((msg) => msg && typeof msg === "object" && msg.id) // Only actual message objects
-            .sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
+          // If no new messages, return previous state to avoid unnecessary re-renders
+          if (
+            newMessages.length === 0 &&
+            prev.length === transformedMessages.length
+          ) {
+            return prev;
+          }
+
+          // Combine existing and new messages, then sort
+          const allMessages = [...prev, ...newMessages].sort(
+            (a, b) => new Date(a.timestamp) - new Date(b.timestamp)
+          );
+
+          // Update tracking refs for new messages only
+          newMessages.forEach((msg) => {
+            messageIdsRef.current.add(msg.id);
+            if (msg.clientId) {
+              messageIdsRef.current.add(msg.clientId);
+            }
+          });
 
           // Update last message ID
           if (allMessages.length > 0) {

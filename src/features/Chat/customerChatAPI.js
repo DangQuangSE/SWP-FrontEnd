@@ -110,31 +110,15 @@ class CustomerChatAPIService {
     try {
       console.log("📥 [CUSTOMER CHAT API] Fetching messages for:", sessionId);
 
-      // Try public endpoint first
-      const response = await this.api.get(`/chat/messages/${sessionId}`);
-      console.log(" [CUSTOMER CHAT API] Messages fetched:", response.data);
+      // Use the correct endpoint that matches backend
+      const response = await this.api.get(
+        `/chat/sessions/${sessionId}/messages`
+      );
+      console.log("✅ [CUSTOMER CHAT API] Messages fetched:", response.data);
       return response.data;
     } catch (error) {
-      console.error(" [CUSTOMER CHAT API] Error fetching messages:", error);
-
-      // If public endpoint fails, try the original endpoint
-      try {
-        console.log(" [CUSTOMER CHAT API] Trying alternative endpoint...");
-        const response = await this.api.get(
-          `/chat/sessions/${sessionId}/messages`
-        );
-        console.log(
-          " [CUSTOMER CHAT API] Messages fetched (alternative):",
-          response.data
-        );
-        return response.data;
-      } catch (altError) {
-        console.error(
-          " [CUSTOMER CHAT API] Alternative endpoint also failed:",
-          altError
-        );
-        throw altError;
-      }
+      console.error("❌ [CUSTOMER CHAT API] Error fetching messages:", error);
+      throw error;
     }
   }
 
@@ -165,6 +149,75 @@ class CustomerChatAPIService {
     } catch (error) {
       console.error(
         " [CUSTOMER CHAT API] Error getting session status:",
+        error
+      );
+      throw error;
+    }
+  }
+
+  /**
+   * Get unread count for customer in a session
+   * @param {string} sessionId - Session ID
+   * @param {string} customerName - Customer name
+   * @returns {Promise<number>} Number of unread messages
+   */
+  async getUnreadCount(sessionId, customerName) {
+    try {
+      console.log("📊 [CUSTOMER CHAT API] Getting unread count:", {
+        sessionId,
+        customerName,
+      });
+
+      const response = await this.api.get(
+        `/chat/sessions/${sessionId}/unread-count`,
+        {
+          params: { readerName: customerName },
+        }
+      );
+
+      console.log("✅ [CUSTOMER CHAT API] Unread count:", response.data);
+      return response.data || 0;
+    } catch (error) {
+      console.error(
+        "❌ [CUSTOMER CHAT API] Error getting unread count:",
+        error
+      );
+      // Return 0 if error to prevent UI issues
+      return 0;
+    }
+  }
+
+  /**
+   * Mark messages as read for customer
+   * @param {string} sessionId - Session ID
+   * @param {string} customerName - Customer name (readerName)
+   * @returns {Promise} API response
+   */
+  async markMessagesAsRead(sessionId, customerName) {
+    try {
+      console.log("✅ [CUSTOMER CHAT API] Marking messages as read:", {
+        sessionId,
+        customerName,
+      });
+
+      const response = await this.api.post(
+        `/chat/sessions/${sessionId}/mark-read`,
+        null,
+        {
+          params: {
+            readerName: customerName,
+          },
+        }
+      );
+
+      console.log(
+        "✅ [CUSTOMER CHAT API] Messages marked as read:",
+        response.data
+      );
+      return response.data;
+    } catch (error) {
+      console.error(
+        "❌ [CUSTOMER CHAT API] Error marking messages as read:",
         error
       );
       throw error;
