@@ -27,7 +27,7 @@ const getServiceTypeColor = (serviceType) => {
     case "CONSULTING":
     case "CONSULTING_ON":
       return "blue";
-    case "TESTING":
+    case "TESTING_OFF":
       return "green";
     case "EXAMINATION":
       return "orange";
@@ -43,7 +43,7 @@ const getServiceTypeLabel = (serviceType) => {
       return "Tư Vấn";
     case "CONSULTING_ON":
       return "Tư vấn trực tuyến";
-    case "TESTING":
+    case "TESTING_OFF":
       return "Xét nghiệm";
     case "EXAMINATION":
       return "Khám bệnh";
