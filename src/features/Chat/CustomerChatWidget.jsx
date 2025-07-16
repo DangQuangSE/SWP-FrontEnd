@@ -22,6 +22,7 @@ import { useSelector } from "react-redux";
 import SockJS from "sockjs-client";
 import { Stomp } from "@stomp/stompjs";
 import chatApi from "../../configs/chatApi";
+import { SERVER_CONFIG } from "../../configs/api";
 import { useRealTimeMessages } from "./hooks/useRealTimeMessages";
 import { customerChatAPI } from "./customerChatAPI";
 import unifiedChatAPI from "./unifiedChatAPI";
@@ -121,7 +122,7 @@ const CustomerChatWidget = () => {
     if (wsConnectedRef.current || !sessionId) return;
 
     try {
-      const socket = new SockJS("http://localhost:8080/ws/chat");
+      const socket = new SockJS(SERVER_CONFIG.WS_URL);
       const stompClient = Stomp.over(socket);
 
       // Disable debug logging

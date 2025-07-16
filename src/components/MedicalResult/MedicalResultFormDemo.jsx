@@ -163,7 +163,7 @@ const MedicalResultFormDemo = () => {
               <Space direction="vertical" style={{ width: "100%" }}>
                 <div>
                   <Tag color="green">POST</Tag>
-                  <Text code>http://localhost:8080/api/result</Text>
+                  <Text code>http://14.225.192.15:8085/api/result</Text>
                 </div>
                 <Alert
                   message="Tính năng"

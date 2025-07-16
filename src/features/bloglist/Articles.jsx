@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import "./Articles.css";
 import { Link } from "react-router-dom";
 import { likeBlog } from "../../api/consultantAPI";
+import { SERVER_CONFIG } from "../../configs/api";
 
 const Articles = () => {
   const [articles, setArticles] = useState([]);
@@ -36,7 +37,7 @@ const Articles = () => {
         try {
           // Reload the articles data from API
           const response = await fetch(
-            "http://localhost:8080/api/blog?page=0&size=20",
+            `${SERVER_CONFIG.API_URL}/blog?page=0&size=20`,
             {
               method: "GET",
               headers: {
@@ -88,7 +89,6 @@ const Articles = () => {
           console.error(`Error reloading articles:`, reloadError);
         }
       }, 2000);
-
     } catch (error) {
       // Show user-friendly error message with login prompt
       const errorMessage =
@@ -133,7 +133,7 @@ const Articles = () => {
         // Lấy nhiều blogs để có thể sort theo viewCount
         // Gọi API trực tiếp không qua api instance để tránh CORS
         const response = await fetch(
-          "http://localhost:8080/api/blog?page=0&size=20",
+          `${SERVER_CONFIG.API_URL}/blog?page=0&size=20`,
           {
             method: "GET",
             headers: {

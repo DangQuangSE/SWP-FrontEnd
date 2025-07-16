@@ -1,4 +1,5 @@
 import axios from "axios";
+import { SERVER_CONFIG } from "../../../../configs/api";
 
 /**
  * Chat API Service for Staff Dashboard
@@ -6,7 +7,7 @@ import axios from "axios";
  */
 class ChatAPIService {
   constructor() {
-    this.baseURL = "http://localhost:8080/api";
+    this.baseURL = SERVER_CONFIG.API_URL;
 
     // Create axios instance
     this.api = axios.create({

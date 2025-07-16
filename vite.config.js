@@ -10,7 +10,7 @@ export default defineConfig({
   server: {
     proxy: {
       "/api": {
-        target: "http://localhost:8080", // địa chỉ Spring Boot backend
+        target: "http://14.225.192.15:8085", // địa chỉ Spring Boot backend
         changeOrigin: true,
         secure: false,
       },

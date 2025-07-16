@@ -1,7 +1,22 @@
 import axios from "axios";
 
+// Centralized server configuration
+export const SERVER_CONFIG = {
+  HOST: "14.225.192.15",
+  PORT: "8085",
+  get BASE_URL() {
+    return `http://${this.HOST}:${this.PORT}`;
+  },
+  get API_URL() {
+    return `${this.BASE_URL}/api`;
+  },
+  get WS_URL() {
+    return `${this.BASE_URL}/ws/chat`;
+  },
+};
+
 const api = axios.create({
-  baseURL: "http://localhost:8080/api", // Sử dụng proxy thay vì gọi trực tiếp
+  baseURL: SERVER_CONFIG.API_URL,
 });
 
 const upload = axios.create({
