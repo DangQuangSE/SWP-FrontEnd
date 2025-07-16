@@ -9,7 +9,7 @@ const SERVICE_TYPE_OPTIONS = [
   { value: "CONSULTING", label: "Tư Vấn" },
   { value: "CONSULTING_ON", label: "Tư vấn trực tuyến" },
 
-  { value: "TESTING_OFF", label: "Xét nghiệm" },
+  { value: "TESTING", label: "Xét nghiệm" },
   { value: "EXAMINATION", label: "Khám bệnh" },
 
   { value: "OTHER", label: "Khác" },
@@ -227,9 +227,7 @@ const ServiceModal = ({
                         justifyContent: "space-between",
                       }}
                     >
-                      <span>
-                        {service.name} (ID: {service.id})
-                      </span>
+                      <span>{service.name}</span>
                       <span style={{ color: "#666", fontSize: "12px" }}>
                         {service.price?.toLocaleString() || 0}đ
                       </span>

@@ -161,7 +161,7 @@ const Payment = () => {
 
       // Xử lý VNPay (logic cũ)
       if (!booking.appointmentId || !booking.paymentMethod) {
-        message.error("Thiếu thông tin thanh toán hoặc lịch hẹn.");
+        // message.error("Thiếu thông tin thanh toán hoặc lịch hẹn.");
         setLoading(false);
         return;
       }
@@ -194,7 +194,7 @@ const Payment = () => {
           // Chuyển hướng sau 5 giây
           setTimeout(() => {
             window.location.href = payUrl;
-          }, 5000);
+          }, 1500);
         } else if (res.data.responseCode === 0 && !res.data.url) {
           // Trường hợp đặc biệt: responseCode = 0 nhưng không có URL (có thể là thanh toán trực tiếp)
           localStorage.removeItem("pendingBooking");

@@ -290,6 +290,12 @@ const handleCloseTab = () => {
   }
 };
 
+// Default close handler for modals
+const handleDefaultModalClose = () => {
+  console.log("Modal close requested");
+  toast.info("Đã đóng modal");
+};
+
 const MedicalResultViewer = ({ result, compact = false, onClose }) => {
   const [detailModalVisible, setDetailModalVisible] = useState(false);
   const printRef = useRef();
@@ -444,7 +450,6 @@ const MedicalResultViewer = ({ result, compact = false, onClose }) => {
           onClose={() => setDetailModalVisible(false)}
           result={result}
           severity={severity}
-          labData={labData}
         />
       </Card>
     );
@@ -481,16 +486,14 @@ const MedicalResultViewer = ({ result, compact = false, onClose }) => {
               >
                 In
               </Button>
-              {onClose && (
-                <Button
-                  icon={<CloseOutlined />}
-                  size="small"
-                  onClick={onClose}
-                  danger
-                >
-                  Đóng
-                </Button>
-              )}
+              <Button
+                icon={<CloseOutlined />}
+                size="small"
+                onClick={onClose || handleCloseTab}
+                danger
+              >
+                Đóng
+              </Button>
             </Space>
           </Col>
         </Row>
@@ -1119,7 +1122,7 @@ const ProfessionalResultDisplay = ({ result }) => {
   );
 };
 
-const DetailModal = ({ visible, onClose, result, severity, labData }) => (
+const DetailModal = ({ visible, onClose, result, severity }) => (
   <Modal
     title={
       <div
@@ -1172,7 +1175,7 @@ const DetailModal = ({ visible, onClose, result, severity, labData }) => (
       </div>
     }
     open={visible}
-    onCancel={onClose}
+    onCancel={onClose || handleDefaultModalClose}
     footer={[
       <Button
         key="download"
@@ -1193,7 +1196,7 @@ const DetailModal = ({ visible, onClose, result, severity, labData }) => (
       </Button>,
       <Button
         key="close"
-        onClick={onClose}
+        onClick={onClose || handleDefaultModalClose}
         icon={<CloseOutlined />}
         style={{ borderRadius: "6px" }}
       >
