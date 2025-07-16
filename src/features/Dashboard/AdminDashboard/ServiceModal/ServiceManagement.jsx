@@ -478,7 +478,7 @@ const ServiceManagement = () => {
       key: "duration",
       render: (duration) => {
         try {
-          return duration ? Math.floor(duration / 60) : "N/A";
+          return duration ? Math.floor(duration) : "N/A";
         } catch (error) {
           console.error(" Error rendering duration:", error, duration);
           return "Error";
