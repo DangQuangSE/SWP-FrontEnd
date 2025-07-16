@@ -32,7 +32,7 @@ const PatientDetailButton = ({
     }
 
     console.log(
-      `📋 [PATIENT_DETAIL] Opening medical history for patient ID: ${patientId}`
+      ` [PATIENT_DETAIL] Opening medical history for patient ID: ${patientId}`
     );
     setIsModalVisible(true);
   };
@@ -67,7 +67,7 @@ const PatientDetailButton = ({
           <div
             style={{ fontSize: "16px", fontWeight: "600", color: "#1a1a1a" }}
           >
-            📋 Hồ sơ bệnh án - {patientName}
+            Hồ sơ bệnh án - {patientName}
           </div>
         }
         open={isModalVisible}

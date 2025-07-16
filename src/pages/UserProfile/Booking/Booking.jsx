@@ -30,6 +30,41 @@ const STATUS_DISPLAY = {
   CANCELED: "Đã hủy",
 };
 
+// Function to create appointment notification
+const createAppointmentNotification = async (appointmentId) => {
+  try {
+    console.log(
+      "🔔 [NOTIFICATION] Creating notification for appointment:",
+      appointmentId
+    );
+
+    const notificationData = {
+      title: "Cuộc hẹn sắp tới",
+      content: "Bạn có lịch hẹn",
+      type: "APPOINTMENT",
+      appointmentId: appointmentId,
+    };
+
+    const response = await api.post("/notifications", notificationData);
+
+    if (response.status === 200 || response.status === 201) {
+      console.log(
+        "✅ [NOTIFICATION] Notification created successfully:",
+        response.data
+      );
+    } else {
+      console.warn(
+        "⚠️ [NOTIFICATION] Unexpected response status:",
+        response.status
+      );
+    }
+  } catch (error) {
+    console.error("❌ [NOTIFICATION] Error creating notification:", error);
+    console.error("❌ [NOTIFICATION] Error details:", error.response?.data);
+    // Don't show error to user as this is not critical for booking flow
+  }
+};
+
 const Booking = () => {
   const [appointments, setAppointments] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -80,10 +115,10 @@ const Booking = () => {
   // Hàm xử lý hiển thị kết quả khám
   const handleViewResult = (appointment) => {
     console.log(
-      "📋 [BOOKING] Viewing medical result for appointment:",
+      " [BOOKING] Viewing medical result for appointment:",
       appointment.id
     );
-    console.log("📋 [BOOKING] Full appointment data:", appointment);
+    console.log(" [BOOKING] Full appointment data:", appointment);
 
     // Kiểm tra kết quả khám từ appointmentDetails
     const hasAppointmentResult = appointment.appointmentDetails?.some(
@@ -96,9 +131,9 @@ const Booking = () => {
     const hasMedicalProfile =
       medicalProfile && Object.keys(medicalProfile).length > 0;
 
-    console.log("📋 [BOOKING] hasAppointmentResult:", hasAppointmentResult);
-    console.log("📋 [BOOKING] hasMedicalProfile:", hasMedicalProfile);
-    console.log("📋 [BOOKING] customerMedicalProfile:", medicalProfile);
+    console.log(" [BOOKING] hasAppointmentResult:", hasAppointmentResult);
+    console.log(" [BOOKING] hasMedicalProfile:", hasMedicalProfile);
+    console.log(" [BOOKING] customerMedicalProfile:", medicalProfile);
 
     if (hasAppointmentResult || hasMedicalProfile) {
       setSelectedResult({
@@ -259,13 +294,13 @@ const Booking = () => {
   };
 
   const handleViewDetail = (appointment) => {
-    console.log("📋 [BOOKING] Viewing appointment detail:", appointment.id);
-    console.log("📋 [BOOKING] Active tab:", activeTab);
-    console.log("📋 [BOOKING] Appointment status:", appointment.status);
+    console.log(" [BOOKING] Viewing appointment detail:", appointment.id);
+    console.log(" [BOOKING] Active tab:", activeTab);
+    console.log(" [BOOKING] Appointment status:", appointment.status);
 
     // Luôn hiển thị modal chi tiết appointment
     // Nút "Kết quả" riêng biệt sẽ xử lý việc hiển thị kết quả khám
-    console.log("📋 [BOOKING] Showing detail modal");
+    console.log(" [BOOKING] Showing detail modal");
     setSelectedAppointment(appointment);
     setModalVisible(true);
   };
@@ -319,7 +354,7 @@ const Booking = () => {
             const confirmedAppointments = response.data;
 
             console.log(
-              "📋 Found CONFIRMED appointments:",
+              " Found CONFIRMED appointments:",
               confirmedAppointments.length
             );
 
@@ -333,6 +368,10 @@ const Booking = () => {
                 "🆔 Creating Zoom for latest appointmentId:",
                 appointmentId
               );
+
+              // Tạo notification cho appointment
+              createAppointmentNotification(appointmentId);
+
               createZoomMeeting(appointmentId);
             }
           } catch (error) {
@@ -526,12 +565,7 @@ const Booking = () => {
                     "Chưa phân công"}
                 </span>
               </div>
-              {/* <div className="detail-item">
-                <span className="detail-label">Loại dịch vụ:</span>
-                <span className="detail-value">
-                  {selectedAppointment.serviceType}
-                </span>
-              </div> */}
+
               <div className="detail-item">
                 <span className="detail-label">Trạng thái:</span>
                 <span

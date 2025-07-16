@@ -14,7 +14,7 @@ export const getPatientMedicalHistory = async (
 ) => {
   try {
     console.log(
-      `📋 [API] Getting patient medical history for ID: ${patientId}, page: ${page}, size: ${size}`
+      ` [API] Getting patient medical history for ID: ${patientId}, page: ${page}, size: ${size}`
     );
 
     const response = await api.get(

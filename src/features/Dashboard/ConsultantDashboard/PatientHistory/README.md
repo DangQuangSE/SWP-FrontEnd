@@ -2,7 +2,7 @@
 
 Hệ thống components để hiển thị hồ sơ bệnh án và lịch sử khám bệnh của bệnh nhân.
 
-## 📋 Components
+## Components
 
 ### 1. PatientDetailButton
 

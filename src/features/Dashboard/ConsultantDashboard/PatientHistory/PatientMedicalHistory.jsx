@@ -33,7 +33,7 @@ const PatientMedicalHistory = ({ patientId }) => {
     setLoading(true);
     try {
       console.log(
-        `📋 [PATIENT_HISTORY] Loading history for patient ${patientId}, page ${page}, size ${size}`
+        ` [PATIENT_HISTORY] Loading history for patient ${patientId}, page ${page}, size ${size}`
       );
       const response = await getPatientMedicalHistory(patientId, page, size);
       setPatientData(response.data);

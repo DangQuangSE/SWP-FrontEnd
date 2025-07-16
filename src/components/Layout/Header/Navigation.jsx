@@ -39,11 +39,11 @@ const Navigation = () => {
   const getRoleSpecificItems = (userRole) => {
     switch (userRole) {
       case "ADMIN":
-        return [{ label: "Admin", href: "/admin" }];
+        return [{ label: "Người quản lý", href: "/admin" }];
       case "STAFF":
-        return [{ label: "Staff", href: "/staff" }];
+        return [{ label: "Nhân viên", href: "/staff" }];
       case "CONSULTANT":
-        return [{ label: "Consultant", href: "/consultant" }];
+        return [{ label: "Bác sĩ", href: "/consultant" }];
       default:
         return [];
     }

@@ -11,6 +11,9 @@ const Services = () => {
   const handleCycleTrackerClick = () => {
     navigate("/CycleTracker");
   };
+  const handleServiceClick = () => {
+    navigate("/services");
+  };
 
   return (
     <section className="home-services">
@@ -40,7 +43,12 @@ const Services = () => {
               <li>Gặp chuyên gia theo yêu cầu</li>
               <li>Phù hợp mọi độ tuổi & giới</li>
             </ul>
-            <button className="home-service-button">Tìm hiểu thêm</button>
+            <button
+              className="home-service-button"
+              onClick={handleServiceClick}
+            >
+              Tìm hiểu thêm
+            </button>
           </div>
 
           <div className="home-service-card">
@@ -62,7 +70,12 @@ const Services = () => {
               <li>Bảo mật tuyệt đối</li>
               <li>Lập kế hoạch điều trị</li>
             </ul>
-            <button className="home-service-button">Tìm hiểu thêm</button>
+            <button
+              className="home-service-button"
+              onClick={handleServiceClick}
+            >
+              Tìm hiểu thêm
+            </button>
           </div>
 
           <div className="home-service-card">
