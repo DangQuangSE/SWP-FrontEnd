@@ -1,4 +1,5 @@
 import axios from "axios";
+import { SERVER_CONFIG } from "../../configs/api";
 
 /**
  * Customer Chat API Service
@@ -8,7 +9,7 @@ class CustomerChatAPIService {
   constructor() {
     // Create axios instance without auth interceptors
     this.api = axios.create({
-      baseURL: "http://localhost:8080/api",
+      baseURL: SERVER_CONFIG.API_URL,
       timeout: 10000,
       headers: {
         "Content-Type": "application/json",
@@ -110,15 +111,31 @@ class CustomerChatAPIService {
     try {
       console.log("📥 [CUSTOMER CHAT API] Fetching messages for:", sessionId);
 
-      // Use the correct endpoint that matches backend
-      const response = await this.api.get(
-        `/chat/sessions/${sessionId}/messages`
-      );
-      console.log("✅ [CUSTOMER CHAT API] Messages fetched:", response.data);
+      // Try public endpoint first
+      const response = await this.api.get(`/chat/messages/${sessionId}`);
+      console.log(" [CUSTOMER CHAT API] Messages fetched:", response.data);
       return response.data;
     } catch (error) {
-      console.error("❌ [CUSTOMER CHAT API] Error fetching messages:", error);
-      throw error;
+      console.error(" [CUSTOMER CHAT API] Error fetching messages:", error);
+
+      // If public endpoint fails, try the original endpoint
+      try {
+        console.log(" [CUSTOMER CHAT API] Trying alternative endpoint...");
+        const response = await this.api.get(
+          `/chat/sessions/${sessionId}/messages`
+        );
+        console.log(
+          " [CUSTOMER CHAT API] Messages fetched (alternative):",
+          response.data
+        );
+        return response.data;
+      } catch (altError) {
+        console.error(
+          " [CUSTOMER CHAT API] Alternative endpoint also failed:",
+          altError
+        );
+        throw altError;
+      }
     }
   }
 
