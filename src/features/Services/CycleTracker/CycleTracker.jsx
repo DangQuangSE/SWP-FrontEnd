@@ -147,7 +147,7 @@ const CycleTracker = () => {
       if (validCycleLengths.length > 0) {
         avgCycleLength = Math.round(
           validCycleLengths.reduce((a, b) => a + b, 0) /
-            validCycleLengths.length
+          validCycleLengths.length
         );
       }
     }
@@ -532,12 +532,12 @@ const CycleTracker = () => {
           existingLog={
             userData.logs[format(modalInfo.date, "yyyy-MM-dd")]
               ? {
-                  ...userData.logs[format(modalInfo.date, "yyyy-MM-dd")],
-                  symptoms: (
-                    userData.logs[format(modalInfo.date, "yyyy-MM-dd")]
-                      .symptoms || []
-                  ).map((sym) => enumToVietnamese[sym] || sym),
-                }
+                ...userData.logs[format(modalInfo.date, "yyyy-MM-dd")],
+                symptoms: (
+                  userData.logs[format(modalInfo.date, "yyyy-MM-dd")]
+                    .symptoms || []
+                ).map((sym) => enumToVietnamese[sym] || sym),
+              }
               : undefined
           }
           onSave={handleSaveLog}

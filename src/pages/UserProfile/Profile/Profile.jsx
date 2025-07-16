@@ -12,6 +12,9 @@ import {
   Upload,
   Modal,
   Select,
+  Divider,
+  Dropdown,
+  Menu,
 } from "antd";
 import {
   UserOutlined,
@@ -21,12 +24,16 @@ import {
   EditOutlined,
   SaveOutlined,
   CameraOutlined,
+  FileTextOutlined,
+  MoreOutlined,
+  DeleteOutlined,
 } from "@ant-design/icons";
 import dayjs from "dayjs";
 import api from "../../../configs/api";
 import { useDispatch } from "react-redux";
 import { updateUserAvatar } from "../../../redux/reduxStore/userSlice";
 import "./Profile.css";
+import CertificateModal from "./CertificateModal";
 
 const Profile = () => {
   const [form] = Form.useForm();
@@ -39,6 +46,14 @@ const Profile = () => {
   const [uploading, setUploading] = useState(false);
   const [previewVisible, setPreviewVisible] = useState(false);
   const [previewImage, setPreviewImage] = useState("");
+
+  // Thêm state cho chứng chỉ
+  const [certificateModalVisible, setCertificateModalVisible] = useState(false);
+  const [certificates, setCertificates] = useState([]);
+  const [certificateLoading, setCertificateLoading] = useState(false);
+
+  // Thêm state cho chỉnh sửa chứng chỉ
+  const [editingCertificate, setEditingCertificate] = useState(null);
 
   // Fetch user data from API /api/me
   useEffect(() => {
@@ -60,6 +75,11 @@ const Profile = () => {
             ? dayjs(response.data.dateOfBirth)
             : null,
         });
+
+        // Lấy dữ liệu chứng chỉ nếu có
+        if (response.data.certificates) {
+          setCertificates(response.data.certificates);
+        }
       } catch (error) {
         console.error(" Error fetching user data:", error);
         message.error("Không thể lấy thông tin người dùng");
@@ -149,6 +169,73 @@ const Profile = () => {
     } finally {
       setLoading(false);
     }
+  };
+
+  // Thêm hàm xử lý cho chứng chỉ
+  const handleOpenCertificateModal = () => {
+    setEditingCertificate(null);
+    setCertificateModalVisible(true);
+  };
+
+  const handleSaveCertificates = async (certificateData) => {
+    try {
+      setCertificateLoading(true);
+
+      // Sau khi lưu thành công, tải lại danh sách chứng chỉ từ server
+      const response = await api.get("/certifications/my-certifications");
+      if (response.data) {
+        setCertificates(Array.isArray(response.data) ? response.data : [response.data]);
+      }
+
+      setCertificateModalVisible(false);
+      message.success("Cập nhật chứng chỉ thành công!");
+    } catch (error) {
+      console.error("Error updating certificates:", error);
+      message.error("Cập nhật chứng chỉ thất bại!");
+    } finally {
+      setCertificateLoading(false);
+    }
+  };
+
+  // Thêm vào useEffect để lấy dữ liệu chứng chỉ
+  useEffect(() => {
+    const fetchCertificates = async () => {
+      try {
+        // Sử dụng endpoint /my-certifications để lấy chứng chỉ của người dùng hiện tại
+        const response = await api.get("/certifications/my-certifications");
+        if (response.data) {
+          setCertificates(Array.isArray(response.data) ? response.data : [response.data]);
+          console.log("Fetched certificates:", response.data);
+        }
+      } catch (error) {
+        console.error("Error fetching certificates:", error);
+        message.error("Không thể tải danh sách chứng chỉ");
+      }
+    };
+
+    fetchCertificates();
+  }, []);
+
+  // Hàm xóa chứng chỉ
+  const handleDeleteCertificate = async (certificateId) => {
+    try {
+      await api.delete(`/certifications/${certificateId}`);
+      message.success("Xóa chứng chỉ thành công!");
+
+      // Cập nhật danh sách chứng chỉ
+      setCertificates(prevCertificates =>
+        prevCertificates.filter(cert => cert.id !== certificateId)
+      );
+    } catch (error) {
+      console.error("Error deleting certificate:", error);
+      message.error("Xóa chứng chỉ thất bại!");
+    }
+  };
+
+  // Hàm mở modal sửa chứng chỉ
+  const handleEditCertificate = (certificate) => {
+    setEditingCertificate(certificate);
+    setCertificateModalVisible(true);
   };
 
   return (
@@ -346,16 +433,143 @@ const Profile = () => {
         </Row>
       </Card>
 
-      {/* Image Preview Modal */}
+      {/* Card chứng chỉ */}
+      <Card
+        title={
+          <div className="profile-header">
+            <h2>Chứng chỉ</h2>
+            <Button
+              type="primary"
+              icon={<FileTextOutlined />}
+              onClick={handleOpenCertificateModal}
+            >
+              Quản lý chứng chỉ
+            </Button>
+          </div>
+        }
+        style={{ marginTop: 24 }}
+      >
+        {certificates.length > 0 ? (
+          <div className="certificates-list">
+            {certificates.map((cert, index) => (
+              <div key={cert.id || index} className="certificate-item" style={{ position: 'relative' }}>
+                {/* Nút 3 chấm ở góc trên phải */}
+                <div style={{
+                  position: 'absolute',
+                  top: '8px',
+                  right: '8px',
+                  zIndex: 10
+                }}>
+                  <Dropdown
+                    overlay={
+                      <Menu>
+                        <Menu.Item
+                          key="edit"
+                          icon={<EditOutlined />}
+                          onClick={() => handleEditCertificate(cert)}
+                        >
+                          Sửa
+                        </Menu.Item>
+                        <Menu.Item
+                          key="delete"
+                          icon={<DeleteOutlined />}
+                          danger
+                          onClick={() => {
+                            Modal.confirm({
+                              title: 'Xóa chứng chỉ',
+                              content: `Bạn có chắc chắn muốn xóa chứng chỉ "${cert.name}"?`,
+                              okText: 'Xóa',
+                              cancelText: 'Hủy',
+                              okType: 'danger',
+                              onOk: () => handleDeleteCertificate(cert.id)
+                            });
+                          }}
+                        >
+                          Xóa
+                        </Menu.Item>
+                      </Menu>
+                    }
+                    trigger={['click']}
+                    placement="bottomRight"
+                  >
+                    <Button
+                      type="text"
+                      icon={<MoreOutlined />}
+                      style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        width: '32px',
+                        height: '32px',
+                        borderRadius: '50%',
+                        backgroundColor: 'rgba(0, 0, 0, 0.04)',
+                        border: 'none'
+                      }}
+                    />
+                  </Dropdown>
+                </div>
+
+                <Row gutter={16} align="middle">
+                  <Col xs={24} sm={cert.imageUrl ? 16 : 10}>
+                    <h3 style={{ marginTop: '8px', paddingRight: '40px' }}>{cert.name}</h3>
+                    <p>{cert.description || "Không có mô tả"}</p>
+                    {cert.createdAt && <p>Ngày tạo: {dayjs(cert.createdAt).format('DD/MM/YYYY')}</p>}
+                  </Col>
+                  {cert.imageUrl && (
+                    <Col xs={24} sm={8}>
+                      <div className="certificate-image-container" style={{ paddingRight: '40px' }}>
+                        <img
+                          src={cert.imageUrl}
+                          alt={cert.name}
+                          className="certificate-image"
+                          onClick={() => {
+                            setPreviewImage(cert.imageUrl);
+                            setPreviewVisible(true);
+                          }}
+                          style={{
+                            width: '100%',
+                            maxHeight: '120px',
+                            objectFit: 'cover',
+                            borderRadius: '8px',
+                            cursor: 'pointer'
+                          }}
+                        />
+                      </div>
+                    </Col>
+                  )}
+                </Row>
+                {index < certificates.length - 1 && <div style={{ margin: "16px 0", borderTop: "1px solid #f0f0f0" }}></div>}
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div className="empty-certificates">
+            <p>Bạn chưa có chứng chỉ nào. Nhấn "Quản lý chứng chỉ" để thêm mới.</p>
+          </div>
+        )}
+      </Card>
+
+      {/* Modal xem trước ảnh */}
       <Modal
-        open={previewVisible}
-        title="Xem ảnh đại diện"
+        visible={previewVisible}
         footer={null}
         onCancel={() => setPreviewVisible(false)}
-        className="avatar-preview-modal"
       >
-        <img alt="Avatar" src={previewImage} />
+        <img alt="Preview" style={{ width: '100%' }} src={previewImage} />
       </Modal>
+
+      {/* Modal quản lý chứng chỉ */}
+      <CertificateModal
+        visible={certificateModalVisible}
+        onCancel={() => {
+          setCertificateModalVisible(false);
+          setEditingCertificate(null);
+        }}
+        onSave={handleSaveCertificates}
+        initialValue={editingCertificate ? [editingCertificate] : []}
+        loading={certificateLoading}
+        isEditing={!!editingCertificate}
+      />
     </div>
   );
 };
