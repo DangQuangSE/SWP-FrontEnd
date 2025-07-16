@@ -1,33 +1,63 @@
 import React, { useState, useEffect } from "react";
-import { Modal, Form, Input, Button, DatePicker, Upload, message, Row, Col } from "antd";
-import { PlusOutlined, DeleteOutlined, UploadOutlined } from "@ant-design/icons";
+import {
+  Modal,
+  Form,
+  Input,
+  Button,
+  DatePicker,
+  Upload,
+  message,
+  Row,
+  Col,
+} from "antd";
+import {
+  PlusOutlined,
+  DeleteOutlined,
+  UploadOutlined,
+} from "@ant-design/icons";
 import api from "../../../configs/api";
 
-const CertificateModal = ({ visible, onCancel, onSave, initialValue = [], loading, isEditing = false }) => {
+const CertificateModal = ({
+  visible,
+  onCancel,
+  onSave,
+  initialValue = [],
+  loading,
+  isEditing = false,
+}) => {
   const [form] = Form.useForm();
   const [certificates, setCertificates] = useState(
-    initialValue.length ? initialValue.map(cert => ({
-      ...cert,
-      imageFile: null // Reset imageFile for editing
-    })) : [{ name: "", issuer: "", date: null, imageUrl: "", imageFile: null }]
+    initialValue.length
+      ? initialValue.map((cert) => ({
+          ...cert,
+          imageFile: null, // Reset imageFile for editing
+        }))
+      : [{ name: "", issuer: "", date: null, imageUrl: "", imageFile: null }]
   );
 
   // Reset certificates when modal opens/closes or initialValue changes
   useEffect(() => {
     if (visible) {
       if (initialValue.length) {
-        setCertificates(initialValue.map(cert => ({
-          ...cert,
-          imageFile: null
-        })));
+        setCertificates(
+          initialValue.map((cert) => ({
+            ...cert,
+            imageFile: null,
+          }))
+        );
       } else {
-        setCertificates([{ name: "", issuer: "", date: null, imageUrl: "", imageFile: null }]);
+        setCertificates([
+          { name: "", issuer: "", date: null, imageUrl: "", imageFile: null },
+        ]);
       }
     }
   }, [visible, initialValue]);
 
   const handleAddCertificate = () => {
-    setCertificates([...certificates, { name: "", issuer: "", date: null, imageUrl: "", imageFile: null }]);
+    setCertificates([
+      ...certificates,
+      { name: "", issuer: "", date: null, imageUrl: "", imageFile: null },
+    ]);
   };
 
   const handleRemoveCertificate = (index) => {
@@ -77,11 +107,15 @@ const CertificateModal = ({ visible, onCancel, onSave, initialValue = [], loadin
         }
 
         try {
-          const response = await api.put(`/certifications/${cert.id}`, formData, {
-            headers: {
-              "Content-Type": "multipart/form-data",
-            },
-          });
+          const response = await api.put(
+            `/certifications/${cert.id}`,
+            formData,
+            {
+              headers: {
+                "Content-Type": "multipart/form-data",
+              },
+            }
+          );
 
           message.success("Cập nhật chứng chỉ thành công!");
           onSave([response.data]);
@@ -118,10 +152,14 @@ const CertificateModal = ({ visible, onCancel, onSave, initialValue = [], loadin
         });
 
         const results = await Promise.all(certificatePromises);
-        const successfulCertificates = results.filter(result => result !== null);
+        const successfulCertificates = results.filter(
+          (result) => result !== null
+        );
 
         if (successfulCertificates.length > 0) {
-          message.success(`Đã tạo ${successfulCertificates.length} chứng chỉ thành công!`);
+          message.success(
+            `Đã tạo ${successfulCertificates.length} chứng chỉ thành công!`
+          );
           onSave(successfulCertificates);
         } else {
           message.error("Không có chứng chỉ nào được tạo thành công!");
@@ -141,7 +179,12 @@ const CertificateModal = ({ visible, onCancel, onSave, initialValue = [], loadin
         <Button key="cancel" onClick={onCancel}>
           Hủy
         </Button>,
-        <Button key="submit" type="primary" loading={loading} onClick={handleSubmit}>
+        <Button
+          key="submit"
+          type="primary"
+          loading={loading}
+          onClick={handleSubmit}
+        >
           {isEditing ? "Cập nhật" : "Lưu"}
         </Button>,
       ]}
@@ -151,9 +194,19 @@ const CertificateModal = ({ visible, onCancel, onSave, initialValue = [], loadin
         {certificates.map((cert, index) => (
           <div key={index}>
             {/* Chỉ hiển thị nút thêm/xóa khi không ở chế độ chỉnh sửa */}
-            {!isEditing && index > 0 && <div style={{ margin: "16px 0", borderTop: "1px solid #f0f0f0" }}></div>}
+            {!isEditing && index > 0 && (
+              <div
+                style={{ margin: "16px 0", borderTop: "1px solid #f0f0f0" }}
+              ></div>
+            )}
             {!isEditing && (
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "center",
+                }}
+              >
                 <h4>Chứng chỉ #{index + 1}</h4>
                 {certificates.length > 1 && (
                   <Button
@@ -171,19 +224,25 @@ const CertificateModal = ({ visible, onCancel, onSave, initialValue = [], loadin
               <Col span={16}>
                 <Form.Item
                   label="Tên chứng chỉ"
-                  rules={[{ required: true, message: "Vui lòng nhập tên chứng chỉ" }]}
+                  rules={[
+                    { required: true, message: "Vui lòng nhập tên chứng chỉ" },
+                  ]}
                 >
                   <Input
                     placeholder="Ví dụ: Chứng chỉ tiếng Anh IELTS"
                     value={cert.name}
-                    onChange={(e) => handleCertificateChange(index, "name", e.target.value)}
+                    onChange={(e) =>
+                      handleCertificateChange(index, "name", e.target.value)
+                    }
                   />
                 </Form.Item>
                 <Form.Item label="Đơn vị cấp">
                   <Input
                     placeholder="Ví dụ: British Council"
                     value={cert.issuer}
-                    onChange={(e) => handleCertificateChange(index, "issuer", e.target.value)}
+                    onChange={(e) =>
+                      handleCertificateChange(index, "issuer", e.target.value)
+                    }
                   />
                 </Form.Item>
                 <Form.Item label="Ngày cấp">
@@ -191,16 +250,33 @@ const CertificateModal = ({ visible, onCancel, onSave, initialValue = [], loadin
                     style={{ width: "100%" }}
                     placeholder="Chọn ngày cấp"
                     value={cert.date}
-                    onChange={(date) => handleCertificateChange(index, "date", date)}
+                    onChange={(date) =>
+                      handleCertificateChange(index, "date", date)
+                    }
                   />
                 </Form.Item>
               </Col>
               <Col span={8}>
                 <Form.Item
                   label="Hình ảnh chứng chỉ"
-                  rules={!isEditing ? [{ required: true, message: "Vui lòng chọn hình ảnh chứng chỉ" }] : []}
+                  rules={
+                    !isEditing
+                      ? [
+                          {
+                            required: true,
+                            message: "Vui lòng chọn hình ảnh chứng chỉ",
+                          },
+                        ]
+                      : []
+                  }
                 >
-                  <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+                  <div
+                    style={{
+                      display: "flex",
+                      flexDirection: "column",
+                      gap: "8px",
+                    }}
+                  >
                     <Upload
                       beforeUpload={(file) => handleImageSelect(file, index)}
                       showUploadList={false}
@@ -236,6 +312,7 @@ const CertificateModal = ({ visible, onCancel, onSave, initialValue = [], loadin
         {!isEditing && (
           <Form.Item>
             <Button
+              style={{ marginTop: "16px" }}
               type="dashed"
               onClick={handleAddCertificate}
               block
@@ -251,6 +328,3 @@ const CertificateModal = ({ visible, onCancel, onSave, initialValue = [], loadin
 };
 
 export default CertificateModal;
-
-
-

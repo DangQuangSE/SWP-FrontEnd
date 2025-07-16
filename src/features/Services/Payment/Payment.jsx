@@ -58,7 +58,7 @@ const Payment = () => {
 
     const createPayment = async () => {
       if (!booking || !booking.amount || !booking.serviceName) {
-        message.error("Thiếu thông tin thanh toán hoặc lịch hẹn.");
+        // message.error("Thiếu thông tin thanh toán hoặc lịch hẹn.");
         setLoading(false);
         return;
       }
