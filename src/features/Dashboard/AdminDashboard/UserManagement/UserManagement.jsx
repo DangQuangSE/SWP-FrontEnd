@@ -313,13 +313,13 @@ const UserManagement = ({ form }) => {
       width: 150,
       render: (text, record) => (
         <Space size="small">
-          <Button
+          {/* <Button
             size="small"
             icon={<EditOutlined />}
             onClick={() => handleEditUser(record, form)}
           >
             Sửa
-          </Button>
+          </Button> */}
           <Popconfirm
             title="Vô hiệu hóa người dùng"
             description="Bạn có chắc chắn muốn vô hiệu hóa người dùng này? Tài khoản sẽ bị khóa nhưng dữ liệu vẫn được lưu trữ."

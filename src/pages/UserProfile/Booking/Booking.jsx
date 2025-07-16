@@ -85,20 +85,30 @@ const Booking = () => {
     );
     console.log("📋 [BOOKING] Full appointment data:", appointment);
 
+    // Kiểm tra kết quả khám từ appointmentDetails
+    const hasAppointmentResult = appointment.appointmentDetails?.some(
+      (detail) =>
+        detail.medicalResult && Object.keys(detail.medicalResult).length > 0
+    );
+
     // Lấy customerMedicalProfile trực tiếp từ appointment (theo API response)
     const medicalProfile = appointment.customerMedicalProfile;
+    const hasMedicalProfile =
+      medicalProfile && Object.keys(medicalProfile).length > 0;
 
+    console.log("📋 [BOOKING] hasAppointmentResult:", hasAppointmentResult);
+    console.log("📋 [BOOKING] hasMedicalProfile:", hasMedicalProfile);
     console.log("📋 [BOOKING] customerMedicalProfile:", medicalProfile);
 
-    if (medicalProfile && Object.keys(medicalProfile).length > 0) {
+    if (hasAppointmentResult || hasMedicalProfile) {
       setSelectedResult({
         appointment: appointment,
-        medicalProfile: medicalProfile,
+        medicalProfile: medicalProfile || {},
       });
       setResultModalVisible(true);
     } else {
       console.log(
-        "❌ [BOOKING] No medicalProfile found in appointment structure"
+        "❌ [BOOKING] No medical result or profile found in appointment structure"
       );
       message.warning("Chưa có kết quả khám cho lịch hẹn này!");
     }
@@ -249,6 +259,13 @@ const Booking = () => {
   };
 
   const handleViewDetail = (appointment) => {
+    console.log("📋 [BOOKING] Viewing appointment detail:", appointment.id);
+    console.log("📋 [BOOKING] Active tab:", activeTab);
+    console.log("📋 [BOOKING] Appointment status:", appointment.status);
+
+    // Luôn hiển thị modal chi tiết appointment
+    // Nút "Kết quả" riêng biệt sẽ xử lý việc hiển thị kết quả khám
+    console.log("📋 [BOOKING] Showing detail modal");
     setSelectedAppointment(appointment);
     setModalVisible(true);
   };
@@ -439,16 +456,17 @@ const Booking = () => {
                 }
               })()}
 
-            {/* Nút Kết quả cho appointments đã hoàn thành */}
-            {appointment.status === "COMPLETED" && (
-              <button
-                className="result-button-profile"
-                onClick={() => handleViewResult(appointment)}
-                title="Xem kết quả khám bệnh"
-              >
-                Kết quả
-              </button>
-            )}
+            {/* Nút Kết quả cho appointments đã hoàn thành trong tab completed và history */}
+            {appointment.status === "COMPLETED" &&
+              (activeTab === "completed" || activeTab === "history") && (
+                <button
+                  className="result-button-profile"
+                  onClick={() => handleViewResult(appointment)}
+                  title="Xem kết quả khám bệnh"
+                >
+                  Kết quả
+                </button>
+              )}
           </div>
         </div>
       </div>
