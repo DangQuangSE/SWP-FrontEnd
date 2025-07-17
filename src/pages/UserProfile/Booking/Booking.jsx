@@ -49,12 +49,12 @@ const createAppointmentNotification = async (appointmentId) => {
 
     if (response.status === 200 || response.status === 201) {
       console.log(
-        "✅ [NOTIFICATION] Notification created successfully:",
+        " [NOTIFICATION] Notification created successfully:",
         response.data
       );
     } else {
       console.warn(
-        "⚠️ [NOTIFICATION] Unexpected response status:",
+        " [NOTIFICATION] Unexpected response status:",
         response.status
       );
     }
@@ -88,11 +88,11 @@ const Booking = () => {
   const [resultModalVisible, setResultModalVisible] = useState(false);
   const [selectedResult, setSelectedResult] = useState(null);
 
-  // Thêm hàm xử lý hiển thị modal đánh giá
-  const handleRateService = (appointment) => {
-    setAppointmentToRate(appointment);
-    setRatingModalVisible(true);
-  };
+  // // Thêm hàm xử lý hiển thị modal đánh giá
+  // const handleRateService = (appointment) => {
+  //   setAppointmentToRate(appointment);
+  //   setRatingModalVisible(true);
+  // };
 
   // Thêm hàm callback khi đánh giá thành công
   const handleRatingSuccess = async () => {
@@ -506,6 +506,20 @@ const Booking = () => {
                   Kết quả
                 </button>
               )}
+            {/* Thêm nút đánh giá nếu lịch hẹn đã hoàn thành */}
+            {appointment.status === "COMPLETED" && (
+              <button
+                className={`rate-service-btn${
+                  appointment.isRated ? " rated" : ""
+                }`}
+                onClick={() => {
+                  setAppointmentToRate(appointment);
+                  setRatingModalVisible(true);
+                }}
+              >
+                {appointment.isRated ? "Sửa đánh giá" : "Đánh giá"}
+              </button>
+            )}
           </div>
         </div>
       </div>
