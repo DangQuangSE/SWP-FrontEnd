@@ -46,6 +46,32 @@
   margin-bottom: 12px;
 }
 
+/* Service name container with online tag */
+.service-name-container {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.service-name {
+  font-size: 20px;
+  font-weight: 600;
+  margin: 0;
+  color: #000;
+}
+
+.online-tag {
+  background: linear-gradient(135deg, #1890ff, #40a9ff);
+  color: white;
+  font-size: 11px;
+  font-weight: 500;
+  padding: 2px 8px;
+  border-radius: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  box-shadow: 0 2px 4px rgba(24, 144, 255, 0.2);
+}
+
 .original-price {
   text-decoration: line-through;
   color: #999;
