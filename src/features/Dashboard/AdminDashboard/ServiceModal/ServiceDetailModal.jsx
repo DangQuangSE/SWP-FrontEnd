@@ -71,13 +71,13 @@ const ServiceDetailModal = ({ visible, onCancel, serviceDetail }) => {
             <strong>Ngày tạo:</strong>{" "}
             {new Date(serviceDetail.createdAt).toLocaleString("vi-VN")}
           </p>
-          {serviceDetail.subServiceIds &&
+          {/* {serviceDetail.subServiceIds &&
             serviceDetail.subServiceIds.length > 0 && (
               <p>
                 <strong>ID Dịch vụ Con:</strong>{" "}
                 {serviceDetail.subServiceIds.join(", ")}
               </p>
-            )}
+            )} */}
           {serviceDetail.subServices &&
             serviceDetail.subServices.length > 0 && (
               <div>

@@ -422,108 +422,123 @@ const Booking = () => {
       );
     }
 
-    return appointments.map((appointment) => (
-      <div className="booking-card-profile" key={appointment.id}>
-        <h2>Thông tin lịch hẹn</h2>
-        <div className="booking-info-profile">
-          <p>
-            <strong>Ngày hẹn:</strong> {appointment.preferredDate}
-          </p>
-          <p>
-            <strong>Dịch vụ:</strong> {appointment.serviceName}
-          </p>
-          <p>
-            <strong>Phòng khám:</strong>{" "}
-            {appointment.appointmentDetails?.[0]?.room?.name || "Không có"}
-          </p>
-          <p>
-            <strong>Trạng thái:</strong>{" "}
-            <span className={`status ${appointment.status.toLowerCase()}`}>
-              {STATUS_DISPLAY[appointment.status] || appointment.status}
-            </span>
-          </p>
-          <p>
-            <strong>Ghi chú:</strong> {appointment.note || "Không có"}
-          </p>
-          <p>
-            <strong>Giá:</strong> {appointment.price?.toLocaleString()} VND
-          </p>
-          <p>
-            <strong>Thời gian tạo:</strong>{" "}
-            {new Date(appointment.created_at).toLocaleString()}
-          </p>
-          <div className="appointment-actions">
-            <button
-              className="detail-button-profile"
-              onClick={() => handleViewDetail(appointment)}
-            >
-              Xem chi tiết
-            </button>
+    console.log("📋 [BOOKING] Rendering appointments for tab:", activeTab);
+    console.log("📋 [BOOKING] Appointments data:", appointments);
 
-            {["CONFIRMED", "PENDING", "CHECKED"].includes(
-              appointment.status
-            ) && (
+    return appointments.map((appointment) => {
+      console.log(
+        "📋 [BOOKING] Rendering appointment:",
+        appointment.id,
+        "Status:",
+        appointment.status,
+        "Tab:",
+        activeTab
+      );
+
+      return (
+        <div className="booking-card-profile" key={appointment.id}>
+          <h2>Thông tin lịch hẹn</h2>
+          <div className="booking-info-profile">
+            <p>
+              <strong>Ngày hẹn:</strong> {appointment.preferredDate}
+            </p>
+            <p>
+              <strong>Dịch vụ:</strong> {appointment.serviceName}
+            </p>
+            <p>
+              <strong>Phòng khám:</strong>{" "}
+              {appointment.appointmentDetails?.[0]?.room?.name || "Không có"}
+            </p>
+            <p>
+              <strong>Trạng thái:</strong>{" "}
+              <span className={`status ${appointment.status.toLowerCase()}`}>
+                {STATUS_DISPLAY[appointment.status] || appointment.status}
+              </span>
+            </p>
+            <p>
+              <strong>Ghi chú:</strong> {appointment.note || "Không có"}
+            </p>
+            <p>
+              <strong>Giá:</strong> {appointment.price?.toLocaleString()} VND
+            </p>
+            <p>
+              <strong>Thời gian tạo:</strong>{" "}
+              {new Date(appointment.created_at).toLocaleString()}
+            </p>
+            <div className="appointment-actions">
               <button
-                className="cancel-button-profile"
-                onClick={() => handleCancelAppointment(appointment.id)}
+                className="detail-button-profile"
+                onClick={() => handleViewDetail(appointment)}
+                style={{ display: "inline-block" }} // Force display
               >
-                Hủy lịch hẹn
+                Xem chi tiết
               </button>
-            )}
 
-            {/* Nút Tư vấn Online cho CONSULTING_ON services với CONFIRMED status */}
-            {appointment.serviceType === "CONSULTING_ON" &&
-              appointment.status === "CONFIRMED" &&
-              (() => {
-                // Lấy joinUrl từ appointmentDetails
-                const joinUrl = appointment.appointmentDetails?.find(
-                  (detail) => detail.joinUrl
-                )?.joinUrl;
-
-                if (joinUrl) {
-                  return (
-                    <a
-                      href={joinUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="online-consultation-button-profile"
-                      title="Click để tham gia tư vấn online"
-                    >
-                      Tư vấn Online
-                    </a>
-                  );
-                }
-              })()}
-
-            {/* Nút Kết quả cho appointments đã hoàn thành trong tab completed và history */}
-            {appointment.status === "COMPLETED" &&
-              (activeTab === "completed" || activeTab === "history") && (
+              {["CONFIRMED", "PENDING", "CHECKED"].includes(
+                appointment.status
+              ) && (
                 <button
-                  className="result-button-profile"
-                  onClick={() => handleViewResult(appointment)}
-                  title="Xem kết quả khám bệnh"
+                  className="cancel-button-profile"
+                  onClick={() => handleCancelAppointment(appointment.id)}
                 >
-                  Kết quả
+                  Hủy lịch hẹn
                 </button>
               )}
-            {/* Thêm nút đánh giá nếu lịch hẹn đã hoàn thành */}
-            {appointment.status === "COMPLETED" && (
-              <button
-                className={`rate-service-btn${
-                  appointment.isRated ? " rated" : ""
-                }`}
-                onClick={() => {
-                  setAppointmentToRate(appointment);
-                  setRatingModalVisible(true);
-                }}
-              >
-                {appointment.isRated ? "Sửa đánh giá" : "Đánh giá"}
-              </button>
-            )}
+
+              {/* Nút Tư vấn Online cho CONSULTING_ON services với CONFIRMED status */}
+              {appointment.serviceType === "CONSULTING_ON" &&
+                appointment.status === "CONFIRMED" &&
+                (() => {
+                  // Lấy joinUrl từ appointmentDetails
+                  const joinUrl = appointment.appointmentDetails?.find(
+                    (detail) => detail.joinUrl
+                  )?.joinUrl;
+
+                  if (joinUrl) {
+                    return (
+                      <a
+                        href={joinUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="online-consultation-button-profile"
+                        title="Click để tham gia tư vấn online"
+                      >
+                        Tư vấn Online
+                      </a>
+                    );
+                  }
+                })()}
+
+              {/* Nút Kết quả cho appointments đã hoàn thành trong tab completed và history */}
+              {appointment.status === "COMPLETED" &&
+                (activeTab === "completed" || activeTab === "history") && (
+                  <button
+                    className="result-button-profile"
+                    onClick={() => handleViewResult(appointment)}
+                    title="Xem kết quả khám bệnh"
+                  >
+                    Kết quả
+                  </button>
+                )}
+              {/* Thêm nút đánh giá nếu lịch hẹn đã hoàn thành */}
+              {appointment.status === "COMPLETED" && (
+                <button
+                  className={`rate-service-btn${
+                    appointment.isRated ? " rated" : ""
+                  }`}
+                  onClick={() => {
+                    setAppointmentToRate(appointment);
+                    setRatingModalVisible(true);
+                  }}
+                >
+                  {appointment.isRated ? "Sửa đánh giá" : "Đánh giá"}
+                </button>
+              )}
+            </div>
           </div>
         </div>
-      </div>
-    ));
+      );
+    });
   };
 
   return (
@@ -554,6 +569,7 @@ const Booking = () => {
         footer={null}
         width={600}
         className="appointment-detail-modal"
+        centered
       >
         {selectedAppointment && (
           <div className="appointment-detail-content">
@@ -686,7 +702,10 @@ const Booking = () => {
                           <div className="detail-item">
                             <span className="detail-label">Kết quả khám:</span>
                             <span className="detail-value">
-                              {detail.medicalResult}
+                              {detail.medicalResult.description ||
+                                detail.medicalResult.diagnosis ||
+                                detail.medicalResult.testResult ||
+                                "Có kết quả khám"}
                             </span>
                           </div>
                         )}

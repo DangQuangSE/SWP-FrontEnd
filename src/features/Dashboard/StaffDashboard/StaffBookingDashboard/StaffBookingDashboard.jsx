@@ -435,7 +435,7 @@ const StaffBookingDashboard = () => {
               title="Đánh dấu đã khám"
               className="booking-dashboard__checkin-btn"
             >
-              Checking
+              Check in
             </Button>
           )}
           <Button

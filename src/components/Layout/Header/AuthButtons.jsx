@@ -63,12 +63,12 @@ const AuthButtons = () => {
       icon: <UserOutlined />,
       onClick: () => navigate("/user/profile"),
     },
-    {
-      key: "2",
-      label: "Cài đặt",
-      icon: <SettingOutlined />,
-      onClick: () => navigate("/settings"),
-    },
+    // {
+    //   key: "2",
+    //   label: "Cài đặt",
+    //   icon: <SettingOutlined />,
+    //   onClick: () => navigate("/settings"),
+    // },
     {
       key: "3",
       label: "Lịch sử đặt chỗ",
