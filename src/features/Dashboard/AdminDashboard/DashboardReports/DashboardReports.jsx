@@ -72,7 +72,9 @@ const DashboardReports = () => {
         revenueMonthRes,
         bookingSummaryRes,
         bookingStatsRes,
-        usersRes,
+        customersRes,
+        consultantsRes,
+        staffRes,
         servicesRes,
         // Appointment status APIs
         pendingAppointmentsRes,
@@ -96,6 +98,8 @@ const DashboardReports = () => {
           },
         }),
         api.get("/admin/users?role=CUSTOMER"), // Get customer count
+        api.get("/admin/users?role=CONSULTANT"), // Get consultant count
+        api.get("/admin/users?role=STAFF"), // Get staff count
         api.get("/services"), // Get all services
         // Get appointments by status
         api.get("/appointment/by-status?status=PENDING"),
@@ -110,7 +114,9 @@ const DashboardReports = () => {
         revenueMonth: revenueMonthRes,
         bookingSummary: bookingSummaryRes,
         bookingStats: bookingStatsRes,
-        users: usersRes,
+        customers: customersRes,
+        consultants: consultantsRes,
+        staff: staffRes,
         services: servicesRes,
         pendingAppointments: pendingAppointmentsRes,
         confirmedAppointments: confirmedAppointmentsRes,
@@ -148,13 +154,33 @@ const DashboardReports = () => {
         message.warning("Không thể tải thống kê booking");
       }
 
-      // Process user data
+      // Process user data by role
       const customerCount =
-        usersRes.status === "fulfilled"
-          ? Array.isArray(usersRes.value.data)
-            ? usersRes.value.data.length
+        customersRes.status === "fulfilled"
+          ? Array.isArray(customersRes.value.data)
+            ? customersRes.value.data.length
             : 0
           : 0;
+
+      const consultantCount =
+        consultantsRes.status === "fulfilled"
+          ? Array.isArray(consultantsRes.value.data)
+            ? consultantsRes.value.data.length
+            : 0
+          : 0;
+
+      const staffCount =
+        staffRes.status === "fulfilled"
+          ? Array.isArray(staffRes.value.data)
+            ? staffRes.value.data.length
+            : 0
+          : 0;
+
+      console.log("📊 [DASHBOARD] User counts by role:", {
+        customers: customerCount,
+        consultants: consultantCount,
+        staff: staffCount,
+      });
 
       // Process appointment data by status
       const pendingCount =
@@ -321,8 +347,8 @@ const DashboardReports = () => {
         topServices: topServices, // Use calculated top services from API
         userStats: {
           customers: customerCount,
-          consultants: 25, // Will need separate API
-          staff: 15, // Will need separate API
+          consultants: consultantCount, // From API
+          staff: staffCount, // From API
         },
         bookingStats: {
           ...bookingStats,
