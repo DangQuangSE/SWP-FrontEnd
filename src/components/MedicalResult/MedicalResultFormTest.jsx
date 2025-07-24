@@ -202,7 +202,7 @@ const MedicalResultFormTest = () => {
       </Card>
 
       {/* Instructions */}
-      <Card title="📋 Hướng dẫn test" style={{ marginTop: 24 }}>
+      <Card title=" Hướng dẫn test" style={{ marginTop: 24 }}>
         <Paragraph>
           <strong>Cách test:</strong>
         </Paragraph>

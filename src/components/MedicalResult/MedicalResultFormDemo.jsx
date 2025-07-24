@@ -53,7 +53,7 @@ const MedicalResultFormDemo = () => {
       />
 
       {/* Mock Appointment Detail */}
-      <Card title="📋 Thông tin cuộc hẹn mẫu" style={{ marginBottom: 24 }}>
+      <Card title=" Thông tin cuộc hẹn mẫu" style={{ marginBottom: 24 }}>
         <Row gutter={16}>
           <Col span={8}>
             <Card size="small">

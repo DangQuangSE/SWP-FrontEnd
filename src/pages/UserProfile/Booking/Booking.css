@@ -231,7 +231,6 @@
 
 /* Animations */
 @keyframes pulse {
-
   0%,
   100% {
     opacity: 1;
@@ -267,7 +266,9 @@
 /* Button styling - unified */
 .detail-button-profile,
 .cancel-button-profile,
-.online-consultation-button-profile {
+.online-consultation-button-profile,
+.result-button-profile,
+.rate-service-btn {
   margin: 0;
   padding: 8px 16px;
   font-size: 12px;
@@ -313,6 +314,36 @@
 
 .online-consultation-button-profile:hover {
   background-color: #40a9ff;
+  transform: translateY(-1px);
+}
+
+.result-button-profile {
+  background-color: #52c41a;
+  box-shadow: 0 2px 4px rgba(82, 196, 26, 0.2);
+}
+
+.result-button-profile:hover {
+  background-color: #73d13d;
+  transform: translateY(-1px);
+}
+
+.rate-service-btn {
+  background-color: #52c41a;
+  box-shadow: 0 2px 4px rgba(82, 196, 26, 0.2);
+}
+
+.rate-service-btn:hover {
+  background-color: #73d13d;
+  transform: translateY(-1px);
+}
+
+.rate-service-btn.rated {
+  background-color: #faad14;
+  box-shadow: 0 2px 4px rgba(250, 173, 20, 0.2);
+}
+
+.rate-service-btn.rated:hover {
+  background-color: #ffc53d;
   transform: translateY(-1px);
 }
 
@@ -437,6 +468,16 @@
 }
 
 /* Modal chi tiết lịch hẹn - Simple */
+.appointment-detail-modal {
+  text-align: center;
+}
+
+.appointment-detail-modal .ant-modal {
+  text-align: left;
+  display: inline-block;
+  vertical-align: middle;
+}
+
 .appointment-detail-modal .ant-modal-content {
   border-radius: 8px;
 }
@@ -449,247 +490,419 @@
   font-size: 20px;
   font-weight: 600;
   color: #2753d0;
-}
 
-.appointment-detail-modal .ant-modal-close {
-  color: white;
-}
-
-.appointment-detail-modal .ant-modal-close:hover {
-  color: #f0f0f0;
-}
-
-.appointment-detail-content {
-  max-height: 70vh;
-  overflow-y: auto;
-  padding: 0;
-}
-
-.detail-section {
-  padding: 20px;
-  border-bottom: 1px solid #f0f0f0;
-}
-
-.detail-section:last-child {
-  border-bottom: none;
-}
-
-.detail-section h3 {
-  margin: 0 0 16px 0;
-  font-size: 16px;
-  font-weight: 600;
-  color: #2753d0;
-  padding-bottom: 8px;
-}
-
-.detail-item {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  margin-bottom: 12px;
-  padding: 4px 0;
-}
-
-.detail-item:last-child {
-  margin-bottom: 0;
-}
-
-.detail-label {
-  font-weight: 500;
-  color: #666;
-  min-width: 140px;
-  flex-shrink: 0;
-}
-
-.detail-value {
-  color: #333;
-  text-align: right;
-  flex: 1;
-  word-break: break-word;
-}
-
-.detail-value.status {
-  padding: 2px 6px;
-  border-radius: 3px;
-  font-size: 10px;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.2px;
-  display: inline-block;
-  border: 1px solid;
-  width: fit-content;
-  max-width: 120px;
-  align-items: center;
-}
-
-.detail-value.status.confirmed {
-  background: #d1fae5;
-  color: #065f46;
-  border-color: #10b981;
-  text-align: center;
-}
-
-.detail-value.status.pending {
-  background: #fef3c7;
-  color: #92400e;
-  border-color: #f59e0b;
-}
-
-.detail-value.status.checked {
-  background: #dbeafe;
-  color: #1e40af;
-  border-color: #3b82f6;
-}
-
-.detail-value.status.completed {
-  background: #e0e7ff;
-  color: #3730a3;
-  border-color: #6366f1;
-}
-
-.detail-value.status.canceled {
-  background: #fee2e2;
-  color: #991b1b;
-  border-color: #ef4444;
-}
-
-.detail-value a {
-  color: #2753d0;
-  text-decoration: none;
-  font-weight: 500;
-}
-
-.detail-value a:hover {
-  text-decoration: underline;
-}
-
-@keyframes zoomBlink {
-  0% {
-    background-color: #1890ff;
-    box-shadow: 0 0 5px rgba(24, 144, 255, 0.5);
-    transform: scale(1);
+  .appointment-detail-modal .ant-modal-close {
+    color: white;
   }
 
-  100% {
-    background-color: #40a9ff;
-    box-shadow: 0 0 15px rgba(24, 144, 255, 0.8);
-    transform: scale(1.05);
-  }
-}
-
-/* Styles cho nút đánh giá */
-.appointment-actions {
-  display: flex;
-  gap: 10px;
-  margin-top: 10px;
-}
-
-.view-detail-btn,
-.rate-service-btn {
-  padding: 6px 12px;
-  border-radius: 4px;
-  cursor: pointer;
-  font-weight: 500;
-  border: none;
-  transition: all 0.3s ease;
-}
-
-.view-detail-btn {
-  background-color: #1890ff;
-  color: white;
-}
-
-.view-detail-btn:hover {
-  background-color: #40a9ff;
-}
-
-.rate-service-btn {
-  background-color: #52c41a;
-  color: white;
-}
-
-.rate-service-btn:hover {
-  background-color: #73d13d;
-}
-
-.rate-service-btn.rated {
-  background-color: #faad14;
-}
-
-.rate-service-btn.rated:hover {
-  background-color: #ffc53d;
-}
-
-/* Styles cho status badge */
-.status-badge {
-  padding: 2px 8px;
-  border-radius: 10px;
-  font-size: 12px;
-  font-weight: 500;
-  margin-left: 5px;
-}
-
-.status-badge.completed {
-  background-color: #52c41a;
-  color: white;
-}
-
-.status-badge.pending {
-  background-color: #faad14;
-  color: white;
-}
-
-.status-badge.cancelled {
-  background-color: #ff4d4f;
-  color: white;
-}
-
-.status-badge.confirmed {
-  background-color: #1890ff;
-  color: white;
-}
-
-/* Responsive for mobile */
-@media (max-width: 768px) {
-  .appointment-actions {
-    flex-direction: column;
-    gap: 8px;
+  .appointment-detail-modal .ant-modal-close:hover {
+    color: #f0f0f0;
   }
 
-  .detail-button-profile,
-  .cancel-button-profile,
-  .online-consultation-button-profile {
-    width: 100%;
-    max-width: none;
+  .appointment-detail-content {
+    max-height: 70vh;
+    overflow-y: auto;
+    padding: 0;
+  }
+
+  .detail-section {
+    padding: 20px;
+    border-bottom: 1px solid #f0f0f0;
+  }
+
+  .detail-section:last-child {
+    border-bottom: none;
+  }
+
+  .detail-section h3 {
+    margin: 0 0 16px 0;
+    font-size: 16px;
+    font-weight: 600;
+    color: #2753d0;
+    padding-bottom: 8px;
+  }
+
+  .detail-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 12px;
+    padding: 4px 0;
+  }
+
+  .detail-item:last-child {
     margin-bottom: 0;
-    margin-right: 0;
   }
-}
 
-/* Modal responsive */
-.appointment-detail-modal {
-  margin: 16px;
-  max-width: calc(100vw - 32px);
-}
+  .detail-label {
+    font-weight: 500;
+    color: #666;
+    min-width: 140px;
+    flex-shrink: 0;
+  }
 
-.detail-item {
-  flex-direction: column;
-  align-items: flex-start;
-  gap: 4px;
-}
+  .detail-value {
+    color: #333;
+    text-align: right;
+    flex: 1;
+    word-break: break-word;
+  }
 
-.detail-label {
-  min-width: auto;
-}
+  .detail-value.status {
+    padding: 2px 6px;
+    border-radius: 3px;
+    font-size: 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.2px;
+    display: inline-block;
+    border: 1px solid;
+    width: fit-content;
+    max-width: 120px;
+    align-items: center;
+  }
 
-.detail-value {
-  text-align: left;
-}
+  .detail-value.status.confirmed {
+    background: #d1fae5;
+    color: #065f46;
+    border-color: #10b981;
+    text-align: center;
+  }
 
-.detail-section {
-  padding: 16px;
-}
+  .detail-value.status.pending {
+    background: #fef3c7;
+    color: #92400e;
+    border-color: #f59e0b;
+  }
 
-.service-detail-item {
-  padding: 12px;
+  .detail-value.status.checked {
+    background: #dbeafe;
+    color: #1e40af;
+    border-color: #3b82f6;
+  }
+
+  .detail-value.status.completed {
+    background: #e0e7ff;
+    color: #3730a3;
+    border-color: #6366f1;
+  }
+
+  .detail-value.status.canceled {
+    background: #fee2e2;
+    color: #991b1b;
+    border-color: #ef4444;
+  }
+
+  .detail-value a {
+    color: #2753d0;
+    text-decoration: none;
+    font-weight: 500;
+  }
+
+  .detail-value a:hover {
+    text-decoration: underline;
+  }
+
+  @keyframes zoomBlink {
+    0% {
+      background-color: #1890ff;
+      box-shadow: 0 0 5px rgba(24, 144, 255, 0.5);
+      transform: scale(1);
+    }
+
+    100% {
+      background-color: #40a9ff;
+      box-shadow: 0 0 15px rgba(24, 144, 255, 0.8);
+      transform: scale(1.05);
+    }
+  }
+
+  /* Styles cho nút đánh giá */
+  .appointment-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 10px;
+  }
+
+  .view-detail-btn {
+    padding: 6px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: 500;
+    border: none;
+    transition: all 0.3s ease;
+    background-color: #1890ff;
+    color: white;
+  }
+
+  .view-detail-btn:hover {
+    background-color: #40a9ff;
+  }
+
+  /* Styles cho status badge */
+  .status-badge {
+    padding: 2px 8px;
+    border-radius: 10px;
+    font-size: 12px;
+    font-weight: 500;
+    margin-left: 5px;
+  }
+
+  .status-badge.completed {
+    background-color: #52c41a;
+    color: white;
+  }
+
+  .status-badge.pending {
+    background-color: #faad14;
+    color: white;
+  }
+
+  .status-badge.cancelled {
+    background-color: #ff4d4f;
+    color: white;
+  }
+
+  .status-badge.confirmed {
+    background-color: #1890ff;
+    color: white;
+  }
+
+  /* Responsive for mobile */
+  @media (max-width: 768px) {
+    .appointment-actions {
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .detail-button-profile,
+    .cancel-button-profile,
+    .online-consultation-button-profile,
+    .result-button-profile,
+    .rate-service-btn {
+      width: 100%;
+      max-width: none;
+      margin-bottom: 0;
+      margin-right: 0;
+    }
+  }
+
+  /* Modal responsive */
+  @media (max-width: 768px) {
+    .appointment-detail-modal {
+      margin: 8px;
+      max-width: calc(100vw - 16px);
+    }
+
+    .appointment-detail-modal .ant-modal {
+      margin: 0;
+      max-width: 100%;
+    }
+
+    .appointment-detail-modal .ant-modal-content {
+      margin: 0;
+    }
+  }
+
+  .detail-item {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+  }
+
+  .detail-label {
+    min-width: auto;
+  }
+
+  .detail-value {
+    text-align: left;
+  }
+
+  .detail-section {
+    padding: 16px;
+  }
+
+  .service-detail-item {
+    padding: 12px;
+  }
+
+  /* Modal kết quả khám - Fit to screen */
+  .medical-result-modal {
+    top: 20px;
+    padding-bottom: 0;
+  }
+
+  .medical-result-modal .ant-modal {
+    max-height: calc(100vh - 40px);
+    margin: 0;
+  }
+
+  .medical-result-modal .ant-modal-content {
+    height: calc(100vh - 40px);
+    display: flex;
+    flex-direction: column;
+  }
+
+  .medical-result-modal .ant-modal-header {
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    border-bottom: none;
+    flex-shrink: 0;
+  }
+
+  .medical-result-modal .ant-modal-title {
+    color: white;
+    font-weight: 600;
+  }
+
+  .medical-result-modal .ant-modal-close {
+    color: white;
+  }
+
+  .medical-result-modal .ant-modal-close:hover {
+    color: #f0f0f0;
+  }
+
+  .medical-result-modal .ant-modal-body {
+    flex: 1;
+    overflow-y: auto;
+    padding: 16px 24px;
+  }
+
+  .medical-result-content {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .result-header {
+    margin-bottom: 8px;
+    padding-bottom: 6px;
+    border-bottom: 1px solid #e5e7eb;
+    flex-shrink: 0;
+  }
+
+  .result-header h3 {
+    margin: 0 0 4px 0;
+    color: #1f2937;
+    font-size: 14px;
+    font-weight: 600;
+  }
+
+  .appointment-info p {
+    margin: 2px 0;
+    color: #4b5563;
+    font-size: 12px;
+  }
+
+  .result-body {
+    margin-bottom: 12px;
+  }
+
+  .result-body h3 {
+    margin: 0 0 8px 0;
+    color: #1f2937;
+    font-size: 14px;
+    font-weight: 600;
+    padding: 4px 0;
+    border-bottom: 1px solid #e5e7eb;
+  }
+
+  .medical-profile-details {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .result-item {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    padding: 6px 8px;
+    background: #f9fafb;
+    border: 1px solid #e5e7eb;
+    border-radius: 4px;
+    margin-bottom: 4px;
+  }
+
+  .result-label {
+    font-weight: 600;
+    color: #374151;
+    font-size: 12px;
+    margin-bottom: 2px;
+  }
+
+  .result-value {
+    color: #1f2937;
+    font-size: 12px;
+    line-height: 1.4;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    background: #ffffff;
+    padding: 4px 6px;
+    border-radius: 3px;
+    border: 1px solid #d1d5db;
+    min-height: 16px;
+  }
+
+  .medical-result-modal {
+    top: 0;
+    padding: 0;
+  }
+
+  .medical-result-modal .ant-modal {
+    max-height: 100vh;
+    margin: 0;
+    border-radius: 0;
+  }
+
+  .medical-result-modal .ant-modal-content {
+    height: 100vh;
+    border-radius: 0;
+  }
+
+  .medical-result-modal .ant-modal-body {
+    padding: 12px 16px;
+  }
+
+  .result-header {
+    margin-bottom: 6px;
+    padding-bottom: 4px;
+  }
+
+  .result-header h3 {
+    font-size: 13px;
+  }
+
+  .appointment-info p {
+    font-size: 11px;
+    margin: 1px 0;
+  }
+
+  .result-body {
+    margin-bottom: 8px;
+  }
+
+  .result-body h3 {
+    font-size: 13px;
+    margin-bottom: 6px;
+    padding: 3px 0;
+  }
+
+  .medical-profile-details {
+    gap: 3px;
+  }
+
+  .result-item {
+    padding: 4px 6px;
+    margin-bottom: 3px;
+  }
+
+  .result-label {
+    font-size: 11px;
+  }
+
+  .result-value {
+    font-size: 11px;
+    padding: 3px 4px;
+  }
 }

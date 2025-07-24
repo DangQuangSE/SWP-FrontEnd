@@ -49,7 +49,7 @@ function Admin() {
       manage_bookings: "Quản lý Lịch hẹn",
       dashboard_reports: "Xem Dashboard & Báo cáo",
       // handle_feedback: "Xử lý Phản hồi Dịch vụ/Tư vấn",
-      manage_payments: "Quản lý Thanh toán & Giao dịch",
+      // manage_payments: "Quản lý Thanh toán & Giao dịch",
       manage_rooms: "Quản lý Phòng khám",
       manage_specializations: "Quản lý Chuyên khoa",
     };
@@ -98,11 +98,11 @@ function Admin() {
     //   icon: React.createElement(EyeOutlined),
     //   label: "Xử lý Phản hồi Dịch vụ/Tư vấn",
     // },
-    {
-      key: "manage_payments",
-      icon: React.createElement(SolutionOutlined),
-      label: "Quản lý Thanh toán & Giao dịch",
-    },
+    // {
+    //   key: "manage_payments",
+    //   icon: React.createElement(SolutionOutlined),
+    //   label: "Quản lý Thanh toán & Giao dịch",
+    // },
     {
       key: "manage_rooms",
       icon: React.createElement(TeamOutlined),

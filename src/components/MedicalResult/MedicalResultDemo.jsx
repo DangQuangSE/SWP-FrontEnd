@@ -116,7 +116,7 @@ const MedicalResultDemo = () => {
       <Divider />
 
       {/* Compact View Demo */}
-      <Title level={3}>📋 Chế độ xem compact</Title>
+      <Title level={3}> Chế độ xem compact</Title>
       <Row gutter={[16, 16]} style={{ marginBottom: 32 }}>
         {mockResults.slice(0, 4).map((result) => (
           <Col span={12} key={result.id}>

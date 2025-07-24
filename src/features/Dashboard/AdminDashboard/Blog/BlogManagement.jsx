@@ -241,7 +241,7 @@ const BlogManagement = ({ userId, selectedTab }) => {
     try {
       console.log("🔄 Đang duyệt blog ID:", id);
       const blogBefore = blogs.find((b) => b.id === id);
-      console.log("📋 Blog trước khi duyệt:", blogBefore);
+      console.log(" Blog trước khi duyệt:", blogBefore);
 
       const token = localStorage.getItem("token");
       const response = await api.post(`/blog/admin/${id}/approve`, null, {
@@ -257,7 +257,7 @@ const BlogManagement = ({ userId, selectedTab }) => {
       // Debug: Kiểm tra blog sau khi cập nhật với delay để đảm bảo state đã cập nhật
       setTimeout(() => {
         const blogAfter = blogs.find((b) => b.id === id);
-        console.log("📋 Blog sau khi duyệt:", blogAfter);
+        console.log(" Blog sau khi duyệt:", blogAfter);
 
         // Force component re-render
         setBlogs([...blogs]);
@@ -286,7 +286,7 @@ const BlogManagement = ({ userId, selectedTab }) => {
     try {
       console.log("🚀 Đang đăng blog ID:", id);
       const blogBefore = blogs.find((b) => b.id === id);
-      console.log("📋 Blog trước khi đăng:", blogBefore);
+      console.log(" Blog trước khi đăng:", blogBefore);
 
       const token = localStorage.getItem("token");
       const response = await api.post(`/blog/admin/${id}/publish`, null, {
@@ -301,7 +301,7 @@ const BlogManagement = ({ userId, selectedTab }) => {
       // Debug: Kiểm tra blog sau khi cập nhật
       setTimeout(() => {
         const blogAfter = blogs.find((b) => b.id === id);
-        console.log("📋 Blog sau khi đăng:", blogAfter);
+        console.log(" Blog sau khi đăng:", blogAfter);
       }, 1000);
     } catch (error) {
       console.error("❌ Error publishing blog:", error);

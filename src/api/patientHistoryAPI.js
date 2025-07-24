@@ -9,14 +9,19 @@ import api from "../configs/api";
  */
 export const getPatientMedicalHistory = async (patientId, page = 0, size = 5) => {
   try {
-    console.log(`📋 [API] Getting patient medical history for ID: ${patientId}, page: ${page}, size: ${size}`);
-    
-    const response = await api.get(`/medical-profile/patient/${patientId}/history`, {
-      params: {
-        page,
-        size
-      }
-    });
+    console.log(
+      ` [API] Getting patient medical history for ID: ${patientId}, page: ${page}, size: ${size}`
+    );
+
+    const response = await api.get(
+      `/medical-profile/patient/${patientId}/history`,
+      {
+        params: {
+          page,
+          size,
+        },
+      });
+    }
     
     console.log("✅ [API] Patient medical history loaded successfully:", response.data);
     return response;

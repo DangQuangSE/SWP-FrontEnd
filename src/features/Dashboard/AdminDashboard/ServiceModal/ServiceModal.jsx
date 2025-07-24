@@ -225,9 +225,7 @@ const ServiceModal = ({
                         justifyContent: "space-between",
                       }}
                     >
-                      <span>
-                        {service.name} (ID: {service.id})
-                      </span>
+                      <span>{service.name}</span>
                       <span style={{ color: "#666", fontSize: "12px" }}>
                         {service.price?.toLocaleString() || 0}đ
                       </span>

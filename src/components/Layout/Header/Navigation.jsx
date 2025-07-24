@@ -35,40 +35,52 @@ const Navigation = () => {
     { label: "Liên hệ", href: "/contact" },
   ];
 
-  // Admin-specific navigation items
-  const adminNavigationItems = [
+  // Role-specific navigation items
+  const getRoleSpecificItems = (userRole) => {
+    switch (userRole) {
+      case "ADMIN":
+        return [{ label: "Người quản lý", href: "/admin" }];
+      case "STAFF":
+        return [{ label: "Nhân viên", href: "/staff" }];
+      case "CONSULTANT":
+        return [{ label: "Bác sĩ", href: "/consultant" }];
+      default:
+        return [];
+    }
+  };
+
+  // All possible role navigation items (for styling check)
+  const allRoleNavigationItems = [
     { label: "Admin", href: "/admin" },
     { label: "Staff", href: "/staff" },
     { label: "Consultant", href: "/consultant" },
   ];
 
   // Combine navigation items based on user role
-  const navigationItems =
-    user?.role === "ADMIN"
-      ? [...baseNavigationItems, ...adminNavigationItems] // Admin: Base + Admin buttons
-      : baseNavigationItems; // Customer/Others: Base items only
+  const roleSpecificItems = getRoleSpecificItems(user?.role);
+  const navigationItems = [...baseNavigationItems, ...roleSpecificItems];
 
   return (
     <nav className="main-nav">
       <ul className="nav-list">
         {navigationItems.map((item, index) => {
-          // Check if this is an admin navigation item
-          const isAdminItem = adminNavigationItems.some(
-            (adminItem) => adminItem.href === item.href
+          // Check if this is a role navigation item
+          const isRoleItem = allRoleNavigationItems.some(
+            (roleItem) => roleItem.href === item.href
           );
 
           return (
             <li
               key={index}
               className={`nav-item${item.dropdown ? " has-dropdown" : ""}${
-                isAdminItem ? " admin-item" : ""
+                isRoleItem ? " admin-item" : ""
               }`}
             >
               <Link
                 to={item.href}
                 className={`nav-link${
                   location.pathname === item.href ? " active" : ""
-                }${isAdminItem ? " admin-nav" : ""}`}
+                }${isRoleItem ? " admin-nav" : ""}`}
               >
                 {item.label}
               </Link>

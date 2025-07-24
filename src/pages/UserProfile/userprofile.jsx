@@ -5,11 +5,11 @@ import "./userprofile.css";
 
 const menuItems = [
   { path: "profile", label: "Hồ sơ", icon: "👤" },
-  { path: "health", label: "Sức khỏe", icon: "❤️" },
+  // { path: "health", label: "Sức khỏe", icon: "❤️" },
   { path: "saved", label: "Đã lưu", icon: "📚" },
   { path: "booking", label: "Lịch sử đặt chỗ", icon: "📅" },
   { path: "attended", label: "Đã tham gia", icon: "👥" },
-  { path: "settings", label: "Thiết lập tài khoản", icon: "⚙️" },
+  // { path: "settings", label: "Thiết lập tài khoản", icon: "⚙️" },
 ];
 
 export default function UserProfileLayout() {

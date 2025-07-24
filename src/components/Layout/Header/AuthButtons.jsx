@@ -14,7 +14,6 @@ import { logout } from "../../../redux/reduxStore/userSlice.js";
 import { useNavigate } from "react-router-dom";
 import api from "../../../configs/api";
 import NotificationDropdown from "./Notification.jsx";
-import NotificationDetail from "./NotificationDetail.jsx";
 
 const AuthButtons = () => {
   const [open, setOpen] = useState(false);
@@ -50,9 +49,6 @@ const AuthButtons = () => {
   const isLoggedIn = user && user.email && user.email.trim() !== "";
   console.log("isLoggedIn:", isLoggedIn);
   const [showNotifications, setShowNotifications] = useState(false);
-  const [selectedNotification, setSelectedNotification] = useState(null);
-  const [notificationDetailVisible, setNotificationDetailVisible] =
-    useState(false);
   const [notifications, setNotifications] = useState([]);
   const [loading, setLoading] = useState(false);
 
@@ -67,12 +63,12 @@ const AuthButtons = () => {
       icon: <UserOutlined />,
       onClick: () => navigate("/user/profile"),
     },
-    {
-      key: "2",
-      label: "Cài đặt",
-      icon: <SettingOutlined />,
-      onClick: () => navigate("/settings"),
-    },
+    // {
+    //   key: "2",
+    //   label: "Cài đặt",
+    //   icon: <SettingOutlined />,
+    //   onClick: () => navigate("/settings"),
+    // },
     {
       key: "3",
       label: "Lịch sử đặt chỗ",
@@ -134,24 +130,18 @@ const AuthButtons = () => {
         );
       }
 
-      // Lấy chi tiết thông báo từ API khi người dùng nhấn vào thông báo
-      const detailResponse = await api.get(`/notifications/${notification.id}`);
-      console.log("Notification detail response:", detailResponse.data);
+      // Đóng dropdown notification
+      setShowNotifications(false);
 
-      // Hiển thị chi tiết thông báo từ API
-      setSelectedNotification(detailResponse.data);
-      setNotificationDetailVisible(true);
+      // Navigate đến trang booking
+      console.log("🔔 [NOTIFICATION] Navigating to /user/booking");
+      navigate("/user/booking");
     } catch (error) {
       console.error("Error handling notification:", error);
-      // Nếu có lỗi, vẫn hiển thị thông báo với dữ liệu hiện có
-      setSelectedNotification(notification);
-      setNotificationDetailVisible(true);
+      // Nếu có lỗi, vẫn navigate đến booking page
+      setShowNotifications(false);
+      navigate("/user/booking");
     }
-  };
-
-  const closeNotificationDetail = () => {
-    setNotificationDetailVisible(false);
-    setSelectedNotification(null);
   };
 
   useEffect(() => {
@@ -206,11 +196,6 @@ const AuthButtons = () => {
       <AuthModal open={open} onClose={() => setOpen(false)} />
 
       {/* Modal chi tiết thông báo */}
-      <NotificationDetail
-        visible={notificationDetailVisible}
-        notification={selectedNotification}
-        onClose={closeNotificationDetail}
-      />
     </div>
   );
 };
