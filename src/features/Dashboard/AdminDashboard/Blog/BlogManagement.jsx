@@ -317,7 +317,9 @@ const BlogManagement = ({ userId, selectedTab }) => {
     }
 
     try {
+      console.log(`🔍 [DEBUG] Fetching blog detail for ID: ${id}`);
       const res = await fetchBlogDetail(id);
+      console.log(`📥 [DEBUG] Blog detail response:`, res.data);
 
       let blog = {};
       try {
@@ -385,6 +387,10 @@ const BlogManagement = ({ userId, selectedTab }) => {
       setSelectedBlog(processedBlog);
       setIsDetailModalVisible(true);
     } catch (error) {
+      console.error(`❌ [DEBUG] Error fetching blog detail:`, error);
+      console.error(`❌ [DEBUG] Error response:`, error.response?.data);
+      console.error(`❌ [DEBUG] Error status:`, error.response?.status);
+
       toast.error(
         `Không thể tải chi tiết blog: ${error.message || "Lỗi không xác định"}`
       );
@@ -450,7 +456,7 @@ const BlogManagement = ({ userId, selectedTab }) => {
       const blogData = {
         title: values.title.trim(),
         content: values.content.trim(),
-        status: values.status || "PUBLISHED",
+        // Không cần truyền status - backend sẽ tự động set
         imgFile: imgFile,
         tagNames: tagNames,
       };
@@ -592,12 +598,9 @@ const BlogManagement = ({ userId, selectedTab }) => {
   };
   const renderStatus = (status) => {
     const statusConfig = {
-      DRAFT: { color: "#8c8c8c", text: "Bản nháp" },
       PENDING: { color: "#faad14", text: "Chờ duyệt" },
-      APPROVED: { color: "#52c41a", icon: "", text: "Đã duyệt" },
       PUBLISHED: { color: "#1890ff", text: "Đã đăng" },
       REJECTED: { color: "#ff4d4f", text: "Bị từ chối" },
-      ARCHIVED: { color: "#722ed1", text: "Đã lưu trữ" },
     };
     const config = statusConfig[status] || {
       color: "#8c8c8c",
@@ -769,7 +772,7 @@ const BlogManagement = ({ userId, selectedTab }) => {
                 title: record.title,
                 content: record.content,
                 tags: record.tags?.map((tag) => tag.id),
-                status: record.status,
+                // Không cần set status nữa
               });
               setIsEditBlogModalVisible(true);
               setEditingBlogId(record.id);
@@ -926,12 +929,9 @@ const BlogManagement = ({ userId, selectedTab }) => {
               onChange={handleFilterByStatus}
               options={[
                 { value: "ALL", label: "Tất cả trạng thái" },
-                { value: "DRAFT", label: "Bản nháp" },
                 { value: "PENDING", label: "Chờ duyệt" },
-                { value: "APPROVED", label: "Đã duyệt" },
                 { value: "PUBLISHED", label: "Đã đăng" },
                 { value: "REJECTED", label: "Bị từ chối" },
-                { value: "ARCHIVED", label: "Đã lưu trữ" },
               ]}
             />
             <Select
@@ -1093,21 +1093,6 @@ const BlogManagement = ({ userId, selectedTab }) => {
                 options={tagOptions}
                 allowClear
               />
-            </Form.Item>
-
-            <Form.Item
-              name="status"
-              label="Trạng thái"
-              rules={[{ required: true, message: "Vui lòng chọn trạng thái!" }]}
-            >
-              <Select placeholder="Chọn trạng thái bài viết">
-                <Select.Option value="DRAFT"> Bản nháp</Select.Option>
-                <Select.Option value="PENDING">⏳ Chờ duyệt</Select.Option>
-                <Select.Option value="APPROVED"> Đã duyệt</Select.Option>
-                <Select.Option value="PUBLISHED">🌐 Đã đăng</Select.Option>
-                <Select.Option value="REJECTED"> Bị từ chối</Select.Option>
-                <Select.Option value="ARCHIVED">📦 Đã lưu trữ</Select.Option>
-              </Select>
             </Form.Item>
           </Form>
         </Modal>

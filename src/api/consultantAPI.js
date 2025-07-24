@@ -22,7 +22,7 @@ export const fetchBlogsByAuthor = (authorId, page = 0, size = 10) => {
 };
 
 export const fetchBlogDetail = (id) => {
-  return api.get(`/blog/${id}`);
+  return api.get(`/blog/detail/${id}`);
 };
 
 export const fetchBlogsByTag = (tagId, page = 0, size = 10) => {
@@ -55,7 +55,7 @@ export const createBlog = (blogData) => {
   // Required fields
   formData.append("title", blogData.title);
   formData.append("content", blogData.content);
-  formData.append("status", blogData.status || "DRAFT");
+  // Không cần truyền status nữa - backend sẽ tự động set
 
   // Optional image file
   if (blogData.imgFile) {
