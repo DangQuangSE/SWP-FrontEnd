@@ -32,6 +32,7 @@ import {
 import dayjs from "dayjs";
 import "dayjs/locale/vi";
 import locale from "antd/es/date-picker/locale/vi_VN";
+import "./MedicalResultForm.css";
 
 // Set dayjs locale to Vietnamese
 dayjs.locale("vi");
@@ -157,7 +158,7 @@ const MedicalResultForm = ({
         ...formData,
       };
 
-      console.log("📝 Setting form values:", formValues);
+      console.log(" Setting form values:", formValues);
 
       // Only set form values if form is available and prevent validation errors
       if (form && form.setFieldsValue) {
@@ -187,7 +188,7 @@ const MedicalResultForm = ({
   const validateFormData = (values) => {
     const normalizedData = { ...values };
 
-    console.log("📝 Validating form data:", values);
+    console.log(" Validating form data:", values);
 
     // Simple validation - no complex date handling
     // All fields are now simple strings or selects
@@ -198,7 +199,7 @@ const MedicalResultForm = ({
   // Handle form submission with proper validation
   const handleSubmit = async (values) => {
     try {
-      console.log("📝 Form values received:", values);
+      console.log(" Form values received:", values);
 
       // Validate form first to prevent useFieldsInvalidate errors
       try {
@@ -238,7 +239,7 @@ const MedicalResultForm = ({
         }),
       };
 
-      console.log("📤 Submitting form data (backend format):", submitData);
+      console.log(" Submitting form data (backend format):", submitData);
       await submitResult(submitData);
     } catch (error) {
       console.error("Form submission error:", error);
@@ -366,7 +367,7 @@ const MedicalResultForm = ({
           }
           type="info"
           showIcon
-          style={{ marginBottom: 24 }}
+          className="medical-result-alert"
         />
       )}
 
@@ -375,7 +376,7 @@ const MedicalResultForm = ({
         <Alert
           message="Có lỗi trong form"
           description={
-            <ul style={{ margin: 0, paddingLeft: 20 }}>
+            <ul className="medical-result-alert-list">
               {Object.entries(errors).map(([field, error]) => (
                 <li key={field}>{error}</li>
               ))}
@@ -385,7 +386,7 @@ const MedicalResultForm = ({
           showIcon
           closable
           onClose={clearErrors}
-          style={{ marginBottom: 16 }}
+          className="medical-result-error-alert"
         />
       )}
 
@@ -394,7 +395,7 @@ const MedicalResultForm = ({
         <Alert
           message="Lưu ý"
           description={
-            <ul style={{ margin: 0, paddingLeft: 20 }}>
+            <ul className="medical-result-alert-list">
               {Object.entries(warnings).map(([field, warning]) => (
                 <li key={field}>{warning}</li>
               ))}
@@ -403,7 +404,7 @@ const MedicalResultForm = ({
           type="warning"
           showIcon
           closable
-          style={{ marginBottom: 16 }}
+          className="medical-result-warning-alert"
         />
       )}
 
@@ -427,7 +428,7 @@ const MedicalResultForm = ({
             <Card
               size="small"
               title="Thông tin xét nghiệm"
-              style={{ marginBottom: 16 }}
+              className="medical-result-card"
             >
               <Form.Item
                 name="resultType"
@@ -512,7 +513,7 @@ const MedicalResultForm = ({
                     showTime
                     format="DD/MM/YYYY HH:mm"
                     placeholder="Chọn thời gian lấy mẫu"
-                    style={{ width: "100%" }}
+                    className="medical-result-date-picker"
                     value={formData.sampleCollectedAt}
                     onChange={(isoString) => {
                       handleFieldChange("sampleCollectedAt", isoString);
@@ -528,7 +529,7 @@ const MedicalResultForm = ({
             <Card
               size="small"
               title="Kết quả & Đánh giá"
-              style={{ marginBottom: 16 }}
+              className="medical-result-card"
             >
               <Row gutter={16}>
                 <Col span={12}>
@@ -607,7 +608,7 @@ const MedicalResultForm = ({
         <Card
           size="small"
           title="Đánh giá lâm sàng"
-          style={{ marginBottom: 24 }}
+          className="medical-result-clinical-card"
         >
           <Form.Item
             name="description"

@@ -128,7 +128,7 @@ const MedicalResultDemo = () => {
       <Divider />
 
       {/* Full View Demo */}
-      <Title level={3}>📊 Chế độ xem chi tiết</Title>
+      <Title level={3}> Chế độ xem chi tiết</Title>
       <Card style={{ marginBottom: 32 }}>
         <MedicalResultViewer result={mockResults[0]} compact={false} />
       </Card>
@@ -242,7 +242,7 @@ const MedicalResultDemo = () => {
       <Card title="✨ Tính năng nổi bật">
         <Row gutter={16}>
           <Col span={12}>
-            <Title level={4}>🎨 Thiết kế chuyên nghiệp</Title>
+            <Title level={4}> Thiết kế chuyên nghiệp</Title>
             <ul>
               <li>Giao diện hiện đại, trực quan</li>
               <li>Màu sắc phân loại theo mức độ nghiêm trọng</li>
@@ -251,7 +251,7 @@ const MedicalResultDemo = () => {
             </ul>
           </Col>
           <Col span={12}>
-            <Title level={4}>📊 Trực quan hóa dữ liệu</Title>
+            <Title level={4}> Trực quan hóa dữ liệu</Title>
             <ul>
               <li>Progress bar cho giá trị xét nghiệm</li>
               <li>Timeline theo dõi lịch sử</li>

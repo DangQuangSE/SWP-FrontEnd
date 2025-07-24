@@ -15,18 +15,24 @@ class UnifiedChatAPIService {
    * @param {string} clientId - Optional client-generated ID for deduplication
    * @returns {Promise} API response
    */
-  async sendMessage(sessionId, message, senderName, isStaff = false, clientId = null) {
+  async sendMessage(
+    sessionId,
+    message,
+    senderName,
+    isStaff = false,
+    clientId = null
+  ) {
     try {
-      console.log(`📤 [UNIFIED CHAT] Sending message:`, {
+      console.log(` [UNIFIED CHAT] Sending message:`, {
         sessionId,
         message: message.substring(0, 50),
         senderName,
         isStaff,
-        clientId
+        clientId,
       });
 
       let response;
-      
+
       if (isStaff) {
         // Use staff API
         response = await chatAPIService.sendChatMessage(
@@ -47,7 +53,6 @@ class UnifiedChatAPIService {
 
       console.log(`✅ [UNIFIED CHAT] Message sent successfully:`, response);
       return response;
-      
     } catch (error) {
       console.error(`❌ [UNIFIED CHAT] Failed to send message:`, error);
       throw error;
@@ -64,11 +69,11 @@ class UnifiedChatAPIService {
     try {
       console.log(`📥 [UNIFIED CHAT] Fetching messages:`, {
         sessionId,
-        isStaff
+        isStaff,
       });
 
       let messages;
-      
+
       if (isStaff) {
         // Use staff API
         messages = await chatAPIService.getSessionMessages(sessionId);
@@ -79,20 +84,19 @@ class UnifiedChatAPIService {
 
       console.log(`✅ [UNIFIED CHAT] Messages fetched:`, {
         count: messages?.length || 0,
-        isStaff
+        isStaff,
       });
-      
+
       return messages || [];
-      
     } catch (error) {
       console.error(`❌ [UNIFIED CHAT] Failed to fetch messages:`, error);
-      
+
       // For customer side, return empty array on error to allow chat to continue
       if (!isStaff) {
         console.warn(`⚠️ [UNIFIED CHAT] Returning empty messages for customer`);
         return [];
       }
-      
+
       throw error;
     }
   }

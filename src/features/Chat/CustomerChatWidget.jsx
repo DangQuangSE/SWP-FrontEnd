@@ -338,7 +338,7 @@ const CustomerChatWidget = () => {
   const updateUnreadCount = useCallback(
     (newCount) => {
       console.log(
-        `📊 [CUSTOMER CHAT] Updating unread count: ${unreadCount} → ${newCount}`
+        ` [CUSTOMER CHAT] Updating unread count: ${unreadCount} → ${newCount}`
       );
       setUnreadCount(newCount);
       saveUnreadCount(newCount);
@@ -351,7 +351,7 @@ const CustomerChatWidget = () => {
     if (!sessionId || !customerName) return;
 
     try {
-      console.log("📊 [CUSTOMER CHAT] Fetching unread count from server...");
+      console.log(" [CUSTOMER CHAT] Fetching unread count from server...");
       const count = await customerChatAPI.getUnreadCount(
         sessionId,
         customerName
@@ -387,7 +387,7 @@ const CustomerChatWidget = () => {
       if (currentStaffCount > previousStaffCount) {
         const newMessagesCount = currentStaffCount - previousStaffCount;
         console.log(
-          `📊 [CUSTOMER CHAT] Found ${newMessagesCount} new staff messages (${previousStaffCount} → ${currentStaffCount})`
+          ` [CUSTOMER CHAT] Found ${newMessagesCount} new staff messages (${previousStaffCount} → ${currentStaffCount})`
         );
 
         // Increment unread count by the number of new messages
@@ -441,7 +441,7 @@ const CustomerChatWidget = () => {
 
     // Send message via REST API (more reliable)
     try {
-      console.log("📤 [CUSTOMER CHAT] Sending message via REST API...");
+      console.log(" [CUSTOMER CHAT] Sending message via REST API...");
 
       const sentMessage = await unifiedChatAPI.sendMessage(
         sessionId,
@@ -694,7 +694,7 @@ const CustomerChatWidget = () => {
                 {messages
                   .sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp))
                   .map((msg) => {
-                    console.log(`🎨 [CUSTOMER CHAT] Message colors:`, {
+                    console.log(` [CUSTOMER CHAT] Message colors:`, {
                       senderType: msg.senderType,
                       avatarColor: getAvatarColor(msg.senderType),
                       bubbleStyle: getMessageBubbleStyle(msg.senderType),

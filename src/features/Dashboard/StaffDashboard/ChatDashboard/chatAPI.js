@@ -164,7 +164,7 @@ class ChatAPIService {
         senderName,
       };
 
-      console.log("📤 [CHAT API] Sending message:", payload);
+      console.log(" [CHAT API] Sending message:", payload);
       const response = await this.api.post("/chat/send", payload);
       console.log("✅ [CHAT API] Message sent successfully:", response.data);
       return response.data;
@@ -348,7 +348,7 @@ class ChatAPIService {
   async getUnreadCount(sessionId, readerName) {
     try {
       console.log(
-        `📊 [CHAT API] Getting unread count for session ${sessionId}, reader: ${readerName}`
+        ` [CHAT API] Getting unread count for session ${sessionId}, reader: ${readerName}`
       );
 
       const response = await this.api.get(

@@ -72,7 +72,7 @@ class CustomerChatAPIService {
         topic,
       };
 
-      console.log("📤 [CUSTOMER CHAT API] Creating session:", payload);
+      console.log(" [CUSTOMER CHAT API] Creating session:", payload);
       const response = await this.api.post("/chat/start", payload);
       console.log("✅ [CUSTOMER CHAT API] Session created:", response.data);
       return response.data;
@@ -93,7 +93,7 @@ class CustomerChatAPIService {
         senderName,
       };
 
-      console.log("📤 [CUSTOMER CHAT API] Sending message:", payload);
+      console.log(" [CUSTOMER CHAT API] Sending message:", payload);
       const response = await this.api.post("/chat/send", payload);
       console.log("✅ [CUSTOMER CHAT API] Message sent:", response.data);
       return response.data;
@@ -127,7 +127,7 @@ class CustomerChatAPIService {
    */
   async endChatSession(sessionId) {
     try {
-      console.log("📤 [CUSTOMER CHAT API] Ending session:", sessionId);
+      console.log(" [CUSTOMER CHAT API] Ending session:", sessionId);
       const response = await this.api.post(`/chat/sessions/${sessionId}/end`);
       console.log("✅ [CUSTOMER CHAT API] Session ended:", response.data);
       return response.data;
@@ -163,7 +163,7 @@ class CustomerChatAPIService {
    */
   async getUnreadCount(sessionId, customerName) {
     try {
-      console.log("📊 [CUSTOMER CHAT API] Getting unread count:", {
+      console.log(" [CUSTOMER CHAT API] Getting unread count:", {
         sessionId,
         customerName,
       });

@@ -57,7 +57,7 @@ const DashboardReports = () => {
   const loadDashboardData = async () => {
     setLoading(true);
     try {
-      console.log("📊 [DASHBOARD] Loading dashboard reports data...");
+      console.log(" [DASHBOARD] Loading dashboard reports data...");
 
       // Format date range for API calls
       const startDate = dateRange[0].format("YYYY-MM-DD");
@@ -108,7 +108,7 @@ const DashboardReports = () => {
         api.get("/appointment/by-status?status=CANCELED"),
       ]);
 
-      console.log("📊 [DASHBOARD] API Responses:", {
+      console.log(" [DASHBOARD] API Responses:", {
         revenueYear: revenueYearRes,
         revenueToday: revenueTodayRes,
         revenueMonth: revenueMonthRes,
@@ -176,7 +176,7 @@ const DashboardReports = () => {
             : 0
           : 0;
 
-      console.log("📊 [DASHBOARD] User counts by role:", {
+      console.log(" [DASHBOARD] User counts by role:", {
         customers: customerCount,
         consultants: consultantCount,
         staff: staffCount,
@@ -215,7 +215,7 @@ const DashboardReports = () => {
       const totalAppointmentsByStatus =
         pendingCount + confirmedCount + completedCount + canceledCount;
 
-      console.log("📊 [DASHBOARD] Appointment counts by status:", {
+      console.log(" [DASHBOARD] Appointment counts by status:", {
         pending: pendingCount,
         confirmed: confirmedCount,
         completed: completedCount,
@@ -296,7 +296,7 @@ const DashboardReports = () => {
         }));
 
       console.log(
-        "📊 [DASHBOARD] Recent appointments from all statuses:",
+        " [DASHBOARD] Recent appointments from all statuses:",
         recentAppointments
       );
 
@@ -334,7 +334,7 @@ const DashboardReports = () => {
         .sort((a, b) => b.count - a.count) // Sort by appointment count
         .slice(0, 5); // Top 5 services
 
-      console.log("📊 [DASHBOARD] Top services calculated:", topServices);
+      console.log(" [DASHBOARD] Top services calculated:", topServices);
 
       const processedData = {
         totalUsers: customerCount,

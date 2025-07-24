@@ -117,7 +117,7 @@ const MedicalResultFormDemo = () => {
 
       {/* Submitted Results */}
       {submittedResults.length > 0 && (
-        <Card title="📊 Kết quả đã lưu">
+        <Card title=" Kết quả đã lưu">
           <Row gutter={[16, 16]}>
             {submittedResults.map((result, index) => (
               <Col span={24} key={index}>
@@ -188,7 +188,7 @@ const MedicalResultFormDemo = () => {
       </Card>
 
       {/* Code Organization */}
-      <Card title="📁 Tổ chức code React" style={{ marginTop: 24 }}>
+      <Card title=" Tổ chức code React" style={{ marginTop: 24 }}>
         <Row gutter={16}>
           <Col span={8}>
             <Card size="small" title="🔧 API Layer">
@@ -215,7 +215,7 @@ const MedicalResultFormDemo = () => {
             </Card>
           </Col>
           <Col span={8}>
-            <Card size="small" title="🎨 UI Components">
+            <Card size="small" title=" UI Components">
               <ul style={{ margin: 0, paddingLeft: 20, fontSize: "12px" }}>
                 <li>
                   <Text code>MedicalResultForm.jsx</Text>

@@ -1,0 +1,33 @@
+/* CSS cho MedicalResultForm */
+
+/* Alert styles */
+.medical-result-alert {
+  margin-bottom: 24px;
+}
+
+.medical-result-error-alert {
+  margin-bottom: 16px;
+}
+
+.medical-result-warning-alert {
+  margin-bottom: 16px;
+}
+
+.medical-result-alert-list {
+  margin: 0;
+  padding-left: 20px;
+}
+
+/* Card styles */
+.medical-result-card {
+  margin-bottom: 16px;
+}
+
+.medical-result-clinical-card {
+  margin-bottom: 24px;
+}
+
+/* Form input styles */
+.medical-result-date-picker {
+  width: 100%;
+}

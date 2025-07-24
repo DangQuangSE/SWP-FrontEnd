@@ -251,7 +251,7 @@ export const useRealTimeMessages = (
           setLastMessageId(allMessages[allMessages.length - 1].id);
         }
 
-        console.log("📤 [REAL-TIME] Added message:", transformedMessage);
+        console.log(" [REAL-TIME] Added message:", transformedMessage);
         return allMessages;
       });
     },

@@ -142,7 +142,7 @@ const MedicalResultFormTest = () => {
 
       {/* Test Results */}
       {testResults.length > 0 && (
-        <Card title="📊 Kết quả test">
+        <Card title=" Kết quả test">
           <Space direction="vertical" style={{ width: "100%" }}>
             {testResults.map((result, index) => (
               <Alert

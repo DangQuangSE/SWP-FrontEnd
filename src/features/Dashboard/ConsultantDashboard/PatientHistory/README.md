@@ -144,7 +144,7 @@ import { PatientDetailButton } from "../PatientHistory";
 />
 ```
 
-## 🎨 Thiết kế
+## Thiết kế
 
 - ✅ **Chuyên nghiệp y tế**: Màu sắc nhẹ nhàng, không lòe loẹt
 - ✅ **Tiếng Việt**: Toàn bộ interface bằng tiếng Việt

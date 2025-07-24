@@ -205,7 +205,7 @@ export const exportPatientHistoryToPDF = async (patientId) => {
  */
 export const getPatientStatistics = async (patientId) => {
   try {
-    console.log(`📊 [API] Getting patient statistics for ID: ${patientId}`);
+    console.log(` [API] Getting patient statistics for ID: ${patientId}`);
 
     const response = await api.get(
       `/medical-profile/patient/${patientId}/statistics`
