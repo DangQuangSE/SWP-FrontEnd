@@ -16,7 +16,7 @@ const chatApi = axios.create({
 // Request interceptor for logging (no auth)
 chatApi.interceptors.request.use(
   function (config) {
-    console.log("🚀 [CHAT API] Request:", {
+    console.log("[CHAT API] Request:", {
       method: config.method?.toUpperCase(),
       url: config.url,
       baseURL: config.baseURL,

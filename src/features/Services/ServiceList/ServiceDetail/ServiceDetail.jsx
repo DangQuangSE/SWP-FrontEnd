@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import axios from "axios";
 import BookingForm from "../../Booking/BookingForm";
-import { Tabs } from "antd";
+import { Tabs, Card, Avatar, Modal, Button } from "antd";
+import { UserOutlined } from "@ant-design/icons";
 import "./ServiceDetail.css";
 import api from "../../../../configs/api.js";
 const ServiceDetail = () => {
@@ -11,12 +11,51 @@ const ServiceDetail = () => {
   const [loading, setLoading] = useState(true);
   // Thêm state mới cho đánh giá
   const [feedbacks, setFeedbacks] = useState([]);
+  // Thêm state cho danh sách bác sĩ
+  const [consultants, setConsultants] = useState([]);
+  // State cho modal thông tin bác sĩ
+  const [isModalVisible, setIsModalVisible] = useState(false);
+  const [selectedConsultant, setSelectedConsultant] = useState(null);
+
+  // Hàm xử lý modal
+  const showConsultantModal = (consultant) => {
+    setSelectedConsultant(consultant);
+    setIsModalVisible(true);
+  };
+
+  const handleModalClose = () => {
+    setIsModalVisible(false);
+    setSelectedConsultant(null);
+  };
+
+  const handleSelectConsultant = (consultant) => {
+    // Lưu thông tin bác sĩ đã chọn vào localStorage
+    localStorage.setItem("selectedConsultantId", consultant.id);
+    localStorage.setItem(
+      "selectedConsultantName",
+      consultant.fullname || "Chưa có tên"
+    );
+    localStorage.setItem(
+      "selectedConsultantSpecialization",
+      consultant.specialization || "Chưa có chuyên khoa"
+    );
+
+    // Trigger event để BookingForm cập nhật
+    window.dispatchEvent(new Event("consultantSelected"));
+
+    console.log("Đã chọn bác sĩ:", consultant.fullname);
+    handleModalClose();
+  };
 
   // Component hiển thị đánh giá sao
   const StarRating = ({ rating }) => {
     const stars = [];
     for (let i = 1; i <= 5; i++) {
-      stars.push(<span key={i} className={i <= rating ? 'star filled' : 'star'}>★</span>);
+      stars.push(
+        <span key={i} className={i <= rating ? "star filled" : "star"}>
+          ★
+        </span>
+      );
     }
     return <div className="star-rating">{stars}</div>;
   };
@@ -24,8 +63,8 @@ const ServiceDetail = () => {
   useEffect(() => {
     if (!id) return;
 
-    axios
-      .get(`/api/services/${id}`)
+    api
+      .get(`/services/${id}`)
       .then((res) => {
         setService(res.data);
         setLoading(false);
@@ -36,13 +75,25 @@ const ServiceDetail = () => {
       });
 
     // Thêm phần lấy đánh giá
-    api.get(`/feedback/service/${id}`)
+    api
+      .get(`/feedback/service/${id}`)
       .then((res) => {
         console.log("Danh sách đánh giá:", res.data);
         setFeedbacks(res.data);
       })
       .catch((err) => {
         console.error("Lỗi khi lấy danh sách đánh giá:", err);
+      });
+
+    // Thêm phần lấy danh sách bác sĩ by id
+    api
+      .get(`/consultants/by-service/${id}`)
+      .then((res) => {
+        console.log("Danh sách bác sĩ:", res.data);
+        setConsultants(res.data || []);
+      })
+      .catch((err) => {
+        console.error("Lỗi khi lấy danh sách bác sĩ:", err);
       });
   }, [id]);
 
@@ -94,14 +145,48 @@ const ServiceDetail = () => {
               </div>
             </div>
           </Tabs.TabPane>
-
+          <Tabs.TabPane tab={`Bác sĩ (${consultants.length || 0})`} key="3">
+            {consultants.length > 0 ? (
+              <div className="consultants-list">
+                {consultants.map((consultant) => (
+                  <Card
+                    key={consultant.id}
+                    className="consultant-card consultant-card-clickable"
+                    onClick={() => showConsultantModal(consultant)}
+                  >
+                    <div className="consultant-info">
+                      <Avatar
+                        size={64}
+                        src={consultant.imageUrl}
+                        icon={<UserOutlined />}
+                      />
+                      <div className="consultant-details">
+                        <h4 className="consultant-name">
+                          {consultant.fullname || "Chưa có tên"}
+                        </h4>
+                        <p className="consultant-specialization">
+                          {consultant.specialization || "Chưa có chuyên khoa"}
+                        </p>
+                      </div>
+                    </div>
+                  </Card>
+                ))}
+              </div>
+            ) : (
+              <div className="empty-state">
+                <p className="empty-state-text">Chưa có bác sĩ nào</p>
+              </div>
+            )}
+          </Tabs.TabPane>
           <Tabs.TabPane tab={`Đánh giá (${feedbacks.length || 0})`} key="2">
             {feedbacks.length > 0 ? (
               <div className="feedback-list">
                 {feedbacks.map((feedback) => (
                   <div key={feedback.id} className="feedback-card">
                     <div className="feedback-header">
-                      <h4 className="feedback-author">{feedback.userName || "Khách hàng"}</h4>
+                      <h4 className="feedback-author">
+                        {feedback.userName || "Khách hàng"}
+                      </h4>
                       <StarRating rating={feedback.rating} />
                     </div>
                     <p className="feedback-date">
@@ -112,10 +197,8 @@ const ServiceDetail = () => {
                 ))}
               </div>
             ) : (
-              <div style={{ textAlign: "center", padding: "32px 0" }}>
-                <p style={{ color: "#888", marginTop: 12 }}>
-                  Chưa có đánh giá nào
-                </p>
+              <div className="empty-state">
+                <p className="empty-state-text">Chưa có đánh giá nào</p>
               </div>
             )}
           </Tabs.TabPane>
@@ -125,6 +208,67 @@ const ServiceDetail = () => {
       <div className="booking-form-wrapper">
         <BookingForm serviceIdProp={id} serviceDetail={service} />
       </div>
+
+      {/* Modal thông tin chi tiết bác sĩ */}
+      <Modal
+        title="Thông tin chi tiết bác sĩ"
+        open={isModalVisible}
+        onCancel={handleModalClose}
+        footer={[
+          <Button key="cancel" onClick={handleModalClose}>
+            Đóng
+          </Button>,
+          <Button
+            key="select"
+            type="primary"
+            onClick={() => handleSelectConsultant(selectedConsultant)}
+          >
+            Chọn bác sĩ này
+          </Button>,
+        ]}
+        width={600}
+        className="consultant-modal"
+      >
+        {selectedConsultant && (
+          <div className="consultant-modal-content">
+            <div className="consultant-modal-left">
+              <Avatar
+                size={120}
+                src={selectedConsultant.imageUrl}
+                icon={<UserOutlined />}
+                className="consultant-modal-avatar"
+              />
+            </div>
+            <div className="consultant-modal-right">
+              <h3 className="consultant-modal-name">
+                {selectedConsultant.fullname || "Chưa có tên"}
+              </h3>
+              <p className="consultant-modal-specialization">
+                <strong>Chuyên khoa:</strong>{" "}
+                {selectedConsultant.specialization || "Chưa có chuyên khoa"}
+              </p>
+              <p className="consultant-modal-email">
+                <strong>Email:</strong> {selectedConsultant.email}
+              </p>
+              {selectedConsultant.phone && (
+                <p className="consultant-modal-phone">
+                  <strong>Số điện thoại:</strong> {selectedConsultant.phone}
+                </p>
+              )}
+              {selectedConsultant.experience && (
+                <p className="consultant-modal-experience">
+                  <strong>Kinh nghiệm:</strong> {selectedConsultant.experience}
+                </p>
+              )}
+              {selectedConsultant.description && (
+                <p className="consultant-modal-description">
+                  <strong>Mô tả:</strong> {selectedConsultant.description}
+                </p>
+              )}
+            </div>
+          </div>
+        )}
+      </Modal>
     </div>
   );
 };

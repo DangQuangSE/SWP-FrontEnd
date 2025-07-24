@@ -384,7 +384,7 @@ const StaffChatInterface = ({ defaultTab = "waiting", hideTabs = false }) => {
 
   // Auto-load all sessions when component mounts (when clicking Q&A)
   useEffect(() => {
-    console.log("🚀 [STAFF CHAT] Component mounted, loading sessions...");
+    console.log("[STAFF CHAT] Component mounted, loading sessions...");
     loadAllSessions();
 
     // Cleanup on unmount
@@ -611,7 +611,7 @@ const StaffChatInterface = ({ defaultTab = "waiting", hideTabs = false }) => {
     try {
       // If this is a WAITING session in the waiting tab, join it first
       if (session.status === "WAITING" && activeTab === "waiting") {
-        console.log("🚀 [STAFF CHAT] Joining WAITING session...");
+        console.log("[STAFF CHAT] Joining WAITING session...");
         const joinedSession = await chatAPIService.joinSession(
           session.sessionId
         );

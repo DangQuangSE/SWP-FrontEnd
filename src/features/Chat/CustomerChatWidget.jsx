@@ -285,7 +285,7 @@ const CustomerChatWidget = () => {
       return;
     }
 
-    console.log("🚀 [NAME FORM] Submitting name:", customerName);
+    console.log("[NAME FORM] Submitting name:", customerName);
     try {
       await startChatSession(customerName);
       console.log("✅ [NAME FORM] Chat session started successfully");
@@ -483,7 +483,7 @@ const CustomerChatWidget = () => {
 
   // Toggle widget or navigate to staff dashboard
   const toggleWidget = () => {
-    console.log("🚀 [WIDGET] Chat button clicked!");
+    console.log("[WIDGET] Chat button clicked!");
     console.log("🔍 [WIDGET] Redux user:", reduxUser);
     console.log("🔍 [WIDGET] LocalStorage user:", localStorageUser);
     console.log("🔍 [WIDGET] Final user:", currentUser);

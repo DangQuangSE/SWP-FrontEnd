@@ -18,7 +18,7 @@ class CustomerChatAPIService {
     // Request interceptor - NO AUTH for customer API
     this.api.interceptors.request.use(
       (config) => {
-        console.log("🚀 [CUSTOMER CHAT API] Request:", {
+        console.log("[CUSTOMER CHAT API] Request:", {
           method: config.method?.toUpperCase(),
           url: config.url,
           fullURL: `${config.baseURL}${config.url}`,

@@ -284,7 +284,7 @@ const BlogManagement = ({ userId, selectedTab }) => {
 
   const handlePublishBlog = async (id) => {
     try {
-      console.log("🚀 Đang đăng blog ID:", id);
+      console.log("Đang đăng blog ID:", id);
       const blogBefore = blogs.find((b) => b.id === id);
       console.log(" Blog trước khi đăng:", blogBefore);
 

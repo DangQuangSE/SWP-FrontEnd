@@ -21,7 +21,7 @@ class ChatAPIService {
     // Request interceptor để thêm auth token và logging
     this.api.interceptors.request.use(
       (config) => {
-        console.log("🚀 [STAFF CHAT API] Request:", {
+        console.log("[STAFF CHAT API] Request:", {
           method: config.method?.toUpperCase(),
           url: config.url,
           baseURL: config.baseURL,

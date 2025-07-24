@@ -34,9 +34,7 @@ export const ChatWebSocketProvider = ({ children }) => {
     const initializeWebSocket = async () => {
       if (initialized) return;
 
-      console.log(
-        "🚀 [WEBSOCKET PROVIDER] Initializing WebSocket connection..."
-      );
+      console.log("[WEBSOCKET PROVIDER] Initializing WebSocket connection...");
       setInitialized(true);
 
       try {

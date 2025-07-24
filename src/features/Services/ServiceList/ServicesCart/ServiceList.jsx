@@ -74,7 +74,9 @@ const ServiceList = () => {
     switch (activeTab) {
       case "CONSULTING":
         return filteredServices.filter(
-          (s) => s.type === "CONSULTING" && !s.isCombo
+          (s) =>
+            (s.type === "CONSULTING" || s.type === "CONSULTING_ON") &&
+            !s.isCombo
         );
       case "TESTING":
         return filteredServices.filter(

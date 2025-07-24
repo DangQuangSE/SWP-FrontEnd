@@ -7,7 +7,11 @@ import api from "../configs/api";
  * @param {number} size - Page size
  * @returns {Promise} API response
  */
-export const getPatientMedicalHistory = async (patientId, page = 0, size = 5) => {
+export const getPatientMedicalHistory = async (
+  patientId,
+  page = 0,
+  size = 5
+) => {
   try {
     console.log(
       ` [API] Getting patient medical history for ID: ${patientId}, page: ${page}, size: ${size}`
@@ -20,10 +24,13 @@ export const getPatientMedicalHistory = async (patientId, page = 0, size = 5) =>
           page,
           size,
         },
-      });
-    }
-    
-    console.log("✅ [API] Patient medical history loaded successfully:", response.data);
+      }
+    );
+
+    console.log(
+      "✅ [API] Patient medical history loaded successfully:",
+      response.data
+    );
     return response;
   } catch (error) {
     console.error("❌ [API] Error getting patient medical history:", error);
@@ -44,10 +51,15 @@ export const getPatientMedicalHistory = async (patientId, page = 0, size = 5) =>
 export const getPatientBasicInfo = async (patientId) => {
   try {
     console.log(`👤 [API] Getting patient basic info for ID: ${patientId}`);
-    
-    const response = await api.get(`/medical-profile/patient/${patientId}/basic`);
-    
-    console.log("✅ [API] Patient basic info loaded successfully:", response.data);
+
+    const response = await api.get(
+      `/medical-profile/patient/${patientId}/basic`
+    );
+
+    console.log(
+      "✅ [API] Patient basic info loaded successfully:",
+      response.data
+    );
     return response;
   } catch (error) {
     console.error("❌ [API] Error getting patient basic info:", error);
@@ -65,19 +77,26 @@ export const getPatientBasicInfo = async (patientId) => {
  * @param {number} size - Page size
  * @returns {Promise} API response
  */
-export const searchPatients = async (searchParams = {}, page = 0, size = 10) => {
+export const searchPatients = async (
+  searchParams = {},
+  page = 0,
+  size = 10
+) => {
   try {
     console.log(`🔍 [API] Searching patients with params:`, searchParams);
-    
+
     const response = await api.get("/medical-profile/patients/search", {
       params: {
         ...searchParams,
         page,
-        size
-      }
+        size,
+      },
     });
-    
-    console.log("✅ [API] Patient search completed successfully:", response.data);
+
+    console.log(
+      "✅ [API] Patient search completed successfully:",
+      response.data
+    );
     return response;
   } catch (error) {
     console.error("❌ [API] Error searching patients:", error);
@@ -92,18 +111,28 @@ export const searchPatients = async (searchParams = {}, page = 0, size = 10) => 
  * @param {number} size - Page size
  * @returns {Promise} API response
  */
-export const getPatientAppointments = async (patientId, page = 0, size = 10) => {
+export const getPatientAppointments = async (
+  patientId,
+  page = 0,
+  size = 10
+) => {
   try {
     console.log(`📅 [API] Getting patient appointments for ID: ${patientId}`);
-    
-    const response = await api.get(`/medical-profile/patient/${patientId}/appointments`, {
-      params: {
-        page,
-        size
+
+    const response = await api.get(
+      `/medical-profile/patient/${patientId}/appointments`,
+      {
+        params: {
+          page,
+          size,
+        },
       }
-    });
-    
-    console.log("✅ [API] Patient appointments loaded successfully:", response.data);
+    );
+
+    console.log(
+      "✅ [API] Patient appointments loaded successfully:",
+      response.data
+    );
     return response;
   } catch (error) {
     console.error("❌ [API] Error getting patient appointments:", error);
@@ -121,15 +150,21 @@ export const getPatientAppointments = async (patientId, page = 0, size = 10) => 
 export const getPatientTestResults = async (patientId, page = 0, size = 10) => {
   try {
     console.log(`🧪 [API] Getting patient test results for ID: ${patientId}`);
-    
-    const response = await api.get(`/medical-profile/patient/${patientId}/tests`, {
-      params: {
-        page,
-        size
+
+    const response = await api.get(
+      `/medical-profile/patient/${patientId}/tests`,
+      {
+        params: {
+          page,
+          size,
+        },
       }
-    });
-    
-    console.log("✅ [API] Patient test results loaded successfully:", response.data);
+    );
+
+    console.log(
+      "✅ [API] Patient test results loaded successfully:",
+      response.data
+    );
     return response;
   } catch (error) {
     console.error("❌ [API] Error getting patient test results:", error);
@@ -144,12 +179,17 @@ export const getPatientTestResults = async (patientId, page = 0, size = 10) => {
  */
 export const exportPatientHistoryToPDF = async (patientId) => {
   try {
-    console.log(`📄 [API] Exporting patient history to PDF for ID: ${patientId}`);
-    
-    const response = await api.get(`/medical-profile/patient/${patientId}/export/pdf`, {
-      responseType: 'blob'
-    });
-    
+    console.log(
+      `📄 [API] Exporting patient history to PDF for ID: ${patientId}`
+    );
+
+    const response = await api.get(
+      `/medical-profile/patient/${patientId}/export/pdf`,
+      {
+        responseType: "blob",
+      }
+    );
+
     console.log("✅ [API] Patient history PDF exported successfully");
     return response;
   } catch (error) {
@@ -166,10 +206,15 @@ export const exportPatientHistoryToPDF = async (patientId) => {
 export const getPatientStatistics = async (patientId) => {
   try {
     console.log(`📊 [API] Getting patient statistics for ID: ${patientId}`);
-    
-    const response = await api.get(`/medical-profile/patient/${patientId}/statistics`);
-    
-    console.log("✅ [API] Patient statistics loaded successfully:", response.data);
+
+    const response = await api.get(
+      `/medical-profile/patient/${patientId}/statistics`
+    );
+
+    console.log(
+      "✅ [API] Patient statistics loaded successfully:",
+      response.data
+    );
     return response;
   } catch (error) {
     console.error("❌ [API] Error getting patient statistics:", error);

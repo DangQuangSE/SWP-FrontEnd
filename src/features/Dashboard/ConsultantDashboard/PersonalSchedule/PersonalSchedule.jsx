@@ -194,7 +194,7 @@ const PersonalSchedule = ({ userId }) => {
       ];
 
       console.log(
-        `🚀 [PARALLEL] Loading all tabs data for ${targetDate}, useCache: ${useCache}`
+        `[PARALLEL] Loading all tabs data for ${targetDate}, useCache: ${useCache}`
       );
       console.log("🎯 [PARALLEL] Will load these statuses:", statuses);
       setAppointmentsLoading(true);
@@ -286,13 +286,13 @@ const PersonalSchedule = ({ userId }) => {
     console.log("📅 [DATE] Updated currentDateStr to:", dateStr);
 
     // CRITICAL: Force reload ALL TABS for new date (no cache)
-    console.log("🚀 [FORCE_RELOAD] Loading ALL 4 tabs for new date:", dateStr);
+    console.log("[FORCE_RELOAD] Loading ALL 4 tabs for new date:", dateStr);
     loadAllTabsData(dateStr, false); // Force reload without cache
   };
 
   // Initial load when component mounts
   useEffect(() => {
-    console.log("🚀 [MOUNT] Component mounted, loading appointments...");
+    console.log("[MOUNT] Component mounted, loading appointments...");
     console.log("👤 [MOUNT] Current userId:", userId);
 
     if (userId) {
