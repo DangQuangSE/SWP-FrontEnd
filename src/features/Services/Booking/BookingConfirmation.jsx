@@ -199,7 +199,7 @@ const BookingConfirmation = () => {
       console.log("🆔 [DEBUG] Extracted appointmentId:", appointmentId);
 
       if (!appointmentId) {
-        console.error(" [DEBUG] No appointmentId in response!");
+        console.error("❌ [DEBUG] No appointmentId in response!");
         message.error("Không lấy được mã lịch hẹn từ phản hồi server.");
         return;
       }
@@ -235,14 +235,17 @@ const BookingConfirmation = () => {
         JSON.stringify(pendingBookingData)
       );
 
-      console.log(" [DEBUG] Navigating to /payment");
+      console.log("🔄 [DEBUG] Navigating to /payment");
       // Chuyển đến trang Payment để xử lý create-off
       navigate("/payment");
     } catch (error) {
-      console.error(" [DEBUG] Error occurred:", error);
-      console.error(" [DEBUG] Error response:", error.response);
-      console.error(" [DEBUG] Error response data:", error.response?.data);
-      console.error(" [DEBUG] Error response status:", error.response?.status);
+      console.error("❌ [DEBUG] Error occurred:", error);
+      console.error("❌ [DEBUG] Error response:", error.response);
+      console.error("❌ [DEBUG] Error response data:", error.response?.data);
+      console.error(
+        "❌ [DEBUG] Error response status:",
+        error.response?.status
+      );
 
       const errorMessage =
         error.response?.data?.message ||
@@ -250,7 +253,7 @@ const BookingConfirmation = () => {
           ? error.response.data
           : "Lỗi không xác định từ máy chủ");
 
-      console.error(" [DEBUG] Final error message:", errorMessage);
+      console.error("❌ [DEBUG] Final error message:", errorMessage);
       message.error(`Đặt lịch thất bại: ${errorMessage}`);
     }
   };

@@ -1,11 +1,12 @@
 import axios from "axios";
+import { API_BASE_URL } from "./serverConfig";
 
 /**
  * Chat API instance - No authentication required
  * Separate from main API to avoid automatic auth headers
  */
 const chatApi = axios.create({
-  baseURL: "http://localhost:8080/api",
+  baseURL: API_BASE_URL,
   timeout: 10000,
   headers: {
     "Content-Type": "application/json",
@@ -26,7 +27,7 @@ chatApi.interceptors.request.use(
     return config;
   },
   function (error) {
-    console.error(" [CHAT API] Request Error:", error);
+    console.error("❌ [CHAT API] Request Error:", error);
     return Promise.reject(error);
   }
 );
@@ -34,7 +35,7 @@ chatApi.interceptors.request.use(
 // Response interceptor for logging
 chatApi.interceptors.response.use(
   function (response) {
-    console.log(" [CHAT API] Response:", {
+    console.log("✅ [CHAT API] Response:", {
       status: response.status,
       statusText: response.statusText,
       url: response.config.url,
@@ -44,7 +45,7 @@ chatApi.interceptors.response.use(
     return response;
   },
   function (error) {
-    console.error(" [CHAT API] Response Error:", {
+    console.error("❌ [CHAT API] Response Error:", {
       status: error.response?.status,
       statusText: error.response?.statusText,
       url: error.config?.url,

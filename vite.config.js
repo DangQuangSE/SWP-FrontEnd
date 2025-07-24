@@ -1,5 +1,6 @@
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
+import { BASE_URL } from "./src/configs/serverConfig";
 
 // https://vite.dev/config/
 export default defineConfig({
@@ -10,7 +11,7 @@ export default defineConfig({
   server: {
     proxy: {
       "/api": {
-        target: "http://localhost:8080", // địa chỉ Spring Boot backend
+        target: BASE_URL, // địa chỉ Spring Boot backend từ config chung
         changeOrigin: true,
         secure: false,
       },

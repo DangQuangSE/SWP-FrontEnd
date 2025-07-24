@@ -1,4 +1,5 @@
 import axios from "axios";
+import { API_BASE_URL } from "../../../../configs/serverConfig.js";
 
 /**
  * Chat API Service for Staff Dashboard
@@ -6,7 +7,7 @@ import axios from "axios";
  */
 class ChatAPIService {
   constructor() {
-    this.baseURL = "http://localhost:8080/api";
+    this.baseURL = API_BASE_URL;
 
     // Create axios instance
     this.api = axios.create({
@@ -39,7 +40,7 @@ class ChatAPIService {
         return config;
       },
       (error) => {
-        console.error(" [STAFF CHAT API] Request Error:", error);
+        console.error("❌ [STAFF CHAT API] Request Error:", error);
         return Promise.reject(error);
       }
     );
@@ -47,7 +48,7 @@ class ChatAPIService {
     // Response interceptor để handle errors và logging
     this.api.interceptors.response.use(
       (response) => {
-        console.log(" [STAFF CHAT API] Response:", {
+        console.log("✅ [STAFF CHAT API] Response:", {
           status: response.status,
           statusText: response.statusText,
           url: response.config.url,
@@ -59,7 +60,7 @@ class ChatAPIService {
         return response;
       },
       (error) => {
-        console.error(" [STAFF CHAT API] Response Error:", {
+        console.error("❌ [STAFF CHAT API] Response Error:", {
           status: error.response?.status,
           statusText: error.response?.statusText,
           url: error.config?.url,
@@ -91,7 +92,7 @@ class ChatAPIService {
         params.status = status;
       }
 
-      console.log(" [STAFF CHAT API] getChatSessions params:", params);
+      console.log("🔍 [STAFF CHAT API] getChatSessions params:", params);
 
       const response = await this.api.get("/chat/sessions", { params });
       return response.data;
@@ -165,10 +166,10 @@ class ChatAPIService {
 
       console.log("📤 [CHAT API] Sending message:", payload);
       const response = await this.api.post("/chat/send", payload);
-      console.log(" [CHAT API] Message sent successfully:", response.data);
+      console.log("✅ [CHAT API] Message sent successfully:", response.data);
       return response.data;
     } catch (error) {
-      console.error(" [CHAT API] Error sending chat message:", error);
+      console.error("❌ [CHAT API] Error sending chat message:", error);
       throw error;
     }
   }

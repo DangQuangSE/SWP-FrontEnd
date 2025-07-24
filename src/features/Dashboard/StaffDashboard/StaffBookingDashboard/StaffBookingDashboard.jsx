@@ -10,9 +10,6 @@ import {
   Modal,
   Input,
   Popconfirm,
-  Form,
-  Row,
-  Col,
 } from "antd";
 import {
   EyeOutlined,
@@ -20,8 +17,6 @@ import {
   CheckOutlined,
   CloseOutlined,
 } from "@ant-design/icons";
-import axios from "axios";
-import { toast } from "react-toastify";
 import api from "../../../../configs/api";
 import "../../AdminDashboard/BookingDashboard/BookingDashboard.css";
 
@@ -41,15 +36,6 @@ const StaffBookingDashboard = () => {
   const [loading, setLoading] = useState(false);
   const [activeTab, setActiveTab] = useState("ALL");
   const [searchText, setSearchText] = useState("");
-
-  // State cho modal cập nhật thông tin y tế
-  const [isMedicalInfoModalVisible, setIsMedicalInfoModalVisible] =
-    useState(false);
-  const [selectedPatientForMedicalInfo, setSelectedPatientForMedicalInfo] =
-    useState(null);
-
-  // Form cho modal medical info
-  const [medicalInfoForm] = Form.useForm();
 
   // Fetch appointments theo status
   const fetchAppointments = async (status = "ALL") => {
@@ -238,59 +224,8 @@ const StaffBookingDashboard = () => {
     });
   };
 
-  // Hàm cập nhật thông tin y tế cho bệnh nhân
-  const updateMedicalInfo = async (medicalData) => {
-    try {
-      const authToken = localStorage.getItem("token");
-
-      const response = await axios.put(
-        "/api/medical-profile/update-medical-info",
-        medicalData,
-        {
-          headers: {
-            Authorization: `Bearer ${authToken}`,
-            "Content-Type": "application/json",
-          },
-        }
-      );
-
-      if (response.status === 200) {
-        toast.success("Cập nhật thông tin y tế thành công!");
-        setIsMedicalInfoModalVisible(false);
-        setSelectedPatientForMedicalInfo(null);
-        medicalInfoForm.resetFields();
-      }
-    } catch (error) {
-      console.error("Lỗi khi cập nhật thông tin y tế:", error);
-      toast.error("Không thể cập nhật thông tin y tế. Vui lòng thử lại!");
-    }
-  };
-
-  // Hàm mở modal cập nhật thông tin y tế
-  const openMedicalInfoModal = (patient) => {
-    setSelectedPatientForMedicalInfo(patient);
-    setIsMedicalInfoModalVisible(true);
-
-    // Pre-fill form nếu có dữ liệu sẵn
-    medicalInfoForm.setFieldsValue({
-      customerId: patient.customerId,
-      serviceId: patient.serviceId || 1, // Default service ID
-      allergies: patient.allergies || "",
-      chronicConditions: patient.chronicConditions || "",
-      familyHistory: patient.familyHistory || "",
-      lifestyleNotes: patient.lifestyleNotes || "",
-      specialNotes: patient.specialNotes || "",
-      emergencyContact: patient.emergencyContact || "",
-    });
-  };
-
-  const handleEdit = (record) => {
-    // Mở modal cập nhật thông tin y tế
-    openMedicalInfoModal({
-      customerId: record.customerId,
-      customerName: record.customerName,
-      serviceId: record.serviceId,
-    });
+  const handleEdit = () => {
+    message.info("Chức năng chỉnh sửa đang được phát triển");
   };
 
   // Hủy lịch hẹn
@@ -298,11 +233,16 @@ const StaffBookingDashboard = () => {
     try {
       console.log(" Canceling appointment:", record.id);
 
-      // Gọi API DELETE để hủy lịch hẹn
-      const response = await api.delete(`/appointment/${record.id}/cancel`);
+      // Gọi API để hủy lịch hẹn (cập nhật status thành CANCELED)
+      const response = await api.put(`/appointment/${record.id}`, {
+        ...record,
+        status: "CANCELED",
+      });
 
       console.log("Appointment canceled successfully:", response.data);
-      message.success("Hủy lịch hẹn thành công! Lịch hẹn đã được hủy.");
+      message.success(
+        "Hủy lịch hẹn thành công! Trạng thái đã chuyển sang CANCELED."
+      );
 
       // Refresh danh sách appointments
       await fetchAppointments(activeTab);
@@ -336,7 +276,7 @@ const StaffBookingDashboard = () => {
       title: "Dịch vụ",
       dataIndex: "serviceName",
       key: "serviceName",
-      width: 90,
+      width: 150,
       render: (serviceName, record) => (
         <div className="booking-dashboard__service">
           <div className="booking-dashboard__service-name">
@@ -351,7 +291,7 @@ const StaffBookingDashboard = () => {
     {
       title: "Ngày & Giờ",
       key: "datetime",
-      width: 50,
+      width: 40,
       render: (_, record) => {
         // Lấy slotTime từ appointmentDetails array
         const slotTime = record.appointmentDetails?.[0]?.slotTime;
@@ -389,7 +329,7 @@ const StaffBookingDashboard = () => {
       title: "Trạng thái",
       dataIndex: "status",
       key: "status",
-      width: 40,
+      width: 50,
       render: (status) => (
         <Tag color={getStatusColor(status)}>{getStatusLabel(status)}</Tag>
       ),
@@ -442,10 +382,10 @@ const StaffBookingDashboard = () => {
             size="small"
             icon={<EditOutlined />}
             className="booking-dashboard__edit-btn"
-            onClick={() => handleEdit(record)}
-            title="Cập nhật thông tin y tế"
+            onClick={() => handleEdit()}
+            title="Chỉnh sửa"
           >
-            Thông tin y tế cơ bản
+            Sửa
           </Button>
           {(record.status === "PENDING" ||
             record.status === "CONFIRMED" ||
@@ -526,104 +466,6 @@ const StaffBookingDashboard = () => {
             `${range[0]}-${range[1]} của ${total} lịch hẹn`,
         }}
       />
-
-      {/* Modal cập nhật thông tin y tế */}
-      <Modal
-        title={`Cập nhật thông tin y tế - ${
-          selectedPatientForMedicalInfo?.customerName || "Bệnh nhân"
-        }`}
-        open={isMedicalInfoModalVisible}
-        onOk={() => {
-          medicalInfoForm.validateFields().then((values) => {
-            updateMedicalInfo(values);
-          });
-        }}
-        onCancel={() => {
-          setIsMedicalInfoModalVisible(false);
-          setSelectedPatientForMedicalInfo(null);
-          medicalInfoForm.resetFields();
-        }}
-        okText="Cập nhật"
-        cancelText="Hủy"
-        width={800}
-      >
-        <Form form={medicalInfoForm} layout="vertical">
-          <Form.Item name="customerId" hidden>
-            <Input />
-          </Form.Item>
-          <Form.Item name="serviceId" hidden>
-            <Input />
-          </Form.Item>
-
-          <Row gutter={16}>
-            <Col span={12}>
-              <Form.Item
-                name="allergies"
-                label="Dị ứng"
-                tooltip="Các loại dị ứng đã biết của bệnh nhân"
-              >
-                <Input.TextArea
-                  rows={3}
-                  placeholder="VD: Penicillin, Tôm cua, Phấn hoa..."
-                />
-              </Form.Item>
-            </Col>
-            <Col span={12}>
-              <Form.Item
-                name="chronicConditions"
-                label="Bệnh mãn tính"
-                tooltip="Các bệnh mãn tính hiện tại"
-              >
-                <Input.TextArea
-                  rows={3}
-                  placeholder="VD: Cao huyết áp, Tiểu đường, Tim mạch..."
-                />
-              </Form.Item>
-            </Col>
-          </Row>
-
-          <Form.Item
-            name="familyHistory"
-            label="Tiền sử gia đình"
-            tooltip="Lịch sử bệnh tật trong gia đình"
-          >
-            <Input.TextArea
-              rows={2}
-              placeholder="VD: Cha mắc tim mạch, mẹ mắc tiểu đường..."
-            />
-          </Form.Item>
-
-          <Form.Item
-            name="lifestyleNotes"
-            label="Lối sống"
-            tooltip="Thói quen sinh hoạt, tập luyện, ăn uống"
-          >
-            <Input.TextArea
-              rows={3}
-              placeholder="VD: Hút thuốc 10 điếu/ngày, uống rượu cuối tuần, tập thể dục 3 lần/tuần..."
-            />
-          </Form.Item>
-
-          <Form.Item
-            name="specialNotes"
-            label="Ghi chú đặc biệt"
-            tooltip="Các lưu ý đặc biệt khi điều trị"
-          >
-            <Input.TextArea
-              rows={3}
-              placeholder="VD: Bệnh nhân lo lắng, sợ tiêm, cần giải thích kỹ..."
-            />
-          </Form.Item>
-
-          <Form.Item
-            name="emergencyContact"
-            label="Liên hệ khẩn cấp"
-            tooltip="Thông tin người liên hệ khi có tình huống khẩn cấp"
-          >
-            <Input placeholder="VD: Nguyễn Thị B (vợ) - 0987654321" />
-          </Form.Item>
-        </Form>
-      </Modal>
     </Card>
   );
 };

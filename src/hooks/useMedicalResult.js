@@ -33,7 +33,7 @@ export const useMedicalResult = (options = {}) => {
         setErrors({});
         setWarnings({});
 
-        console.log(" [HOOK] Starting medical result submission:", formData);
+        console.log("🔄 [HOOK] Starting medical result submission:", formData);
 
         // Validate data
         const validation = validateMedicalResultData(formData);

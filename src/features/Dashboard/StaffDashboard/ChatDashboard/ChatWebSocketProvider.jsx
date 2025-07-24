@@ -45,10 +45,10 @@ export const ChatWebSocketProvider = ({ children }) => {
         setConnected(true);
         setConnecting(false);
 
-        console.log(" [WEBSOCKET PROVIDER] WebSocket connected successfully");
+        console.log("✅ [WEBSOCKET PROVIDER] WebSocket connected successfully");
       } catch (error) {
-        console.error(" [WEBSOCKET PROVIDER] Failed to connect:", error);
-        console.error(" [WEBSOCKET PROVIDER] Error details:", {
+        console.error("❌ [WEBSOCKET PROVIDER] Failed to connect:", error);
+        console.error("❌ [WEBSOCKET PROVIDER] Error details:", {
           message: error.message,
           stack: error.stack,
           name: error.name,
@@ -59,10 +59,10 @@ export const ChatWebSocketProvider = ({ children }) => {
 
         // Retry connection sau 10 giây (tăng thời gian để tránh spam)
         console.log(
-          " [WEBSOCKET PROVIDER] Will retry connection in 10 seconds..."
+          "🔄 [WEBSOCKET PROVIDER] Will retry connection in 10 seconds..."
         );
         setTimeout(() => {
-          console.log(" [WEBSOCKET PROVIDER] Retrying connection...");
+          console.log("🔄 [WEBSOCKET PROVIDER] Retrying connection...");
           setInitialized(false);
         }, 10000);
       }
@@ -113,7 +113,7 @@ export const ChatWebSocketProvider = ({ children }) => {
 
       chatNotificationService.showConnectionSuccess();
     } catch (error) {
-      console.error(" [WEBSOCKET PROVIDER] Manual connect failed:", error);
+      console.error("❌ [WEBSOCKET PROVIDER] Manual connect failed:", error);
       setConnected(false);
       setConnecting(false);
 

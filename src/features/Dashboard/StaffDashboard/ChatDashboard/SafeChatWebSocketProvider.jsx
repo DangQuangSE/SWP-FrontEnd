@@ -20,7 +20,7 @@ const SafeChatWebSocketProvider = ({ children, enableChat = false }) => {
   try {
     return <ChatWebSocketProvider>{children}</ChatWebSocketProvider>;
   } catch (error) {
-    console.error(" [SAFE WEBSOCKET] WebSocket provider error:", error);
+    console.error("❌ [SAFE WEBSOCKET] WebSocket provider error:", error);
     // Fallback: render children without WebSocket
     return <>{children}</>;
   }

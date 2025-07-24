@@ -8,6 +8,7 @@ import {
 import MedicalResultForm from "./MedicalResultForm";
 import MedicalResultViewer from "./MedicalResultViewer";
 import dayjs from "dayjs";
+import { API_BASE_URL } from "../../configs/serverConfig";
 
 const { Title, Text } = Typography;
 
@@ -163,7 +164,7 @@ const MedicalResultFormDemo = () => {
               <Space direction="vertical" style={{ width: "100%" }}>
                 <div>
                   <Tag color="green">POST</Tag>
-                  <Text code>http://localhost:8080/api/result</Text>
+                  <Text code>{API_BASE_URL}/result</Text>
                 </div>
                 <Alert
                   message="Tính năng"

@@ -34,7 +34,7 @@ class ChatNotificationService {
 
     // Format thời gian
     const timeAgo = this.formatTimeAgo(createdAt);
-
+    
     // Tạo nội dung thông báo
     const notificationContent = (
       <div style={{ padding: "8px 0" }}>
@@ -72,11 +72,9 @@ class ChatNotificationService {
               }}
             >
               <Text style={{ fontSize: "13px", color: "#666" }}>
-                "
-                {lastMessage.length > 50
-                  ? lastMessage.substring(0, 50) + "..."
-                  : lastMessage}
-                "
+                "{lastMessage.length > 50 
+                  ? lastMessage.substring(0, 50) + "..." 
+                  : lastMessage}"
               </Text>
             </div>
           )}
@@ -173,14 +171,14 @@ class ChatNotificationService {
    * Xử lý khi staff click "Trả lời"
    */
   handleAcceptChat(sessionId) {
-    console.log(" [NOTIFICATION] Staff accepted chat:", sessionId);
-
+    console.log("✅ [NOTIFICATION] Staff accepted chat:", sessionId);
+    
     // Có thể thêm logic:
     // 1. Navigate to chat interface
     // 2. Auto-select session
     // 3. Mark as active
     // 4. Send notification to customer
-
+    
     // Trigger custom event để component khác có thể listen
     window.dispatchEvent(
       new CustomEvent("chatAccepted", {
@@ -194,7 +192,7 @@ class ChatNotificationService {
    */
   formatTimeAgo(timestamp) {
     if (!timestamp) return "Vừa xong";
-
+    
     const now = new Date();
     const time = new Date(timestamp);
     const diffInSeconds = Math.floor((now - time) / 1000);
@@ -218,8 +216,7 @@ class ChatNotificationService {
   playNotificationSound() {
     try {
       // Tạo audio context để play notification sound
-      const audioContext = new (window.AudioContext ||
-        window.webkitAudioContext)();
+      const audioContext = new (window.AudioContext || window.webkitAudioContext)();
       const oscillator = audioContext.createOscillator();
       const gainNode = audioContext.createGain();
 
@@ -228,12 +225,9 @@ class ChatNotificationService {
 
       oscillator.frequency.setValueAtTime(800, audioContext.currentTime);
       oscillator.frequency.setValueAtTime(600, audioContext.currentTime + 0.1);
-
+      
       gainNode.gain.setValueAtTime(0.1, audioContext.currentTime);
-      gainNode.gain.exponentialRampToValueAtTime(
-        0.01,
-        audioContext.currentTime + 0.3
-      );
+      gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.3);
 
       oscillator.start(audioContext.currentTime);
       oscillator.stop(audioContext.currentTime + 0.3);

@@ -48,15 +48,15 @@ function Staff() {
     // Check if there's a saved menu item from chat widget navigation
     const savedMenuItem = localStorage.getItem("staffSelectedMenuItem");
     console.log(
-      " [STAFF] Checking localStorage staffSelectedMenuItem:",
+      "🔍 [STAFF] Checking localStorage staffSelectedMenuItem:",
       savedMenuItem
     );
     if (savedMenuItem) {
-      console.log(" [STAFF] Found saved menu item:", savedMenuItem);
+      console.log("✅ [STAFF] Found saved menu item:", savedMenuItem);
       localStorage.removeItem("staffSelectedMenuItem"); // Clear after use
       return savedMenuItem;
     }
-    console.log(" [STAFF] No saved menu item, using default");
+    console.log("🔍 [STAFF] No saved menu item, using default");
     return "appointments_view_all"; // Default selected item
   });
 
@@ -160,7 +160,7 @@ function Staff() {
 
   const renderContent = () => {
     console.log(
-      " [STAFF] Rendering content for selectedMenuItem:",
+      "🔍 [STAFF] Rendering content for selectedMenuItem:",
       selectedMenuItem
     );
     switch (selectedMenuItem) {
@@ -270,7 +270,7 @@ function Staff() {
               style={{ height: "100%", borderRight: 0 }}
               items={items2}
               onSelect={({ key }) => {
-                console.log(" [STAFF] Menu item selected:", key);
+                console.log("🔍 [STAFF] Menu item selected:", key);
                 setSelectedMenuItem(key);
               }}
             />

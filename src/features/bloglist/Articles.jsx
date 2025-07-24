@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import "./Articles.css";
 import { Link } from "react-router-dom";
 import { likeBlog } from "../../api/consultantAPI";
+import { API_BASE_URL } from "../../configs/serverConfig";
 
 const Articles = () => {
   const [articles, setArticles] = useState([]);
@@ -35,15 +36,12 @@ const Articles = () => {
       setTimeout(async () => {
         try {
           // Reload the articles data from API
-          const response = await fetch(
-            "http://localhost:8080/api/blog?page=0&size=20",
-            {
-              method: "GET",
-              headers: {
-                "Content-Type": "application/json",
-              },
-            }
-          );
+          const response = await fetch(`${API_BASE_URL}/blog?page=0&size=20`, {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+            },
+          });
 
           if (response.ok) {
             const data = await response.json();
@@ -88,7 +86,6 @@ const Articles = () => {
           console.error(`Error reloading articles:`, reloadError);
         }
       }, 2000);
-
     } catch (error) {
       // Show user-friendly error message with login prompt
       const errorMessage =
@@ -132,16 +129,13 @@ const Articles = () => {
         setLoading(true);
         // Lấy nhiều blogs để có thể sort theo viewCount
         // Gọi API trực tiếp không qua api instance để tránh CORS
-        const response = await fetch(
-          "http://localhost:8080/api/blog?page=0&size=20",
-          {
-            method: "GET",
-            headers: {
-              "Content-Type": "application/json",
-              // Không gửi Authorization header để tránh CORS preflight
-            },
-          }
-        );
+        const response = await fetch(`${API_BASE_URL}/blog?page=0&size=20`, {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            // Không gửi Authorization header để tránh CORS preflight
+          },
+        });
 
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);

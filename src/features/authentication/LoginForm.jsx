@@ -55,17 +55,17 @@ const LoginForm = ({ onClose }) => {
 
       // Kiểm tra user không null/undefined trước khi dispatch
       if (!user || user === null || user === undefined) {
-        console.error(" User data is invalid:", { user, type: typeof user });
+        console.error("❌ User data is invalid:", { user, type: typeof user });
         throw new Error("User data is null or undefined");
       }
 
       // Kiểm tra user có properties cần thiết không
       if (typeof user === "object" && !user.role && !user.email) {
-        console.error(" User object missing required fields:", user);
+        console.error("❌ User object missing required fields:", user);
         throw new Error("User object missing required fields (role, email)");
       }
 
-      console.log(" About to dispatch login with:", { user, jwt });
+      console.log("✅ About to dispatch login with:", { user, jwt });
 
       // Lưu role trước khi dispatch để tránh bị mất
       const userRole = user?.role;
@@ -86,9 +86,9 @@ const LoginForm = ({ onClose }) => {
       // Lưu cả user và jwt vào Redux với cấu trúc đúng
       try {
         dispatch(login({ user, jwt }));
-        console.log(" Redux dispatch successful");
+        console.log("✅ Redux dispatch successful");
       } catch (dispatchError) {
-        console.error(" Redux dispatch failed:", dispatchError);
+        console.error("❌ Redux dispatch failed:", dispatchError);
         // Vẫn tiếp tục với localStorage data
       }
 

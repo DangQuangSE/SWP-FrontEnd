@@ -82,23 +82,15 @@ export const useUsers = () => {
     }
   };
 
-  // Handle delete user (Soft Delete)
+  // Handle delete user
   const handleDeleteUser = async (id) => {
     try {
-      console.log(`🗑️ [USER MANAGEMENT] Attempting to soft delete user: ${id}`);
       await deleteUser(id);
-      message.success("Vô hiệu hóa người dùng thành công!");
-      console.log(`✅ [USER MANAGEMENT] User ${id} soft deleted successfully`);
+      message.success("Xóa người dùng thành công!");
       await loadUsers();
     } catch (error) {
-      console.error(
-        `❌ [USER MANAGEMENT] Error soft deleting user ${id}:`,
-        error
-      );
-      const errorMessage =
-        error.response?.data?.message ||
-        "Có lỗi xảy ra khi vô hiệu hóa người dùng!";
-      message.error(errorMessage);
+      console.error("Lỗi xóa người dùng:", error);
+      message.error("Có lỗi xảy ra khi xóa người dùng!");
     }
   };
 

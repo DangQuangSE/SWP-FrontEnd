@@ -13,7 +13,6 @@ const MedicalResultFormWrapper = ({
   onClose,
   appointmentDetail,
   onSuccess,
-  consultationType = "personal", // "personal" hoặc "online"
 }) => {
   const [formError, setFormError] = useState(null);
 
@@ -34,7 +33,7 @@ const MedicalResultFormWrapper = ({
 
   const handleSuccess = (result) => {
     try {
-      console.log(" Form submission successful:", result);
+      console.log("✅ Form submission successful:", result);
       setFormError(null);
       if (onSuccess) {
         onSuccess(result);
@@ -118,7 +117,6 @@ const MedicalResultFormWrapper = ({
           onSuccess={handleSuccess}
           onCancel={handleCancel}
           onError={handleFormError}
-          consultationType={consultationType}
         />
       </div>
     </Modal>
@@ -134,7 +132,7 @@ export const useMedicalResultModal = () => {
 
   const openModal = (detail) => {
     try {
-      console.log(" Opening medical result modal for:", detail);
+      console.log("🔄 Opening medical result modal for:", detail);
       setAppointmentDetail(detail);
       setVisible(true);
     } catch (error) {
@@ -144,7 +142,7 @@ export const useMedicalResultModal = () => {
 
   const closeModal = () => {
     try {
-      console.log(" Closing medical result modal");
+      console.log("🔄 Closing medical result modal");
       setVisible(false);
       setAppointmentDetail(null);
     } catch (error) {

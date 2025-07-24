@@ -25,7 +25,7 @@ const PatientHistoryDemo = () => {
     const patientId = parseInt(value);
     if (patientId && patientId > 0) {
       setSelectedPatientId(patientId);
-      console.log(` [DEMO] Searching for patient ID: ${patientId}`);
+      console.log(`🔍 [DEMO] Searching for patient ID: ${patientId}`);
     } else {
       setSelectedPatientId(null);
     }

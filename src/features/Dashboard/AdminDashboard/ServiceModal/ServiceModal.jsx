@@ -8,10 +8,8 @@ const { Option } = Select;
 const SERVICE_TYPE_OPTIONS = [
   { value: "CONSULTING", label: "Tư Vấn" },
   { value: "CONSULTING_ON", label: "Tư vấn trực tuyến" },
-
   { value: "TESTING", label: "Xét nghiệm" },
   { value: "EXAMINATION", label: "Khám bệnh" },
-
   { value: "OTHER", label: "Khác" },
 ];
 

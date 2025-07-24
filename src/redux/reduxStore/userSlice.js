@@ -77,7 +77,7 @@ export const userSlice = createSlice({
 
       // Kiểm tra payload không null/undefined
       if (!action.payload) {
-        console.error(" Login payload is null or undefined");
+        console.error("❌ Login payload is null or undefined");
         return;
       }
 
@@ -98,7 +98,7 @@ export const userSlice = createSlice({
 
       // Handle both user object and direct user fields
       if (action.payload.user && typeof action.payload.user === "object") {
-        console.log(" Using nested user object");
+        console.log("✅ Using nested user object");
         console.log(" User object keys:", Object.keys(action.payload.user));
 
         // Normalize user object fields
@@ -120,12 +120,12 @@ export const userSlice = createSlice({
           state.user.email = newUser.email;
           state.user.role = newUser.role;
           state.user.imageUrl = newUser.imageUrl;
-          console.log(" Successfully set state.user properties");
+          console.log("✅ Successfully set state.user properties");
           console.log(" State.user after:", state.user);
         } catch (error) {
-          console.error(" Error setting state.user:", error);
-          console.error(" State:", state);
-          console.error(" State.user:", state.user);
+          console.error("❌ Error setting state.user:", error);
+          console.error("❌ State:", state);
+          console.error("❌ State.user:", state.user);
           throw error;
         }
       } else if (
@@ -133,7 +133,7 @@ export const userSlice = createSlice({
         action.payload.email ||
         action.payload.role
       ) {
-        console.log(" Using direct payload fields");
+        console.log("✅ Using direct payload fields");
 
         // If user fields are directly in payload
         const newUser = {
@@ -151,30 +151,33 @@ export const userSlice = createSlice({
           state.user.email = newUser.email;
           state.user.role = newUser.role;
           state.user.imageUrl = newUser.imageUrl;
-          console.log(" Successfully set state.user properties (direct)");
+          console.log("✅ Successfully set state.user properties (direct)");
         } catch (error) {
-          console.error(" Error setting state.user (direct):", error);
+          console.error("❌ Error setting state.user (direct):", error);
           throw error;
         }
       } else {
-        console.error(" No valid user data found in payload:", action.payload);
-        console.error(" Available keys:", Object.keys(action.payload));
+        console.error(
+          "❌ No valid user data found in payload:",
+          action.payload
+        );
+        console.error("❌ Available keys:", Object.keys(action.payload));
         return;
       }
 
       // Handle both jwt and token fields
       state.token = action.payload.jwt || action.payload.token || "";
-      console.log(" Redux state updated:", {
+      console.log("✅ Redux state updated:", {
         user: state.user,
         token: !!state.token,
       });
-      console.log(" Final imageUrl in Redux:", state.user.imageUrl);
+      console.log("✅ Final imageUrl in Redux:", state.user.imageUrl);
     },
     updateUserAvatar: (state, action) => {
       console.log(" Redux updateUserAvatar action received:", action.payload);
       if (state.user && action.payload.imageUrl) {
         state.user.imageUrl = action.payload.imageUrl;
-        console.log(" Updated user avatar in Redux:", state.user.imageUrl);
+        console.log("✅ Updated user avatar in Redux:", state.user.imageUrl);
       }
     },
     logout: () => {

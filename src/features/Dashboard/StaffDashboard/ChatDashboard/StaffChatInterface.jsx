@@ -616,7 +616,7 @@ const StaffChatInterface = ({ defaultTab = "waiting", hideTabs = false }) => {
           session.sessionId
         );
         console.log(
-          " [STAFF CHAT] Session joined successfully:",
+          "✅ [STAFF CHAT] Session joined successfully:",
           joinedSession
         );
 
@@ -657,7 +657,7 @@ const StaffChatInterface = ({ defaultTab = "waiting", hideTabs = false }) => {
         }, 500);
       } else {
         // Normal session selection - clear messages first
-        console.log(" [STAFF CHAT] Switching to session:", session.sessionId);
+        console.log("🔄 [STAFF CHAT] Switching to session:", session.sessionId);
 
         // Clear previous messages immediately
         clearMessages();
@@ -910,7 +910,7 @@ const StaffChatInterface = ({ defaultTab = "waiting", hideTabs = false }) => {
                 type="text"
                 icon={<ReloadOutlined />}
                 onClick={() => {
-                  console.log(" [STAFF CHAT] Refresh button clicked");
+                  console.log("🔄 [STAFF CHAT] Refresh button clicked");
                   // Clear cache and reload all sessions
                   setWaitingSessions([]);
                   setActiveSessions([]);

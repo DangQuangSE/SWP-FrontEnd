@@ -14,7 +14,7 @@ const PatientDetailButton = ({
   const [isModalVisible, setIsModalVisible] = useState(false);
 
   // Debug: Log props when component renders
-  console.log(" [PATIENT_DETAIL] Component rendered with props:", {
+  console.log("🔍 [PATIENT_DETAIL] Component rendered with props:", {
     patientId,
     patientName,
     buttonText,
@@ -23,8 +23,8 @@ const PatientDetailButton = ({
   });
 
   const handleShowDetail = () => {
-    console.log(" [PATIENT_DETAIL] Button clicked!");
-    console.log(" [PATIENT_DETAIL] Props:", { patientId, disabled });
+    console.log("🔍 [PATIENT_DETAIL] Button clicked!");
+    console.log("🔍 [PATIENT_DETAIL] Props:", { patientId, disabled });
 
     if (!patientId) {
       console.warn("⚠️ [PATIENT_DETAIL] No patientId provided");

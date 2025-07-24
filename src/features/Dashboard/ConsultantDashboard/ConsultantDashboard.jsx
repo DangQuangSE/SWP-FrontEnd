@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Layout, Menu, Typography, theme, Breadcrumb } from "antd";
 import {
   CalendarOutlined,
@@ -42,6 +42,7 @@ function ConsultantDashboard() {
     }
   }
 
+  const user = useSelector((state) => state.user);
   const {
     token: { colorBgContainer, borderRadiusLG },
   } = theme.useToken();

@@ -108,3 +108,39 @@
   background: #0283f580; /* Xanh đậm 2 với opacity */
   color: #000000; /* Xanh đậm 2 */
 }
+
+/* ===== ADMIN NAVIGATION STYLES ===== */
+.nav-link.admin-nav {
+  background: linear-gradient(135deg, #2753d0 0%, #086ce4 100%);
+  color: white;
+  font-weight: 600;
+  border-radius: 6px;
+  margin-left: 8px;
+  padding: 8px 16px;
+  transition: all 0.3s ease;
+}
+
+.nav-link.admin-nav:hover {
+  background: linear-gradient(135deg, #1a4bb8 0%, #0659cc 100%);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(39, 83, 208, 0.3);
+}
+
+.nav-link.admin-nav.active {
+  background: linear-gradient(135deg, #1a4bb8 0%, #0659cc 100%);
+  color: white;
+  box-shadow: 0 4px 12px rgba(39, 83, 208, 0.4);
+}
+
+.nav-link.admin-nav.active::after {
+  display: none; /* Hide the underline for admin nav items */
+}
+
+/* Admin navigation items spacing */
+.nav-item.admin-item {
+  margin-left: 4px;
+}
+
+.nav-item.admin-item:first-of-type {
+  margin-left: 16px;
+}

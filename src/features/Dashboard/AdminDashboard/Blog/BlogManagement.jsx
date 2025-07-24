@@ -239,7 +239,7 @@ const BlogManagement = ({ userId, selectedTab }) => {
   // Admin actions for blog approval
   const handleApproveBlog = async (id) => {
     try {
-      console.log(" Đang duyệt blog ID:", id);
+      console.log("🔄 Đang duyệt blog ID:", id);
       const blogBefore = blogs.find((b) => b.id === id);
       console.log(" Blog trước khi duyệt:", blogBefore);
 
@@ -248,7 +248,7 @@ const BlogManagement = ({ userId, selectedTab }) => {
         headers: token ? { Authorization: `Bearer ${token}` } : {},
       });
 
-      console.log(" Approve response:", response.data);
+      console.log("✅ Approve response:", response.data);
       toast.success("Duyệt bài viết thành công!");
 
       // Refresh data ngay lập tức
@@ -263,7 +263,7 @@ const BlogManagement = ({ userId, selectedTab }) => {
         setBlogs([...blogs]);
       }, 500);
     } catch (error) {
-      console.error(" Error approving blog:", error);
+      console.error("❌ Error approving blog:", error);
       toast.error("Duyệt bài viết thất bại!");
     }
   };
@@ -293,7 +293,7 @@ const BlogManagement = ({ userId, selectedTab }) => {
         headers: token ? { Authorization: `Bearer ${token}` } : {},
       });
 
-      console.log(" Publish response:", response.data);
+      console.log("✅ Publish response:", response.data);
       toast.success("Đăng bài viết thành công!");
 
       await loadBlogs(); // Tải lại danh sách
@@ -304,7 +304,7 @@ const BlogManagement = ({ userId, selectedTab }) => {
         console.log(" Blog sau khi đăng:", blogAfter);
       }, 1000);
     } catch (error) {
-      console.error(" Error publishing blog:", error);
+      console.error("❌ Error publishing blog:", error);
       toast.error("Đăng bài viết thất bại!");
     }
   };
@@ -450,30 +450,15 @@ const BlogManagement = ({ userId, selectedTab }) => {
       const blogData = {
         title: values.title.trim(),
         content: values.content.trim(),
-        status: values.status || "DRAFT",
+        status: values.status || "PUBLISHED",
         imgFile: imgFile,
         tagNames: tagNames,
       };
-      console.log("Submitting blog data:", blogData);
+      console.log(">>> Submitting blog data:", blogData);
       try {
         const response = await createBlog(blogData);
-        toast.success("Tạo blog thành công!");
 
-        // Gửi blog để admin duyệt nếu tạo thành công
-        if (response.data && response.data.id) {
-          try {
-            const token = localStorage.getItem("token");
-            await api.post(`/blog/${response.data.id}/submit`, null, {
-              headers: token ? { Authorization: `Bearer ${token}` } : {},
-            });
-            toast.success("Đã gửi blog để admin duyệt!");
-          } catch (submitError) {
-            toast.error(
-              "Không thể gửi blog để duyệt: " +
-                (submitError.response?.data?.message || submitError.message)
-            );
-          }
-        }
+        toast.success("Tạo blog thành công!");
 
         setIsCreateBlogModalVisible(false);
         createBlogForm.resetFields();
@@ -962,7 +947,7 @@ const BlogManagement = ({ userId, selectedTab }) => {
             type="default"
             icon={<ReloadOutlined />}
             onClick={() => {
-              console.log(" Manual refresh triggered");
+              console.log("🔄 Manual refresh triggered");
               loadBlogs();
             }}
             style={{ marginRight: 8 }}
