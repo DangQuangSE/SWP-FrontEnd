@@ -165,7 +165,9 @@ const BlogManagement = ({ userId, selectedTab }) => {
       setBlogs(processedBlogs);
     } catch (error) {
       toast.error(
-        `Không thể tải blog theo trạng thái: ${error.message || "Lỗi không xác định"}`
+        `Không thể tải blog theo trạng thái: ${
+          error.message || "Lỗi không xác định"
+        }`
       );
       setBlogs([]);
     } finally {
@@ -448,30 +450,15 @@ const BlogManagement = ({ userId, selectedTab }) => {
       const blogData = {
         title: values.title.trim(),
         content: values.content.trim(),
-        status: values.status || "DRAFT",
+        status: values.status || "PUBLISHED",
         imgFile: imgFile,
         tagNames: tagNames,
       };
-      console.log("Submitting blog data:", blogData);
+      console.log(">>> Submitting blog data:", blogData);
       try {
         const response = await createBlog(blogData);
-        toast.success("Tạo blog thành công!");
 
-        // Gửi blog để admin duyệt nếu tạo thành công
-        if (response.data && response.data.id) {
-          try {
-            const token = localStorage.getItem("token");
-            await api.post(`/blog/${response.data.id}/submit`, null, {
-              headers: token ? { Authorization: `Bearer ${token}` } : {},
-            });
-            toast.success("Đã gửi blog để admin duyệt!");
-          } catch (submitError) {
-            toast.error(
-              "Không thể gửi blog để duyệt: " +
-                (submitError.response?.data?.message || submitError.message)
-            );
-          }
-        }
+        toast.success("Tạo blog thành công!");
 
         setIsCreateBlogModalVisible(false);
         createBlogForm.resetFields();
