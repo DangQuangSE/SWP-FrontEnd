@@ -19,7 +19,7 @@ import {
   ReloadOutlined,
 } from "@ant-design/icons";
 import { toast } from "react-toastify";
-import api from "../../../../configs/api";
+import { API_BASE_URL } from "../../../../configs/serverConfig";
 import {
   fetchBlogs,
   fetchBlogDetail,
@@ -28,6 +28,7 @@ import {
   uploadImage,
 } from "../../../../api/consultantAPI";
 import "./BlogManagement.css";
+import axios from "axios";
 
 const BlogManagement = ({ userId, selectedTab }) => {
   // Form instances
@@ -57,15 +58,20 @@ const BlogManagement = ({ userId, selectedTab }) => {
   // Status filter state
   const [selectedStatus, setSelectedStatus] = useState("ALL");
 
-  // Load blogs
+  // Load blogs - Admin xem tất cả blog (mọi trạng thái)
   const loadBlogs = async (page = 0, size = 10) => {
     setLoadingBlogs(true);
     try {
       const token = localStorage.getItem("token");
-      // Admin: lấy tất cả blog (mọi trạng thái)
-      const res = await api.get(`/blog?page=${page}&size=${size}`, {
+
+      // Sử dụng endpoint admin/all theo API documentation
+      const apiUrl = `${API_BASE_URL}/blog/admin/all?page=${page}&size=${size}`;
+      console.log("🔍 Admin loading all blogs from:", apiUrl);
+
+      const res = await axios.get(apiUrl, {
         headers: token ? { Authorization: `Bearer ${token}` } : {},
       });
+
       let blogData = [];
       if (res.data?.content && Array.isArray(res.data.content)) {
         blogData = res.data.content;
@@ -74,6 +80,7 @@ const BlogManagement = ({ userId, selectedTab }) => {
       } else if (res.data && typeof res.data === "object") {
         blogData = [res.data];
       }
+
       const processedBlogs = blogData.map((blog) => {
         const cleanAuthor = blog.author
           ? {
@@ -105,6 +112,7 @@ const BlogManagement = ({ userId, selectedTab }) => {
       });
       setBlogs(processedBlogs);
     } catch (error) {
+      console.error("❌ Load blogs error:", error);
       toast.error(
         `Không thể tải danh sách blog: ${error.message || "Lỗi không xác định"}`
       );
@@ -119,12 +127,12 @@ const BlogManagement = ({ userId, selectedTab }) => {
     setLoadingBlogs(true);
     try {
       const token = localStorage.getItem("token");
-      const res = await api.get(
-        `/blog/admin/by-status?status=${status}&page=${page}&size=${size}`,
-        {
-          headers: token ? { Authorization: `Bearer ${token}` } : {},
-        }
-      );
+      const apiUrl = `${API_BASE_URL}/blog/admin/by-status?status=${status}&page=${page}&size=${size}`;
+      console.log("🔍 Admin loading blogs by status from:", apiUrl);
+
+      const res = await axios.get(apiUrl, {
+        headers: token ? { Authorization: `Bearer ${token}` } : {},
+      });
       let blogData = [];
       if (res.data?.content && Array.isArray(res.data.content)) {
         blogData = res.data.content;
@@ -177,8 +185,12 @@ const BlogManagement = ({ userId, selectedTab }) => {
 
   const loadTags = async (forceRefresh = false) => {
     try {
-      const url = forceRefresh ? `/tags?_t=${Date.now()}` : "/tags";
-      const res = await api.get(url);
+      const apiUrl = forceRefresh
+        ? `${API_BASE_URL}/tags?_t=${Date.now()}`
+        : `${API_BASE_URL}/tags`;
+      console.log("🏷️ Loading tags from:", apiUrl);
+
+      const res = await axios.get(apiUrl);
       const activeTags = (res.data || []).filter(
         (tag) => !tag.deleted && !tag.deleted_at && tag.status !== "DELETED"
       );
@@ -191,6 +203,7 @@ const BlogManagement = ({ userId, selectedTab }) => {
       );
       setTags(activeTags);
     } catch (error) {
+      console.error("❌ Load tags error:", error);
       setTagOptions([]);
       setTags([]);
     }
@@ -244,7 +257,10 @@ const BlogManagement = ({ userId, selectedTab }) => {
       console.log(" Blog trước khi duyệt:", blogBefore);
 
       const token = localStorage.getItem("token");
-      const response = await api.post(`/blog/admin/${id}/approve`, null, {
+      const apiUrl = `${API_BASE_URL}/blog/admin/${id}/approve`;
+      console.log("✅ Approve API:", apiUrl);
+
+      const response = await axios.post(apiUrl, null, {
         headers: token ? { Authorization: `Bearer ${token}` } : {},
       });
 
@@ -271,13 +287,16 @@ const BlogManagement = ({ userId, selectedTab }) => {
   const handleRejectBlog = async (id) => {
     try {
       const token = localStorage.getItem("token");
-      await api.post(`/blog/admin/${id}/reject`, null, {
+      const apiUrl = `${API_BASE_URL}/blog/admin/${id}/reject`;
+      console.log("❌ Reject API:", apiUrl);
+
+      await axios.post(apiUrl, null, {
         headers: token ? { Authorization: `Bearer ${token}` } : {},
       });
       toast.success("Từ chối bài viết thành công!");
       loadBlogs();
     } catch (error) {
-      console.error("Error rejecting blog:", error);
+      console.error("❌ Error rejecting blog:", error);
       toast.error("Từ chối bài viết thất bại!");
     }
   };
@@ -289,7 +308,10 @@ const BlogManagement = ({ userId, selectedTab }) => {
       console.log(" Blog trước khi đăng:", blogBefore);
 
       const token = localStorage.getItem("token");
-      const response = await api.post(`/blog/admin/${id}/publish`, null, {
+      const apiUrl = `${API_BASE_URL}/blog/admin/${id}/publish`;
+      console.log("🌐 Publish API:", apiUrl);
+
+      const response = await axios.post(apiUrl, null, {
         headers: token ? { Authorization: `Bearer ${token}` } : {},
       });
 
@@ -548,17 +570,86 @@ const BlogManagement = ({ userId, selectedTab }) => {
     }
   };
   const handleEditBlog = async () => {
-    const values = await editBlogForm.validateFields();
     try {
-      await api.put(`/blog/${editingBlogId}`, {
-        ...values,
-        tags: values.tags,
+      const values = await editBlogForm.validateFields();
+
+      // Validate required fields
+      if (!values.title || values.title.trim().length < 10) {
+        toast.error("Tiêu đề phải có ít nhất 10 ký tự!");
+        return;
+      }
+
+      if (!values.content || values.content.trim().length < 50) {
+        toast.error("Nội dung phải có ít nhất 50 ký tự!");
+        return;
+      }
+
+      // Prepare query parameters as per API documentation
+      const params = new URLSearchParams();
+      params.append("title", values.title.trim());
+      params.append("content", values.content.trim());
+
+      // Handle tags - convert tag IDs to tag names
+      if (values.tags && values.tags.length > 0) {
+        const tagNames = values.tags
+          .map((tagId) => {
+            const tag = tags.find((t) => t.id === tagId);
+            return tag ? tag.name : null;
+          })
+          .filter((name) => name !== null);
+
+        tagNames.forEach((tagName) => {
+          params.append("tags", tagName);
+        });
+      }
+
+      // Prepare request body with image (if provided)
+      const formData = new FormData();
+
+      // Check if new image is selected
+      const fileInput = document.getElementById("edit-blog-image-input");
+      const imgFile = fileInput?.files[0];
+
+      if (imgFile) {
+        formData.append("image", imgFile);
+        console.log("🖼️ New image selected for blog update");
+      }
+
+      console.log(
+        `🔧 Updating blog ${editingBlogId} with params:`,
+        params.toString()
+      );
+
+      const token = localStorage.getItem("token");
+      const apiUrl = `${API_BASE_URL}/blog/${editingBlogId}?${params.toString()}`;
+      console.log("🔧 Edit blog API:", apiUrl);
+
+      // Send request with query params and form data (for image)
+      await axios.put(apiUrl, formData, {
+        headers: {
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+          ...(imgFile ? { "Content-Type": "multipart/form-data" } : {}),
+        },
       });
+
       setIsEditBlogModalVisible(false);
-      loadBlogs();
+      editBlogForm.resetFields();
+
+      // Clear file input
+      if (fileInput) {
+        fileInput.value = "";
+      }
+
+      await loadBlogs();
       toast.success("Cập nhật blog thành công!");
-    } catch {
-      toast.error("Cập nhật blog thất bại");
+    } catch (error) {
+      console.error("❌ Edit blog error:", error);
+      const errorMessage =
+        error.response?.data?.message ||
+        error.response?.data?.error ||
+        error.message ||
+        "Lỗi không xác định";
+      toast.error(`Cập nhật blog thất bại: ${errorMessage}`);
     }
   };
   const handleDeleteBlog = async (blogId) => {
@@ -772,7 +863,7 @@ const BlogManagement = ({ userId, selectedTab }) => {
                 title: record.title,
                 content: record.content,
                 tags: record.tags?.map((tag) => tag.id),
-                // Không cần set status nữa
+                status: record.status,
               });
               setIsEditBlogModalVisible(true);
               setEditingBlogId(record.id);
@@ -834,7 +925,9 @@ const BlogManagement = ({ userId, selectedTab }) => {
             description="Hành động này không thể hoàn tác!"
             onConfirm={async () => {
               try {
-                const response = await api.delete(`/tags/${record.id}`);
+                const apiUrl = `${API_BASE_URL}/tags/${record.id}`;
+                console.log("🗑️ Delete tag API:", apiUrl);
+                const response = await axios.delete(apiUrl);
 
                 if (response.status === 204) {
                   const updatedTags = tags.filter(
@@ -1055,6 +1148,11 @@ const BlogManagement = ({ userId, selectedTab }) => {
           onCancel={() => {
             setIsEditBlogModalVisible(false);
             editBlogForm.resetFields();
+            // Clear file input
+            const fileInput = document.getElementById("edit-blog-image-input");
+            if (fileInput) {
+              fileInput.value = "";
+            }
           }}
           okText="Cập nhật"
           cancelText="Hủy"
@@ -1093,6 +1191,30 @@ const BlogManagement = ({ userId, selectedTab }) => {
                 options={tagOptions}
                 allowClear
               />
+            </Form.Item>
+
+            <Form.Item
+              name="status"
+              label="Trạng thái"
+              rules={[{ required: true, message: "Vui lòng chọn trạng thái!" }]}
+            >
+              <Select placeholder="Chọn trạng thái bài viết">
+                <Select.Option value="PENDING">⏳ Chờ duyệt</Select.Option>
+                <Select.Option value="PUBLISHED">🌐 Đã đăng</Select.Option>
+                <Select.Option value="REJECTED">❌ Bị từ chối</Select.Option>
+              </Select>
+            </Form.Item>
+
+            <Form.Item label="Ảnh đại diện">
+              <input
+                id="edit-blog-image-input"
+                type="file"
+                accept="image/*"
+                className="image-upload-input"
+              />
+              <div className="image-upload-hint">
+                Chọn ảnh đại diện mới cho bài viết (tùy chọn)
+              </div>
             </Form.Item>
           </Form>
         </Modal>
@@ -1190,7 +1312,9 @@ const BlogManagement = ({ userId, selectedTab }) => {
               const values = await tagForm.validateFields();
 
               if (editingTag) {
-                await api.put(`/tags/${editingTag.id}`, values);
+                const apiUrl = `${API_BASE_URL}/tags/${editingTag.id}`;
+                console.log("✏️ Update tag API:", apiUrl);
+                await axios.put(apiUrl, values);
 
                 const updatedTags = tags.map((tag) =>
                   tag.id === editingTag.id ? { ...tag, ...values } : tag
@@ -1203,7 +1327,9 @@ const BlogManagement = ({ userId, selectedTab }) => {
                   }))
                 );
               } else {
-                const response = await api.post("/tags", values);
+                const apiUrl = `${SERVER_CONFIG.API_URL}/tags`;
+                console.log("➕ Create tag API:", apiUrl);
+                const response = await axios.post(apiUrl, values);
 
                 const newTag = response.data || { ...values, id: Date.now() };
                 const updatedTags = [...tags, newTag];

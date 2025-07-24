@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import ReactMarkdown from "react-markdown";
 import RelatedArticlesSection from "./RelatedArticlesSection";
-import { fetchBlogDetail, likeBlog } from "../../api/consultantAPI";
+import { likeBlog, viewBlogAndIncreaseCount } from "../../api/consultantAPI";
 import "./BlogDetail.css";
 
 const BlogDetail = () => {
@@ -18,8 +18,8 @@ const BlogDetail = () => {
         setLoading(true);
         console.log(` Loading blog detail for ID: ${id}`);
 
-        // Call API to get blog detail (this will auto-increment view count)
-        const response = await fetchBlogDetail(id);
+        // Call API to view blog and auto-increment view count
+        const response = await viewBlogAndIncreaseCount(id);
         const blogData = response.data;
 
         console.log(" Blog detail loaded:", blogData);

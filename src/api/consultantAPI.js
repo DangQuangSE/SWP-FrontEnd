@@ -22,7 +22,14 @@ export const fetchBlogsByAuthor = (authorId, page = 0, size = 10) => {
 };
 
 export const fetchBlogDetail = (id) => {
+  // API này sẽ tự động tăng viewCount khi được gọi
   return api.get(`/blog/detail/${id}`);
+};
+
+// API để xem blog và tăng viewCount
+export const viewBlogAndIncreaseCount = (id) => {
+  // Endpoint: GET /blog/{id} - Xem blog và tự động tăng lượt xem
+  return api.get(`/blog/${id}`);
 };
 
 export const fetchBlogsByTag = (tagId, page = 0, size = 10) => {
