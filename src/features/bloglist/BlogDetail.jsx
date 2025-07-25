@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import ReactMarkdown from "react-markdown";
 import RelatedArticlesSection from "./RelatedArticlesSection";
+import CommentSection from "../../components/CommentSection/CommentSection";
 import { likeBlog, viewBlogAndIncreaseCount } from "../../api/consultantAPI";
 import "./BlogDetail.css";
 
@@ -96,7 +97,7 @@ const BlogDetail = () => {
 
       console.log(` Liked blog ${article.id}`);
     } catch (error) {
-      console.error(` Error liking blog ${article.id}:`, error);
+      alert(error.message || "Không thể thích bài viết. Vui lòng thử lại sau.");
     } finally {
       setLiking(false);
     }
@@ -213,6 +214,9 @@ const BlogDetail = () => {
             <ReactMarkdown>{article.content}</ReactMarkdown>
           </div>
         </article>
+
+        {/* Comment Section */}
+        <CommentSection blogId={article.id} />
       </div>
       <RelatedArticlesSection articles={relatedArticles} />
     </div>

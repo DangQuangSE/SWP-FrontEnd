@@ -87,22 +87,8 @@ const Articles = () => {
         }
       }, 2000);
     } catch (error) {
-      // Show user-friendly error message with login prompt
-      const errorMessage =
-        error.message || "Không thể thích bài viết. Vui lòng thử lại sau.";
-
-      if (errorMessage.includes("đăng nhập")) {
-        const shouldLogin = confirm(
-          ` ${errorMessage}\n\n Bạn có muốn đăng nhập ngay không?`
-        );
-        if (shouldLogin) {
-          // Redirect to login page
-          window.location.href = "/login";
-        }
-      } else {
-        alert(` ${errorMessage}`);
-      }
-
+      // Show user-friendly error message
+      alert(error.message || "Không thể thích bài viết. Vui lòng thử lại sau.");
       // Revert optimistic update on error
       setArticles((prevArticles) =>
         prevArticles.map((article) =>
