@@ -2,7 +2,6 @@ import api, { upload } from "../configs/api";
 import dayjs from "dayjs";
 
 export const fetchBlogs = (page = 0, size = 10) => {
-  // Try different parameters to get all blogs including drafts
   return api.get(`/blog?page=${page}&size=${size}`);
 };
 

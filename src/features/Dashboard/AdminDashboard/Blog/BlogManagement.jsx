@@ -27,6 +27,7 @@ import {
   deleteBlog,
   uploadImage,
 } from "../../../../api/consultantAPI";
+import { fetchBlogSummary } from "../../../../api/commentAPI";
 import "./BlogManagement.css";
 import axios from "axios";
 
@@ -57,6 +58,26 @@ const BlogManagement = ({ userId, selectedTab }) => {
 
   // Status filter state
   const [selectedStatus, setSelectedStatus] = useState("ALL");
+  const [commentCounts, setCommentCounts] = useState({});
+
+  // Load comment counts
+  const loadCommentCounts = async () => {
+    try {
+      const response = await fetchBlogSummary();
+      const commentData = response.data || [];
+
+      // Convert array to object for easy lookup
+      const commentMap = {};
+      commentData.forEach((blog) => {
+        commentMap[blog.blog_id] = blog.commentCount || 0;
+      });
+
+      setCommentCounts(commentMap);
+    } catch (error) {
+      console.error("Error loading comment counts:", error);
+      setCommentCounts({});
+    }
+  };
 
   // Load blogs - Admin xem tất cả blog (mọi trạng thái)
   const loadBlogs = async (page = 0, size = 10) => {
@@ -99,7 +120,7 @@ const BlogManagement = ({ userId, selectedTab }) => {
           imgUrl: blog.imgUrl,
           viewCount: blog.viewCount || 0,
           likeCount: blog.likeCount || 0,
-          status: blog.status || "DRAFT",
+          status: blog.status,
           createdAt: blog.createdAt
             ? new Date(blog.createdAt).toLocaleString("vi-VN")
             : "Không có",
@@ -159,7 +180,7 @@ const BlogManagement = ({ userId, selectedTab }) => {
           imgUrl: blog.imgUrl,
           viewCount: blog.viewCount || 0,
           likeCount: blog.likeCount || 0,
-          status: blog.status || "DRAFT",
+          status: blog.status,
           createdAt: blog.createdAt
             ? new Date(blog.createdAt).toLocaleString("vi-VN")
             : "Không có",
@@ -707,6 +728,7 @@ const BlogManagement = ({ userId, selectedTab }) => {
     if (selectedTab === "write_blogs") {
       loadBlogs();
       loadTags();
+      loadCommentCounts();
     } else if (selectedTab === "manage_tags") {
       loadTags();
     }
@@ -754,6 +776,9 @@ const BlogManagement = ({ userId, selectedTab }) => {
           </div>
           <div className="blog-stats-likes">
             ❤️ {record.likeCount || 0} lượt thích
+          </div>
+          <div className="blog-stats-comments">
+            💬 {commentCounts[record.id] || 0} bình luận
           </div>
         </div>
       ),
@@ -972,13 +997,19 @@ const BlogManagement = ({ userId, selectedTab }) => {
     const publishedBlogs = blogs.filter(
       (blog) => blog.status === "PUBLISHED"
     ).length;
-    const draftBlogs = blogs.filter((blog) => blog.status === "DRAFT").length;
+    const rejectBlogs = blogs.filter(
+      (blog) => blog.status === "REJECTED"
+    ).length;
     const totalViews = blogs.reduce(
       (sum, blog) => sum + (blog.viewCount || 0),
       0
     );
     const totalLikes = blogs.reduce(
       (sum, blog) => sum + (blog.likeCount || 0),
+      0
+    );
+    const totalComments = blogs.reduce(
+      (sum, blog) => sum + (commentCounts[blog.id] || 0),
       0
     );
 
@@ -997,8 +1028,8 @@ const BlogManagement = ({ userId, selectedTab }) => {
           </div>
 
           <div className="stats-card draft">
-            <div className="stats-number draft">{draftBlogs}</div>
-            <div className="stats-label">Bản nháp</div>
+            <div className="stats-number draft">{rejectBlogs}</div>
+            <div className="stats-label">Từ chối</div>
           </div>
 
           <div className="stats-card views">
@@ -1009,6 +1040,11 @@ const BlogManagement = ({ userId, selectedTab }) => {
           <div className="stats-card likes">
             <div className="stats-number likes">{totalLikes}</div>
             <div className="stats-label">Tổng lượt thích</div>
+          </div>
+
+          <div className="stats-card comments">
+            <div className="stats-number comments">{totalComments}</div>
+            <div className="stats-label">Tổng bình luận</div>
           </div>
         </div>
 
@@ -1246,7 +1282,8 @@ const BlogManagement = ({ userId, selectedTab }) => {
               </div>
               <div className="blog-detail-item">
                 <b>Lượt xem:</b> {selectedBlog.viewCount} | <b>Lượt thích:</b>{" "}
-                {selectedBlog.likeCount}
+                {selectedBlog.likeCount} | <b>Bình luận:</b>{" "}
+                {commentCounts[selectedBlog.id] || 0}
               </div>
               <div className="blog-detail-item">
                 <b>Trạng thái:</b> {renderStatus(selectedBlog.status)}

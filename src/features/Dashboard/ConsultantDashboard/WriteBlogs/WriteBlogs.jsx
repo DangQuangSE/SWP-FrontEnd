@@ -20,6 +20,7 @@ import {
   deleteBlog,
   uploadImage,
 } from "../../../../api/consultantAPI";
+import { fetchBlogSummary } from "../../../../api/commentAPI";
 import "./WriteBlogs.css";
 import axios from "axios";
 
@@ -50,6 +51,26 @@ const WriteBlogs = ({ userId, selectedTab }) => {
 
   // Status filter state
   const [selectedStatus, setSelectedStatus] = useState("ALL");
+  const [commentCounts, setCommentCounts] = useState({});
+
+  // Load comment counts
+  const loadCommentCounts = async () => {
+    try {
+      const response = await fetchBlogSummary();
+      const commentData = response.data || [];
+
+      // Convert array to object for easy lookup
+      const commentMap = {};
+      commentData.forEach((blog) => {
+        commentMap[blog.blog_id] = blog.commentCount || 0;
+      });
+
+      setCommentCounts(commentMap);
+    } catch (error) {
+      console.error("Error loading comment counts:", error);
+      setCommentCounts({});
+    }
+  };
 
   // Load blogs
   const loadBlogs = async (page = 0, size = 10) => {
@@ -148,7 +169,7 @@ const WriteBlogs = ({ userId, selectedTab }) => {
           imgUrl: blog.imgUrl,
           viewCount: blog.viewCount || 0,
           likeCount: blog.likeCount || 0,
-          status: blog.status || "DRAFT",
+          status: blog.status,
           createdAt: blog.createdAt
             ? new Date(blog.createdAt).toLocaleString("vi-VN")
             : "Không có",
@@ -382,7 +403,7 @@ const WriteBlogs = ({ userId, selectedTab }) => {
       const blogData = {
         title: values.title.trim(),
         content: values.content.trim(),
-        status: values.status || "DRAFT",
+        status: values.status,
         imgFile: imgFile,
         tagNames: tagNames,
       };
@@ -657,6 +678,7 @@ const WriteBlogs = ({ userId, selectedTab }) => {
     if (selectedTab === "write_blogs") {
       loadBlogs();
       loadTags();
+      loadCommentCounts();
     } else if (selectedTab === "manage_tags") {
       loadTags();
     }
@@ -704,6 +726,9 @@ const WriteBlogs = ({ userId, selectedTab }) => {
           </div>
           <div className="blog-stats-likes">
             ❤️ {record.likeCount || 0} lượt thích
+          </div>
+          <div className="blog-stats-comments">
+            💬 {commentCounts[record.id] || 0} bình luận
           </div>
         </div>
       ),
@@ -879,6 +904,10 @@ const WriteBlogs = ({ userId, selectedTab }) => {
       (sum, blog) => sum + (blog.likeCount || 0),
       0
     );
+    const totalComments = blogs.reduce(
+      (sum, blog) => sum + (commentCounts[blog.id] || 0),
+      0
+    );
 
     return (
       <div>
@@ -907,6 +936,11 @@ const WriteBlogs = ({ userId, selectedTab }) => {
           <div className="stats-card likes">
             <div className="stats-number likes">{totalLikes}</div>
             <div className="stats-label">Tổng lượt thích</div>
+          </div>
+
+          <div className="stats-card comments">
+            <div className="stats-number comments">{totalComments}</div>
+            <div className="stats-label">Tổng bình luận</div>
           </div>
         </div>
 
@@ -1121,7 +1155,8 @@ const WriteBlogs = ({ userId, selectedTab }) => {
               </div>
               <div className="blog-detail-item">
                 <b>Lượt xem:</b> {selectedBlog.viewCount} | <b>Lượt thích:</b>{" "}
-                {selectedBlog.likeCount}
+                {selectedBlog.likeCount} | <b>Bình luận:</b>{" "}
+                {commentCounts[selectedBlog.id] || 0}
               </div>
               <div className="blog-detail-item">
                 <b>Trạng thái:</b> {renderStatus(selectedBlog.status)}

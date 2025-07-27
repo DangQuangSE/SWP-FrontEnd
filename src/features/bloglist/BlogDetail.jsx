@@ -4,6 +4,7 @@ import ReactMarkdown from "react-markdown";
 import RelatedArticlesSection from "./RelatedArticlesSection";
 import CommentSection from "../../components/CommentSection/CommentSection";
 import { likeBlog, viewBlogAndIncreaseCount } from "../../api/consultantAPI";
+import { fetchBlogSummary } from "../../api/commentAPI";
 import "./BlogDetail.css";
 
 const BlogDetail = () => {
@@ -12,6 +13,24 @@ const BlogDetail = () => {
   const [loading, setLoading] = useState(true);
   const [liking, setLiking] = useState(false);
   const [relatedArticles, setRelatedArticles] = useState([]);
+  const [commentCount, setCommentCount] = useState(0);
+
+  // Load comment count for this blog
+  const loadCommentCount = async () => {
+    try {
+      const response = await fetchBlogSummary();
+      const commentData = response.data || [];
+
+      // Find comment count for current blog
+      const currentBlog = commentData.find(
+        (blog) => blog.blog_id === parseInt(id)
+      );
+      setCommentCount(currentBlog?.commentCount || 0);
+    } catch (error) {
+      console.error("Error loading comment count:", error);
+      setCommentCount(0);
+    }
+  };
 
   useEffect(() => {
     const loadBlogDetail = async () => {
@@ -78,6 +97,7 @@ const BlogDetail = () => {
 
     if (id) {
       loadBlogDetail();
+      loadCommentCount();
     }
   }, [id]);
 
@@ -205,7 +225,7 @@ const BlogDetail = () => {
               </button>
               <div className="stat-item">
                 <span className="stat-icon">💬</span>
-                <span className="stat-count">0 bình luận</span>
+                <span className="stat-count">{commentCount} bình luận</span>
               </div>
             </div>
           </header>
