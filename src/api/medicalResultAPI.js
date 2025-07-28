@@ -14,7 +14,7 @@ export const submitMedicalResult = async (resultData) => {
   try {
     console.log("[API] Submitting medical result:", resultData);
 
-    const response = await api.post("/result", resultData);
+    const response = await api.post("/result/consultation", resultData);
 
     console.log(" [API] Medical result submitted successfully:", response.data);
     return response;
@@ -230,5 +230,6 @@ export const formatMedicalResultForAPI = (formData) => {
     testStatus: formData.testStatus || "PENDING",
     sampleCollectedAt: formData.sampleCollectedAt || new Date().toISOString(),
     labNotes: formData.labNotes || "",
+    treatmentProtocolId: formData.treatmentProtocolId || null,
   };
 };

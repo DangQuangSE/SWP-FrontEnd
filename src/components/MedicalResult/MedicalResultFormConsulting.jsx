@@ -1,7 +1,8 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Form,
   Input,
+  Select,
   Button,
   Card,
   Row,
@@ -19,8 +20,10 @@ import {
 } from "@ant-design/icons";
 import { submitConsultationResult } from "../../api/medicalResultAPI";
 import "./MedicalResultFormConsulting.css";
+import api from "../../configs/api";
 
 const { TextArea } = Input;
+const { Option } = Select;
 const { Text } = Typography;
 
 /**
@@ -35,6 +38,32 @@ const MedicalResultFormConsulting = ({
 }) => {
   const [form] = Form.useForm();
   const [loading, setLoading] = useState(false);
+  const [loadingProtocols, setLoadingProtocols] = useState(false);
+  const [treatmentProtocols, setTreatmentProtocols] = useState([]);
+
+  // Fetch treatment protocols
+  const fetchTreatmentProtocols = async () => {
+    try {
+      setLoadingProtocols(true);
+      const response = await api.get("/treatment");
+      setTreatmentProtocols(response.data || []);
+    } catch (error) {
+      console.error("Error fetching treatment protocols:", error);
+      setTreatmentProtocols([]);
+    } finally {
+      setLoadingProtocols(false);
+    }
+  };
+
+  // Load treatment protocols on component mount
+  useEffect(() => {
+    fetchTreatmentProtocols();
+  }, []);
+
+  // Handle field changes
+  const handleFieldChange = (field, value) => {
+    form.setFieldValue(field, value);
+  };
 
   // Set initial form values
   React.useEffect(() => {
@@ -52,6 +81,7 @@ const MedicalResultFormConsulting = ({
         ...values,
         appointmentDetailId: appointmentDetail?.id || 123,
         resultType: "CONSULTATION",
+        treatmentProtocolId: values.treatmentProtocolId || null,
       };
 
       console.log("[DEBUG] Final submit data:", submitData);
@@ -199,6 +229,38 @@ const MedicalResultFormConsulting = ({
                   rows={6}
                   placeholder="Ví dụ: Sử dụng thuốc kháng nấm, tái khám sau 1 tuần"
                 />
+              </Form.Item>
+            </Col>
+          </Row>
+
+          <Row gutter={24}>
+            <Col span={12}>
+              <Form.Item
+                name="treatmentProtocolId"
+                label="Phác đồ điều trị"
+                extra="Chọn phác đồ điều trị có sẵn (không bắt buộc)"
+              >
+                <Select
+                  placeholder="Chọn phác đồ điều trị..."
+                  loading={loadingProtocols}
+                  allowClear
+                  showSearch
+                  optionFilterProp="children"
+                  filterOption={(input, option) =>
+                    option?.children
+                      ?.toLowerCase()
+                      .includes(input.toLowerCase())
+                  }
+                  onChange={(value) =>
+                    handleFieldChange("treatmentProtocolId", value)
+                  }
+                >
+                  {treatmentProtocols.map((protocol) => (
+                    <Option key={protocol.id} value={protocol.id}>
+                      {protocol.diseaseName}
+                    </Option>
+                  ))}
+                </Select>
               </Form.Item>
             </Col>
           </Row>
