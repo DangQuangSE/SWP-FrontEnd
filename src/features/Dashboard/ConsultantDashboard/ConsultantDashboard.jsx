@@ -22,6 +22,7 @@ import ConsultationResults from "./ConsultationResults/ConsultationResults";
 import ManageSchedule from "./ManageSchedule/ManageSchedule";
 import WriteBlogs from "./WriteBlogs/WriteBlogs";
 import ViewFeedback from "./ViewFeedback/ViewFeedback";
+import TreatmentProtocol from "./TreatmentProtocol/TreatmentProtocol";
 
 import "./Consultant.css";
 
@@ -65,6 +66,11 @@ function ConsultantDashboard() {
       label: "Quản lý lịch làm việc",
     },
     {
+      key: "manage_TreatmentProtocol",
+      icon: <CommentOutlined />,
+      label: "Quản lí phác đồ",
+    },
+    {
       key: "content_management",
       icon: <AppstoreOutlined />,
       label: "Quản lý nội dung",
@@ -101,6 +107,8 @@ function ConsultantDashboard() {
         return <ConsultationResults userId={userId} />;
       case "manage_schedule":
         return <ManageSchedule userId={userId} />;
+      case "manage_TreatmentProtocol":
+        return <TreatmentProtocol userId={userId} />;
       case "write_blogs":
       case "manage_tags":
         return <WriteBlogs userId={userId} selectedTab={selectedMenuItem} />;

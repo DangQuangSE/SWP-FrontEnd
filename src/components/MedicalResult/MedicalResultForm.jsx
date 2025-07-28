@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Form,
   Input,
@@ -29,6 +29,7 @@ import {
   useMedicalResult,
   useMedicalResultForm,
 } from "../../hooks/useMedicalResult";
+import api from "../../configs/api";
 import dayjs from "dayjs";
 import "dayjs/locale/vi";
 import locale from "antd/es/date-picker/locale/vi_VN";
@@ -106,6 +107,8 @@ const MedicalResultForm = ({
   initialData = {},
 }) => {
   const [form] = Form.useForm();
+  const [treatmentProtocols, setTreatmentProtocols] = useState([]);
+  const [loadingProtocols, setLoadingProtocols] = useState(false);
 
   // Initialize form data with appointment detail info (matching backend ResultRequest)
   const defaultFormData = {
@@ -117,6 +120,7 @@ const MedicalResultForm = ({
     description: "", // Min 10 chars
     diagnosis: "", // Min 10 chars
     treatmentPlan: "", // Min 10 chars
+    treatmentProtocolId: null, // ID của phác đồ điều trị được chọn
 
     // === THÔNG TIN XÉT NGHIỆM (optional, only for LAB_TEST) ===
     testName: appointmentDetail?.serviceName || "",
@@ -130,6 +134,25 @@ const MedicalResultForm = ({
 
     ...initialData,
   };
+
+  // Fetch treatment protocols
+  const fetchTreatmentProtocols = async () => {
+    try {
+      setLoadingProtocols(true);
+      const response = await api.get('/treatment');
+      setTreatmentProtocols(response.data || []);
+    } catch (error) {
+      console.error("Error fetching treatment protocols:", error);
+      setTreatmentProtocols([]);
+    } finally {
+      setLoadingProtocols(false);
+    }
+  };
+
+  // Load treatment protocols on component mount
+  useEffect(() => {
+    fetchTreatmentProtocols();
+  }, []);
 
   // Custom hooks
   const { formData, updateField, updateFields, resetForm } =
@@ -223,6 +246,7 @@ const MedicalResultForm = ({
         description: normalizedValues.description || "",
         diagnosis: normalizedValues.diagnosis || "",
         treatmentPlan: normalizedValues.treatmentPlan || "",
+        treatmentProtocolId: normalizedValues.treatmentProtocolId || null,
 
         // === THÔNG TIN XÉT NGHIỆM === (optional, only for LAB_TEST)
         ...(normalizedValues.resultType === "LAB_TEST" && {
@@ -683,6 +707,34 @@ const MedicalResultForm = ({
                   showCount
                   maxLength={1000}
                 />
+              </Form.Item>
+            </Col>
+          </Row>
+
+          <Row gutter={16}>
+            <Col span={12}>
+              <Form.Item
+                name="treatmentProtocolId"
+                label="Phác đồ điều trị"
+                extra="Chọn phác đồ điều trị có sẵn (không bắt buộc)"
+              >
+                <Select
+                  placeholder="Chọn phác đồ điều trị..."
+                  loading={loadingProtocols}
+                  allowClear
+                  showSearch
+                  optionFilterProp="children"
+                  filterOption={(input, option) =>
+                    option?.children?.toLowerCase().includes(input.toLowerCase())
+                  }
+                  onChange={(value) => handleFieldChange("treatmentProtocolId", value)}
+                >
+                  {treatmentProtocols.map((protocol) => (
+                    <Option key={protocol.id} value={protocol.id}>
+                      {protocol.diseaseName}
+                    </Option>
+                  ))}
+                </Select>
               </Form.Item>
             </Col>
           </Row>
