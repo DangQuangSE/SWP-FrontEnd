@@ -2,7 +2,6 @@ import api, { upload } from "../configs/api";
 import dayjs from "dayjs";
 
 export const fetchBlogs = (page = 0, size = 10) => {
-  // Try different parameters to get all blogs including drafts
   return api.get(`/blog?page=${page}&size=${size}`);
 };
 
@@ -22,6 +21,13 @@ export const fetchBlogsByAuthor = (authorId, page = 0, size = 10) => {
 };
 
 export const fetchBlogDetail = (id) => {
+  // API này sẽ tự động tăng viewCount khi được gọi
+  return api.get(`/blog/detail/${id}`);
+};
+
+// API để xem blog và tăng viewCount
+export const viewBlogAndIncreaseCount = (id) => {
+  // Endpoint: GET /blog/{id} - Xem blog và tự động tăng lượt xem
   return api.get(`/blog/${id}`);
 };
 
@@ -55,7 +61,7 @@ export const createBlog = (blogData) => {
   // Required fields
   formData.append("title", blogData.title);
   formData.append("content", blogData.content);
-  formData.append("status", blogData.status || "DRAFT");
+  // Không cần truyền status nữa - backend sẽ tự động set
 
   // Optional image file
   if (blogData.imgFile) {

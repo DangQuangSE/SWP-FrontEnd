@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import "./Articles.css";
 import { Link } from "react-router-dom";
 import { likeBlog } from "../../api/consultantAPI";
+import { fetchBlogSummary } from "../../api/commentAPI";
 import { API_BASE_URL } from "../../configs/serverConfig";
 
 const Articles = () => {
@@ -9,7 +10,27 @@ const Articles = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [loading, setLoading] = useState(true);
   const [likingBlogs, setLikingBlogs] = useState(new Set());
+  const [commentCounts, setCommentCounts] = useState({});
   const articlesPerPage = 4;
+
+  // Load comment counts
+  const loadCommentCounts = async () => {
+    try {
+      const response = await fetchBlogSummary();
+      const commentData = response.data || [];
+
+      // Convert array to object for easy lookup
+      const commentMap = {};
+      commentData.forEach((blog) => {
+        commentMap[blog.blog_id] = blog.commentCount || 0;
+      });
+
+      setCommentCounts(commentMap);
+    } catch (error) {
+      console.error("Error loading comment counts:", error);
+      setCommentCounts({});
+    }
+  };
 
   // Handle like blog
   const handleLikeBlog = async (e, blogId) => {
@@ -87,22 +108,8 @@ const Articles = () => {
         }
       }, 2000);
     } catch (error) {
-      // Show user-friendly error message with login prompt
-      const errorMessage =
-        error.message || "Không thể thích bài viết. Vui lòng thử lại sau.";
-
-      if (errorMessage.includes("đăng nhập")) {
-        const shouldLogin = confirm(
-          ` ${errorMessage}\n\n Bạn có muốn đăng nhập ngay không?`
-        );
-        if (shouldLogin) {
-          // Redirect to login page
-          window.location.href = "/login";
-        }
-      } else {
-        alert(` ${errorMessage}`);
-      }
-
+      // Show user-friendly error message
+      alert(error.message || "Không thể thích bài viết. Vui lòng thử lại sau.");
       // Revert optimistic update on error
       setArticles((prevArticles) =>
         prevArticles.map((article) =>
@@ -194,6 +201,7 @@ const Articles = () => {
     };
 
     loadTopBlogs();
+    loadCommentCounts();
   }, []);
 
   const featuredArticle = articles.find((article) => article.featured);
@@ -274,7 +282,9 @@ const Articles = () => {
                   </button>
                   <div className="stat-item">
                     <span className="stat-icon">💬</span>
-                    <span className="stat-count">0</span>
+                    <span className="stat-count">
+                      {commentCounts[featuredArticle.id] || 0}
+                    </span>
                   </div>
                 </div>
               </div>
@@ -327,7 +337,9 @@ const Articles = () => {
                     </button>
                     <div className="stat-item">
                       <span className="stat-icon">💬</span>
-                      <span className="stat-count">0</span>
+                      <span className="stat-count">
+                        {commentCounts[article.id] || 0}
+                      </span>
                     </div>
                   </div>
                 </div>

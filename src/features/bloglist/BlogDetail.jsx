@@ -2,7 +2,9 @@ import React, { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import ReactMarkdown from "react-markdown";
 import RelatedArticlesSection from "./RelatedArticlesSection";
-import { fetchBlogDetail, likeBlog } from "../../api/consultantAPI";
+import CommentSection from "../../components/CommentSection/CommentSection";
+import { likeBlog, viewBlogAndIncreaseCount } from "../../api/consultantAPI";
+import { fetchBlogSummary } from "../../api/commentAPI";
 import "./BlogDetail.css";
 
 const BlogDetail = () => {
@@ -11,6 +13,24 @@ const BlogDetail = () => {
   const [loading, setLoading] = useState(true);
   const [liking, setLiking] = useState(false);
   const [relatedArticles, setRelatedArticles] = useState([]);
+  const [commentCount, setCommentCount] = useState(0);
+
+  // Load comment count for this blog
+  const loadCommentCount = async () => {
+    try {
+      const response = await fetchBlogSummary();
+      const commentData = response.data || [];
+
+      // Find comment count for current blog
+      const currentBlog = commentData.find(
+        (blog) => blog.blog_id === parseInt(id)
+      );
+      setCommentCount(currentBlog?.commentCount || 0);
+    } catch (error) {
+      console.error("Error loading comment count:", error);
+      setCommentCount(0);
+    }
+  };
 
   useEffect(() => {
     const loadBlogDetail = async () => {
@@ -18,8 +38,8 @@ const BlogDetail = () => {
         setLoading(true);
         console.log(` Loading blog detail for ID: ${id}`);
 
-        // Call API to get blog detail (this will auto-increment view count)
-        const response = await fetchBlogDetail(id);
+        // Call API to view blog and auto-increment view count
+        const response = await viewBlogAndIncreaseCount(id);
         const blogData = response.data;
 
         console.log(" Blog detail loaded:", blogData);
@@ -77,6 +97,7 @@ const BlogDetail = () => {
 
     if (id) {
       loadBlogDetail();
+      loadCommentCount();
     }
   }, [id]);
 
@@ -96,7 +117,7 @@ const BlogDetail = () => {
 
       console.log(` Liked blog ${article.id}`);
     } catch (error) {
-      console.error(` Error liking blog ${article.id}:`, error);
+      alert(error.message || "Không thể thích bài viết. Vui lòng thử lại sau.");
     } finally {
       setLiking(false);
     }
@@ -204,7 +225,7 @@ const BlogDetail = () => {
               </button>
               <div className="stat-item">
                 <span className="stat-icon">💬</span>
-                <span className="stat-count">0 bình luận</span>
+                <span className="stat-count">{commentCount} bình luận</span>
               </div>
             </div>
           </header>
@@ -213,6 +234,9 @@ const BlogDetail = () => {
             <ReactMarkdown>{article.content}</ReactMarkdown>
           </div>
         </article>
+
+        {/* Comment Section */}
+        <CommentSection blogId={article.id} />
       </div>
       <RelatedArticlesSection articles={relatedArticles} />
     </div>
