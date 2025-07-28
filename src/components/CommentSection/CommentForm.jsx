@@ -93,7 +93,7 @@ const CommentForm = ({ blogId, user, onCommentAdded, onRefresh }) => {
     <form onSubmit={handleSubmit} className="comment-form">
       <div className="comment-form-header">
         <img
-          src={user.imageUrl || user.avatar || "/placeholder-user.jpg"}
+          src={user.imageUrl || "/placeholder-user.jpg"}
           alt={user.fullname || user.name || "User"}
           className="comment-form-avatar"
         />

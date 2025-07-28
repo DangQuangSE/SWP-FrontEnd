@@ -95,7 +95,7 @@ const CommentItem = ({ comment, currentUser, onCommentDeleted }) => {
     <div className="comment-item">
       <div className="comment-header">
         <img
-          src={comment.userAvatar || "/placeholder-user.jpg"}
+          src={currentUser.imageUrl || "/placeholder-user.jpg"}
           alt={comment.userName || "User"}
           className="comment-avatar"
         />

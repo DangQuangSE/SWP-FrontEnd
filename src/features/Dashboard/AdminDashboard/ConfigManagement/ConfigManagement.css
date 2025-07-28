@@ -1,0 +1,222 @@
+/* Config Management Styles */
+.config-management-card {
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  border: 1px solid #e1e5e9;
+}
+
+.config-management-card .ant-card-head {
+  border-bottom: 2px solid #f0f2f5;
+  background: linear-gradient(135deg, #f8fafc, #ffffff);
+}
+
+.config-management-card .ant-card-head-title {
+  font-weight: 600;
+  color: #1f2937;
+}
+
+.config-management-card .ant-card-extra {
+  display: flex;
+  gap: 8px;
+}
+
+/* Table Styles */
+.config-table .ant-table-thead > tr > th {
+  background: #f8fafc;
+  font-weight: 600;
+  color: #374151;
+  border-bottom: 2px solid #e5e7eb;
+}
+
+.config-table .ant-table-tbody > tr:hover > td {
+  background: #f0f9ff;
+}
+
+.config-table .ant-table-tbody > tr > td {
+  padding: 16px;
+  border-bottom: 1px solid #f3f4f6;
+}
+
+/* Config Value Styling */
+.config-value {
+  font-weight: bold;
+  color: #1890ff;
+  background: #e6f7ff;
+  padding: 4px 8px;
+  border-radius: 6px;
+  display: inline-block;
+  min-width: 40px;
+  text-align: center;
+}
+
+/* Action Buttons */
+.config-actions .ant-btn {
+  border-radius: 6px;
+  font-weight: 500;
+  transition: all 0.3s ease;
+}
+
+.config-actions .ant-btn-primary {
+  background: linear-gradient(135deg, #1890ff, #096dd9);
+  border: none;
+  box-shadow: 0 2px 4px rgba(24, 144, 255, 0.2);
+}
+
+.config-actions .ant-btn-primary:hover {
+  background: linear-gradient(135deg, #096dd9, #0050b3);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(24, 144, 255, 0.3);
+}
+
+.config-actions .ant-btn-dangerous {
+  background: linear-gradient(135deg, #ff4d4f, #cf1322);
+  border: none;
+  box-shadow: 0 2px 4px rgba(255, 77, 79, 0.2);
+}
+
+.config-actions .ant-btn-dangerous:hover {
+  background: linear-gradient(135deg, #cf1322, #a8071a);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(255, 77, 79, 0.3);
+}
+
+/* Modal Styles */
+.config-modal .ant-modal-header {
+  background: linear-gradient(135deg, #f8fafc, #ffffff);
+  border-bottom: 2px solid #e5e7eb;
+  border-radius: 8px 8px 0 0;
+}
+
+.config-modal .ant-modal-title {
+  font-weight: 600;
+  color: #1f2937;
+}
+
+.config-modal .ant-form-item-label > label {
+  font-weight: 600;
+  color: #374151;
+}
+
+.config-modal .ant-input,
+.config-modal .ant-input-number {
+  border-radius: 8px;
+  border: 2px solid #e5e7eb;
+  transition: all 0.3s ease;
+}
+
+.config-modal .ant-input:focus,
+.config-modal .ant-input-number:focus {
+  border-color: #1890ff;
+  box-shadow: 0 0 0 3px rgba(24, 144, 255, 0.1);
+}
+
+.config-modal .ant-input-number {
+  width: 100%;
+}
+
+/* Header Actions */
+.config-header-actions {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.config-header-actions .ant-btn {
+  border-radius: 8px;
+  font-weight: 500;
+  transition: all 0.3s ease;
+}
+
+.config-header-actions .ant-btn-primary {
+  background: linear-gradient(135deg, #52c41a, #389e0d);
+  border: none;
+  box-shadow: 0 2px 4px rgba(82, 196, 26, 0.2);
+}
+
+.config-header-actions .ant-btn-primary:hover {
+  background: linear-gradient(135deg, #389e0d, #237804);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(82, 196, 26, 0.3);
+}
+
+.config-header-actions .ant-btn-default {
+  border: 2px solid #e5e7eb;
+  color: #6b7280;
+}
+
+.config-header-actions .ant-btn-default:hover {
+  border-color: #1890ff;
+  color: #1890ff;
+  background: #f0f9ff;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .config-management-card .ant-card-extra {
+    flex-direction: column;
+    gap: 4px;
+  }
+  
+  .config-header-actions {
+    flex-direction: column;
+    width: 100%;
+  }
+  
+  .config-header-actions .ant-btn {
+    width: 100%;
+  }
+  
+  .config-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+  
+  .config-actions .ant-btn {
+    width: 100%;
+    margin: 0;
+  }
+}
+
+/* Loading States */
+.config-loading {
+  text-align: center;
+  padding: 40px;
+  color: #6b7280;
+}
+
+/* Empty State */
+.config-empty {
+  text-align: center;
+  padding: 60px 20px;
+  color: #6b7280;
+}
+
+.config-empty h3 {
+  color: #374151;
+  margin-bottom: 8px;
+}
+
+.config-empty p {
+  color: #9ca3af;
+  margin-bottom: 24px;
+}
+
+/* Success/Error States */
+.config-success {
+  color: #059669;
+  background: #ecfdf5;
+  border: 1px solid #a7f3d0;
+  padding: 12px 16px;
+  border-radius: 8px;
+  margin-bottom: 16px;
+}
+
+.config-error {
+  color: #dc2626;
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  padding: 12px 16px;
+  border-radius: 8px;
+  margin-bottom: 16px;
+}

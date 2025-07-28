@@ -8,6 +8,7 @@ import {
   BarChartOutlined,
   TeamOutlined,
   CalendarOutlined,
+  SettingOutlined,
 } from "@ant-design/icons";
 
 // Import modals
@@ -27,6 +28,12 @@ import BlogManagement from "./Blog/BlogManagement";
 import { UserManagement } from "./UserManagement";
 
 import BookingDashboard from "./BookingDashboard/BookingDashboard";
+
+// Import Config Management component
+import ConfigManagement from "./ConfigManagement/ConfigManagement";
+
+// Import Doctor Working Hours component
+import { DoctorWorkingHours } from "./DoctorWorkingHours";
 
 const { Header, Content, Sider } = Layout;
 const { Title } = Typography;
@@ -50,8 +57,10 @@ function Admin() {
       dashboard_reports: "Xem Dashboard & Báo cáo",
       // handle_feedback: "Xử lý Phản hồi Dịch vụ/Tư vấn",
       // manage_payments: "Quản lý Thanh toán & Giao dịch",
+      manage_configvalue: "Quản lý Cấu hình chung",
       manage_rooms: "Quản lý Phòng khám",
       manage_specializations: "Quản lý Chuyên khoa",
+      manage_doctorworkinghours: "Quản lý Ca làm việc bác sĩ",
     };
     return titleMap[menuKey] || menuKey;
   };
@@ -113,6 +122,16 @@ function Admin() {
       icon: React.createElement(SolutionOutlined),
       label: "Quản lý Chuyên khoa",
     },
+    {
+      key: "manage_configvalue",
+      icon: React.createElement(SettingOutlined),
+      label: "Quản lý Cấu hình chung",
+    },
+    {
+      key: "manage_doctorworkinghours",
+      icon: React.createElement(CalendarOutlined),
+      label: "Quản lý Ca làm việc bác sĩ",
+    },
   ];
 
   const renderContent = () => {
@@ -149,6 +168,10 @@ function Admin() {
         return <RoomManagement />;
       case "manage_specializations":
         return <SpecializationManagement form={form} />;
+      case "manage_configvalue":
+        return <ConfigManagement />;
+      case "manage_doctorworkinghours":
+        return <DoctorWorkingHours />;
       default:
         return null;
     }

@@ -31,13 +31,21 @@ export const viewBlogAndIncreaseCount = (id) => {
   return api.get(`/blog/${id}`);
 };
 
-export const fetchBlogsByTag = (tagId, page = 0, size = 10) => {
-  return api.get(`/blog/by-tag/${tagId}?page=${page}&size=${size}`);
-};
+// fetchBlogsByTag is imported from tagAPI below
 
 export const fetchTagById = (tagId) => {
   return api.get(`/tags/${tagId}`);
 };
+
+// Import tag functions from tagAPI for consistency
+export {
+  fetchTags,
+  createTag,
+  updateTag,
+  deleteTag,
+  fetchBlogsByMultipleTags,
+  fetchBlogsByTag,
+} from "./tagAPI";
 
 export const uploadImage = (file) => {
   const formData = new FormData();
