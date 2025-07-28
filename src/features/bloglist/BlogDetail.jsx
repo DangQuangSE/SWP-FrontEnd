@@ -32,6 +32,16 @@ const BlogDetail = () => {
     }
   };
 
+  // Handle comment count update when new comment is added
+  const handleCommentCountUpdate = () => {
+    setCommentCount((prev) => prev + 1);
+  };
+
+  // Handle comment count update when comment is deleted
+  const handleCommentDeleted = () => {
+    setCommentCount((prev) => Math.max(0, prev - 1));
+  };
+
   useEffect(() => {
     const loadBlogDetail = async () => {
       try {
@@ -236,7 +246,11 @@ const BlogDetail = () => {
         </article>
 
         {/* Comment Section */}
-        <CommentSection blogId={article.id} />
+        <CommentSection
+          blogId={article.id}
+          onCommentAdded={handleCommentCountUpdate}
+          onCommentDeleted={handleCommentDeleted}
+        />
       </div>
       <RelatedArticlesSection articles={relatedArticles} />
     </div>

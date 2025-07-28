@@ -48,16 +48,13 @@ const CommentItem = ({ comment, currentUser, onCommentDeleted }) => {
         return;
       }
 
-      const response = await fetch(
-        `${API_BASE_URL}/comment/${comment.id}`,
-        {
-          method: "DELETE",
-          headers: {
-            Accept: "*/*",
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
+      const response = await fetch(`${API_BASE_URL}/comment/${comment.id}`, {
+        method: "DELETE",
+        headers: {
+          Accept: "*/*",
+          Authorization: `Bearer ${token}`,
+        },
+      });
 
       if (!response.ok) {
         const errorData = await response.json().catch(() => null);
@@ -98,7 +95,7 @@ const CommentItem = ({ comment, currentUser, onCommentDeleted }) => {
     <div className="comment-item">
       <div className="comment-header">
         <img
-          src={comment.userAvatar || "/placeholder-user.jpg"}
+          src={currentUser.imageUrl || "/placeholder-user.jpg"}
           alt={comment.userName || "User"}
           className="comment-avatar"
         />
