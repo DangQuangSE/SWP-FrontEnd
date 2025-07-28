@@ -33,7 +33,7 @@ const CommentForm = ({ blogId, user, onCommentAdded, onRefresh }) => {
         description: content.trim(),
       };
 
-      console.log("📤 Comment request body:", requestBody);
+      console.log(" Comment request body:", requestBody);
 
       const response = await fetch(`${API_BASE_URL}/comment`, {
         method: "POST",

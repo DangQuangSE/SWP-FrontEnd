@@ -417,7 +417,7 @@ const WriteBlogs = ({ userId, selectedTab }) => {
           try {
             const token = localStorage.getItem("token");
             const apiUrl = `${API_BASE_URL}/blog/${response.data.id}/submit`;
-            console.log("📤 Submit blog API:", apiUrl);
+            console.log(" Submit blog API:", apiUrl);
 
             await axios.post(apiUrl, null, {
               headers: token ? { Authorization: `Bearer ${token}` } : {},

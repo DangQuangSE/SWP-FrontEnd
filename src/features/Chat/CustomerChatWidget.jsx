@@ -441,7 +441,7 @@ const CustomerChatWidget = () => {
 
     // Send message via REST API (more reliable)
     try {
-      console.log("📤 [CUSTOMER CHAT] Sending message via REST API...");
+      console.log(" [CUSTOMER CHAT] Sending message via REST API...");
 
       const sentMessage = await unifiedChatAPI.sendMessage(
         sessionId,

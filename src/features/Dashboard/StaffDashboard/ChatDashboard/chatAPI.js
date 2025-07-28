@@ -164,7 +164,7 @@ class ChatAPIService {
         senderName,
       };
 
-      console.log("📤 [CHAT API] Sending message:", payload);
+      console.log(" [CHAT API] Sending message:", payload);
       const response = await this.api.post("/chat/send", payload);
       console.log("✅ [CHAT API] Message sent successfully:", response.data);
       return response.data;

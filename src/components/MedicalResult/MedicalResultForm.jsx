@@ -157,7 +157,7 @@ const MedicalResultForm = ({
         ...formData,
       };
 
-      console.log("📝 Setting form values:", formValues);
+      console.log(" Setting form values:", formValues);
 
       // Only set form values if form is available and prevent validation errors
       if (form && form.setFieldsValue) {
@@ -187,7 +187,7 @@ const MedicalResultForm = ({
   const validateFormData = (values) => {
     const normalizedData = { ...values };
 
-    console.log("📝 Validating form data:", values);
+    console.log(" Validating form data:", values);
 
     // Simple validation - no complex date handling
     // All fields are now simple strings or selects
@@ -198,7 +198,7 @@ const MedicalResultForm = ({
   // Handle form submission with proper validation
   const handleSubmit = async (values) => {
     try {
-      console.log("📝 Form values received:", values);
+      console.log(" Form values received:", values);
 
       // Validate form first to prevent useFieldsInvalidate errors
       try {
@@ -238,7 +238,7 @@ const MedicalResultForm = ({
         }),
       };
 
-      console.log("📤 Submitting form data (backend format):", submitData);
+      console.log(" Submitting form data (backend format):", submitData);
       await submitResult(submitData);
     } catch (error) {
       console.error("Form submission error:", error);

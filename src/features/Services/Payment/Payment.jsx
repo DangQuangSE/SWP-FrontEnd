@@ -76,7 +76,7 @@ const Payment = () => {
           };
 
           console.log(
-            "📤 [DEBUG] Sending to /api/payment/vnpay/create-off:",
+            " [DEBUG] Sending to /api/payment/vnpay/create-off:",
             payload
           );
 
