@@ -280,14 +280,14 @@ const AppointmentForm = () => {
                   <ServiceList />
                 </div>
               )}
-              {activeTab === "doctors" && (
+              {/* {activeTab === "doctors" && (
                 <div className="content-section">
                   <h2 className="section-title-appointment">
                     <span>Danh sách bác sĩ</span>
                   </h2>
                   <DoctorList />
                 </div>
-              )}
+              )} */}
               {activeTab === "reviews" && (
                 <div className="content-section">
                   <h2 className="section-title-appointment">
