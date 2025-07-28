@@ -36,21 +36,14 @@ const Testimonials = () => {
   // Handle consultation booking
   const handleConsultation = (consultant) => {
     // Store consultant info in localStorage
-    localStorage.setItem("selectedConsultantId", consultant.id);
-    localStorage.setItem(
-      "selectedConsultantName",
-      consultant.fullname || "Chưa có tên"
-    );
-    localStorage.setItem(
-      "selectedConsultantSpecialization",
-      consultant.specializationNames?.[0] || "Chưa có chuyên khoa"
-    );
+    // localStorage.setItem("selectedConsultantId", consultant.id);
 
-    // Navigate to services page or booking page
+    // Navigate to services page and scroll to top
     navigate("/services");
-    message.success(
-      `Đã chọn bác sĩ ${consultant.fullname}. Vui lòng chọn dịch vụ để đặt lịch.`
-    );
+    window.scrollTo(0, 0);
+    // message.success(
+    //   `Đã chọn bác sĩ ${consultant.fullname}. Vui lòng chọn dịch vụ để đặt lịch.`
+    // );
   };
 
   if (loading) {
@@ -134,7 +127,7 @@ const Testimonials = () => {
                     className="consult-btn"
                     onClick={() => handleConsultation(consultant)}
                   >
-                    Tư vấn ngay
+                    Xem dịch vụ
                   </button>
                 </div>
               </SplideSlide>
