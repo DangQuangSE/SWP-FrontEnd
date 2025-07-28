@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Form,
   Input,
@@ -24,6 +24,7 @@ import dayjs from "dayjs";
 import "dayjs/locale/vi";
 import locale from "antd/es/date-picker/locale/vi_VN";
 import { submitLabTestResult } from "../../api/medicalResultAPI";
+import api from "../../configs/api";
 
 dayjs.locale("vi");
 
@@ -43,6 +44,27 @@ const MedicalResultFormTesting = ({
 }) => {
   const [form] = Form.useForm();
   const [loading, setLoading] = useState(false);
+  const [loadingProtocols, setLoadingProtocols] = useState(false);
+  const [treatmentProtocols, setTreatmentProtocols] = useState([]);
+
+  // Fetch treatment protocols
+  const fetchTreatmentProtocols = async () => {
+    try {
+      setLoadingProtocols(true);
+      const response = await api.get('/treatment');
+      setTreatmentProtocols(response.data || []);
+    } catch (error) {
+      console.error("Error fetching treatment protocols:", error);
+      setTreatmentProtocols([]);
+    } finally {
+      setLoadingProtocols(false);
+    }
+  };
+
+  // Load treatment protocols on component mount
+  useEffect(() => {
+    fetchTreatmentProtocols();
+  }, []);
 
   // Dữ liệu mẫu cho form xét nghiệm
   const defaultFormData = {
@@ -58,6 +80,12 @@ const MedicalResultFormTesting = ({
     testStatus: "NORMAL",
     sampleCollectedAt: "2025-01-15T10:30:00",
     labNotes: "Mẫu đạt chất lượng, kết quả tin cậy",
+    treatmentProtocolId: null,
+  };
+
+  // Handle field changes
+  const handleFieldChange = (field, value) => {
+    form.setFieldValue(field, value);
   };
 
   // Set initial form values
@@ -80,6 +108,7 @@ const MedicalResultFormTesting = ({
         appointmentDetailId: appointmentDetail?.id || 123,
         resultType: "LAB_TEST",
         sampleCollectedAt: values.sampleCollectedAt?.toISOString(),
+        treatmentProtocolId: values.treatmentProtocolId || null,
       };
 
       console.log("[DEBUG] Final submit data:", submitData);
@@ -346,6 +375,33 @@ const MedicalResultFormTesting = ({
                   rows={4}
                   placeholder="Ví dụ: Không cần điều trị, kiểm tra lại sau 6 tháng"
                 />
+              </Form.Item>
+            </Col>
+          </Row>
+          <Row gutter={16}>
+            <Col span={12}>
+              <Form.Item
+                name="treatmentProtocolId"
+                label="Phác đồ điều trị"
+                extra="Chọn phác đồ điều trị có sẵn (không bắt buộc)"
+              >
+                <Select
+                  placeholder="Chọn phác đồ điều trị..."
+                  loading={loadingProtocols}
+                  allowClear
+                  showSearch
+                  optionFilterProp="children"
+                  filterOption={(input, option) =>
+                    option?.children?.toLowerCase().includes(input.toLowerCase())
+                  }
+                  onChange={(value) => handleFieldChange("treatmentProtocolId", value)}
+                >
+                  {treatmentProtocols.map((protocol) => (
+                    <Option key={protocol.id} value={protocol.id}>
+                      {protocol.diseaseName}
+                    </Option>
+                  ))}
+                </Select>
               </Form.Item>
             </Col>
           </Row>
