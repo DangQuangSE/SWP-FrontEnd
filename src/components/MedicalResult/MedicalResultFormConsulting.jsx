@@ -18,6 +18,7 @@ import {
   ReloadOutlined,
 } from "@ant-design/icons";
 import { submitConsultationResult } from "../../api/medicalResultAPI";
+import "./MedicalResultFormConsulting.css";
 
 const { TextArea } = Input;
 const { Text } = Typography;
@@ -35,19 +36,11 @@ const MedicalResultFormConsulting = ({
   const [form] = Form.useForm();
   const [loading, setLoading] = useState(false);
 
-  // Dữ liệu mẫu cho form khám bệnh/tư vấn
-  const defaultFormData = {
-    appointmentDetailId: appointmentDetail?.id || 123,
-    description:
-      "Bệnh nhân có triệu chứng ngứa, đau rát vùng kín, có dịch tiết bất thường",
-    diagnosis: "Viêm âm đạo do nấm Candida",
-    treatmentPlan: "Sử dụng thuốc kháng nấm, tái khám sau 1 tuần",
-  };
-
   // Set initial form values
   React.useEffect(() => {
-    const formValues = { ...defaultFormData, ...initialData };
-    form.setFieldsValue(formValues);
+    if (initialData && Object.keys(initialData).length > 0) {
+      form.setFieldsValue(initialData);
+    }
   }, [form, initialData]);
 
   const handleSubmit = async (values) => {
@@ -88,33 +81,40 @@ const MedicalResultFormConsulting = ({
 
   const handleReset = () => {
     form.resetFields();
-    form.setFieldsValue(defaultFormData);
-    message.info("Đã reset form về dữ liệu mẫu");
+    message.info("Đã reset form");
   };
 
   return (
     <Card
+      className="medical-result-form-consulting"
       title={
-        <Space>
+        <div className="form-title">
           <MedicineBoxOutlined />
           <span>Kết quả khám bệnh & tư vấn</span>
           {appointmentDetail && (
             <Tag color="green">#{appointmentDetail.id}</Tag>
           )}
-        </Space>
+        </div>
       }
       extra={
-        <Space>
-          <Button icon={<ReloadOutlined />} onClick={handleReset}>
+        <div className="form-extra-buttons">
+          <Button
+            className="reset-button"
+            icon={<ReloadOutlined />}
+            onClick={handleReset}
+          >
             Reset
           </Button>
-          <Button onClick={onCancel}>Hủy</Button>
-        </Space>
+          <Button className="cancel-button" onClick={onCancel}>
+            Hủy
+          </Button>
+        </div>
       }
     >
       {/* Patient Info */}
       {appointmentDetail && (
         <Alert
+          className="patient-info-alert"
           message="Thông tin bệnh nhân"
           description={
             <div>
@@ -133,21 +133,15 @@ const MedicalResultFormConsulting = ({
           }
           type="info"
           showIcon
-          style={{ marginBottom: 24 }}
         />
       )}
 
-      <Form
-        form={form}
-        layout="vertical"
-        onFinish={handleSubmit}
-        initialValues={defaultFormData}
-      >
+      <Form form={form} layout="vertical" onFinish={handleSubmit}>
         {/* Clinical Assessment - Full Width */}
         <Card
+          className="clinical-assessment-card clinical-assessment-section"
           size="small"
           title="Đánh giá lâm sàng"
-          style={{ marginBottom: 24 }}
         >
           <Row gutter={24}>
             <Col span={8}>
@@ -163,6 +157,7 @@ const MedicalResultFormConsulting = ({
                 ]}
               >
                 <TextArea
+                  className="form-field-textarea large"
                   rows={6}
                   placeholder="Ví dụ: Bệnh nhân có triệu chứng ngứa, đau rát vùng kín, có dịch tiết bất thường"
                 />
@@ -178,6 +173,7 @@ const MedicalResultFormConsulting = ({
                 ]}
               >
                 <TextArea
+                  className="form-field-textarea large"
                   rows={6}
                   placeholder="Ví dụ: Viêm âm đạo do nấm Candida"
                 />
@@ -199,6 +195,7 @@ const MedicalResultFormConsulting = ({
                 ]}
               >
                 <TextArea
+                  className="form-field-textarea large"
                   rows={6}
                   placeholder="Ví dụ: Sử dụng thuốc kháng nấm, tái khám sau 1 tuần"
                 />
@@ -208,11 +205,16 @@ const MedicalResultFormConsulting = ({
         </Card>
 
         {/* Additional Notes */}
-        <Card size="small" title="Ghi chú bổ sung" style={{ marginBottom: 24 }}>
+        <Card
+          className="additional-notes-card additional-notes-section"
+          size="small"
+          title="Ghi chú bổ sung"
+        >
           <Row gutter={24}>
             <Col span={12}>
               <Form.Item name="symptoms" label="Triệu chứng chi tiết">
                 <TextArea
+                  className="form-field-textarea medium"
                   rows={4}
                   placeholder="Mô tả chi tiết các triệu chứng quan sát được..."
                 />
@@ -221,6 +223,7 @@ const MedicalResultFormConsulting = ({
             <Col span={12}>
               <Form.Item name="recommendations" label="Khuyến nghị">
                 <TextArea
+                  className="form-field-textarea medium"
                   rows={4}
                   placeholder="Các khuyến nghị về chế độ sinh hoạt, dinh dưỡng..."
                 />
@@ -236,17 +239,24 @@ const MedicalResultFormConsulting = ({
             </Col>
             <Col span={12}>
               <Form.Item name="doctorNotes" label="Ghi chú của bác sĩ">
-                <TextArea rows={2} placeholder="Ghi chú riêng của bác sĩ..." />
+                <TextArea
+                  className="form-field-textarea small"
+                  rows={2}
+                  placeholder="Ghi chú riêng của bác sĩ..."
+                />
               </Form.Item>
             </Col>
           </Row>
         </Card>
 
         {/* Submit Buttons */}
-        <div style={{ textAlign: "right" }}>
+        <div className="submit-buttons-container">
           <Space>
-            <Button onClick={onCancel}>Hủy</Button>
+            <Button className="cancel-button" onClick={onCancel}>
+              Hủy
+            </Button>
             <Button
+              className="submit-button"
               type="primary"
               htmlType="submit"
               icon={<SaveOutlined />}

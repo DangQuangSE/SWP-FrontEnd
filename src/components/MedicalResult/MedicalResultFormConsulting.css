@@ -1,0 +1,148 @@
+/* Medical Result Form Consulting Styles */
+
+.medical-result-form-consulting {
+  /* Main container styles */
+}
+
+.medical-result-form-consulting .patient-info-alert {
+  margin-bottom: 24px;
+}
+
+.medical-result-form-consulting .clinical-assessment-card {
+  margin-bottom: 24px;
+}
+
+.medical-result-form-consulting .additional-notes-card {
+  margin-bottom: 24px;
+}
+
+.medical-result-form-consulting .submit-buttons-container {
+  text-align: right;
+}
+
+.medical-result-form-consulting .form-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.medical-result-form-consulting .form-extra-buttons {
+  display: flex;
+  gap: 8px;
+}
+
+/* Form field styles */
+.medical-result-form-consulting .form-field-textarea {
+  resize: vertical;
+}
+
+.medical-result-form-consulting .form-field-textarea.large {
+  min-height: 120px;
+}
+
+.medical-result-form-consulting .form-field-textarea.medium {
+  min-height: 80px;
+}
+
+.medical-result-form-consulting .form-field-textarea.small {
+  min-height: 60px;
+}
+
+/* Card section styles */
+.medical-result-form-consulting .clinical-assessment-section {
+  /* Styles for clinical assessment section */
+}
+
+.medical-result-form-consulting .additional-notes-section {
+  /* Styles for additional notes section */
+}
+
+/* Responsive styles */
+@media (max-width: 768px) {
+  .medical-result-form-consulting .submit-buttons-container {
+    text-align: center;
+  }
+  
+  .medical-result-form-consulting .form-extra-buttons {
+    flex-direction: column;
+    width: 100%;
+  }
+}
+
+/* Custom button styles */
+.medical-result-form-consulting .reset-button {
+  /* Custom reset button styles if needed */
+}
+
+.medical-result-form-consulting .cancel-button {
+  /* Custom cancel button styles if needed */
+}
+
+.medical-result-form-consulting .submit-button {
+  /* Custom submit button styles if needed */
+}
+
+/* Form validation styles */
+.medical-result-form-consulting .ant-form-item-has-error .ant-input,
+.medical-result-form-consulting .ant-form-item-has-error .ant-select-selector {
+  border-color: #ff4d4f;
+}
+
+.medical-result-form-consulting .ant-form-item-has-error .ant-form-item-explain-error {
+  color: #ff4d4f;
+}
+
+/* Patient info section */
+.medical-result-form-consulting .patient-info-section {
+  background: #f6ffed;
+  border: 1px solid #b7eb8f;
+  border-radius: 6px;
+  padding: 16px;
+  margin-bottom: 24px;
+}
+
+/* Form sections spacing */
+.medical-result-form-consulting .form-section {
+  margin-bottom: 24px;
+}
+
+.medical-result-form-consulting .form-row {
+  margin-bottom: 16px;
+}
+
+/* Input field customization */
+.medical-result-form-consulting .ant-input,
+.medical-result-form-consulting .ant-input:focus,
+.medical-result-form-consulting .ant-input-focused {
+  border-color: #40a9ff;
+  box-shadow: 0 0 0 2px rgba(24, 144, 255, 0.2);
+}
+
+.medical-result-form-consulting .ant-form-item-label > label {
+  font-weight: 600;
+  color: #262626;
+}
+
+/* Button group styling */
+.medical-result-form-consulting .button-group {
+  display: flex;
+  gap: 12px;
+  justify-content: flex-end;
+  margin-top: 24px;
+}
+
+.medical-result-form-consulting .button-group .ant-btn {
+  min-width: 100px;
+}
+
+/* Card title styling */
+.medical-result-form-consulting .ant-card-head-title {
+  font-weight: 600;
+  color: #1890ff;
+}
+
+/* Textarea placeholder styling */
+.medical-result-form-consulting .ant-input::placeholder {
+  color: #bfbfbf;
+  font-style: italic;
+}

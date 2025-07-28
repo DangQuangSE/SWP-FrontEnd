@@ -3,8 +3,10 @@ import { Provider } from "react-redux";
 import { PersistGate } from "redux-persist/integration/react";
 import { Routes, Route } from "react-router-dom";
 import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 import { store, persistor } from "./redux/store";
+import { defaultToastConfig } from "./utils/toast";
 import "./App.css";
 
 // Layout & Sections
@@ -56,7 +58,18 @@ function App() {
     <Provider store={store}>
       <PersistGate loading={<Loading />} persistor={persistor}>
         <div className="app">
-          <ToastContainer />
+          <ToastContainer
+            position={defaultToastConfig.position}
+            autoClose={defaultToastConfig.autoClose}
+            hideProgressBar={defaultToastConfig.hideProgressBar}
+            newestOnTop={defaultToastConfig.newestOnTop}
+            closeOnClick={defaultToastConfig.closeOnClick}
+            rtl={defaultToastConfig.rtl}
+            pauseOnFocusLoss
+            draggable={defaultToastConfig.draggable}
+            pauseOnHover={defaultToastConfig.pauseOnHover}
+            theme="light"
+          />
           <Header />
           <main className="main-content-app">
             <Routes>

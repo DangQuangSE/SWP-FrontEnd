@@ -24,7 +24,7 @@ import {
   QuestionCircleOutlined,
   SolutionOutlined,
 } from "@ant-design/icons";
-import { toast } from "react-toastify";
+import { showToast } from "../../../../utils/toast";
 import {
   getMySchedule,
   updateAppointmentDetailStatus,
@@ -168,11 +168,11 @@ const PersonalSchedule = ({ userId }) => {
         return appointments;
       } catch (error) {
         console.error(` [API] Error loading ${status} appointments:`, error);
-        // toast.error(
-        //   `Lỗi tải dữ liệu ${status}: ${
-        //     error.response?.data?.message || error.message
-        //   }`
-        // );
+        showToast.error(
+          `Lỗi tải dữ liệu ${status}: ${
+            error.response?.data?.message || error.message
+          }`
+        );
         return [];
       } finally {
         setTabLoadingStates((prev) => ({
@@ -227,12 +227,12 @@ const PersonalSchedule = ({ userId }) => {
         const successCount = results.filter(
           (r) => r.status === "fulfilled"
         ).length;
-        toast.success(
+        showToast.success(
           `Đã tải ${successCount}/${statuses.length} tab thành công`
         );
       } catch (error) {
         console.error(" [PARALLEL] Error during parallel loading:", error);
-        // toast.error("Lỗi khi tải dữ liệu song song");
+        showToast.error("Lỗi khi tải dữ liệu song song");
       } finally {
         setAppointmentsLoading(false);
       }
@@ -279,13 +279,13 @@ const PersonalSchedule = ({ userId }) => {
     const nativeDate = selectedDayjs.toDate();
     const dateStr = selectedDayjs.format("YYYY-MM-DD");
 
-    console.log("� [DATE] New date selected:", dateStr);
+    console.log("[DATE] New date selected:", dateStr);
 
     // Update both states immediately
     setSelectedDate(nativeDate);
     setCurrentDateStr(dateStr); // CRITICAL: Store formatted date string
 
-    console.log("📅 [DATE] Updated currentDateStr to:", dateStr);
+    console.log(" [DATE] Updated currentDateStr to:", dateStr);
 
     // CRITICAL: Force reload ALL TABS for new date (no cache)
     console.log("[FORCE_RELOAD] Loading ALL 4 tabs for new date:", dateStr);
@@ -393,7 +393,7 @@ const PersonalSchedule = ({ userId }) => {
       setStatusUpdateLoading(true);
       await updateAppointmentDetailStatus(detailId, newStatus);
 
-      toast.success("Cập nhật trạng thái thành công!");
+      showToast.success("Cập nhật trạng thái thành công!");
 
       // Smart refetch: Update both current tab and new status tab
       const date = selectedDate.toISOString().split("T")[0];
@@ -416,19 +416,76 @@ const PersonalSchedule = ({ userId }) => {
       );
     } catch (error) {
       console.error("Error updating status:", error);
-      // toast.error("Lỗi khi cập nhật trạng thái!");
+      showToast.error("Lỗi khi cập nhật trạng thái!");
     } finally {
       setStatusUpdateLoading(false);
     }
   };
 
   // Handle start examination (CHECKED -> IN_PROGRESS)
-  const handleStartExamination = (detailId) => {
-    handleStatusUpdate(
-      detailId,
-      "IN_PROGRESS",
-      "Bạn có chắc chắn muốn bắt đầu khám bệnh cho dịch vụ này?"
-    );
+  const handleStartExamination = async (detailId, startUrl = null) => {
+    try {
+      const confirmed = await new Promise((resolve) => {
+        Modal.confirm({
+          title: "Xác nhận thay đổi trạng thái",
+          content: "Bạn có chắc chắn muốn bắt đầu khám bệnh cho dịch vụ này?",
+          okText: "Xác nhận",
+          cancelText: "Hủy",
+          onOk: () => resolve(true),
+          onCancel: () => resolve(false),
+        });
+      });
+
+      if (!confirmed) return;
+
+      // Get current status before update
+      const statusMap = {
+        checked: "CHECKED",
+        in_progress: "IN_PROGRESS",
+        waiting_result: "WAITING_RESULT",
+        completed: "COMPLETED",
+      };
+      const currentStatus = statusMap[activeTab] || "CHECKED";
+
+      setStatusUpdateLoading(true);
+      await updateAppointmentDetailStatus(detailId, "IN_PROGRESS");
+
+      showToast.success("Cập nhật trạng thái thành công!");
+
+      // Smart refetch: Update both current tab and new status tab
+      const date = selectedDate.toISOString().split("T")[0];
+
+      console.log(` [STATUS UPDATE] Refetching data after status change:`);
+      console.log(`   - Current tab status: ${currentStatus}`);
+      console.log(`   - New status: IN_PROGRESS`);
+
+      // Create array of statuses to refetch (avoid duplicates)
+      const statusesToRefetch = [...new Set([currentStatus, "IN_PROGRESS"])];
+
+      // Refetch both statuses in parallel
+      const refetchPromises = statusesToRefetch.map(
+        (status) => loadAppointmentsByStatus(date, status, false) // Don't use cache for status updates
+      );
+
+      await Promise.allSettled(refetchPromises);
+      console.log(
+        `[STATUS UPDATE] Refetched ${statusesToRefetch.length} tab(s) successfully`
+      );
+
+      // Mở link Zoom sau khi cập nhật trạng thái thành công
+      if (startUrl) {
+        console.log(
+          "[ZOOM] Opening Zoom link after successful status update:",
+          startUrl
+        );
+        window.open(startUrl, "_blank");
+      }
+    } catch (error) {
+      console.error("Error updating status:", error);
+      showToast.error("Lỗi khi cập nhật trạng thái!");
+    } finally {
+      setStatusUpdateLoading(false);
+    }
   };
 
   // Handle wait for result (IN_PROGRESS -> WAITING_RESULT)
@@ -443,13 +500,6 @@ const PersonalSchedule = ({ userId }) => {
   // Get columns based on current tab - hide medical result column for non-completed tabs
   const getDetailColumns = () => {
     const baseColumns = [
-      {
-        title: "Mã dịch vụ",
-        dataIndex: "id",
-        key: "detailId",
-        width: 100,
-        render: (id) => <strong>#{id}</strong>,
-      },
       {
         title: "Thông tin bệnh nhân",
         key: "patientInfo",
@@ -475,26 +525,18 @@ const PersonalSchedule = ({ userId }) => {
 
           return (
             <div>
-              <div
-                style={{
-                  fontWeight: "bold",
-                  color: "#1890ff",
-                  fontSize: "14px",
-                }}
-              >
+              <div className="patient-info-name">
                 <UserOutlined /> {detail.customerName || "Chưa có tên"}
               </div>
-              <div
-                style={{ fontSize: "12px", color: "#666", marginTop: "4px" }}
-              >
-                📅 Ngày hẹn:{" "}
+              <div className="patient-info-date">
+                Ngày hẹn:{" "}
                 {new Date(detail.preferredDate).toLocaleDateString("vi-VN")}
               </div>
-              <div style={{ fontSize: "12px", color: "#666" }}>
+              <div className="patient-info-appointment">
                 🆔 Lịch hẹn: #{detail.appointmentId}
               </div>
               {/* Patient Detail Button */}
-              <div style={{ marginTop: "6px" }}>
+              <div className="patient-detail-button-container">
                 <PatientDetailButton
                   patientId={detail.customerId || appointment?.customerId}
                   patientName={
@@ -523,11 +565,7 @@ const PersonalSchedule = ({ userId }) => {
               <Tag color={statusInfo.color} icon={statusInfo.icon}>
                 {statusInfo.text}
               </Tag>
-              <div
-                style={{ fontSize: "11px", color: "#999", marginTop: "2px" }}
-              >
-                {statusInfo.description}
-              </div>
+              <div className="status-description">{statusInfo.description}</div>
             </div>
           );
         },
@@ -538,12 +576,8 @@ const PersonalSchedule = ({ userId }) => {
         width: 200,
         render: (_, detail) => (
           <div>
-            <div
-              style={{ fontWeight: "bold", fontSize: "14px", color: "#52c41a" }}
-            >
-              🏥 {detail.serviceName}
-            </div>
-            <div style={{ fontSize: "12px", color: "#666", marginTop: "4px" }}>
+            <div className="service-name">🏥 {detail.serviceName}</div>
+            <div className="service-time">
               ⏰{" "}
               {new Date(detail.slotTime).toLocaleString("vi-VN", {
                 hour: "2-digit",
@@ -553,7 +587,7 @@ const PersonalSchedule = ({ userId }) => {
                 year: "numeric",
               })}
             </div>
-            <div style={{ fontSize: "12px", color: "#666" }}>
+            <div className="service-consultant">
               👨‍⚕️ {detail.consultantName || `Bác sĩ #${detail.consultantId}`}
             </div>
           </div>
@@ -585,19 +619,18 @@ const PersonalSchedule = ({ userId }) => {
                       detail.serviceType === "CONSULTING_ON" &&
                       detail.startUrl
                     ) {
-                      // Mở link tư vấn online và chuyển trạng thái
-                      window.open(detail.startUrl, "_blank");
-                      handleStartExamination(id);
+                      // Chuyển trạng thái trước, sau đó mở link tư vấn online
+                      handleStartExamination(id, detail.startUrl);
                     } else {
                       // Chỉ chuyển trạng thái cho dịch vụ thông thường
                       handleStartExamination(id);
                     }
                   }}
                   loading={statusUpdateLoading}
-                  style={
+                  className={
                     detail.serviceType === "CONSULTING_ON" && detail.startUrl
-                      ? { backgroundColor: "#52c41a", borderColor: "#52c41a" }
-                      : {}
+                      ? "action-button-consulting"
+                      : ""
                   }
                 >
                   {detail.serviceType === "CONSULTING_ON" && detail.startUrl
@@ -613,7 +646,7 @@ const PersonalSchedule = ({ userId }) => {
                   icon={<ExclamationCircleOutlined />}
                   onClick={() => handleWaitForResult(id)}
                   loading={statusUpdateLoading}
-                  style={{ backgroundColor: "#fa8c16", borderColor: "#fa8c16" }}
+                  className="action-button-waiting"
                 >
                   Chờ kết quả
                 </Button>
@@ -636,22 +669,14 @@ const PersonalSchedule = ({ userId }) => {
                     setSelectedAppointmentDetail(detail);
                     setIsResultModalVisible(true);
                   }}
-                  style={{ backgroundColor: "#52c41a", borderColor: "#52c41a" }}
+                  className="action-button-result"
                 >
                   Nhập kết quả
                 </Button>
               )}
 
               {status === "COMPLETED" && (
-                <div
-                  style={{
-                    color: "#52c41a",
-                    fontSize: "12px",
-                    fontWeight: "bold",
-                  }}
-                >
-                  Đã hoàn thành
-                </div>
+                <div className="completed-status">Đã hoàn thành</div>
               )}
             </Space>
           );
@@ -796,42 +821,27 @@ const PersonalSchedule = ({ userId }) => {
   ];
 
   return (
-    <div style={{ padding: "10px" }}>
-      <div style={{ marginBottom: "24px" }}>
-        <h1 style={{ margin: 0, fontSize: "19px", color: "#1890ff" }}>
+    <div className="personal-schedule-container">
+      <div className="personal-schedule-header">
+        <h1 className="personal-schedule-title">
           <CalendarOutlined /> Lịch Tư Vấn Cá Nhân
         </h1>
-        <p style={{ color: "#666", margin: "8px 0 0 0" }}>
+        <p className="personal-schedule-subtitle">
           Quản lý lịch hẹn và theo dõi tiến trình khám bệnh
         </p>
       </div>
 
       {/* Statistics Cards - Compact Version */}
-      <Row gutter={12} style={{ marginBottom: "16px" }}>
+      <Row gutter={12} className="statistics-row">
         <Col span={6}>
           <Card
             size="small"
             styles={{ body: { padding: "12px" } }}
-            style={{ textAlign: "center" }}
+            className="statistics-card"
           >
-            <div
-              style={{
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                gap: "8px",
-              }}
-            >
-              <CalendarOutlined
-                style={{ color: "#1890ff", fontSize: "18px" }}
-              />
-              <span
-                style={{
-                  fontSize: "16px",
-                  color: "#1890ff",
-                  fontWeight: "500",
-                }}
-              >
+            <div className="statistics-card-content">
+              <CalendarOutlined className="statistics-icon total" />
+              <span className="statistics-text total">
                 Tổng dịch vụ ({totalDetails})
               </span>
             </div>
@@ -841,26 +851,11 @@ const PersonalSchedule = ({ userId }) => {
           <Card
             size="small"
             styles={{ body: { padding: "12px" } }}
-            style={{ textAlign: "center" }}
+            className="statistics-card"
           >
-            <div
-              style={{
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                gap: "8px",
-              }}
-            >
-              <CheckCircleOutlined
-                style={{ color: "#F4AF24", fontSize: "18px" }}
-              />
-              <span
-                style={{
-                  fontSize: "16px",
-                  color: "#F4AF24",
-                  fontWeight: "500",
-                }}
-              >
+            <div className="statistics-card-content">
+              <CheckCircleOutlined className="statistics-icon checked" />
+              <span className="statistics-text checked">
                 Đã check in ({checkedCount})
               </span>
             </div>
@@ -870,26 +865,11 @@ const PersonalSchedule = ({ userId }) => {
           <Card
             size="small"
             styles={{ body: { padding: "12px" } }}
-            style={{ textAlign: "center" }}
+            className="statistics-card"
           >
-            <div
-              style={{
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                gap: "8px",
-              }}
-            >
-              <ExclamationCircleOutlined
-                style={{ color: "#F46D0B", fontSize: "18px" }}
-              />
-              <span
-                style={{
-                  fontSize: "16px",
-                  color: "#F46D0B",
-                  fontWeight: "500",
-                }}
-              >
+            <div className="statistics-card-content">
+              <ExclamationCircleOutlined className="statistics-icon waiting" />
+              <span className="statistics-text waiting">
                 Chờ kết quả ({waitingResultCount})
               </span>
             </div>
@@ -899,26 +879,11 @@ const PersonalSchedule = ({ userId }) => {
           <Card
             size="small"
             styles={{ body: { padding: "12px" } }}
-            style={{ textAlign: "center" }}
+            className="statistics-card"
           >
-            <div
-              style={{
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                gap: "8px",
-              }}
-            >
-              <CheckCircleOutlined
-                style={{ color: "#52c41a", fontSize: "18px" }}
-              />
-              <span
-                style={{
-                  fontSize: "16px",
-                  color: "#52c41a",
-                  fontWeight: "500",
-                }}
-              >
+            <div className="statistics-card-content">
+              <CheckCircleOutlined className="statistics-icon completed" />
+              <span className="statistics-text completed">
                 Hoàn thành ({completedCount})
               </span>
             </div>
@@ -927,9 +892,9 @@ const PersonalSchedule = ({ userId }) => {
       </Row>
 
       {/* Date Picker */}
-      <Card style={{ marginBottom: "16px" }}>
-        <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
-          <span style={{ fontWeight: "bold" }}>
+      <Card className="date-picker-card">
+        <div className="date-picker-container">
+          <span className="date-picker-label">
             <CalendarOutlined /> Chọn ngày:
           </span>
           <DatePicker
@@ -954,17 +919,17 @@ const PersonalSchedule = ({ userId }) => {
             }}
             format="DD/MM/YYYY"
             placeholder="Chọn ngày"
-            style={{ width: "200px" }}
+            className="date-picker-input"
             allowClear={false}
           />
-          <span style={{ color: "#666" }}>
+          <span className="date-picker-info">
             Hiển thị lịch hẹn ngày {selectedDate.toLocaleDateString("vi-VN")}
           </span>
           {!showDebugPanel && (
             <Button
               size="small"
               onClick={() => setShowDebugPanel(true)}
-              style={{ marginLeft: "auto" }}
+              className="debug-button"
             >
               Debug
             </Button>
@@ -974,23 +939,16 @@ const PersonalSchedule = ({ userId }) => {
 
       {/* Debug Panel */}
       {showDebugPanel && (
-        <Card style={{ marginBottom: "16px", borderColor: "#1890ff" }}>
-          <div
-            style={{
-              display: "flex",
-              justifyContent: "space-between",
-              alignItems: "center",
-              marginBottom: "12px",
-            }}
-          >
-            <h4 style={{ margin: 0, color: "#1890ff" }}> Debug Panel</h4>
+        <Card className="debug-panel-card">
+          <div className="debug-panel-header">
+            <h4 className="debug-panel-title"> Debug Panel</h4>
             <Button size="small" onClick={() => setShowDebugPanel(false)}>
               Ẩn
             </Button>
           </div>
 
           {lastApiResponse ? (
-            <div style={{ fontSize: "12px" }}>
+            <div className="debug-panel-content">
               <p>
                 <strong>Lần gọi API cuối:</strong> {lastApiResponse.timestamp}
               </p>
@@ -1007,15 +965,7 @@ const PersonalSchedule = ({ userId }) => {
               </p>
               <details>
                 <summary>Dữ liệu thô</summary>
-                <pre
-                  style={{
-                    fontSize: "11px",
-                    maxHeight: "150px",
-                    overflow: "auto",
-                    background: "#f5f5f5",
-                    padding: "8px",
-                  }}
-                >
+                <pre className="debug-panel-raw-data">
                   {JSON.stringify(lastApiResponse.data, null, 2)}
                 </pre>
               </details>
@@ -1051,21 +1001,13 @@ const PersonalSchedule = ({ userId }) => {
           }}
           locale={{
             emptyText: (
-              <div style={{ padding: "40px", textAlign: "center" }}>
-                <CalendarOutlined
-                  style={{
-                    fontSize: "48px",
-                    color: "#ccc",
-                    marginBottom: "16px",
-                  }}
-                />
-                <div style={{ color: "#999" }}>
+              <div className="empty-state-container">
+                <CalendarOutlined className="empty-state-icon" />
+                <div className="empty-state-message">
                   Không có dịch vụ nào trong tab này cho ngày{" "}
                   {selectedDate.toLocaleDateString("vi-VN")}
                 </div>
-                <div
-                  style={{ color: "#ccc", fontSize: "12px", marginTop: "8px" }}
-                >
+                <div className="empty-state-hint">
                   Hãy thử chọn ngày khác hoặc kiểm tra tab khác
                 </div>
               </div>
@@ -1081,7 +1023,7 @@ const PersonalSchedule = ({ userId }) => {
         onOk={() => {
           consultForm.validateFields().then((values) => {
             console.log("Consultation data:", values);
-            toast.success("Tư vấn đã được ghi nhận!");
+            showToast.success("Tư vấn đã được ghi nhận!");
             setIsConsultationModalVisible(false);
             consultForm.resetFields();
           });
@@ -1130,7 +1072,7 @@ const PersonalSchedule = ({ userId }) => {
             appointmentDetail={selectedAppointmentDetail}
             onSuccess={async (result) => {
               console.log("Medical result submitted successfully:", result);
-              toast.success("Đã lưu kết quả xét nghiệm thành công!");
+              showToast.success("Đã lưu kết quả xét nghiệm thành công!");
 
               try {
                 // Update appointment detail status to COMPLETED after submitting medical result
@@ -1196,7 +1138,7 @@ const PersonalSchedule = ({ userId }) => {
             appointmentDetail={selectedAppointmentDetail}
             onSuccess={async (result) => {
               console.log("Medical result submitted successfully:", result);
-              toast.success("Đã lưu kết quả khám bệnh thành công!");
+              showToast.success("Đã lưu kết quả khám bệnh thành công!");
 
               try {
                 // Update appointment detail status to COMPLETED after submitting medical result
