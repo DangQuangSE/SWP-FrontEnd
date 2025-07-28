@@ -79,7 +79,7 @@ const WriteBlogs = ({ userId, selectedTab }) => {
       const token = localStorage.getItem("token");
       // Consultant: lấy tất cả blog của mình (mọi trạng thái)
       const apiUrl = `${API_BASE_URL}/blog/my-blogs?page=${page}&size=${size}`;
-      console.log("🔍 Consultant loading all blogs from:", apiUrl);
+      console.log(" Consultant loading all blogs from:", apiUrl);
 
       const res = await axios.get(apiUrl, {
         headers: token ? { Authorization: `Bearer ${token}` } : {},
@@ -138,7 +138,7 @@ const WriteBlogs = ({ userId, selectedTab }) => {
     try {
       const token = localStorage.getItem("token");
       const apiUrl = `${API_BASE_URL}/blog/my-blogs/by-status?status=${status}&page=${page}&size=${size}`;
-      console.log("🔍 Consultant loading blogs by status from:", apiUrl);
+      console.log(" Consultant loading blogs by status from:", apiUrl);
 
       const res = await axios.get(apiUrl, {
         headers: token ? { Authorization: `Bearer ${token}` } : {},
@@ -213,7 +213,7 @@ const WriteBlogs = ({ userId, selectedTab }) => {
       );
       setTags(activeTags);
     } catch (error) {
-      console.error("❌ Load tags error:", error);
+      console.error(" Load tags error:", error);
       setTagOptions([]);
       setTags([]);
     }
@@ -592,7 +592,7 @@ const WriteBlogs = ({ userId, selectedTab }) => {
 
       toast.success("Cập nhật blog thành công!");
     } catch (error) {
-      console.error("❌ Edit blog error:", error);
+      console.error(" Edit blog error:", error);
       const errorMessage =
         error.response?.data?.message ||
         error.response?.data?.error ||
@@ -620,7 +620,7 @@ const WriteBlogs = ({ userId, selectedTab }) => {
         await loadBlogsByStatus(selectedStatus);
       }
     } catch (error) {
-      console.error("❌ Delete blog error:", error);
+      console.error(" Delete blog error:", error);
       const errorMessage =
         error.response?.data?.message ||
         error.response?.data?.error ||

@@ -51,10 +51,10 @@ class UnifiedChatAPIService {
         );
       }
 
-      console.log(`✅ [UNIFIED CHAT] Message sent successfully:`, response);
+      console.log(`[UNIFIED CHAT] Message sent successfully:`, response);
       return response;
     } catch (error) {
-      console.error(`❌ [UNIFIED CHAT] Failed to send message:`, error);
+      console.error(` [UNIFIED CHAT] Failed to send message:`, error);
       throw error;
     }
   }
@@ -82,14 +82,14 @@ class UnifiedChatAPIService {
         messages = await customerChatAPI.getSessionMessages(sessionId);
       }
 
-      console.log(`✅ [UNIFIED CHAT] Messages fetched:`, {
+      console.log(`[UNIFIED CHAT] Messages fetched:`, {
         count: messages?.length || 0,
         isStaff,
       });
 
       return messages || [];
     } catch (error) {
-      console.error(`❌ [UNIFIED CHAT] Failed to fetch messages:`, error);
+      console.error(` [UNIFIED CHAT] Failed to fetch messages:`, error);
 
       // For customer side, return empty array on error to allow chat to continue
       if (!isStaff) {

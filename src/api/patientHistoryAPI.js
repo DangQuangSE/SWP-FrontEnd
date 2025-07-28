@@ -28,13 +28,13 @@ export const getPatientMedicalHistory = async (
     );
 
     console.log(
-      "✅ [API] Patient medical history loaded successfully:",
+      "[API] Patient medical history loaded successfully:",
       response.data
     );
     return response;
   } catch (error) {
-    console.error("❌ [API] Error getting patient medical history:", error);
-    console.error("❌ [API] Error details:", {
+    console.error(" [API] Error getting patient medical history:", error);
+    console.error(" [API] Error details:", {
       message: error.message,
       status: error.response?.status,
       data: error.response?.data,
@@ -56,13 +56,10 @@ export const getPatientBasicInfo = async (patientId) => {
       `/medical-profile/patient/${patientId}/basic`
     );
 
-    console.log(
-      "✅ [API] Patient basic info loaded successfully:",
-      response.data
-    );
+    console.log("[API] Patient basic info loaded successfully:", response.data);
     return response;
   } catch (error) {
-    console.error("❌ [API] Error getting patient basic info:", error);
+    console.error(" [API] Error getting patient basic info:", error);
     throw error;
   }
 };
@@ -83,7 +80,7 @@ export const searchPatients = async (
   size = 10
 ) => {
   try {
-    console.log(`🔍 [API] Searching patients with params:`, searchParams);
+    console.log(` [API] Searching patients with params:`, searchParams);
 
     const response = await api.get("/medical-profile/patients/search", {
       params: {
@@ -93,13 +90,10 @@ export const searchPatients = async (
       },
     });
 
-    console.log(
-      "✅ [API] Patient search completed successfully:",
-      response.data
-    );
+    console.log("[API] Patient search completed successfully:", response.data);
     return response;
   } catch (error) {
-    console.error("❌ [API] Error searching patients:", error);
+    console.error(" [API] Error searching patients:", error);
     throw error;
   }
 };
@@ -117,7 +111,7 @@ export const getPatientAppointments = async (
   size = 10
 ) => {
   try {
-    console.log(`📅 [API] Getting patient appointments for ID: ${patientId}`);
+    console.log(` [API] Getting patient appointments for ID: ${patientId}`);
 
     const response = await api.get(
       `/medical-profile/patient/${patientId}/appointments`,
@@ -130,12 +124,12 @@ export const getPatientAppointments = async (
     );
 
     console.log(
-      "✅ [API] Patient appointments loaded successfully:",
+      "[API] Patient appointments loaded successfully:",
       response.data
     );
     return response;
   } catch (error) {
-    console.error("❌ [API] Error getting patient appointments:", error);
+    console.error(" [API] Error getting patient appointments:", error);
     throw error;
   }
 };
@@ -162,12 +156,12 @@ export const getPatientTestResults = async (patientId, page = 0, size = 10) => {
     );
 
     console.log(
-      "✅ [API] Patient test results loaded successfully:",
+      "[API] Patient test results loaded successfully:",
       response.data
     );
     return response;
   } catch (error) {
-    console.error("❌ [API] Error getting patient test results:", error);
+    console.error(" [API] Error getting patient test results:", error);
     throw error;
   }
 };
@@ -190,10 +184,10 @@ export const exportPatientHistoryToPDF = async (patientId) => {
       }
     );
 
-    console.log("✅ [API] Patient history PDF exported successfully");
+    console.log("[API] Patient history PDF exported successfully");
     return response;
   } catch (error) {
-    console.error("❌ [API] Error exporting patient history to PDF:", error);
+    console.error(" [API] Error exporting patient history to PDF:", error);
     throw error;
   }
 };
@@ -211,13 +205,10 @@ export const getPatientStatistics = async (patientId) => {
       `/medical-profile/patient/${patientId}/statistics`
     );
 
-    console.log(
-      "✅ [API] Patient statistics loaded successfully:",
-      response.data
-    );
+    console.log("[API] Patient statistics loaded successfully:", response.data);
     return response;
   } catch (error) {
-    console.error("❌ [API] Error getting patient statistics:", error);
+    console.error(" [API] Error getting patient statistics:", error);
     throw error;
   }
 };

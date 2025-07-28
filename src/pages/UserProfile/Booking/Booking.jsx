@@ -59,8 +59,8 @@ const createAppointmentNotification = async (appointmentId) => {
       );
     }
   } catch (error) {
-    console.error("❌ [NOTIFICATION] Error creating notification:", error);
-    console.error("❌ [NOTIFICATION] Error details:", error.response?.data);
+    console.error(" [NOTIFICATION] Error creating notification:", error);
+    console.error(" [NOTIFICATION] Error details:", error.response?.data);
     // Don't show error to user as this is not critical for booking flow
   }
 };
@@ -143,7 +143,7 @@ const Booking = () => {
       setResultModalVisible(true);
     } else {
       console.log(
-        "❌ [BOOKING] No medical result or profile found in appointment structure"
+        " [BOOKING] No medical result or profile found in appointment structure"
       );
       message.warning("Chưa có kết quả khám cho lịch hẹn này!");
     }
@@ -152,13 +152,13 @@ const Booking = () => {
   // Function to verify VNPay payment with backend
   const verifyVNPayPayment = useCallback(async (urlParams) => {
     try {
-      console.log("🔍 Verifying VNPay payment with backend...");
+      console.log(" Verifying VNPay payment with backend...");
       const response = await api.get("/payment/vnpay/vnpay-return", {
         params: Object.fromEntries(urlParams.entries()),
       });
-      console.log("✅ VNPay verification response:", response.data);
+      console.log("VNPay verification response:", response.data);
     } catch (error) {
-      console.error("❌ Error verifying VNPay payment:", error);
+      console.error(" Error verifying VNPay payment:", error);
       message.error("Có lỗi khi xác thực thanh toán với server.");
     }
   }, []);
@@ -215,7 +215,7 @@ const Booking = () => {
           `/zoom/test-create-meeting?appointmentId=${appointmentId}`
         );
 
-        console.log("✅ Zoom meeting created successfully:", zoomResponse.data);
+        console.log("Zoom meeting created successfully:", zoomResponse.data);
         message.success("Phòng tư vấn online đã được tạo!");
 
         // Refresh appointments để lấy joinUrl mới
@@ -223,7 +223,7 @@ const Booking = () => {
           fetchAppointments();
         }, 1000);
       } catch (error) {
-        console.error("❌ Error creating Zoom meeting:", error);
+        console.error(" Error creating Zoom meeting:", error);
       }
     },
     [fetchAppointments]
@@ -277,15 +277,15 @@ const Booking = () => {
 
   // Handle VNPay payment result from URL params
   useEffect(() => {
-    console.log("🔍 useEffect for VNPay return is running...");
-    console.log("🔍 Current search params:", search);
+    console.log(" useEffect for VNPay return is running...");
+    console.log(" Current search params:", search);
 
     const query = new URLSearchParams(search);
     const vnpResponseCode = query.get("vnp_ResponseCode");
     const vnpTransactionStatus = query.get("vnp_TransactionStatus");
     const vnpTxnRef = query.get("vnp_TxnRef");
 
-    console.log("🔍 Extracted parameters:", {
+    console.log(" Extracted parameters:", {
       vnpResponseCode,
       vnpTransactionStatus,
       vnpTxnRef,
@@ -294,8 +294,8 @@ const Booking = () => {
 
     // Check for VNPay return parameters
     if (vnpResponseCode && !paymentMessageShown.current) {
-      console.log("🔍 VNPay Return detected in Booking page!");
-      console.log("🔍 VNPay Return parameters:", {
+      console.log(" VNPay Return detected in Booking page!");
+      console.log(" VNPay Return parameters:", {
         vnpResponseCode,
         vnpTransactionStatus,
         vnpTxnRef,
@@ -313,7 +313,7 @@ const Booking = () => {
         verifyVNPayPayment(query);
 
         // Tạo Zoom meeting cho appointment vừa thanh toán
-        console.log("🎯 Payment successful! Creating Zoom meeting...");
+        console.log(" Payment successful! Creating Zoom meeting...");
 
         // Delay một chút để backend cập nhật status, sau đó lấy appointments CONFIRMED
         setTimeout(async () => {
@@ -335,7 +335,7 @@ const Booking = () => {
               const appointmentId = latestAppointment.id;
 
               console.log(
-                "🆔 Creating Zoom for latest appointmentId:",
+                " Creating Zoom for latest appointmentId:",
                 appointmentId
               );
 
@@ -345,7 +345,7 @@ const Booking = () => {
               createZoomMeeting(appointmentId);
             }
           } catch (error) {
-            console.error("❌ Error fetching confirmed appointments:", error);
+            console.error(" Error fetching confirmed appointments:", error);
           }
         }, 2000); // Delay 2 giây để backend cập nhật
       } else if (vnpResponseCode === "24") {

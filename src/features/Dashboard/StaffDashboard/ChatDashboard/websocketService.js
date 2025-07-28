@@ -51,14 +51,14 @@ class ChatWebSocketService {
         };
 
         socket.onerror = (error) => {
-          console.error("❌ [SOCKJS] Error:", error);
+          console.error(" [SOCKJS] Error:", error);
         };
 
         this.stompClient = Stomp.over(socket);
 
         // Enable debug logs để xem chi tiết
         this.stompClient.debug = (str) => {
-          console.log("🔍 [STOMP DEBUG]:", str);
+          console.log(" [STOMP DEBUG]:", str);
         };
 
         console.log("🔌 [WEBSOCKET] Attempting STOMP connection...");
@@ -69,16 +69,16 @@ class ChatWebSocketService {
             // Có thể thêm auth headers nếu cần
           },
           (frame) => {
-            console.log("✅ [WEBSOCKET] Connected successfully!");
-            console.log("✅ [WEBSOCKET] Frame:", frame);
-            console.log("✅ [WEBSOCKET] Session ID:", frame.headers["session"]);
+            console.log("[WEBSOCKET] Connected successfully!");
+            console.log("[WEBSOCKET] Frame:", frame);
+            console.log("[WEBSOCKET] Session ID:", frame.headers["session"]);
             this.connected = true;
             this.connecting = false;
             this.reconnectAttempts = 0;
             resolve();
           },
           (error) => {
-            console.error("❌ [WEBSOCKET] Connection error:", error);
+            console.error(" [WEBSOCKET] Connection error:", error);
             this.connected = false;
             this.connecting = false;
             this.handleReconnect();
@@ -119,8 +119,8 @@ class ChatWebSocketService {
    */
   subscribe(destination, callback) {
     if (!this.connected || !this.stompClient) {
-      console.error("❌ [SUBSCRIPTION] WebSocket not connected");
-      console.error("❌ [SUBSCRIPTION] Connection state:", {
+      console.error(" [SUBSCRIPTION] WebSocket not connected");
+      console.error(" [SUBSCRIPTION] Connection state:", {
         connected: this.connected,
         stompClient: !!this.stompClient,
         connecting: this.connecting,
@@ -158,10 +158,10 @@ class ChatWebSocketService {
             }
           } catch (error) {
             console.error(
-              `❌ [MESSAGE] Error parsing message from ${destination}:`,
+              ` [MESSAGE] Error parsing message from ${destination}:`,
               error
             );
-            console.error(`❌ [MESSAGE] Raw body:`, message.body);
+            console.error(` [MESSAGE] Raw body:`, message.body);
             if (callback) {
               callback(message.body);
             }
@@ -170,18 +170,16 @@ class ChatWebSocketService {
       );
 
       this.subscriptions.set(destination, subscription);
+      console.log(`[SUBSCRIPTION] Successfully subscribed to: ${destination}`);
+      console.log(`[SUBSCRIPTION] Subscription object:`, subscription);
       console.log(
-        `✅ [SUBSCRIPTION] Successfully subscribed to: ${destination}`
-      );
-      console.log(`✅ [SUBSCRIPTION] Subscription object:`, subscription);
-      console.log(
-        `✅ [SUBSCRIPTION] Total subscriptions:`,
+        `[SUBSCRIPTION] Total subscriptions:`,
         this.subscriptions.size
       );
       return subscription;
     } catch (error) {
       console.error(
-        "❌ [SUBSCRIPTION] Error subscribing to destination:",
+        " [SUBSCRIPTION] Error subscribing to destination:",
         destination,
         error
       );

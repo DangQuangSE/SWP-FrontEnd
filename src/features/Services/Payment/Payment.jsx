@@ -19,12 +19,12 @@ const Payment = () => {
     if (vnpResponseCode) {
       // User quay lại từ VNPay
       if (vnpResponseCode === "00") {
-        console.log("✅ [DEBUG] VNPay payment successful");
-        console.log("✅ [DEBUG] VNPay booking data:", booking);
+        console.log("[DEBUG] VNPay payment successful");
+        console.log("[DEBUG] VNPay booking data:", booking);
 
         // Thanh toán thành công
         const appointmentId = booking?.appointmentId;
-        console.log("🆔 [DEBUG] VNPay appointmentId:", appointmentId);
+        console.log(" [DEBUG] VNPay appointmentId:", appointmentId);
 
         localStorage.removeItem("pendingBooking");
         message.success("Thanh toán thành công!");
@@ -32,7 +32,7 @@ const Payment = () => {
         setLoading(false);
 
         setTimeout(() => {
-          console.log("🔄 [DEBUG] VNPay - Navigating to /user/booking");
+          console.log("[DEBUG] VNPay - Navigating to /user/booking");
           navigate("/user/booking");
         }, 2000);
       } else {
@@ -94,7 +94,7 @@ const Payment = () => {
 
           // Kiểm tra responseCode để xử lý kết quả tạo payment giống VNPay
           if (res.data.responseCode === 0 && res.data.url) {
-            console.log("✅ [DEBUG] Payment URL created successfully");
+            console.log("[DEBUG] Payment URL created successfully");
             // Tạo payment URL thành công, chuyển hướng đến VNPay
             const payUrl = res.data.url;
             console.log("🔗 [DEBUG] Payment URL:", payUrl);
@@ -107,14 +107,14 @@ const Payment = () => {
             );
             // Chuyển hướng sau 5 giây
             setTimeout(() => {
-              console.log("🔄 [DEBUG] Redirecting now to:", payUrl);
+              console.log("[DEBUG] Redirecting now to:", payUrl);
               window.location.href = payUrl;
             }, 5000);
           } else if (res.data.responseCode === 0 && !res.data.url) {
-            console.log("✅ [DEBUG] Direct payment successful without URL");
+            console.log("[DEBUG] Direct payment successful without URL");
             // Trường hợp đặc biệt: responseCode = 0 nhưng không có URL
             const appointmentId = booking.appointmentId;
-            console.log("🆔 [DEBUG] AppointmentId for Zoom:", appointmentId);
+            console.log(" [DEBUG] AppointmentId for Zoom:", appointmentId);
 
             localStorage.removeItem("pendingBooking");
             message.success(res.data.message || "Đặt chỗ thành công!");
@@ -122,13 +122,13 @@ const Payment = () => {
             setLoading(false);
 
             setTimeout(() => {
-              console.log("🔄 [DEBUG] Navigating to /user/booking");
+              console.log("[DEBUG] Navigating to /user/booking");
               navigate("/user/booking");
             }, 2000);
           } else {
-            console.error("❌ [DEBUG] Payment creation failed");
-            console.error("❌ [DEBUG] Response code:", res.data.responseCode);
-            console.error("❌ [DEBUG] Response message:", res.data.message);
+            console.error(" [DEBUG] Payment creation failed");
+            console.error(" [DEBUG] Response code:", res.data.responseCode);
+            console.error(" [DEBUG] Response message:", res.data.message);
 
             // Lỗi tạo payment
             localStorage.removeItem("pendingBooking");
@@ -141,14 +141,11 @@ const Payment = () => {
             }, 3000);
           }
         } catch (error) {
-          console.error("❌ [DEBUG] Error in direct payment:", error);
-          console.error("❌ [DEBUG] Error response:", error.response);
+          console.error(" [DEBUG] Error in direct payment:", error);
+          console.error(" [DEBUG] Error response:", error.response);
+          console.error(" [DEBUG] Error response data:", error.response?.data);
           console.error(
-            "❌ [DEBUG] Error response data:",
-            error.response?.data
-          );
-          console.error(
-            "❌ [DEBUG] Error response status:",
+            " [DEBUG] Error response status:",
             error.response?.status
           );
 

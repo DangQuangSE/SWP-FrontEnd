@@ -53,7 +53,7 @@ const CommentForm = ({ blogId, user, onCommentAdded, onRefresh }) => {
       }
 
       const newComment = await response.json();
-      console.log("✅ Comment created successfully:", newComment);
+      console.log("Comment created successfully:", newComment);
 
       // Transform the response to match our comment structure
       const transformedComment = {
@@ -70,7 +70,7 @@ const CommentForm = ({ blogId, user, onCommentAdded, onRefresh }) => {
       if (typeof onRefresh === "function") onRefresh();
       toast.success("Đã thêm bình luận thành công!");
     } catch (error) {
-      console.error("❌ Error creating comment:", error);
+      console.error(" Error creating comment:", error);
 
       let errorMessage = "Có lỗi xảy ra khi gửi bình luận";
       if (error.message.includes("401")) {

@@ -87,7 +87,7 @@ const BlogManagement = ({ userId, selectedTab }) => {
 
       // Sử dụng endpoint admin/all theo API documentation
       const apiUrl = `${API_BASE_URL}/blog/admin/all?page=${page}&size=${size}`;
-      console.log("🔍 Admin loading all blogs from:", apiUrl);
+      console.log(" Admin loading all blogs from:", apiUrl);
 
       const res = await axios.get(apiUrl, {
         headers: token ? { Authorization: `Bearer ${token}` } : {},
@@ -133,7 +133,7 @@ const BlogManagement = ({ userId, selectedTab }) => {
       });
       setBlogs(processedBlogs);
     } catch (error) {
-      console.error("❌ Load blogs error:", error);
+      console.error(" Load blogs error:", error);
       toast.error(
         `Không thể tải danh sách blog: ${error.message || "Lỗi không xác định"}`
       );
@@ -149,7 +149,7 @@ const BlogManagement = ({ userId, selectedTab }) => {
     try {
       const token = localStorage.getItem("token");
       const apiUrl = `${API_BASE_URL}/blog/admin/by-status?status=${status}&page=${page}&size=${size}`;
-      console.log("🔍 Admin loading blogs by status from:", apiUrl);
+      console.log(" Admin loading blogs by status from:", apiUrl);
 
       const res = await axios.get(apiUrl, {
         headers: token ? { Authorization: `Bearer ${token}` } : {},
@@ -224,7 +224,7 @@ const BlogManagement = ({ userId, selectedTab }) => {
       );
       setTags(activeTags);
     } catch (error) {
-      console.error("❌ Load tags error:", error);
+      console.error(" Load tags error:", error);
       setTagOptions([]);
       setTags([]);
     }
@@ -273,19 +273,19 @@ const BlogManagement = ({ userId, selectedTab }) => {
   // Admin actions for blog approval
   const handleApproveBlog = async (id) => {
     try {
-      console.log("🔄 Đang duyệt blog ID:", id);
+      console.log("Đang duyệt blog ID:", id);
       const blogBefore = blogs.find((b) => b.id === id);
       console.log(" Blog trước khi duyệt:", blogBefore);
 
       const token = localStorage.getItem("token");
       const apiUrl = `${API_BASE_URL}/blog/admin/${id}/approve`;
-      console.log("✅ Approve API:", apiUrl);
+      console.log("Approve API:", apiUrl);
 
       const response = await axios.post(apiUrl, null, {
         headers: token ? { Authorization: `Bearer ${token}` } : {},
       });
 
-      console.log("✅ Approve response:", response.data);
+      console.log("Approve response:", response.data);
       toast.success("Duyệt bài viết thành công!");
 
       // Refresh data ngay lập tức
@@ -300,7 +300,7 @@ const BlogManagement = ({ userId, selectedTab }) => {
         setBlogs([...blogs]);
       }, 500);
     } catch (error) {
-      console.error("❌ Error approving blog:", error);
+      console.error(" Error approving blog:", error);
       toast.error("Duyệt bài viết thất bại!");
     }
   };
@@ -309,7 +309,7 @@ const BlogManagement = ({ userId, selectedTab }) => {
     try {
       const token = localStorage.getItem("token");
       const apiUrl = `${API_BASE_URL}/blog/admin/${id}/reject`;
-      console.log("❌ Reject API:", apiUrl);
+      console.log(" Reject API:", apiUrl);
 
       await axios.post(apiUrl, null, {
         headers: token ? { Authorization: `Bearer ${token}` } : {},
@@ -317,7 +317,7 @@ const BlogManagement = ({ userId, selectedTab }) => {
       toast.success("Từ chối bài viết thành công!");
       loadBlogs();
     } catch (error) {
-      console.error("❌ Error rejecting blog:", error);
+      console.error(" Error rejecting blog:", error);
       toast.error("Từ chối bài viết thất bại!");
     }
   };
@@ -336,7 +336,7 @@ const BlogManagement = ({ userId, selectedTab }) => {
         headers: token ? { Authorization: `Bearer ${token}` } : {},
       });
 
-      console.log("✅ Publish response:", response.data);
+      console.log("Publish response:", response.data);
       toast.success("Đăng bài viết thành công!");
 
       await loadBlogs(); // Tải lại danh sách
@@ -347,7 +347,7 @@ const BlogManagement = ({ userId, selectedTab }) => {
         console.log(" Blog sau khi đăng:", blogAfter);
       }, 1000);
     } catch (error) {
-      console.error("❌ Error publishing blog:", error);
+      console.error(" Error publishing blog:", error);
       toast.error("Đăng bài viết thất bại!");
     }
   };
@@ -360,7 +360,7 @@ const BlogManagement = ({ userId, selectedTab }) => {
     }
 
     try {
-      console.log(`🔍 [DEBUG] Fetching blog detail for ID: ${id}`);
+      console.log(` [DEBUG] Fetching blog detail for ID: ${id}`);
       const res = await fetchBlogDetail(id);
       console.log(`📥 [DEBUG] Blog detail response:`, res.data);
 
@@ -430,9 +430,9 @@ const BlogManagement = ({ userId, selectedTab }) => {
       setSelectedBlog(processedBlog);
       setIsDetailModalVisible(true);
     } catch (error) {
-      console.error(`❌ [DEBUG] Error fetching blog detail:`, error);
-      console.error(`❌ [DEBUG] Error response:`, error.response?.data);
-      console.error(`❌ [DEBUG] Error status:`, error.response?.status);
+      console.error(` [DEBUG] Error fetching blog detail:`, error);
+      console.error(` [DEBUG] Error response:`, error.response?.data);
+      console.error(` [DEBUG] Error status:`, error.response?.status);
 
       toast.error(
         `Không thể tải chi tiết blog: ${error.message || "Lỗi không xác định"}`
@@ -664,7 +664,7 @@ const BlogManagement = ({ userId, selectedTab }) => {
       await loadBlogs();
       toast.success("Cập nhật blog thành công!");
     } catch (error) {
-      console.error("❌ Edit blog error:", error);
+      console.error(" Edit blog error:", error);
       const errorMessage =
         error.response?.data?.message ||
         error.response?.data?.error ||
@@ -1076,7 +1076,7 @@ const BlogManagement = ({ userId, selectedTab }) => {
             type="default"
             icon={<ReloadOutlined />}
             onClick={() => {
-              console.log("🔄 Manual refresh triggered");
+              console.log("Manual refresh triggered");
               loadBlogs();
             }}
             style={{ marginRight: 8 }}
@@ -1237,7 +1237,7 @@ const BlogManagement = ({ userId, selectedTab }) => {
               <Select placeholder="Chọn trạng thái bài viết">
                 <Select.Option value="PENDING">⏳ Chờ duyệt</Select.Option>
                 <Select.Option value="PUBLISHED">🌐 Đã đăng</Select.Option>
-                <Select.Option value="REJECTED">❌ Bị từ chối</Select.Option>
+                <Select.Option value="REJECTED"> Bị từ chối</Select.Option>
               </Select>
             </Form.Item>
 

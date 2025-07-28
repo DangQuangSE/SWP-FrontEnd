@@ -40,7 +40,7 @@ class ChatAPIService {
         return config;
       },
       (error) => {
-        console.error("❌ [STAFF CHAT API] Request Error:", error);
+        console.error(" [STAFF CHAT API] Request Error:", error);
         return Promise.reject(error);
       }
     );
@@ -48,7 +48,7 @@ class ChatAPIService {
     // Response interceptor để handle errors và logging
     this.api.interceptors.response.use(
       (response) => {
-        console.log("✅ [STAFF CHAT API] Response:", {
+        console.log("[STAFF CHAT API] Response:", {
           status: response.status,
           statusText: response.statusText,
           url: response.config.url,
@@ -60,7 +60,7 @@ class ChatAPIService {
         return response;
       },
       (error) => {
-        console.error("❌ [STAFF CHAT API] Response Error:", {
+        console.error(" [STAFF CHAT API] Response Error:", {
           status: error.response?.status,
           statusText: error.response?.statusText,
           url: error.config?.url,
@@ -92,7 +92,7 @@ class ChatAPIService {
         params.status = status;
       }
 
-      console.log("🔍 [STAFF CHAT API] getChatSessions params:", params);
+      console.log(" [STAFF CHAT API] getChatSessions params:", params);
 
       const response = await this.api.get("/chat/sessions", { params });
       return response.data;
@@ -166,10 +166,10 @@ class ChatAPIService {
 
       console.log(" [CHAT API] Sending message:", payload);
       const response = await this.api.post("/chat/send", payload);
-      console.log("✅ [CHAT API] Message sent successfully:", response.data);
+      console.log("[CHAT API] Message sent successfully:", response.data);
       return response.data;
     } catch (error) {
-      console.error("❌ [CHAT API] Error sending chat message:", error);
+      console.error(" [CHAT API] Error sending chat message:", error);
       throw error;
     }
   }
@@ -233,7 +233,7 @@ class ChatAPIService {
    */
   async markMessagesAsRead(sessionId, readerName) {
     try {
-      console.log("✅ [STAFF CHAT API] Marking messages as read:", {
+      console.log("[STAFF CHAT API] Marking messages as read:", {
         sessionId,
         readerName,
       });
@@ -248,16 +248,10 @@ class ChatAPIService {
         }
       );
 
-      console.log(
-        "✅ [STAFF CHAT API] Messages marked as read:",
-        response.data
-      );
+      console.log("[STAFF CHAT API] Messages marked as read:", response.data);
       return response.data;
     } catch (error) {
-      console.error(
-        "❌ [STAFF CHAT API] Error marking messages as read:",
-        error
-      );
+      console.error(" [STAFF CHAT API] Error marking messages as read:", error);
       throw error;
     }
   }
@@ -359,13 +353,11 @@ class ChatAPIService {
       );
 
       const count = response.data || 0;
-      console.log(
-        `✅ [CHAT API] Unread count for session ${sessionId}: ${count}`
-      );
+      console.log(`[CHAT API] Unread count for session ${sessionId}: ${count}`);
       return count;
     } catch (error) {
       console.error(
-        `❌ [CHAT API] Error getting unread count for session ${sessionId}:`,
+        ` [CHAT API] Error getting unread count for session ${sessionId}:`,
         {
           status: error.response?.status,
           statusText: error.response?.statusText,
@@ -393,9 +385,9 @@ class ChatAPIService {
 
       await this.api.delete(`/chat/sessions/${sessionId}/end`);
 
-      console.log(`✅ [CHAT API] Successfully ended session ${sessionId}`);
+      console.log(`[CHAT API] Successfully ended session ${sessionId}`);
     } catch (error) {
-      console.error(`❌ [CHAT API] Error ending session ${sessionId}:`, {
+      console.error(` [CHAT API] Error ending session ${sessionId}:`, {
         status: error.response?.status,
         statusText: error.response?.statusText,
         message: error.message,

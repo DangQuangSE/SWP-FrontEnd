@@ -121,7 +121,7 @@ export const useRealTimeMessages = (
             if (isDuplicateById || isDuplicateByClientId) {
               // Only log if this is actually a duplicate (not just existing message from polling)
               if (prev.length > 0) {
-                console.log("🔄 [REAL-TIME] Skipping duplicate message:", {
+                console.log("[REAL-TIME] Skipping duplicate message:", {
                   instanceId: instanceId.current,
                   id: msg.id,
                   clientId: msg.clientId,
@@ -175,7 +175,7 @@ export const useRealTimeMessages = (
         });
       } catch (err) {
         if (!isUnmountedRef.current) {
-          console.error("❌ [REAL-TIME] Error fetching messages:", err);
+          console.error(" [REAL-TIME] Error fetching messages:", err);
           setError(err.message);
         }
       }
@@ -294,7 +294,7 @@ export const useRealTimeMessages = (
     };
 
     pollingIntervalRef.current = setInterval(poll, getPollingInterval());
-    console.log(`🔄 [REAL-TIME] Polling started for session: ${sessionId}`);
+    console.log(`[REAL-TIME] Polling started for session: ${sessionId}`);
   }, [sessionId, isActive, fetchMessages]);
 
   const stopPolling = useCallback(() => {

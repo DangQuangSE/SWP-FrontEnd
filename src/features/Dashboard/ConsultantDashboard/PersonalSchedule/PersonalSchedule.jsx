@@ -22,15 +22,17 @@ import {
   ExclamationCircleOutlined,
   CloseCircleOutlined,
   QuestionCircleOutlined,
+  SolutionOutlined,
 } from "@ant-design/icons";
 import { toast } from "react-toastify";
 import {
   getMySchedule,
   updateAppointmentDetailStatus,
 } from "../../../../api/consultantAPI";
+import MedicalResultFormTesting from "../../../../components/MedicalResult/MedicalResultFormTesting";
+import MedicalResultFormConsulting from "../../../../components/MedicalResult/MedicalResultFormConsulting";
 import dayjs from "dayjs"; // Only for DatePicker component, not used in MedicalResultForm
 import MedicalResultViewer from "../../../../components/MedicalResult/MedicalResultViewer";
-import MedicalResultFormWrapper from "../../../../components/MedicalResult/MedicalResultFormWrapper";
 import PatientDetailButton from "../PatientHistory/PatientDetailButton";
 import "./PersonalSchedule.css";
 
@@ -269,8 +271,8 @@ const PersonalSchedule = ({ userId }) => {
 
   // Handle date change
   const handleDateChange = (date) => {
-    console.log("🔍 [DEBUG] DatePicker onChange triggered");
-    console.log("🔍 [DEBUG] Raw date from DatePicker:", date);
+    console.log(" [DEBUG] DatePicker onChange triggered");
+    console.log(" [DEBUG] Raw date from DatePicker:", date);
 
     // Keep dayjs object for internal state to avoid timezone conversion issues
     const selectedDayjs = date || dayjs();
@@ -454,26 +456,20 @@ const PersonalSchedule = ({ userId }) => {
         width: 200,
         render: (_, detail) => {
           // Debug: Log detail object and parent appointment
-          console.log("🔍 [PERSONAL_SCHEDULE] Detail object:", detail);
+          console.log(" [PERSONAL_SCHEDULE] Detail object:", detail);
           console.log(
-            "🔍 [PERSONAL_SCHEDULE] detail.customerId:",
+            " [PERSONAL_SCHEDULE] detail.customerId:",
             detail.customerId
           );
-          console.log(
-            "🔍 [PERSONAL_SCHEDULE] detail keys:",
-            Object.keys(detail)
-          );
+          console.log(" [PERSONAL_SCHEDULE] detail keys:", Object.keys(detail));
 
           // Check if customerId is in parent appointment
           const appointment = getCurrentTabData().find((apt) =>
             apt.appointmentDetails?.some((d) => d.id === detail.id)
           );
+          console.log(" [PERSONAL_SCHEDULE] Parent appointment:", appointment);
           console.log(
-            "🔍 [PERSONAL_SCHEDULE] Parent appointment:",
-            appointment
-          );
-          console.log(
-            "🔍 [PERSONAL_SCHEDULE] appointment.customerId:",
+            " [PERSONAL_SCHEDULE] appointment.customerId:",
             appointment?.customerId
           );
 
@@ -576,11 +572,37 @@ const PersonalSchedule = ({ userId }) => {
                 <Button
                   type="primary"
                   size="small"
-                  icon={<ClockCircleOutlined />}
-                  onClick={() => handleStartExamination(id)}
+                  icon={
+                    detail.serviceType === "CONSULTING_ON" &&
+                    detail.startUrl ? (
+                      <SolutionOutlined />
+                    ) : (
+                      <ClockCircleOutlined />
+                    )
+                  }
+                  onClick={() => {
+                    if (
+                      detail.serviceType === "CONSULTING_ON" &&
+                      detail.startUrl
+                    ) {
+                      // Mở link tư vấn online và chuyển trạng thái
+                      window.open(detail.startUrl, "_blank");
+                      handleStartExamination(id);
+                    } else {
+                      // Chỉ chuyển trạng thái cho dịch vụ thông thường
+                      handleStartExamination(id);
+                    }
+                  }}
                   loading={statusUpdateLoading}
+                  style={
+                    detail.serviceType === "CONSULTING_ON" && detail.startUrl
+                      ? { backgroundColor: "#52c41a", borderColor: "#52c41a" }
+                      : {}
+                  }
                 >
-                  Bắt đầu khám
+                  {detail.serviceType === "CONSULTING_ON" && detail.startUrl
+                    ? "Tham gia phòng tư vấn"
+                    : "Bắt đầu khám"}
                 </Button>
               )}
 
@@ -603,6 +625,14 @@ const PersonalSchedule = ({ userId }) => {
                   size="small"
                   icon={<EditOutlined />}
                   onClick={() => {
+                    console.log("[DEBUG] Full appointment detail:", detail);
+                    console.log("[DEBUG] Service type:", detail?.serviceType);
+                    console.log("[DEBUG] Service name:", detail?.serviceName);
+                    console.log(
+                      "[DEBUG] Is TESTING?",
+                      detail?.serviceType === "TESTING"
+                    );
+
                     setSelectedAppointmentDetail(detail);
                     setIsResultModalVisible(true);
                   }}
@@ -620,7 +650,7 @@ const PersonalSchedule = ({ userId }) => {
                     fontWeight: "bold",
                   }}
                 >
-                  ✅ Đã hoàn thành
+                  Đã hoàn thành
                 </div>
               )}
             </Space>
@@ -675,6 +705,7 @@ const PersonalSchedule = ({ userId }) => {
           created_at: appointment.created_at,
           isPaid: appointment.isPaid,
           paymentStatus: appointment.paymentStatus,
+          serviceType: appointment.serviceType, // Add serviceType from appointment
         }))
     );
   };
@@ -1075,73 +1106,159 @@ const PersonalSchedule = ({ userId }) => {
         </Form>
       </Modal>
 
-      {/* Medical Result Form Modal */}
-      <MedicalResultFormWrapper
-        visible={isResultModalVisible}
-        appointmentDetail={selectedAppointmentDetail}
-        onSuccess={async (result) => {
-          console.log("✅ Medical result submitted successfully:", result);
-          toast.success("Đã lưu kết quả khám thành công!");
-
-          try {
-            // Update appointment detail status to COMPLETED after submitting medical result
-            if (selectedAppointmentDetail?.id) {
-              console.log(
-                "🔄 [STATUS] Updating appointment detail status to COMPLETED"
-              );
-              await updateAppointmentDetailStatus(
-                selectedAppointmentDetail.id,
-                "COMPLETED"
-              );
-              console.log(
-                "✅ [STATUS] Appointment detail status updated to COMPLETED"
-              );
-            }
-          } catch (error) {
-            console.error(
-              "❌ [STATUS] Error updating appointment detail status:",
-              error
-            );
-            // Don't show error to user as medical result was saved successfully
-          }
-
-          // Close modal
-          setIsResultModalVisible(false);
-          setSelectedAppointmentDetail(null);
-          resultForm.resetFields();
-
-          // Get current date for API calls
-          const date = dayjs(selectedDate).format("YYYY-MM-DD");
-          const statusMap = {
-            checked: "CHECKED",
-            in_progress: "IN_PROGRESS",
-            waiting_result: "WAITING_RESULT",
-            completed: "COMPLETED",
-          };
-          const currentStatus = statusMap[activeTab] || "CHECKED";
-
-          console.log(
-            "🔄 [RELOAD] Reloading tabs after medical result submission"
-          );
-
-          // Refetch current tab data (WAITING_RESULT)
-          loadAppointmentsByStatus(date, currentStatus, false);
-
-          // Also reload COMPLETED tab since the appointment is now completed
-          console.log("🔄 [RELOAD] Also reloading COMPLETED tab");
-          loadAppointmentsByStatus(date, "COMPLETED", false);
-
-          // Update cache for both tabs
-          console.log(
-            "✅ [RELOAD] Finished reloading tabs after medical result submission"
-          );
-        }}
-        onClose={() => {
+      {/* Medical Result Form Modal - Dynamic based on serviceType */}
+      <Modal
+        title={`Nhập kết quả ${
+          selectedAppointmentDetail?.serviceType === "TESTING"
+            ? "xét nghiệm"
+            : "khám bệnh"
+        }`}
+        open={isResultModalVisible}
+        onCancel={() => {
           setIsResultModalVisible(false);
           setSelectedAppointmentDetail(null);
           resultForm.resetFields();
         }}
-      />
+        footer={null}
+        width={
+          selectedAppointmentDetail?.serviceType === "TESTING" ? 1200 : 1000
+        }
+        destroyOnClose={true}
+      >
+        {selectedAppointmentDetail?.serviceType === "TESTING" ? (
+          <MedicalResultFormTesting
+            appointmentDetail={selectedAppointmentDetail}
+            onSuccess={async (result) => {
+              console.log("Medical result submitted successfully:", result);
+              toast.success("Đã lưu kết quả xét nghiệm thành công!");
+
+              try {
+                // Update appointment detail status to COMPLETED after submitting medical result
+                if (selectedAppointmentDetail?.id) {
+                  console.log(
+                    "[STATUS] Updating appointment detail status to COMPLETED"
+                  );
+                  await updateAppointmentDetailStatus(
+                    selectedAppointmentDetail.id,
+                    "COMPLETED"
+                  );
+                  console.log(
+                    "[STATUS] Appointment detail status updated to COMPLETED"
+                  );
+                }
+              } catch (error) {
+                console.error(
+                  " [STATUS] Error updating appointment detail status:",
+                  error
+                );
+                // Don't show error to user as medical result was saved successfully
+              }
+
+              // Close modal
+              setIsResultModalVisible(false);
+              setSelectedAppointmentDetail(null);
+              resultForm.resetFields();
+
+              // Get current date for API calls
+              const date = dayjs(selectedDate).format("YYYY-MM-DD");
+              const statusMap = {
+                checked: "CHECKED",
+                in_progress: "IN_PROGRESS",
+                waiting_result: "WAITING_RESULT",
+                completed: "COMPLETED",
+              };
+              const currentStatus = statusMap[activeTab] || "CHECKED";
+
+              console.log(
+                "[RELOAD] Reloading tabs after medical result submission"
+              );
+
+              // Refetch current tab data (WAITING_RESULT)
+              loadAppointmentsByStatus(date, currentStatus, false);
+
+              // Also reload COMPLETED tab since the appointment is now completed
+              console.log("[RELOAD] Also reloading COMPLETED tab");
+              loadAppointmentsByStatus(date, "COMPLETED", false);
+
+              // Update cache for both tabs
+              console.log(
+                "[RELOAD] Finished reloading tabs after medical result submission"
+              );
+            }}
+            onCancel={() => {
+              setIsResultModalVisible(false);
+              setSelectedAppointmentDetail(null);
+              resultForm.resetFields();
+            }}
+          />
+        ) : (
+          <MedicalResultFormConsulting
+            appointmentDetail={selectedAppointmentDetail}
+            onSuccess={async (result) => {
+              console.log("Medical result submitted successfully:", result);
+              toast.success("Đã lưu kết quả khám bệnh thành công!");
+
+              try {
+                // Update appointment detail status to COMPLETED after submitting medical result
+                if (selectedAppointmentDetail?.id) {
+                  console.log(
+                    "[STATUS] Updating appointment detail status to COMPLETED"
+                  );
+                  await updateAppointmentDetailStatus(
+                    selectedAppointmentDetail.id,
+                    "COMPLETED"
+                  );
+                  console.log(
+                    "[STATUS] Appointment detail status updated to COMPLETED"
+                  );
+                }
+              } catch (error) {
+                console.error(
+                  " [STATUS] Error updating appointment detail status:",
+                  error
+                );
+                // Don't show error to user as medical result was saved successfully
+              }
+
+              // Close modal
+              setIsResultModalVisible(false);
+              setSelectedAppointmentDetail(null);
+              resultForm.resetFields();
+
+              // Get current date for API calls
+              const date = dayjs(selectedDate).format("YYYY-MM-DD");
+              const statusMap = {
+                checked: "CHECKED",
+                in_progress: "IN_PROGRESS",
+                waiting_result: "WAITING_RESULT",
+                completed: "COMPLETED",
+              };
+              const currentStatus = statusMap[activeTab] || "CHECKED";
+
+              console.log(
+                "[RELOAD] Reloading tabs after medical result submission"
+              );
+
+              // Refetch current tab data (WAITING_RESULT)
+              loadAppointmentsByStatus(date, currentStatus, false);
+
+              // Also reload COMPLETED tab since the appointment is now completed
+              console.log("[RELOAD] Also reloading COMPLETED tab");
+              loadAppointmentsByStatus(date, "COMPLETED", false);
+
+              // Update cache for both tabs
+              console.log(
+                "[RELOAD] Finished reloading tabs after medical result submission"
+              );
+            }}
+            onCancel={() => {
+              setIsResultModalVisible(false);
+              setSelectedAppointmentDetail(null);
+              resultForm.resetFields();
+            }}
+          />
+        )}
+      </Modal>
     </div>
   );
 };

@@ -63,7 +63,7 @@ const DashboardReports = () => {
       const startDate = dateRange[0].format("YYYY-MM-DD");
       const endDate = dateRange[1].format("YYYY-MM-DD");
 
-      console.log("📅 [DASHBOARD] Date range:", { startDate, endDate });
+      console.log(" [DASHBOARD] Date range:", { startDate, endDate });
 
       // Call actual APIs
       const [
@@ -141,14 +141,14 @@ const DashboardReports = () => {
       // Log API errors for debugging
       if (bookingSummaryRes.status === "rejected") {
         console.error(
-          "❌ [DASHBOARD] Booking summary API error:",
+          " [DASHBOARD] Booking summary API error:",
           bookingSummaryRes.reason
         );
         message.warning("Không thể tải dữ liệu tổng kết booking");
       }
       if (bookingStatsRes.status === "rejected") {
         console.error(
-          "❌ [DASHBOARD] Booking stats API error:",
+          " [DASHBOARD] Booking stats API error:",
           bookingStatsRes.reason
         );
         message.warning("Không thể tải thống kê booking");
@@ -365,11 +365,11 @@ const DashboardReports = () => {
 
       setDashboardData(processedData);
       console.log(
-        "✅ [DASHBOARD] Dashboard data loaded successfully:",
+        "[DASHBOARD] Dashboard data loaded successfully:",
         processedData
       );
     } catch (error) {
-      console.error("❌ [DASHBOARD] Error loading dashboard data:", error);
+      console.error(" [DASHBOARD] Error loading dashboard data:", error);
 
       // Fallback to mock data on error
       const fallbackData = {
