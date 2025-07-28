@@ -65,8 +65,8 @@
 
 /* ========== AVATAR ========== */
 .doctor-avatar {
-  width: 100px;
-  height: 100px;
+  width: 120px;
+  height: 120px;
   margin-bottom: 16px;
 }
 
@@ -74,8 +74,7 @@
   width: 100%;
   height: 100%;
   object-fit: cover;
-  border-radius: 10%;
-  border: 2px solid #0288d1;
+  border-radius: 50%;
 }
 
 /* ========== NAME + TITLE ========== */
@@ -119,16 +118,33 @@
 /* ========== STATS (Đánh giá & Lượt khám) ========== */
 .doctor-stats {
   display: flex;
-  justify-content: space-between;
+  justify-content: center;
+  align-items: center;
   width: 100%;
   font-size: 12px;
   margin-bottom: 16px;
   color: #64748b;
 }
 
+.rating-section {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+}
+
 .rating-value {
   font-weight: bold;
   color: #f59e0b;
+}
+
+.rating-display {
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  text-align: center;
 }
 
 .rating-stars {
@@ -175,4 +191,26 @@
   max-width: 1000px;
   margin: 0 auto;
   padding: 0 16px;
+}
+
+/* ========== NO CONSULTANTS STATE ========== */
+.no-consultants {
+  text-align: center;
+  padding: 40px 20px;
+  color: #64748b;
+  font-size: 16px;
+}
+
+/* ========== CONTACT INFO ========== */
+.contact {
+  font-size: 12px !important;
+  color: #64748b !important;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* ========== ENHANCED DOCTOR DETAILS ========== */
+.doctor-details .contact {
+  max-width: 200px;
 }

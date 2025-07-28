@@ -1,77 +1,70 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { Splide, SplideSlide } from "@splidejs/react-splide";
 import "@splidejs/react-splide/css";
 import { AutoScroll } from "@splidejs/splide-extension-auto-scroll";
+import { useNavigate } from "react-router-dom";
+import { message } from "antd";
+import api from "../../../configs/api";
 import doctor1 from "../../../assets/images/doctor1.jpg";
 import "./Testimonials.css";
 
 const Testimonials = () => {
-  const doctors = [
-    {
-      id: 1,
-      name: "Ths BS. Trần Thị Oanh",
-      title: "BV Hùng Việt",
-      specialty: "Sản khoa",
-      rating: 4.3,
-      views: 38,
-      price: "150.000đ",
-      avatar: "/placeholder.svg?height=120&width=120",
-      isSpecialist: true,
-    },
-    {
-      id: 2,
-      name: "BS CKI. Lê Ngọc Hồng Hạnh",
-      title: "Bv...",
-      specialty: "Nhi - Thận kinh",
-      rating: 4.2,
-      views: 118,
-      price: "200.000đ",
-      isSpecialist: true,
-    },
-    {
-      id: 3,
-      name: "BS CKI. Nguyễn Phúc Thiện",
-      title: "",
-      specialty: "Nội tim mạch",
-      rating: 4.9,
-      views: 143,
-      price: "0đ - 300.000đ",
-      isSpecialist: true,
-    },
-    {
-      id: 4,
-      name: "BS CKI. Nguyễn Văn A",
-      title: "Bệnh viện ABC",
-      specialty: "Nội tiết",
-      rating: 4.7,
-      views: 120,
-      price: "250.000đ",
-      isSpecialist: true,
-    },
-    {
-      id: 5,
-      name: "BS CKII. Trần Văn B",
-      title: "Bệnh viện XYZ",
-      specialty: "Tai Mũi Họng",
-      rating: 4.8,
-      views: 98,
-      price: "300.000đ",
-      isSpecialist: true,
-    },
-  ];
+  const [consultants, setConsultants] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
 
-  const renderStars = (rating) => (
-    <div className="rating-stars">
-      {[...Array(5)].map((_, i) => (
-        <span
-          key={i}
-          className={`star ${i < Math.floor(rating) ? "filled" : ""}`}
-        >
-          ★
-        </span>
-      ))}
-    </div>
-  );
+  // Fetch consultants from API
+  useEffect(() => {
+    const fetchConsultants = async () => {
+      try {
+        setLoading(true);
+        const response = await api.get("/consultants");
+        console.log("Consultants data:", response.data);
+        setConsultants(response.data || []);
+      } catch (error) {
+        console.error("Lỗi khi lấy danh sách bác sĩ:", error);
+        message.error("Không thể tải danh sách bác sĩ");
+        setConsultants([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchConsultants();
+  }, []);
+
+  // Handle consultation booking
+  const handleConsultation = (consultant) => {
+    // Store consultant info in localStorage
+    localStorage.setItem("selectedConsultantId", consultant.id);
+    localStorage.setItem(
+      "selectedConsultantName",
+      consultant.fullname || "Chưa có tên"
+    );
+    localStorage.setItem(
+      "selectedConsultantSpecialization",
+      consultant.specializationNames?.[0] || "Chưa có chuyên khoa"
+    );
+
+    // Navigate to services page or booking page
+    navigate("/services");
+    message.success(
+      `Đã chọn bác sĩ ${consultant.fullname}. Vui lòng chọn dịch vụ để đặt lịch.`
+    );
+  };
+
+  if (loading) {
+    return (
+      <section className="doctors-section section">
+        <div className="container">
+          <h3 className="section-title">ĐỘI NGŨ BÁC SĨ</h3>
+          <p className="section-subtitle-description">
+            Đang tải danh sách bác sĩ...
+          </p>
+        </div>
+      </section>
+    );
+  }
 
   return (
     <section className="doctors-section section">
@@ -82,70 +75,76 @@ const Testimonials = () => {
           sóc sức khỏe.
         </p>
 
-        <Splide
-          options={{
-            type: "loop",
-            gap: "1rem",
-            perPage: 3,
-            pagination: false,
-            arrows: false,
-            autoScroll: {
-              speed: 1,
-              pauseOnHover: true,
-              pauseOnFocus: false,
-            },
-            breakpoints: {
-              1024: { perPage: 2 },
-              640: { perPage: 1 },
-            },
-          }}
-          extensions={{ AutoScroll }}
-          aria-label="Carousel bác sĩ"
-        >
-          {doctors.map((doctor) => (
-            <SplideSlide key={doctor.id}>
-              <div className="doctor-card">
-                <div className="doctor-avatar">
-                  <img src={doctor1} alt={doctor.name} />
-                </div>
-                <div className="doctor-stats">
-                  <div className="rating-section">
-                    <span className="rating-label">Đánh giá:</span>
-                    <span className="rating-value">{doctor.rating}</span>
-                    {renderStars(doctor.rating)}
+        {consultants.length > 0 ? (
+          <Splide
+            options={{
+              type: "loop",
+              gap: "1rem",
+              perPage: 3,
+              pagination: false,
+              arrows: false,
+              autoScroll: {
+                speed: 1,
+                pauseOnHover: true,
+                pauseOnFocus: false,
+              },
+              breakpoints: {
+                1024: { perPage: 2 },
+                640: { perPage: 1 },
+              },
+            }}
+            extensions={{ AutoScroll }}
+            aria-label="Carousel bác sĩ"
+          >
+            {consultants.map((consultant) => (
+              <SplideSlide key={consultant.id}>
+                <div className="doctor-card">
+                  <div className="doctor-avatar">
+                    <img
+                      src={consultant.imageUrl || consultant.img || doctor1}
+                      alt={consultant.fullname || "Bác sĩ"}
+                    />
                   </div>
-                  <div className="views-section">
-                    <span className="views-label">Lượt khám:</span>
-                    <span className="views-value">{doctor.views}</span>
-                    <span className="views-icon">👥</span>
+                  <div className="doctor-stats">
+                    <div className="rating-section">
+                      <span className="rating-display">
+                        ⭐ {consultant.rating?.toFixed(1) || "0.0"}/5
+                      </span>
+                    </div>
+                    <div className="views-section"></div>
                   </div>
-                </div>
-                <div className="doctor-info">
-                  <h3 className="doctor-name">{doctor.name}</h3>
-                  {doctor.title && (
-                    <p className="doctor-title">{doctor.title}</p>
-                  )}
-                  <div className="doctor-details">
-                    <div className="specialty">
-                      <span>🩺</span>
-                      {doctor.specialty}
-                    </div>
-                    <div className="price">
-                      <span>💰</span>
-                      {doctor.price}
-                    </div>
-                    {doctor.isSpecialist && (
+                  <div className="doctor-info">
+                    <h3 className="doctor-name">
+                      {consultant.fullname || "Chưa có tên"}
+                    </h3>
+                    <p className="doctor-title">
+                      {consultant.specializationNames || "Chưa có chuyên khoa"}
+                    </p>
+                    <div className="doctor-details">
+                      {/* <div className="contact">
+                        <span>�</span>
+                        {consultant.email || "Chưa có email"}
+                      </div> */}
                       <div className="specialist-badge">
-                        <span></span>Bác sĩ Chuyên Khoa
+                        <span> Trung Tâm Chăm sóc Sức khỏe Giới Tính</span>
                       </div>
-                    )}
+                    </div>
                   </div>
+                  <button
+                    className="consult-btn"
+                    onClick={() => handleConsultation(consultant)}
+                  >
+                    Tư vấn ngay
+                  </button>
                 </div>
-                <button className="consult-btn">Tư vấn ngay</button>
-              </div>
-            </SplideSlide>
-          ))}
-        </Splide>
+              </SplideSlide>
+            ))}
+          </Splide>
+        ) : (
+          <div className="no-consultants">
+            <p>Hiện tại chưa có bác sĩ nào trong hệ thống.</p>
+          </div>
+        )}
       </div>
     </section>
   );

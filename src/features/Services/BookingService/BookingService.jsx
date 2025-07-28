@@ -84,12 +84,12 @@ const AppointmentForm = () => {
               >
                 Dịch vụ
               </span>
-              <span
+              {/* <span
                 className={`nav-tab ${activeTab === "doctors" ? "active" : ""}`}
                 onClick={() => setActiveTab("doctors")}
               >
                 Bác sĩ
-              </span>
+              </span> */}
               <span
                 className={`nav-tab ${activeTab === "reviews" ? "active" : ""}`}
                 onClick={() => setActiveTab("reviews")}

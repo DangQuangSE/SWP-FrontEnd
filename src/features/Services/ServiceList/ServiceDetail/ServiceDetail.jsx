@@ -84,14 +84,16 @@ const ServiceDetail = () => {
         console.error("Lỗi khi lấy danh sách đánh giá:", err);
       });
 
-    // Thêm phần lấy danh sách bác sĩ by id
+    // Thêm phần lấy danh sách bác sĩ từ API /consultants
     api
-      .get(`/consultants/by-service/${id}`)
+      .get("/consultants")
       .then((res) => {
+        console.log("Danh sách bác sĩ từ /consultants:", res.data);
         setConsultants(res.data || []);
       })
       .catch((err) => {
         console.error("Lỗi khi lấy danh sách bác sĩ:", err);
+        setConsultants([]);
       });
   }, [id]);
 
@@ -182,14 +184,6 @@ const ServiceDetail = () => {
                           )}
                         </div>
 
-                        {/* <p className="consultant-gender">
-                          <strong>Giới tính:</strong>{" "}
-                          {consultant.gender || "Chưa có thông tin"}
-                        </p>
-                        <p className="consultant-email">
-                          <strong>Email:</strong>{" "}
-                          {consultant.email || "Chưa có email"}
-                        </p> */}
                         <div className="consultant-rating">
                           <StarRating
                             rating={Math.round(consultant.rating || 0)}
