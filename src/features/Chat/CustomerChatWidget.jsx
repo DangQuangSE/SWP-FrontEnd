@@ -81,7 +81,7 @@ const CustomerChatWidget = () => {
       const readerName = customerName; // Customer reader name
       await customerChatAPI.markMessagesAsRead(sessionId, readerName);
       console.log(
-        `✅ [CUSTOMER MARK READ] Messages marked as read for session: ${sessionId}`
+        `[CUSTOMER MARK READ] Messages marked as read for session: ${sessionId}`
       );
 
       // Reset unread count after marking as read
@@ -89,7 +89,7 @@ const CustomerChatWidget = () => {
       localStorage.setItem("chat_unread_count", "0");
     } catch (error) {
       console.error(
-        "❌ [CUSTOMER MARK READ] Failed to mark messages as read:",
+        " [CUSTOMER MARK READ] Failed to mark messages as read:",
         error
       );
     }
@@ -239,15 +239,15 @@ const CustomerChatWidget = () => {
       // Call chat API (no auth required)
       const response = await chatApi.post("/chat/start", requestBody);
 
-      console.log("✅ [CHAT API] Response received:");
-      console.log("🔍 [CHAT API] Full response:", response);
-      console.log("🔍 [CHAT API] Response data:", response.data);
-      console.log("🔍 [CHAT API] Response status:", response.status);
-      console.log("🔍 [CHAT API] Response headers:", response.headers);
+      console.log("[CHAT API] Response received:");
+      console.log(" [CHAT API] Full response:", response);
+      console.log(" [CHAT API] Response data:", response.data);
+      console.log(" [CHAT API] Response status:", response.status);
+      console.log(" [CHAT API] Response headers:", response.headers);
 
       if (response.data && response.data.sessionId) {
         setSessionId(response.data.sessionId);
-        console.log("✅ [CHAT API] Session ID set:", response.data.sessionId);
+        console.log("[CHAT API] Session ID set:", response.data.sessionId);
         setIsConnected(true);
         setShowNameForm(false);
 
@@ -263,15 +263,15 @@ const CustomerChatWidget = () => {
 
       return response.data;
     } catch (error) {
-      console.error("❌ [CHAT API] Error starting chat session:");
-      console.error("🔍 [CHAT API] Error object:", error);
-      console.error("🔍 [CHAT API] Error response:", error.response);
-      console.error("🔍 [CHAT API] Error message:", error.message);
+      console.error(" [CHAT API] Error starting chat session:");
+      console.error(" [CHAT API] Error object:", error);
+      console.error(" [CHAT API] Error response:", error.response);
+      console.error(" [CHAT API] Error message:", error.message);
 
       if (error.response) {
-        console.error("🔍 [CHAT API] Error status:", error.response.status);
-        console.error("🔍 [CHAT API] Error data:", error.response.data);
-        console.error("🔍 [CHAT API] Error headers:", error.response.headers);
+        console.error(" [CHAT API] Error status:", error.response.status);
+        console.error(" [CHAT API] Error data:", error.response.data);
+        console.error(" [CHAT API] Error headers:", error.response.headers);
       }
 
       throw error;
@@ -281,16 +281,16 @@ const CustomerChatWidget = () => {
   // Handle name form submission
   const handleNameSubmit = async () => {
     if (!customerName.trim()) {
-      console.log("❌ [NAME FORM] Customer name is required");
+      console.log(" [NAME FORM] Customer name is required");
       return;
     }
 
     console.log("[NAME FORM] Submitting name:", customerName);
     try {
       await startChatSession(customerName);
-      console.log("✅ [NAME FORM] Chat session started successfully");
+      console.log("[NAME FORM] Chat session started successfully");
     } catch (error) {
-      console.error("❌ [NAME FORM] Failed to start chat session:", error);
+      console.error(" [NAME FORM] Failed to start chat session:", error);
     }
   };
 
@@ -356,10 +356,10 @@ const CustomerChatWidget = () => {
         sessionId,
         customerName
       );
-      console.log("✅ [CUSTOMER CHAT] Server unread count:", count);
+      console.log("[CUSTOMER CHAT] Server unread count:", count);
       updateUnreadCount(count);
     } catch (error) {
-      console.error("❌ [CUSTOMER CHAT] Error fetching unread count:", error);
+      console.error(" [CUSTOMER CHAT] Error fetching unread count:", error);
     }
   };
 
@@ -406,7 +406,7 @@ const CustomerChatWidget = () => {
   // Reset unread count when widget opens
   useEffect(() => {
     if (isOpen) {
-      console.log("🔄 [CUSTOMER CHAT] Widget opened - resetting unread count");
+      console.log("[CUSTOMER CHAT] Widget opened - resetting unread count");
       updateUnreadCount(0);
 
       // Reset the message count reference when opening
@@ -450,7 +450,7 @@ const CustomerChatWidget = () => {
         false // isStaff = false for customer
       );
 
-      console.log("✅ [CUSTOMER CHAT] Message sent successfully:", sentMessage);
+      console.log("[CUSTOMER CHAT] Message sent successfully:", sentMessage);
 
       // Trigger immediate refetch to get the sent message
       if (refetchMessages) {
@@ -462,10 +462,10 @@ const CustomerChatWidget = () => {
       // Don't send via WebSocket - REST API is sufficient
       // WebSocket will receive the message from server after API processes it
       console.log(
-        "✅ [CUSTOMER CHAT] Message sent via REST API only, WebSocket will receive from server"
+        "[CUSTOMER CHAT] Message sent via REST API only, WebSocket will receive from server"
       );
     } catch (error) {
-      console.error("❌ [CUSTOMER CHAT] Failed to send message:", error);
+      console.error(" [CUSTOMER CHAT] Failed to send message:", error);
 
       // Don't add error message optimistically
       // Just log the error and let user retry
@@ -484,11 +484,11 @@ const CustomerChatWidget = () => {
   // Toggle widget or navigate to staff dashboard
   const toggleWidget = () => {
     console.log("[WIDGET] Chat button clicked!");
-    console.log("🔍 [WIDGET] Redux user:", reduxUser);
-    console.log("🔍 [WIDGET] LocalStorage user:", localStorageUser);
-    console.log("🔍 [WIDGET] Final user:", currentUser);
-    console.log("🔍 [WIDGET] Final role:", userRole);
-    console.log("🔍 [WIDGET] Role comparison:", {
+    console.log(" [WIDGET] Redux user:", reduxUser);
+    console.log(" [WIDGET] LocalStorage user:", localStorageUser);
+    console.log(" [WIDGET] Final user:", currentUser);
+    console.log(" [WIDGET] Final role:", userRole);
+    console.log(" [WIDGET] Role comparison:", {
       userRole,
       isStaff: userRole === "STAFF",
       isStaffUpperCase: userRole?.toUpperCase() === "STAFF",
@@ -503,24 +503,22 @@ const CustomerChatWidget = () => {
       currentUser?.role === "STAFF" ||
       reduxUser?.role === "STAFF";
 
-    console.log("🔍 [WIDGET] Is staff check:", isStaff);
+    console.log(" [WIDGET] Is staff check:", isStaff);
 
     // If user is staff, navigate to Q&A Waiting page
     if (isStaff) {
-      console.log(
-        "✅ [WIDGET] Staff detected! Navigating to staff dashboard..."
-      );
-      console.log("🔍 [WIDGET] Current location:", window.location.pathname);
+      console.log("[WIDGET] Staff detected! Navigating to staff dashboard...");
+      console.log(" [WIDGET] Current location:", window.location.pathname);
 
       // Set selected menu item BEFORE navigation
       localStorage.setItem("staffSelectedMenuItem", "qa_waiting");
       console.log(
-        "🔍 [WIDGET] Set localStorage staffSelectedMenuItem to qa_waiting"
+        " [WIDGET] Set localStorage staffSelectedMenuItem to qa_waiting"
       );
 
       // Navigate to staff dashboard
       navigate("/staff");
-      console.log("🔍 [WIDGET] Navigation called to /staff");
+      console.log(" [WIDGET] Navigation called to /staff");
       return;
     }
 

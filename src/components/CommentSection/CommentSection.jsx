@@ -28,10 +28,10 @@ const CommentSection = ({ blogId }) => {
   const loadComments = async () => {
     try {
       setLoading(true);
-      console.log("🔍 Loading comments cho blogId:", blogId);
+      console.log(" Loading comments cho blogId:", blogId);
       const response = await fetch(`${API_BASE_URL}/comment/blog/${blogId}`);
       const data = await response.json();
-      console.log("✅ API trả về:", data);
+      console.log("API trả về:", data);
 
       // Transform comments data
       const transformedComments = Array.isArray(data)
@@ -48,7 +48,7 @@ const CommentSection = ({ blogId }) => {
 
       setComments(transformedComments);
     } catch (error) {
-      console.error("❌ Error loading comments:", error);
+      console.error(" Error loading comments:", error);
       toast.error("Không thể tải bình luận");
       setComments([]);
     } finally {
@@ -64,7 +64,7 @@ const CommentSection = ({ blogId }) => {
   }, [blogId]);
 
   const handleCommentAdded = (newComment) => {
-    console.log("✅ New comment added:", newComment);
+    console.log("New comment added:", newComment);
     setComments((prev) => [newComment, ...prev]);
   };
 

@@ -99,7 +99,7 @@ const response = await getPatientMedicalHistory(patientId, page, size);
 - `page` (number): Số trang (0-based)
 - `size` (number): Kích thước trang
 
-## 🎯 Cách tích hợp vào project hiện có
+## Cách tích hợp vào project hiện có
 
 ### 1. Trong Consultant Dashboard
 
@@ -146,11 +146,11 @@ import { PatientDetailButton } from "../PatientHistory";
 
 ## 🎨 Thiết kế
 
-- ✅ **Chuyên nghiệp y tế**: Màu sắc nhẹ nhàng, không lòe loẹt
-- ✅ **Tiếng Việt**: Toàn bộ interface bằng tiếng Việt
-- ✅ **Responsive**: Tương thích mobile và desktop
-- ✅ **Modal**: Hiển thị hồ sơ trong modal không ảnh hưởng workflow
-- ✅ **Loading states**: Có loading và error handling
+- **Chuyên nghiệp y tế**: Màu sắc nhẹ nhàng, không lòe loẹt
+- **Tiếng Việt**: Toàn bộ interface bằng tiếng Việt
+- **Responsive**: Tương thích mobile và desktop
+- **Modal**: Hiển thị hồ sơ trong modal không ảnh hưởng workflow
+- **Loading states**: Có loading và error handling
 
 ## Demo
 

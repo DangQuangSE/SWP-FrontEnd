@@ -48,16 +48,13 @@ const CommentItem = ({ comment, currentUser, onCommentDeleted }) => {
         return;
       }
 
-      const response = await fetch(
-        `${API_BASE_URL}/comment/${comment.id}`,
-        {
-          method: "DELETE",
-          headers: {
-            Accept: "*/*",
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
+      const response = await fetch(`${API_BASE_URL}/comment/${comment.id}`, {
+        method: "DELETE",
+        headers: {
+          Accept: "*/*",
+          Authorization: `Bearer ${token}`,
+        },
+      });
 
       if (!response.ok) {
         const errorData = await response.json().catch(() => null);
@@ -66,11 +63,11 @@ const CommentItem = ({ comment, currentUser, onCommentDeleted }) => {
         );
       }
 
-      console.log("✅ Comment deleted successfully");
+      console.log("Comment deleted successfully");
       onCommentDeleted(comment.id);
       toast.success("Đã xóa bình luận thành công!");
     } catch (error) {
-      console.error("❌ Error deleting comment:", error);
+      console.error(" Error deleting comment:", error);
 
       let errorMessage = "Có lỗi xảy ra khi xóa bình luận";
       if (error.message.includes("401")) {
