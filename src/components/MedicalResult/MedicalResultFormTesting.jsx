@@ -37,6 +37,7 @@ const { Text } = Typography;
  * Medical Result Form for Testing Services
  * Form chuyên dụng cho dịch vụ xét nghiệm
  */
+
 const MedicalResultFormTesting = ({
   appointmentDetail,
   onSuccess,
@@ -77,7 +78,9 @@ const MedicalResultFormTesting = ({
       form.setFieldsValue(formValues);
     }
   }, [form, initialData]);
-
+  const handleFieldChange = (field, value) => {
+    form.setFieldValue(field, value);
+  };
   const handleSubmit = async (values) => {
     try {
       setLoading(true);
