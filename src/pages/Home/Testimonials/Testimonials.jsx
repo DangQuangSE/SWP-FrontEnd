@@ -136,7 +136,7 @@ const Testimonials = () => {
                     </div>
                     {doctor.isSpecialist && (
                       <div className="specialist-badge">
-                        <span>🏥</span>Bác sĩ Chuyên Khoa
+                        <span></span>Bác sĩ Chuyên Khoa
                       </div>
                     )}
                   </div>

@@ -1,4 +1,4 @@
-# 🏥 Patient History Components
+# Patient History Components
 
 Hệ thống components để hiển thị hồ sơ bệnh án và lịch sử khám bệnh của bệnh nhân.
 

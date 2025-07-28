@@ -328,7 +328,6 @@ const PersonalSchedule = ({ userId }) => {
         color: "green",
         icon: <CheckCircleOutlined />,
         text: "Hoàn thành",
-        description: "Đã hoàn tất toàn bộ",
       },
       // Keep some old statuses for compatibility
       PENDING: {
@@ -528,13 +527,11 @@ const PersonalSchedule = ({ userId }) => {
               <div className="patient-info-name">
                 <UserOutlined /> {detail.customerName || "Chưa có tên"}
               </div>
-              <div className="patient-info-date">
+              {/* <div className="patient-info-date">
                 Ngày hẹn:{" "}
                 {new Date(detail.preferredDate).toLocaleDateString("vi-VN")}
-              </div>
-              <div className="patient-info-appointment">
-                🆔 Lịch hẹn: #{detail.appointmentId}
-              </div>
+              </div> */}
+
               {/* Patient Detail Button */}
               <div className="patient-detail-button-container">
                 <PatientDetailButton
@@ -576,9 +573,9 @@ const PersonalSchedule = ({ userId }) => {
         width: 200,
         render: (_, detail) => (
           <div>
-            <div className="service-name">🏥 {detail.serviceName}</div>
+            <div className="service-name"> {detail.serviceName}</div>
             <div className="service-time">
-              ⏰{" "}
+              Thời gian:{" "}
               {new Date(detail.slotTime).toLocaleString("vi-VN", {
                 hour: "2-digit",
                 minute: "2-digit",
@@ -588,7 +585,8 @@ const PersonalSchedule = ({ userId }) => {
               })}
             </div>
             <div className="service-consultant">
-              👨‍⚕️ {detail.consultantName || `Bác sĩ #${detail.consultantId}`}
+              Bác sĩ:{" "}
+              {detail.consultantName || `Bác sĩ #${detail.consultantId}`}
             </div>
           </div>
         ),
