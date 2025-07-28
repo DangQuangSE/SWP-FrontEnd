@@ -70,10 +70,10 @@ function Admin() {
   } = theme.useToken();
 
   // Menu items for the top navigation
-  const items1 = ["Dashboard", "Reports"].map((label, key) => ({
-    key: String(key + 1),
-    label,
-  }));
+  // const items1 = ["Dashboard", "Reports"].map((label, key) => ({
+  //   key: String(key + 1),
+  //   label,
+  // }));
 
   // Menu items for the side navigation
   const items2 = [
@@ -184,7 +184,7 @@ function Admin() {
         <Title level={3} style={{ color: "white", margin: 0 }}>
           Admin Dashboard
         </Title>
-        <Menu
+        {/* <Menu
           theme="dark"
           mode="horizontal"
           defaultSelectedKeys={["1"]}
@@ -194,7 +194,7 @@ function Admin() {
             minWidth: 0,
             justifyContent: "flex-end",
           }}
-        />
+        /> */}
       </Header>
       <Layout>
         <Sider width={280} style={{ background: colorBgContainer }}>

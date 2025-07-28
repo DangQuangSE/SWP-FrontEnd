@@ -132,7 +132,7 @@ const AllBlog = () => {
 
   return (
     <div className="medpro-all-blog-wrapper">
-      <header className="medpro-all-blog-header">
+      {/* <header className="medpro-all-blog-header">
         <div className="medpro-all-blog-container">
           <div className="medpro-all-blog-header-content">
             <Link to="/blog" className="medpro-all-blog-logo">
@@ -140,75 +140,9 @@ const AllBlog = () => {
             </Link>
           </div>
         </div>
-      </header>
+      </header> */}
 
       {/* Search and Filter section */}
-      <div
-        className="medpro-all-blog-container"
-        style={{ marginTop: 32, marginBottom: 24 }}
-      >
-        {/* Search Bar */}
-        <div
-          className="blog-search-container"
-          style={{
-            display: "flex",
-            justifyContent: "center",
-            marginBottom: 20,
-            padding: "0 20px",
-          }}
-        >
-          <Search
-            placeholder="Tìm kiếm bài viết theo tiêu đề hoặc nội dung..."
-            allowClear
-            enterButton="Tìm kiếm"
-            size="large"
-            style={{
-              maxWidth: 600,
-              width: "100%",
-              boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
-              borderRadius: "8px",
-            }}
-            value={searchText}
-            onChange={(e) => setSearchText(e.target.value)}
-            onSearch={(value) => setSearchText(value)}
-          />
-        </div>
-
-        {/* Tag Filter */}
-        <div
-          className="blog-tag-filter-group"
-          style={{
-            justifyContent: "center",
-            display: "flex",
-            gap: "16px",
-            alignItems: "center",
-            flexWrap: "wrap",
-          }}
-        >
-          <span
-            style={{
-              fontWeight: "500",
-              color: "#333",
-              minWidth: "fit-content",
-            }}
-          >
-            Lọc theo chủ đề:
-          </span>
-          <Select
-            mode="multiple"
-            allowClear
-            placeholder="Chọn một hoặc nhiều chủ đề"
-            style={{ minWidth: 300, maxWidth: 500, flex: 1 }}
-            value={selectedTags}
-            onChange={handleTagsChange}
-            options={tags.map((tag) => ({
-              label: tag.name,
-              value: tag.id,
-            }))}
-            maxTagCount="responsive"
-          />
-        </div>
-      </div>
 
       <Breadcrumb
         items={[
@@ -225,11 +159,47 @@ const AllBlog = () => {
               className="medpro-all-blog-section-header"
               style={{ marginTop: 8 }}
             >
-              <h2 className="medpro-all-blog-section-title">Tất cả tin tức</h2>
+              <h2 className="medpro-all-blog-section-title">Blog Sức Khỏe</h2>
+
               <p className="medpro-all-blog-section-description">
-                Khám phá các bài viết, tin tức và kiến thức y khoa nổi bật mỗi
-                ngày!
+                Khám phá kiến thức mới nhất về sức khỏe giới tính và chủ đề liên
+                quan từ các chuyên gia hàng đầu
               </p>
+              <div
+                className="medpro-all-blog-container"
+                style={{ marginTop: 32, marginBottom: 24 }}
+              >
+                {/* Search Bar */}
+                <div className="search-filter-container">
+                  <div className="blog-search-container">
+                    <Search
+                      placeholder="Tìm kiếm bài viết theo tiêu đề hoặc nội dung..."
+                      allowClear
+                      enterButton="Tìm kiếm"
+                      size="large"
+                      value={searchText}
+                      onChange={(e) => setSearchText(e.target.value)}
+                      onSearch={(value) => setSearchText(value)}
+                    />
+                  </div>
+
+                  <div className="blog-tag-filter-group">
+                    <Select
+                      mode="multiple"
+                      allowClear
+                      placeholder="Lọc theo chủ đề"
+                      value={selectedTags}
+                      onChange={handleTagsChange}
+                      options={tags.map((tag) => ({
+                        label: tag.name,
+                        value: tag.id,
+                      }))}
+                      maxTagCount="responsive"
+                    />
+                  </div>
+                </div>
+              </div>
+
               {searchText && (
                 <div
                   style={{ marginTop: "16px", color: "#666", fontSize: "14px" }}
