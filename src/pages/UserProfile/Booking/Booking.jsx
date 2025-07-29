@@ -339,10 +339,7 @@ const Booking = () => {
             <p>
               <strong>Giá:</strong> {appointment.price?.toLocaleString()} VND
             </p>
-            <p>
-              <strong>Thời gian tạo:</strong>{" "}
-              {new Date(appointment.created_at).toLocaleString()}
-            </p>
+
             <div className="appointment-actions">
               <button
                 className="detail-button-profile"
@@ -508,12 +505,7 @@ const Booking = () => {
                   {selectedAppointment.note || "Không có"}
                 </span>
               </div>
-              <div className="detail-item">
-                <span className="detail-label">Thời gian tạo:</span>
-                <span className="detail-value">
-                  {new Date(selectedAppointment.created_at).toLocaleString()}
-                </span>
-              </div>
+              <div className="detail-item"></div>
             </div>
 
             {selectedAppointment.appointmentDetails &&
@@ -526,12 +518,6 @@ const Booking = () => {
                         key={detail.id || index}
                         className="service-detail-item"
                       >
-                        {/* <div className="detail-item">
-                          <span className="detail-label">Tên dịch vụ:</span>
-                          <span className="detail-value">
-                            {detail.serviceName}
-                          </span>
-                        </div> */}
                         <div className="detail-item">
                           <span className="detail-label">Bác sĩ tư vấn:</span>
                           <span className="detail-value">
@@ -592,11 +578,20 @@ const Booking = () => {
                         {detail.medicalResult && (
                           <div className="detail-item">
                             <span className="detail-label">Kết quả khám:</span>
-                            <span className="detail-value">
-                              {detail.medicalResult.description ||
-                                detail.medicalResult.diagnosis ||
-                                detail.medicalResult.testResult ||
-                                "Có kết quả khám"}
+                            <span
+                              className="detail-value result-link"
+                              onClick={() => {
+                                setSelectedResult({
+                                  appointment: selectedAppointment,
+                                  medicalProfile:
+                                    selectedAppointment.customerMedicalProfile ||
+                                    {},
+                                  selectedDetail: detail,
+                                });
+                                setResultModalVisible(true);
+                              }}
+                            >
+                              Kết quả
                             </span>
                           </div>
                         )}

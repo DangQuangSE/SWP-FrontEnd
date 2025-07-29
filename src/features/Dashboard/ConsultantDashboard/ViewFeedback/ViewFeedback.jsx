@@ -1,48 +1,85 @@
-import React from 'react';
-import { Card, Table } from 'antd';
-// import { EyeOutlined } from '@ant-design/icons';
-import './ViewFeedback.css';
+import React, { useState, useEffect } from "react";
+import { Card, Table, message, Spin } from "antd";
+import api from "../../../../configs/api";
+import "./ViewFeedback.css";
 
-const feedback = [
+const ViewFeedback = () => {
+  const [feedbacks, setFeedbacks] = useState([]);
+  const [loading, setLoading] = useState(false);
+
+  // Fetch feedbacks from API
+  const fetchFeedbacks = async () => {
+    try {
+      setLoading(true);
+      const response = await api.get("/consultant-feedbacks/my-feedbacks");
+      setFeedbacks(response.data);
+    } catch (error) {
+      console.error("Error fetching feedbacks:", error);
+      message.error("Không thể tải danh sách phản hồi");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchFeedbacks();
+  }, []);
+
+  // Table columns configuration
+  const columns = [
     {
-      id: 1,
-      source: "Blog: Cảm lạnh thông thường",
-      comment: "Bài viết rất hữu ích!",
-      date: "2024-03-21",
+      title: "Đánh giá",
+      dataIndex: "rating",
+      key: "rating",
+      width: 150,
+      render: (rating) => (
+        <span className="rating-display">⭐ {rating || 0}/5</span>
+      ),
     },
     {
-      id: 2,
-      source: "Dịch vụ: Tư vấn trực tuyến",
-      comment: "Tư vấn rất tốt, cảm ơn bác sĩ.",
-      date: "2024-03-22",
+      title: "Nhận xét",
+      dataIndex: "comment",
+      key: "comment",
+      render: (comment) => (
+        <div style={{ maxWidth: 300, wordWrap: "break-word" }}>
+          {comment || "Không có nhận xét"}
+        </div>
+      ),
+    },
+    {
+      title: "Ngày tạo",
+      dataIndex: "createdAt",
+      key: "createdAt",
+      width: 180,
+      render: (date) => new Date(date).toLocaleString("vi-VN"),
+    },
+    {
+      title: "Cập nhật lần cuối",
+      dataIndex: "updateAt",
+      key: "updateAt",
+      width: 180,
+      render: (date) => new Date(date).toLocaleString("vi-VN"),
     },
   ];
 
-// const feedbackColumns = [
-//   { title: "Nguồn", dataIndex: "source", key: "source" },
-//   { title: "Nội dung", dataIndex: "comment", key: "comment" },
-//   { title: "Ngày", dataIndex: "date", key: "date" },
-//   {
-//     title: "Thao tác",
-//     key: "action",
-//     render: (_, record) => (
-//       <Button icon={<EyeOutlined />} size="small">
-//         Xem
-//       </Button>
-//     ),
-//   },
-// ];
-
-const ViewFeedback = () => {
-    return (
-        <Card title="Xem phản hồi/nhận xét">
-            <Table
-            // columns={feedbackColumns}
-            dataSource={feedback}
-            rowKey="id"
-            />
-        </Card>
-    );
+  return (
+    <Card title="Xem phản hồi/nhận xét">
+      <Spin spinning={loading}>
+        <Table
+          columns={columns}
+          dataSource={feedbacks}
+          rowKey="id"
+          pagination={{
+            pageSize: 10,
+            showSizeChanger: true,
+            showQuickJumper: true,
+            showTotal: (total, range) =>
+              `${range[0]}-${range[1]} của ${total} phản hồi`,
+          }}
+        />
+      </Spin>
+    </Card>
+  );
 };
 
-export default ViewFeedback; 
+export default ViewFeedback;

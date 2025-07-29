@@ -42,6 +42,7 @@ import {
 } from "../../../../components/Icons/BlogIcons";
 import "./BlogManagement.css";
 import axios from "axios";
+import api from "../../../../configs/api";
 
 const BlogManagement = ({ userId, selectedTab }) => {
   // Form instances
@@ -1279,9 +1280,6 @@ const BlogManagement = ({ userId, selectedTab }) => {
         >
           {selectedBlog && Object.keys(selectedBlog).length > 0 ? (
             <div>
-              <div className="blog-detail-item">
-                <b>ID:</b> {selectedBlog.id}
-              </div>
               <div className="blog-detail-item">
                 <b>Tiêu đề:</b> {selectedBlog.title}
               </div>

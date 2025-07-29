@@ -428,8 +428,19 @@
 .detail-value {
   color: #333;
   text-align: right;
-  flex: 1;
   word-break: break-word;
+}
+
+.result-link {
+  color: #1890ff !important;
+  cursor: pointer;
+  text-decoration: underline;
+  transition: color 0.3s ease;
+}
+
+.result-link:hover {
+  color: #40a9ff !important;
+  text-decoration: underline;
 }
 
 .detail-value.price {

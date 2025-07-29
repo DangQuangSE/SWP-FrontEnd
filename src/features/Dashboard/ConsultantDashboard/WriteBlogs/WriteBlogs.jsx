@@ -709,7 +709,6 @@ const WriteBlogs = ({ userId, selectedTab }) => {
       render: (title, record) => (
         <div>
           <div className="blog-title-cell">{title || "Không có tiêu đề"}</div>
-          <div className="blog-id-cell">ID: {record.id}</div>
         </div>
       ),
     },
@@ -925,33 +924,33 @@ const WriteBlogs = ({ userId, selectedTab }) => {
         {/* Statistics Cards */}
         <div className="stats-grid">
           <div className="stats-card total">
-            <div className="stats-number total">{totalBlogs}</div>
             <div className="stats-label">Tổng số bài viết</div>
+            <div className="stats-number total">{totalBlogs}</div>
           </div>
 
           <div className="stats-card published">
-            <div className="stats-number published">{publishedBlogs}</div>
             <div className="stats-label">Đã xuất bản</div>
+            <div className="stats-number published">{publishedBlogs}</div>
           </div>
 
           <div className="stats-card draft">
-            <div className="stats-number draft">{rejectBlogs}</div>
             <div className="stats-label">Từ chối</div>
+            <div className="stats-number draft">{rejectBlogs}</div>
           </div>
 
           <div className="stats-card views">
-            <div className="stats-number views">{totalViews}</div>
             <div className="stats-label">Tổng lượt xem</div>
+            <div className="stats-number views">{totalViews}</div>
           </div>
 
           <div className="stats-card likes">
-            <div className="stats-number likes">{totalLikes}</div>
             <div className="stats-label">Tổng lượt thích</div>
+            <div className="stats-number likes">{totalLikes}</div>
           </div>
 
           <div className="stats-card comments">
-            <div className="stats-number comments">{totalComments}</div>
             <div className="stats-label">Tổng bình luận</div>
+            <div className="stats-number comments">{totalComments}</div>
           </div>
         </div>
 

@@ -17,4 +17,4 @@ export const getDoctorWorkingSchedule = async (date) => {
   }
 };
 
-export default api;
+export default getDoctorWorkingSchedule;
