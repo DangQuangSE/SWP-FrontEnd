@@ -23,7 +23,6 @@ import {
   BarChartOutlined,
   ReloadOutlined,
   DownloadOutlined,
-  EyeOutlined,
 } from "@ant-design/icons";
 import dayjs from "dayjs";
 import api from "../../../../configs/api";
@@ -39,6 +38,7 @@ const DashboardReports = () => {
     dayjs(),
   ]);
   const [reportType, setReportType] = useState("overview");
+  const [statusFilter, setStatusFilter] = useState("ALL");
   const [dashboardData, setDashboardData] = useState({
     totalUsers: 0,
     totalAppointments: 0,
@@ -47,6 +47,7 @@ const DashboardReports = () => {
     monthRevenue: 0,
     completionRate: 0,
     recentAppointments: [],
+    allAppointments: [], // Store all appointments for filtering
     topServices: [],
     userStats: {},
     revenueStats: {},
@@ -57,7 +58,7 @@ const DashboardReports = () => {
   const loadDashboardData = async () => {
     setLoading(true);
     try {
-      console.log("📊 [DASHBOARD] Loading dashboard reports data...");
+      console.log(" [DASHBOARD] Loading dashboard reports data...");
 
       // Format date range for API calls
       const startDate = dateRange[0].format("YYYY-MM-DD");
@@ -72,15 +73,12 @@ const DashboardReports = () => {
         revenueMonthRes,
         bookingSummaryRes,
         bookingStatsRes,
-        customersRes,
-        consultantsRes,
-        staffRes,
-        servicesRes,
-        // Appointment status APIs
+        usersRes,
         pendingAppointmentsRes,
         confirmedAppointmentsRes,
+        checkedAppointmentsRes,
         completedAppointmentsRes,
-        canceledAppointmentsRes,
+        servicesRes,
       ] = await Promise.allSettled([
         api.get("/financial-reports/revenue-year"),
         api.get("/financial-reports/revenue-today"),
@@ -98,30 +96,41 @@ const DashboardReports = () => {
           },
         }),
         api.get("/admin/users?role=CUSTOMER"), // Get customer count
-        api.get("/admin/users?role=CONSULTANT"), // Get consultant count
-        api.get("/admin/users?role=STAFF"), // Get staff count
+        api.get("/appointment/by-status", {
+          params: {
+            status: "PENDING",
+          },
+        }),
+        api.get("/appointment/by-status", {
+          params: {
+            status: "CONFIRMED",
+          },
+        }),
+        api.get("/appointment/by-status", {
+          params: {
+            status: "CHECKED",
+          },
+        }),
+        api.get("/appointment/by-status", {
+          params: {
+            status: "COMPLETED",
+          },
+        }),
         api.get("/services"), // Get all services
-        // Get appointments by status
-        api.get("/appointment/by-status?status=PENDING"),
-        api.get("/appointment/by-status?status=CONFIRMED"),
-        api.get("/appointment/by-status?status=COMPLETED"),
-        api.get("/appointment/by-status?status=CANCELED"),
       ]);
 
-      console.log("📊 [DASHBOARD] API Responses:", {
+      console.log(" [DASHBOARD] API Responses:", {
         revenueYear: revenueYearRes,
         revenueToday: revenueTodayRes,
         revenueMonth: revenueMonthRes,
         bookingSummary: bookingSummaryRes,
         bookingStats: bookingStatsRes,
-        customers: customersRes,
-        consultants: consultantsRes,
-        staff: staffRes,
-        services: servicesRes,
+        users: usersRes,
         pendingAppointments: pendingAppointmentsRes,
         confirmedAppointments: confirmedAppointmentsRes,
+        checkedAppointments: checkedAppointmentsRes,
         completedAppointments: completedAppointmentsRes,
-        canceledAppointments: canceledAppointmentsRes,
+        services: servicesRes,
       });
 
       // Process revenue data
@@ -133,6 +142,11 @@ const DashboardReports = () => {
         revenueMonthRes.status === "fulfilled" ? revenueMonthRes.value.data : 0;
 
       // Process booking data
+      const bookingSummary =
+        bookingSummaryRes.status === "fulfilled" &&
+        bookingSummaryRes.value?.data
+          ? bookingSummaryRes.value.data
+          : {};
       const bookingStats =
         bookingStatsRes.status === "fulfilled" && bookingStatsRes.value?.data
           ? bookingStatsRes.value.data
@@ -154,218 +168,135 @@ const DashboardReports = () => {
         message.warning("Không thể tải thống kê booking");
       }
 
-      // Process user data by role
+      // Check for appointment API errors
+      const appointmentErrors = [];
+      if (pendingAppointmentsRes.status === "rejected") {
+        appointmentErrors.push("PENDING");
+        console.error(
+          "❌ [DASHBOARD] Pending appointments API error:",
+          pendingAppointmentsRes.reason
+        );
+      }
+      if (confirmedAppointmentsRes.status === "rejected") {
+        appointmentErrors.push("CONFIRMED");
+        console.error(
+          "❌ [DASHBOARD] Confirmed appointments API error:",
+          confirmedAppointmentsRes.reason
+        );
+      }
+      if (checkedAppointmentsRes.status === "rejected") {
+        appointmentErrors.push("CHECKED");
+        console.error(
+          "❌ [DASHBOARD] Checked appointments API error:",
+          checkedAppointmentsRes.reason
+        );
+      }
+      if (completedAppointmentsRes.status === "rejected") {
+        appointmentErrors.push("COMPLETED");
+        console.error(
+          "❌ [DASHBOARD] Completed appointments API error:",
+          completedAppointmentsRes.reason
+        );
+      }
+      if (appointmentErrors.length > 0) {
+        message.warning(
+          `Không thể tải dữ liệu lịch hẹn cho trạng thái: ${appointmentErrors.join(
+            ", "
+          )}`
+        );
+      }
+
+      // Process user data
       const customerCount =
-        customersRes.status === "fulfilled"
-          ? Array.isArray(customersRes.value.data)
-            ? customersRes.value.data.length
+        usersRes.status === "fulfilled"
+          ? Array.isArray(usersRes.value.data)
+            ? usersRes.value.data.length
             : 0
           : 0;
 
-      const consultantCount =
-        consultantsRes.status === "fulfilled"
-          ? Array.isArray(consultantsRes.value.data)
-            ? consultantsRes.value.data.length
-            : 0
-          : 0;
-
-      const staffCount =
-        staffRes.status === "fulfilled"
-          ? Array.isArray(staffRes.value.data)
-            ? staffRes.value.data.length
-            : 0
-          : 0;
-
-      console.log("📊 [DASHBOARD] User counts by role:", {
-        customers: customerCount,
-        consultants: consultantCount,
-        staff: staffCount,
-      });
-
-      // Process appointment data by status
-      const pendingCount =
-        pendingAppointmentsRes.status === "fulfilled"
-          ? Array.isArray(pendingAppointmentsRes.value.data)
-            ? pendingAppointmentsRes.value.data.length
-            : 0
-          : 0;
-
-      const confirmedCount =
-        confirmedAppointmentsRes.status === "fulfilled"
-          ? Array.isArray(confirmedAppointmentsRes.value.data)
-            ? confirmedAppointmentsRes.value.data.length
-            : 0
-          : 0;
-
-      const completedCount =
-        completedAppointmentsRes.status === "fulfilled"
-          ? Array.isArray(completedAppointmentsRes.value.data)
-            ? completedAppointmentsRes.value.data.length
-            : 0
-          : 0;
-
-      const canceledCount =
-        canceledAppointmentsRes.status === "fulfilled"
-          ? Array.isArray(canceledAppointmentsRes.value.data)
-            ? canceledAppointmentsRes.value.data.length
-            : 0
-          : 0;
-
-      // Calculate total appointments from all statuses
-      const totalAppointmentsByStatus =
-        pendingCount + confirmedCount + completedCount + canceledCount;
-
-      console.log("📊 [DASHBOARD] Appointment counts by status:", {
-        pending: pendingCount,
-        confirmed: confirmedCount,
-        completed: completedCount,
-        canceled: canceledCount,
-        total: totalAppointmentsByStatus,
-      });
-
-      // Calculate completion rate from actual appointment counts
-      const completionRate =
-        totalAppointmentsByStatus > 0
-          ? (completedCount / totalAppointmentsByStatus) * 100
-          : 0;
-
-      // Combine all appointments from different statuses for recent appointments
-      const allAppointments = [];
-
-      // Add appointments from each status with status info
-      if (
+      // Process appointments data from all status APIs
+      const pendingAppointments =
         pendingAppointmentsRes.status === "fulfilled" &&
-        Array.isArray(pendingAppointmentsRes.value.data)
-      ) {
-        allAppointments.push(
-          ...pendingAppointmentsRes.value.data.map((apt) => ({
-            ...apt,
-            status: "PENDING",
-          }))
-        );
-      }
-      if (
-        confirmedAppointmentsRes.status === "fulfilled" &&
-        Array.isArray(confirmedAppointmentsRes.value.data)
-      ) {
-        allAppointments.push(
-          ...confirmedAppointmentsRes.value.data.map((apt) => ({
-            ...apt,
-            status: "CONFIRMED",
-          }))
-        );
-      }
-      if (
-        completedAppointmentsRes.status === "fulfilled" &&
-        Array.isArray(completedAppointmentsRes.value.data)
-      ) {
-        allAppointments.push(
-          ...completedAppointmentsRes.value.data.map((apt) => ({
-            ...apt,
-            status: "COMPLETED",
-          }))
-        );
-      }
-      if (
-        canceledAppointmentsRes.status === "fulfilled" &&
-        Array.isArray(canceledAppointmentsRes.value.data)
-      ) {
-        allAppointments.push(
-          ...canceledAppointmentsRes.value.data.map((apt) => ({
-            ...apt,
-            status: "CANCELED",
-          }))
-        );
-      }
-
-      // Sort by date (most recent first) and take top 10
-      const recentAppointments = allAppointments
-        .sort(
-          (a, b) =>
-            new Date(b.createdAt || b.appointmentDate) -
-            new Date(a.createdAt || a.appointmentDate)
-        )
-        .slice(0, 10)
-        .map((apt) => ({
-          id: apt.id,
-          customerName: apt.customerName || "N/A",
-          serviceName: apt.serviceName || "N/A",
-          date: apt.appointmentDate || apt.createdAt,
-          status: apt.status,
-          revenue: apt.totalPrice || 0,
-        }));
-
-      console.log(
-        "📊 [DASHBOARD] Recent appointments from all statuses:",
-        recentAppointments
-      );
-
-      // Process services data and calculate top services based on appointment count
-      const servicesData =
-        servicesRes.status === "fulfilled" &&
-        Array.isArray(servicesRes.value.data)
-          ? servicesRes.value.data
+        pendingAppointmentsRes.value?.data
+          ? Array.isArray(pendingAppointmentsRes.value.data)
+            ? pendingAppointmentsRes.value.data
+            : []
           : [];
 
-      // Count appointments per service from all appointments
-      const serviceAppointmentCount = {};
-      const serviceRevenue = {};
+      const confirmedAppointments =
+        confirmedAppointmentsRes.status === "fulfilled" &&
+        confirmedAppointmentsRes.value?.data
+          ? Array.isArray(confirmedAppointmentsRes.value.data)
+            ? confirmedAppointmentsRes.value.data
+            : []
+          : [];
 
-      allAppointments.forEach((apt) => {
-        const serviceName = apt.serviceName || "Unknown Service";
-        const revenue = apt.totalPrice || 0;
+      const checkedAppointments =
+        checkedAppointmentsRes.status === "fulfilled" &&
+        checkedAppointmentsRes.value?.data
+          ? Array.isArray(checkedAppointmentsRes.value.data)
+            ? checkedAppointmentsRes.value.data
+            : []
+          : [];
 
-        serviceAppointmentCount[serviceName] =
-          (serviceAppointmentCount[serviceName] || 0) + 1;
-        serviceRevenue[serviceName] =
-          (serviceRevenue[serviceName] || 0) + revenue;
-      });
+      const completedAppointments =
+        completedAppointmentsRes.status === "fulfilled" &&
+        completedAppointmentsRes.value?.data
+          ? Array.isArray(completedAppointmentsRes.value.data)
+            ? completedAppointmentsRes.value.data
+            : []
+          : [];
 
-      // Create top services list from services API with appointment stats
-      const topServices = servicesData
-        .map((service) => ({
-          id: service.id,
-          name: service.name,
-          count: serviceAppointmentCount[service.name] || 0,
-          revenue: serviceRevenue[service.name] || 0,
-          price: service.price || 0,
-          type: service.type || "N/A",
-        }))
-        .sort((a, b) => b.count - a.count) // Sort by appointment count
-        .slice(0, 5); // Top 5 services
+      // Combine all appointments and sort by created_at (newest first)
+      const appointmentsData = [
+        ...pendingAppointments,
+        ...confirmedAppointments,
+        ...checkedAppointments,
+        ...completedAppointments,
+      ].sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
 
-      console.log("📊 [DASHBOARD] Top services calculated:", topServices);
+      console.log(
+        "📅 [DASHBOARD] Combined appointments data:",
+        appointmentsData
+      );
+
+      // Process services data
+      const servicesData =
+        servicesRes.status === "fulfilled" && servicesRes.value?.data
+          ? Array.isArray(servicesRes.value.data)
+            ? servicesRes.value.data
+            : []
+          : [];
+
+      console.log("🔧 [DASHBOARD] Services data:", servicesData);
+
+      // Calculate completion rate from booking stats
+      const totalBookings = bookingStats.totalBookings || 0;
+      const completedBookings = bookingStats.completedBookings || 0;
+      const completionRate =
+        totalBookings > 0 ? (completedBookings / totalBookings) * 100 : 0;
 
       const processedData = {
         totalUsers: customerCount,
-        totalAppointments: totalAppointmentsByStatus, // Use actual count from API
+        totalAppointments: appointmentsData.length, // Count of all appointments from API
         totalRevenue: yearRevenue,
         todayRevenue: todayRevenue,
         monthRevenue: monthRevenue,
         completionRate: completionRate,
-        recentAppointments: recentAppointments, // Use combined appointments from all statuses
-        topServices: topServices, // Use calculated top services from API
+        allAppointments: appointmentsData, // Store all appointments
+        recentAppointments: appointmentsData.slice(0, 10), // Show latest 10 appointments
+        topServices: servicesData.slice(0, 5), // Show top 5 services
         userStats: {
           customers: customerCount,
-          consultants: consultantCount, // From API
-          staff: staffCount, // From API
+          consultants: 25, // Will need separate API
+          staff: 15, // Will need separate API
         },
-        bookingStats: {
-          ...bookingStats,
-          // Add appointment status breakdown
-          appointmentsByStatus: {
-            pending: pendingCount,
-            confirmed: confirmedCount,
-            completed: completedCount,
-            canceled: canceledCount,
-            total: totalAppointmentsByStatus,
-          },
-        },
+        bookingStats: bookingStats,
       };
 
       setDashboardData(processedData);
       console.log(
-        "[DASHBOARD] Dashboard data loaded successfully:",
+        " [DASHBOARD] Dashboard data loaded successfully:",
         processedData
       );
     } catch (error) {
@@ -396,6 +327,16 @@ const DashboardReports = () => {
   useEffect(() => {
     loadDashboardData();
   }, [dateRange, reportType]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Filter appointments based on status
+  const getFilteredAppointments = () => {
+    if (statusFilter === "ALL") {
+      return dashboardData.allAppointments.slice(0, 10);
+    }
+    return dashboardData.allAppointments
+      .filter((appointment) => appointment.status === statusFilter)
+      .slice(0, 10);
+  };
 
   // Statistics cards data
   const statisticsCards = [
@@ -437,14 +378,6 @@ const DashboardReports = () => {
       suffix: "VND",
       formatter: (value) => `${(value / 1000000).toFixed(1)}M`,
     },
-    {
-      title: "Tỷ lệ hoàn thành",
-      value: dashboardData.completionRate,
-      icon: <TrophyOutlined />,
-      color: "#722ed1",
-      suffix: "%",
-      formatter: (value) => `${value.toFixed(1)}`,
-    },
   ];
 
   // Recent appointments table columns
@@ -460,10 +393,15 @@ const DashboardReports = () => {
       key: "serviceName",
     },
     {
-      title: "Ngày",
-      dataIndex: "date",
-      key: "date",
-      render: (date) => dayjs(date).format("DD/MM/YYYY"),
+      title: "Ngày & Giờ",
+      dataIndex: "appointmentDetails",
+      key: "slotTime",
+      render: (appointmentDetails) => {
+        if (!appointmentDetails || appointmentDetails.length === 0) return "-";
+        const slotTime = appointmentDetails[0]?.slotTime;
+        if (!slotTime) return "-";
+        return dayjs(slotTime).format("DD/MM/YYYY HH:mm");
+      },
     },
     {
       title: "Trạng thái",
@@ -471,10 +409,12 @@ const DashboardReports = () => {
       key: "status",
       render: (status) => {
         const statusMap = {
-          PENDING: { color: "orange", text: "Chờ xác nhận" },
-          CONFIRMED: { color: "blue", text: "Đã xác nhận" },
           COMPLETED: { color: "green", text: "Hoàn thành" },
+          CONFIRMED: { color: "blue", text: "Đã xác nhận" },
+          CHECKED: { color: "cyan", text: "Đã check in" },
+          PENDING: { color: "orange", text: "Chờ xác nhận" },
           CANCELED: { color: "red", text: "Đã hủy" },
+          ABSENT: { color: "volcano", text: "Vắng mặt" },
         };
         const statusInfo = statusMap[status] || {
           color: "default",
@@ -484,35 +424,61 @@ const DashboardReports = () => {
       },
     },
     {
-      title: "Doanh thu",
-      dataIndex: "revenue",
-      key: "revenue",
-      render: (revenue) => `${revenue.toLocaleString()} VND`,
+      title: "Giá tiền",
+      dataIndex: "price",
+      key: "price",
+      render: (price) => {
+        if (!price) return "-";
+        return `${price.toLocaleString()} VND`;
+      },
     },
   ];
+
+  // Service type translation
+  const getServiceTypeText = (type) => {
+    const typeMap = {
+      CONSULTING: "Tư vấn",
+      CONSULTING_ON: "Tư vấn trực tuyến",
+      TESTING: "Xét nghiệm",
+      TREATMENT: "Điều trị",
+      EXAMINATION: "Khám bệnh",
+      COMBO: "Gói combo",
+    };
+    return typeMap[type] || type;
+  };
 
   // Top services table columns
   const serviceColumns = [
     {
-      title: "Dịch vụ",
+      title: "Tên dịch vụ",
       dataIndex: "name",
       key: "name",
+      width: "40%",
     },
     {
-      title: "Số lượng",
-      dataIndex: "count",
-      key: "count",
-      render: (count) => <Statistic value={count} suffix="lịch hẹn" />,
+      title: "Loại dịch vụ",
+      dataIndex: "type",
+      key: "type",
+      render: (type) => <Tag color="blue">{getServiceTypeText(type)}</Tag>,
     },
     {
-      title: "Doanh thu",
-      dataIndex: "revenue",
-      key: "revenue",
-      render: (revenue) => (
+      title: "Chuyên khoa",
+      dataIndex: "specializations",
+      key: "specializations",
+      render: (specializations) => {
+        if (!specializations || specializations.length === 0) return "-";
+        return <Tag color="green">{specializations[0].name}</Tag>;
+      },
+    },
+    {
+      title: "Giá",
+      dataIndex: "price",
+      key: "price",
+      render: (price) => (
         <Statistic
-          value={revenue}
+          value={price}
           suffix="VND"
-          formatter={(value) => `${(value / 1000000).toFixed(1)}M`}
+          formatter={(value) => `${(value / 1000).toLocaleString()}K`}
         />
       ),
     },
@@ -590,14 +556,23 @@ const DashboardReports = () => {
                 </Space>
               }
               extra={
-                <Button icon={<EyeOutlined />} size="small">
-                  Xem tất cả
-                </Button>
+                <Select
+                  value={statusFilter}
+                  onChange={setStatusFilter}
+                  style={{ width: 150 }}
+                  size="small"
+                >
+                  <Option value="ALL">Tất cả trạng thái</Option>
+                  <Option value="PENDING">Chờ xác nhận</Option>
+                  <Option value="CONFIRMED">Đã xác nhận</Option>
+                  <Option value="CHECKED">Đã check in</Option>
+                  <Option value="COMPLETED">Hoàn thành</Option>
+                </Select>
               }
             >
               <Table
                 columns={appointmentColumns}
-                dataSource={dashboardData.recentAppointments}
+                dataSource={getFilteredAppointments()}
                 pagination={false}
                 size="small"
                 rowKey="id"
@@ -627,67 +602,6 @@ const DashboardReports = () => {
         </Row>
 
         <Divider />
-
-        {/* Appointment Status Breakdown */}
-        <Row gutter={[16, 16]} style={{ marginBottom: 24 }}>
-          <Col xs={24}>
-            <Card
-              title={
-                <Space>
-                  <CalendarOutlined />
-                  <span>Thống kê lịch hẹn theo trạng thái</span>
-                </Space>
-              }
-            >
-              <Row gutter={[16, 16]}>
-                <Col xs={12} sm={6}>
-                  <Statistic
-                    title="Chờ xác nhận"
-                    value={
-                      dashboardData.bookingStats?.appointmentsByStatus
-                        ?.pending || 0
-                    }
-                    valueStyle={{ color: "#faad14" }}
-                    suffix="lịch hẹn"
-                  />
-                </Col>
-                <Col xs={12} sm={6}>
-                  <Statistic
-                    title="Đã xác nhận"
-                    value={
-                      dashboardData.bookingStats?.appointmentsByStatus
-                        ?.confirmed || 0
-                    }
-                    valueStyle={{ color: "#1890ff" }}
-                    suffix="lịch hẹn"
-                  />
-                </Col>
-                <Col xs={12} sm={6}>
-                  <Statistic
-                    title="Hoàn thành"
-                    value={
-                      dashboardData.bookingStats?.appointmentsByStatus
-                        ?.completed || 0
-                    }
-                    valueStyle={{ color: "#52c41a" }}
-                    suffix="lịch hẹn"
-                  />
-                </Col>
-                <Col xs={12} sm={6}>
-                  <Statistic
-                    title="Đã hủy"
-                    value={
-                      dashboardData.bookingStats?.appointmentsByStatus
-                        ?.canceled || 0
-                    }
-                    valueStyle={{ color: "#ff4d4f" }}
-                    suffix="lịch hẹn"
-                  />
-                </Col>
-              </Row>
-            </Card>
-          </Col>
-        </Row>
 
         {/* User Statistics */}
         <Row gutter={[16, 16]}>

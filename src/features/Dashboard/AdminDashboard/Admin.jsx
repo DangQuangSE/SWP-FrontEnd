@@ -35,6 +35,9 @@ import ConfigManagement from "./ConfigManagement/ConfigManagement";
 // Import Doctor Working Hours component
 import { DoctorWorkingHours } from "./DoctorWorkingHours";
 
+// Import Dashboard Reports component
+import DashboardReports from "./DashboardReports/DashboardReports";
+
 const { Header, Content, Sider } = Layout;
 const { Title } = Typography;
 
@@ -145,13 +148,7 @@ function Admin() {
       case "manage_articles":
         return <BlogManagement userId={null} selectedTab="write_blogs" />;
       case "dashboard_reports":
-        return (
-          <Card title="Dashboard & Reports">
-            <p>
-              Admin dashboard with analytics and reports will be displayed here.
-            </p>
-          </Card>
-        );
+        return <DashboardReports />;
       case "handle_feedback":
         return (
           <Card title="Handle Service/Consultant Feedback">

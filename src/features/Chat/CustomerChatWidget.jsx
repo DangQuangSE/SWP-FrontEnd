@@ -336,7 +336,7 @@ const CustomerChatWidget = () => {
   const updateUnreadCount = useCallback(
     (newCount) => {
       console.log(
-        `📊 [CUSTOMER CHAT] Updating unread count: ${unreadCount} → ${newCount}`
+        ` [CUSTOMER CHAT] Updating unread count: ${unreadCount} → ${newCount}`
       );
       setUnreadCount(newCount);
       saveUnreadCount(newCount);
@@ -349,7 +349,7 @@ const CustomerChatWidget = () => {
     if (!sessionId || !customerName) return;
 
     try {
-      console.log("📊 [CUSTOMER CHAT] Fetching unread count from server...");
+      console.log(" [CUSTOMER CHAT] Fetching unread count from server...");
       const count = await customerChatAPI.getUnreadCount(
         sessionId,
         customerName
@@ -385,7 +385,7 @@ const CustomerChatWidget = () => {
       if (currentStaffCount > previousStaffCount) {
         const newMessagesCount = currentStaffCount - previousStaffCount;
         console.log(
-          `📊 [CUSTOMER CHAT] Found ${newMessagesCount} new staff messages (${previousStaffCount} → ${currentStaffCount})`
+          ` [CUSTOMER CHAT] Found ${newMessagesCount} new staff messages (${previousStaffCount} → ${currentStaffCount})`
         );
 
         // Increment unread count by the number of new messages
