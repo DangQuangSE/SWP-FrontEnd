@@ -39,6 +39,8 @@ import {
 } from "@ant-design/icons";
 import { toast } from "react-toastify";
 import "./MedicalResultViewer.css";
+import TreatmentProtocolViewModal from "../../features/Dashboard/ConsultantDashboard/TreatmentProtocol/TreatmentProtocolViewModal";
+import api from "../../configs/api";
 
 const { Text, Title, Paragraph } = Typography;
 
@@ -59,13 +61,12 @@ const generatePDF = async (result) => {
           .header { text-align: center; border-bottom: 2px solid #1890ff; padding-bottom: 20px; margin-bottom: 30px; }
           .result-section { margin-bottom: 20px; padding: 15px; border: 1px solid #f0f0f0; border-radius: 8px; }
           .result-title { font-size: 18px; font-weight: bold; color: #1890ff; margin-bottom: 10px; }
-          .result-value { font-size: 24px; font-weight: bold; color: ${
-            result.testStatus === "ABNORMAL"
-              ? "#ff4d4f"
-              : result.testStatus === "NORMAL"
-              ? "#52c41a"
-              : "#faad14"
-          }; }
+          .result-value { font-size: 24px; font-weight: bold; color: ${result.testStatus === "ABNORMAL"
+        ? "#ff4d4f"
+        : result.testStatus === "NORMAL"
+          ? "#52c41a"
+          : "#faad14"
+      }; }
           .normal-range { color: #666; font-size: 14px; }
           .diagnosis { background: #f6ffed; padding: 15px; border-left: 4px solid #52c41a; margin: 15px 0; }
           .treatment { background: #fff7e6; padding: 15px; border-left: 4px solid #faad14; margin: 15px 0; }
@@ -76,61 +77,65 @@ const generatePDF = async (result) => {
         <div class="header">
           <h1>KẾT QUẢ KHÁM BỆNH</h1>
           <p><strong>${result.testName || result.serviceName}</strong></p>
-          <p>Ngày: ${
-            result.createdAt
-              ? new Date(result.createdAt).toLocaleDateString("vi-VN")
-              : "N/A"
-          }</p>
+          <p>Ngày: ${result.createdAt
+        ? new Date(result.createdAt).toLocaleDateString("vi-VN")
+        : "N/A"
+      }</p>
         </div>
 
         <div class="result-section">
           <div class="result-title">Kết quả xét nghiệm</div>
           <div class="result-value">${result.testResult || "N/A"}</div>
-          <div class="normal-range">Giá trị bình thường: ${
-            result.normalRange || "N/A"
-          }</div>
+          <div class="normal-range">Giá trị bình thường: ${result.normalRange || "N/A"
+      }</div>
         </div>
 
-        ${
-          result.diagnosis
-            ? `
+        ${result.diagnosis
+        ? `
         <div class="diagnosis">
           <strong>Chẩn đoán:</strong><br>
           ${result.diagnosis}
         </div>
         `
-            : ""
-        }
+        : ""
+      }
 
-        ${
-          result.treatmentPlan
-            ? `
+        ${result.treatmentPlan
+        ? `
         <div class="treatment">
           <strong>Kế hoạch điều trị:</strong><br>
           ${result.treatmentPlan}
         </div>
         `
-            : ""
-        }
+        : ""
+      }
 
-        ${
-          result.labNotes
-            ? `
+        ${result.labNotes
+        ? `
         <div class="result-section">
           <div class="result-title">Ghi chú từ phòng lab</div>
           <p>${result.labNotes}</p>
         </div>
         `
-            : ""
-        }
+        : ""
+      }
+
+        ${treatmentProtocolName
+        ? `
+        <div class="result-section">
+          <div class="result-title">Phác đồ điều trị</div>
+          <p>${treatmentProtocolName}</p>
+        </div>
+        `
+        : ""
+      }
 
         <div class="footer">
-          <p><strong>Bác sĩ thực hiện:</strong> ${
-            result.doctorName || "N/A"
-          }</p>
+          <p><strong>Bác sĩ thực hiện:</strong> ${result.doctorName || "N/A"
+      }</p>
           <p><strong>Ngày tạo báo cáo:</strong> ${new Date().toLocaleDateString(
-            "vi-VN"
-          )}</p>
+        "vi-VN"
+      )}</p>
           <p><em>Báo cáo này được tạo tự động từ hệ thống quản lý bệnh viện</em></p>
         </div>
       </body>
@@ -142,9 +147,8 @@ const generatePDF = async (result) => {
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
     link.href = url;
-    link.download = `ket-qua-kham-${
-      result.testName || "result"
-    }-${new Date().getTime()}.html`;
+    link.download = `ket-qua-kham-${result.testName || "result"
+      }-${new Date().getTime()}.html`;
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -159,14 +163,14 @@ const generatePDF = async (result) => {
   }
 };
 
-const handlePrint = (result) => {
+
+const handlePrint = (result, treatmentProtocolName = null) => {
   try {
     const printContent = `
       <html>
       <head>
-        <title>In kết quả khám - ${
-          result.testName || result.serviceName
-        }</title>
+        <title>In kết quả khám - ${result.testName || result.serviceName
+      }</title>
         <style>
           @media print {
             body { margin: 0; font-family: Arial, sans-serif; }
@@ -186,66 +190,70 @@ const handlePrint = (result) => {
         <div class="header">
           <h1>KẾT QUẢ KHÁM BỆNH</h1>
           <p><strong>${result.testName || result.serviceName}</strong></p>
-          <p>Ngày: ${
-            result.createdAt
-              ? new Date(result.createdAt).toLocaleDateString("vi-VN")
-              : "N/A"
-          }</p>
+          <p>Ngày: ${result.createdAt
+        ? new Date(result.createdAt).toLocaleDateString("vi-VN")
+        : "N/A"
+      }</p>
         </div>
 
         <div class="result-section">
           <div class="result-title">Kết quả xét nghiệm</div>
           <div class="result-value">${result.testResult || "N/A"}</div>
           <p>Giá trị bình thường: ${result.normalRange || "N/A"}</p>
-          <p>Trạng thái: ${
-            result.testStatus === "NORMAL"
-              ? "Bình thường"
-              : result.testStatus === "ABNORMAL"
-              ? "Bất thường"
-              : "Đang xử lý"
-          }</p>
+          <p>Trạng thái: ${result.testStatus === "NORMAL"
+        ? "Bình thường"
+        : result.testStatus === "ABNORMAL"
+          ? "Bất thường"
+          : "Đang xử lý"
+      }</p>
         </div>
 
-        ${
-          result.diagnosis
-            ? `
+        ${result.diagnosis
+        ? `
         <div class="diagnosis">
           <strong>Chẩn đoán:</strong><br>
           ${result.diagnosis}
         </div>
         `
-            : ""
-        }
+        : ""
+      }
 
-        ${
-          result.treatmentPlan
-            ? `
+        ${result.treatmentPlan
+        ? `
         <div class="treatment">
           <strong>Kế hoạch điều trị:</strong><br>
           ${result.treatmentPlan}
         </div>
         `
-            : ""
-        }
+        : ""
+      }
 
-        ${
-          result.labNotes
-            ? `
+        ${result.labNotes
+        ? `
         <div class="result-section">
           <div class="result-title">Ghi chú từ phòng lab</div>
           <p>${result.labNotes}</p>
         </div>
         `
-            : ""
-        }
+        : ""
+      }
+
+        ${treatmentProtocolName
+        ? `
+        <div class="result-section">
+          <div class="result-title">Phác đồ điều trị</div>
+          <p>${treatmentProtocolName}</p>
+        </div>
+        `
+        : ""
+      }
 
         <div class="footer">
-          <p><strong>Bác sĩ thực hiện:</strong> ${
-            result.doctorName || "N/A"
-          }</p>
+          <p><strong>Bác sĩ thực hiện:</strong> ${result.doctorName || "N/A"
+      }</p>
           <p><strong>Ngày in:</strong> ${new Date().toLocaleDateString(
-            "vi-VN"
-          )} ${new Date().toLocaleTimeString("vi-VN")}</p>
+        "vi-VN"
+      )} ${new Date().toLocaleTimeString("vi-VN")}</p>
         </div>
       </body>
       </html>
@@ -298,7 +306,7 @@ const handleDefaultModalClose = () => {
 
 const MedicalResultViewer = ({ result, compact = false, onClose }) => {
   const [detailModalVisible, setDetailModalVisible] = useState(false);
-  const printRef = useRef();
+
 
   if (!result) {
     return (
@@ -473,7 +481,7 @@ const MedicalResultViewer = ({ result, compact = false, onClose }) => {
               <Button
                 icon={<DownloadOutlined />}
                 size="small"
-                onClick={() => generatePDF(result)}
+                onClick={() => generatePDF(result, getTreatmentProtocolName(result.treatmentProtocolId))}
                 type="primary"
                 ghost
               >
@@ -482,7 +490,7 @@ const MedicalResultViewer = ({ result, compact = false, onClose }) => {
               <Button
                 icon={<PrinterOutlined />}
                 size="small"
-                onClick={() => handlePrint(result)}
+                onClick={() => handlePrint(result, getTreatmentProtocolName(result.treatmentProtocolId))}
               >
                 In
               </Button>
@@ -637,6 +645,30 @@ const getTestTypeDisplay = (type) => {
 
 // Professional Medical Result Display Component
 const ProfessionalResultDisplay = ({ result }) => {
+  const printRef = useRef();
+  const [treatmentProtocolModalVisible, setTreatmentProtocolModalVisible] = useState(false);
+  const [selectedProtocol, setSelectedProtocol] = useState(null);
+  const [loadingProtocol, setLoadingProtocol] = useState(false);
+
+  const handleTreatmentProtocolClick = () => {
+    if (result?.treatmentProtocolId) {
+      fetchTreatmentProtocolDetail(result.treatmentProtocolId);
+    }
+  };
+
+  const fetchTreatmentProtocolDetail = async (protocolId) => {
+    try {
+      setLoadingProtocol(true);
+      const response = await api.get(`/treatment/${protocolId}`);
+      setSelectedProtocol(response.data);
+      setTreatmentProtocolModalVisible(true);
+    } catch (error) {
+      console.error("Error fetching treatment protocol detail:", error);
+      message.error("Không thể tải thông tin phác đồ điều trị!");
+    } finally {
+      setLoadingProtocol(false);
+    }
+  };
   const getSeverityInfo = (testStatus) => {
     switch (testStatus) {
       case "NORMAL":
@@ -1116,8 +1148,61 @@ const ProfessionalResultDisplay = ({ result }) => {
               </div>
             </Card>
           )}
+
+          {/* Treatment Protocol */}
+          {result.treatmentProtocolId && (
+            <Card
+              style={{
+                borderRadius: "12px",
+                boxShadow: "0 2px 8px rgba(0,0,0,0.06)",
+              }}
+              styles={{ body: { padding: "20px" } }}
+              hoverable
+              onClick={handleTreatmentProtocolClick}
+              loading={loadingProtocol}
+
+            >
+              <div
+                style={{
+                  fontSize: "16px",
+                  fontWeight: "600",
+                  marginBottom: "16px",
+                  color: "#1a1a1a",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "8px",
+                }}
+              >
+                {/* <FileTextOutlined style={{ color: "#1890ff" }} /> */}
+                Phác đồ điều trị
+              </div>
+              <div
+                style={{
+                  background: "#fafafa",
+                  border: "1px solid #f0f0f0",
+                  borderRadius: "8px",
+                  padding: "16px",
+                  fontSize: "14px",
+                  lineHeight: 1.6,
+                  color: "#666",
+                }}
+              >
+                {result.labNotes}
+              </div>
+            </Card>
+          )}
+
+
         </Col>
       </Row>
+      <TreatmentProtocolViewModal
+        visible={treatmentProtocolModalVisible}
+        onClose={() => {
+          setTreatmentProtocolModalVisible(false);
+          setSelectedProtocol(null);
+        }}
+        protocol={selectedProtocol}
+      />
     </div>
   );
 };
@@ -1181,7 +1266,7 @@ const DetailModal = ({ visible, onClose, result, severity }) => (
         key="download"
         icon={<DownloadOutlined />}
         type="primary"
-        onClick={() => generatePDF(result)}
+        onClick={() => generatePDF(result, getTreatmentProtocolName(result.treatmentProtocolId))}
         style={{ borderRadius: "6px" }}
       >
         Tải xuống PDF
@@ -1189,7 +1274,7 @@ const DetailModal = ({ visible, onClose, result, severity }) => (
       <Button
         key="print"
         icon={<PrinterOutlined />}
-        onClick={() => handlePrint(result)}
+        onClick={() => handlePrint(result, getTreatmentProtocolName(result.treatmentProtocolId))}
         style={{ borderRadius: "6px" }}
       >
         In
