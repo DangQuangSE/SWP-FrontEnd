@@ -16,44 +16,44 @@ const toastConfig = {
 export const showToast = {
   success: (message, customConfig = {}) =>
     toast.success(message, { ...toastConfig, ...customConfig }),
-  
+
   error: (message, customConfig = {}) =>
-    toast.error(message, { 
-      ...toastConfig, 
+    toast.error(message, {
+      ...toastConfig,
       autoClose: 3000, // Error toast hiển thị lâu hơn
-      ...customConfig 
+      ...customConfig,
     }),
-  
+
   info: (message, customConfig = {}) =>
     toast.info(message, { ...toastConfig, ...customConfig }),
-  
+
   warning: (message, customConfig = {}) =>
     toast.warning(message, { ...toastConfig, ...customConfig }),
-  
+
   // Custom toast với icon
-  successWithIcon: (message, icon = "✅") =>
+  successWithIcon: (message, icon = "✓") =>
     toast.success(`${icon} ${message}`, toastConfig),
-  
-  errorWithIcon: (message, icon = "❌") =>
-    toast.error(`${icon} ${message}`, { 
-      ...toastConfig, 
-      autoClose: 3000 
+
+  errorWithIcon: (message, icon = "✗") =>
+    toast.error(`${icon} ${message}`, {
+      ...toastConfig,
+      autoClose: 3000,
     }),
-  
+
   // Toast cho các action cụ thể
   loading: (message) =>
     toast.loading(message, {
       ...toastConfig,
       autoClose: false, // Loading toast không tự đóng
     }),
-  
+
   // Update loading toast
   updateLoading: (toastId, message, type = "success") => {
     const config = {
       ...toastConfig,
       autoClose: type === "error" ? 3000 : 2500,
     };
-    
+
     if (type === "success") {
       toast.update(toastId, {
         render: message,
@@ -70,10 +70,10 @@ export const showToast = {
       });
     }
   },
-  
+
   // Dismiss all toasts
   dismissAll: () => toast.dismiss(),
-  
+
   // Dismiss specific toast
   dismiss: (toastId) => toast.dismiss(toastId),
 };
@@ -94,7 +94,7 @@ export const toastMessages = {
     upload: "Tải lên thành công!",
     download: "Tải xuống thành công!",
   },
-  
+
   // Error messages
   error: {
     save: "Lỗi khi lưu dữ liệu!",
@@ -108,14 +108,14 @@ export const toastMessages = {
     upload: "Lỗi khi tải lên!",
     download: "Lỗi khi tải xuống!",
   },
-  
+
   // Info messages
   info: {
     loading: "Đang tải dữ liệu...",
     processing: "Đang xử lý...",
     waiting: "Vui lòng đợi...",
   },
-  
+
   // Warning messages
   warning: {
     unsaved: "Bạn có thay đổi chưa được lưu!",

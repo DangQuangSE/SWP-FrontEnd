@@ -530,7 +530,7 @@ const StaffChatInterface = ({ defaultTab = "waiting", hideTabs = false }) => {
     // Cleanup function to prevent multiple subscriptions
     return () => {
       if (subscriptionRef.current) {
-        console.log("🧹 [STAFF CHAT] Cleaning up WebSocket subscriptions...");
+        console.log("[STAFF CHAT] Cleaning up WebSocket subscriptions...");
 
         // Unsubscribe from all subscriptions
         if (subscriptionRef.current.newSession) {
@@ -1306,7 +1306,7 @@ const StaffChatInterface = ({ defaultTab = "waiting", hideTabs = false }) => {
                           }}
                         />
                         {/* Debug log */}
-                        {console.log(`🎨 [STAFF CHAT] Message colors:`, {
+                        {console.log(`[STAFF CHAT] Message colors:`, {
                           senderType: msg.senderType,
                           avatarColor: getAvatarColor(msg.senderType),
                           bubbleStyle: getMessageBubbleStyle(msg.senderType),

@@ -2,15 +2,34 @@
 .doctors-section {
   background-color: #f7fbfd;
   padding: 64px 0;
+  position: relative;
+  z-index: 1;
+  text-align: center;
 }
 
-.section-title {
+/* Ensure no conflicts with Hero Splide */
+.doctors-section .testimonials-splide {
+  position: relative;
+  z-index: 2;
+}
+
+/* Performance optimization */
+.testimonials-splide,
+.testimonials-splide * {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeSpeed;
+}
+
+.doctors-section-title {
   text-align: center;
   font-size: 2rem;
-  font-weight: 800;
-  margin-bottom: 12px;
+  margin: 0 auto 12px auto;
+  width: 100%;
+  display: block;
   background: linear-gradient(to right, #0288d1, #00bcd4);
   -webkit-background-clip: text;
+  background-clip: text;
   -webkit-text-fill-color: transparent;
   letter-spacing: 0.5px;
 }
@@ -26,26 +45,72 @@
   margin-right: auto;
 }
 
-/* ========== SPLIDE STYLES ========== */
-.splide__slide {
+/* ========== SPLIDE STYLES - TESTIMONIALS SPECIFIC ========== */
+.testimonials-splide {
+  overflow: hidden;
+  position: relative;
+}
+
+.testimonials-splide .splide__track {
+  padding: 0 !important;
+  margin: 0 !important;
+}
+
+.testimonials-splide .splide__list {
+  gap: 0px !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  animation: scroll-left 20s linear infinite;
+}
+
+/* Force remove all spacing */
+.testimonials-splide .splide__slide:not(:last-child) {
+  margin-right: -8px !important;
+}
+
+@keyframes scroll-left {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-100%);
+  }
+}
+
+.testimonials-splide:hover .splide__list {
+  animation-play-state: paused;
+}
+
+.testimonials-splide .splide__slide {
   display: flex;
   justify-content: center;
+  align-items: stretch;
+  margin: 0 -8px 0 0 !important;
+  padding: 0 !important;
 }
 
 /* ========== DOCTOR CARD ========== */
 .doctor-card {
-  width: 100%;
-  max-width: 300px;
+  width: 280px;
+  min-width: 280px;
+  max-width: 280px;
+  height: 320px;
   background: #ffffff;
   border-radius: 16px;
-  padding: 24px 20px;
+  padding: 16px 16px;
+  margin: 0 !important;
   box-shadow: 0 6px 24px rgba(0, 0, 0, 0.08);
   display: flex;
   flex-direction: column;
   align-items: center;
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  justify-content: space-between;
+  flex-shrink: 0;
+  transition: transform 0.3s cubic-bezier(0.25, 1, 0.5, 1),
+    box-shadow 0.3s cubic-bezier(0.25, 1, 0.5, 1);
   position: relative;
   overflow: hidden;
+  transform: translateZ(0);
+  backface-visibility: hidden;
 }
 
 .doctor-card::before {
@@ -63,11 +128,19 @@
   box-shadow: 0 12px 32px rgba(0, 0, 0, 0.12);
 }
 
+.doctor-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex-grow: 1;
+  justify-content: flex-start;
+}
+
 /* ========== AVATAR ========== */
 .doctor-avatar {
-  width: 120px;
-  height: 120px;
-  margin-bottom: 16px;
+  width: 90px;
+  height: 90px;
+  margin-bottom: 8px;
 }
 
 .doctor-avatar img {
@@ -79,35 +152,49 @@
 
 /* ========== NAME + TITLE ========== */
 .doctor-name {
-  font-size: 16px;
+  font-size: 15px;
   font-weight: 700;
   color: #1e293b;
   text-align: center;
-  margin-bottom: 4px;
+  margin-bottom: 2px;
+  line-height: 1.2;
 }
 
 .doctor-title {
-  font-size: 13px;
+  font-size: 14px;
   color: #64748b;
-  margin-bottom: 12px;
+  margin-bottom: 10px;
+  margin-top: 10px;
   text-align: center;
+  line-height: 1.2;
 }
 
 /* ========== DETAILS BADGES ========== */
 .doctor-details {
   display: flex;
   flex-direction: column;
-  gap: 8px;
-  margin-bottom: 16px;
+  gap: 2px;
   width: 100%;
+  max-height: 60px;
+  overflow: hidden;
 }
 
 .doctor-details div {
-  font-size: 13px;
+  font-size: 14px;
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 4px;
   color: #475569;
+  line-height: 1.2;
+}
+
+.specialist-badge span {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .specialist-badge {
@@ -121,8 +208,8 @@
   justify-content: center;
   align-items: center;
   width: 100%;
-  font-size: 12px;
-  margin-bottom: 16px;
+  font-size: 11px;
+  margin-bottom: 8px;
   color: #64748b;
 }
 
@@ -165,12 +252,12 @@
 .consult-btn {
   background: #0283f5;
   color: white;
-  padding: 10px 16px;
+  padding: 8px 14px;
   border: none;
   border-radius: 6px;
   font-weight: 500;
   cursor: pointer;
-  font-size: 14px;
+  font-size: 13px;
   width: 100%;
   text-align: center;
   transition: background 0.3s ease;
@@ -213,4 +300,68 @@
 /* ========== ENHANCED DOCTOR DETAILS ========== */
 .doctor-details .contact {
   max-width: 200px;
+}
+
+/* ========== RESPONSIVE DESIGN ========== */
+@media (max-width: 1024px) {
+  .testimonials-splide .splide__slide {
+    margin-right: 0;
+  }
+
+  .testimonials-splide .splide__list {
+    gap: 0px;
+  }
+
+  .doctor-card {
+    width: 260px;
+    min-width: 260px;
+    max-width: 260px;
+  }
+}
+
+@media (max-width: 768px) {
+  .doctors-section {
+    padding: 48px 0;
+  }
+
+  .testimonials-splide .splide__list {
+    gap: 0px;
+  }
+
+  .doctor-card {
+    width: 240px;
+    min-width: 240px;
+    max-width: 240px;
+    height: 300px;
+  }
+
+  .doctors-section-title {
+    font-size: 1.75rem;
+  }
+}
+
+@media (max-width: 640px) {
+  .doctors-section {
+    padding: 32px 0;
+  }
+
+  .testimonials-splide .splide__list {
+    gap: 0px;
+  }
+
+  .doctor-card {
+    width: 280px;
+    min-width: 280px;
+    max-width: 280px;
+    margin: 0 auto;
+  }
+
+  .doctors-section-title {
+    font-size: 1.5rem;
+  }
+
+  .section-subtitle-description {
+    font-size: 0.9rem;
+    padding: 0 16px;
+  }
 }

@@ -1,13 +1,12 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { Splide, SplideSlide } from "@splidejs/react-splide";
+import "@splidejs/react-splide/css";
 import "./Hero.css";
-import Hero1 from "../../../assets/images/hero1.jpg"; // Adjust the path as necessary
+import Hero1 from "../../../assets/images/hero1.jpg";
 import Hero2 from "../../../assets/images/hero2.jpg";
 import Hero3 from "../../../assets/images/hero3.jpg";
 const Hero = () => {
-  const [currentSlide, setCurrentSlide] = useState(0);
-
   const slides = [
     {
       image: Hero1,
@@ -20,72 +19,31 @@ const Hero = () => {
     },
   ];
 
-  // Auto-play functionality
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setCurrentSlide((prev) => (prev + 1) % slides.length);
-    }, 2000); // Change slide every 2 seconds
-
-    return () => clearInterval(interval);
-  }, [slides.length]);
-
-  const nextSlide = () => {
-    setCurrentSlide((prev) => (prev + 1) % slides.length);
-  };
-
-  const prevSlide = () => {
-    setCurrentSlide((prev) => (prev - 1 + slides.length) % slides.length);
-  };
-
-  const goToSlide = (index) => {
-    setCurrentSlide(index);
-  };
-
   return (
     <section className="hero">
       <div className="hero-fadeout"></div>
-      <div className="hero-slider">
+      <Splide
+        options={{
+          type: "loop",
+          perPage: 1,
+          autoplay: true,
+          interval: 3000,
+          pauseOnHover: true,
+          arrows: true,
+          pagination: true,
+        }}
+        className="hero-slider"
+        style={{ height: "60vh" }}
+      >
         {slides.map((slide, index) => (
-          <div
-            key={index}
-            className={`hero-slide ${index === currentSlide ? "active" : ""}`}
-            style={{ backgroundImage: `url(${slide.image})` }}
-          >
-            <div className="hero-inner">
-              <div className="hero-content">
-                <h1>{slide.title}</h1>
-                <p>{slide.description}</p>
-              </div>
-            </div>
-          </div>
+          <SplideSlide key={index}>
+            <div
+              className="hero-slide"
+              style={{ backgroundImage: `url(${slide.image})` }}
+            ></div>
+          </SplideSlide>
         ))}
-
-        <button
-          className="slider-nav prev"
-          onClick={prevSlide}
-          aria-label="Previous slide"
-        >
-          ❮
-        </button>
-        <button
-          className="slider-nav next"
-          onClick={nextSlide}
-          aria-label="Next slide"
-        >
-          ❯
-        </button>
-
-        <div className="slider-dots">
-          {slides.map((_, index) => (
-            <button
-              key={index}
-              className={`dot ${index === currentSlide ? "active" : ""}`}
-              onClick={() => goToSlide(index)}
-              aria-label={`Go to slide ${index + 1}`}
-            />
-          ))}
-        </div>
-      </div>
+      </Splide>
     </section>
   );
 };

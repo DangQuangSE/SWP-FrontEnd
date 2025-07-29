@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Splide, SplideSlide } from "@splidejs/react-splide";
 import "@splidejs/react-splide/css";
 import { AutoScroll } from "@splidejs/splide-extension-auto-scroll";
@@ -11,6 +11,7 @@ import "./Testimonials.css";
 const Testimonials = () => {
   const [consultants, setConsultants] = useState([]);
   const [loading, setLoading] = useState(true);
+  const splideRef = useRef(null);
   const navigate = useNavigate();
 
   // Fetch consultants from API
@@ -34,23 +35,17 @@ const Testimonials = () => {
   }, []);
 
   // Handle consultation booking
-  const handleConsultation = (consultant) => {
-    // Store consultant info in localStorage
-    // localStorage.setItem("selectedConsultantId", consultant.id);
-
-    // Navigate to services page and scroll to top
+  const handleConsultation = () => {
+    // Điều hướng sang trang dịch vụ và cuộn lên đầu trang
     navigate("/services");
     window.scrollTo(0, 0);
-    // message.success(
-    //   `Đã chọn bác sĩ ${consultant.fullname}. Vui lòng chọn dịch vụ để đặt lịch.`
-    // );
   };
 
   if (loading) {
     return (
       <section className="doctors-section section">
         <div className="container">
-          <h3 className="section-title">ĐỘI NGŨ BÁC SĨ</h3>
+          <h3 className="doctors-section-title">ĐỘI NGŨ BÁC SĨ</h3>
           <p className="section-subtitle-description">
             Đang tải danh sách bác sĩ...
           </p>
@@ -62,64 +57,75 @@ const Testimonials = () => {
   return (
     <section className="doctors-section section">
       <div className="container">
-        <h3 className="section-title">ĐỘI NGŨ BÁC SĨ</h3>
+        <h3 className="doctors-section-title">ĐỘI NGŨ BÁC SĨ</h3>
         <p className="section-subtitle-description">
           Đội ngũ bác sĩ chuyên khoa của chúng tôi luôn sẵn sàng hỗ trợ bạn chăm
           sóc sức khỏe.
         </p>
 
+        {console.log(
+          "Consultants length:",
+          consultants.length,
+          "Data:",
+          consultants
+        )}
         {consultants.length > 0 ? (
           <Splide
+            ref={splideRef}
             options={{
               type: "loop",
-              gap: "1rem",
+              gap: "0px",
               perPage: 3,
               pagination: false,
               arrows: false,
               autoScroll: {
-                speed: 1,
-                pauseOnHover: true,
-                pauseOnFocus: false,
+                speed: 5,
               },
               breakpoints: {
-                1024: { perPage: 2 },
-                640: { perPage: 1 },
+                1024: {
+                  perPage: 2,
+                  gap: "0px",
+                },
+                640: {
+                  perPage: 1,
+                  gap: "0px",
+                },
               },
             }}
             extensions={{ AutoScroll }}
             aria-label="Carousel bác sĩ"
+            className="testimonials-splide"
           >
             {consultants.map((consultant) => (
               <SplideSlide key={consultant.id}>
                 <div className="doctor-card">
-                  <div className="doctor-avatar">
-                    <img
-                      src={consultant.imageUrl || consultant.img || doctor1}
-                      alt={consultant.fullname || "Bác sĩ"}
-                    />
-                  </div>
-                  <div className="doctor-stats">
-                    <div className="rating-section">
-                      <span className="rating-display">
-                        ⭐ {consultant.rating?.toFixed(1) || "0.0"}/5
-                      </span>
+                  <div className="doctor-content">
+                    <div className="doctor-avatar">
+                      <img
+                        src={consultant.imageUrl || consultant.img || doctor1}
+                        alt={consultant.fullname || "Bác sĩ"}
+                      />
                     </div>
-                    <div className="views-section"></div>
-                  </div>
-                  <div className="doctor-info">
-                    <h3 className="doctor-name">
-                      {consultant.fullname || "Chưa có tên"}
-                    </h3>
-                    <p className="doctor-title">
-                      {consultant.specializationNames || "Chưa có chuyên khoa"}
-                    </p>
-                    <div className="doctor-details">
-                      {/* <div className="contact">
-                        <span>�</span>
-                        {consultant.email || "Chưa có email"}
-                      </div> */}
-                      <div className="specialist-badge">
-                        <span> Trung Tâm Chăm sóc Sức khỏe Giới Tính</span>
+                    <div className="doctor-stats">
+                      <div className="rating-section">
+                        <span className="rating-display">
+                          ⭐ {consultant.rating?.toFixed(1) || "0.0"}/5
+                        </span>
+                      </div>
+                      <div className="views-section"></div>
+                    </div>
+                    <div className="doctor-info">
+                      <h3 className="doctor-name">
+                        {consultant.fullname || "Chưa có tên"}
+                      </h3>
+                      <p className="doctor-title">
+                        {consultant.specializationNames ||
+                          "Chưa có chuyên khoa"}
+                      </p>
+                      <div className="doctor-details">
+                        <div className="specialist-badge">
+                          <span>Chăm sóc Sức khỏe Giới Tính</span>
+                        </div>
                       </div>
                     </div>
                   </div>

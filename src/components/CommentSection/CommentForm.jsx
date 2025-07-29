@@ -20,7 +20,7 @@ const CommentForm = ({ blogId, user, onCommentAdded, onRefresh }) => {
 
     try {
       setSubmitting(true);
-      console.log(`💬 Submitting comment for blog ${blogId}...`);
+      console.log(`[COMMENT] Submitting comment for blog ${blogId}...`);
 
       const token = localStorage.getItem("token");
       if (!token) {

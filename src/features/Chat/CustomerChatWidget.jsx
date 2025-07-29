@@ -314,16 +314,14 @@ const CustomerChatWidget = () => {
   // Connect WebSocket when sessionId is available
   useEffect(() => {
     if (sessionId && !wsConnectedRef.current) {
-      console.log(
-        "🔌 [CUSTOMER WS] SessionId available, connecting WebSocket..."
-      );
+      console.log("[CUSTOMER WS] SessionId available, connecting WebSocket...");
       connectWebSocket();
     }
 
     // Cleanup on unmount or sessionId change
     return () => {
       if (wsConnectedRef.current) {
-        console.log("🧹 [CUSTOMER WS] Cleaning up WebSocket connection...");
+        console.log("[CUSTOMER WS] Cleaning up WebSocket connection...");
         disconnectWebSocket();
       }
     };
@@ -562,7 +560,7 @@ const CustomerChatWidget = () => {
       setIsConnected(true);
       // Don't add welcome message optimistically
       // Let the real chat flow handle initial messages
-      console.log("💬 [CUSTOMER CHAT] Widget opened, ready for chat");
+      console.log("[CUSTOMER CHAT] Widget opened, ready for chat");
     }
   }, [isOpen]);
 

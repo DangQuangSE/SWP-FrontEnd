@@ -5,6 +5,11 @@ import RelatedArticlesSection from "./RelatedArticlesSection";
 import CommentSection from "../../components/CommentSection/CommentSection";
 import { likeBlog, viewBlogAndIncreaseCount } from "../../api/consultantAPI";
 import { fetchBlogSummary } from "../../api/commentAPI";
+import {
+  EyeIcon,
+  HeartIcon,
+  CommentIcon,
+} from "../../components/Icons/BlogIcons";
 import "./BlogDetail.css";
 
 const BlogDetail = () => {
@@ -218,7 +223,7 @@ const BlogDetail = () => {
             {/* Blog Stats */}
             <div className="blog-stats">
               <div className="stat-item">
-                <span className="stat-icon">👁️</span>
+                <EyeIcon size={18} color="#666" />
                 <span className="stat-count">
                   {article.viewCount || 0} lượt xem
                 </span>
@@ -228,13 +233,13 @@ const BlogDetail = () => {
                 onClick={handleLikeBlog}
                 disabled={liking}
               >
-                <span className="stat-icon">❤️</span>
+                <HeartIcon size={18} color="#ff4757" />
                 <span className="stat-count">
                   {article.likeCount || 0} lượt thích
                 </span>
               </button>
               <div className="stat-item">
-                <span className="stat-icon">💬</span>
+                <CommentIcon size={18} color="#666" />
                 <span className="stat-count">{commentCount} bình luận</span>
               </div>
             </div>

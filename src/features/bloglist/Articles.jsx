@@ -3,6 +3,11 @@ import "./Articles.css";
 import { Link } from "react-router-dom";
 import { likeBlog } from "../../api/consultantAPI";
 import { fetchBlogSummary } from "../../api/commentAPI";
+import {
+  EyeIcon,
+  HeartIcon,
+  CommentIcon,
+} from "../../components/Icons/BlogIcons";
 import { API_BASE_URL } from "../../configs/serverConfig";
 
 const Articles = () => {
@@ -263,7 +268,7 @@ const Articles = () => {
                 {/* Article Stats */}
                 <div className="article-stats">
                   <div className="stat-item">
-                    <span className="stat-icon">👁️</span>
+                    <EyeIcon size={16} color="#666" />
                     <span className="stat-count">
                       {featuredArticle.viewCount || 0}
                     </span>
@@ -275,13 +280,13 @@ const Articles = () => {
                     onClick={(e) => handleLikeBlog(e, featuredArticle.id)}
                     disabled={likingBlogs.has(featuredArticle.id)}
                   >
-                    <span className="stat-icon">❤️</span>
+                    <HeartIcon size={16} color="#ff4757" />
                     <span className="stat-count">
                       {featuredArticle.likeCount || 0}
                     </span>
                   </button>
                   <div className="stat-item">
-                    <span className="stat-icon">💬</span>
+                    <CommentIcon size={16} color="#666" />
                     <span className="stat-count">
                       {commentCounts[featuredArticle.id] || 0}
                     </span>
@@ -318,7 +323,7 @@ const Articles = () => {
                   {/* Sidebar Article Stats */}
                   <div className="sidebar-article-stats">
                     <div className="stat-item">
-                      <span className="stat-icon">👁️</span>
+                      <EyeIcon size={14} color="#666" />
                       <span className="stat-count">
                         {article.viewCount || 0}
                       </span>
@@ -330,13 +335,13 @@ const Articles = () => {
                       onClick={(e) => handleLikeBlog(e, article.id)}
                       disabled={likingBlogs.has(article.id)}
                     >
-                      <span className="stat-icon">❤️</span>
+                      <HeartIcon size={14} color="#ff4757" />
                       <span className="stat-count">
                         {article.likeCount || 0}
                       </span>
                     </button>
                     <div className="stat-item">
-                      <span className="stat-icon">💬</span>
+                      <CommentIcon size={14} color="#666" />
                       <span className="stat-count">
                         {commentCounts[article.id] || 0}
                       </span>

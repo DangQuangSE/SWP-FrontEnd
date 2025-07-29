@@ -265,7 +265,7 @@ export const useRealTimeMessages = (
     setMessages([]);
     messageIdsRef.current.clear();
     setLastMessageId(null);
-    console.log("🧹 [REAL-TIME] Messages cleared");
+    console.log("[REAL-TIME] Messages cleared");
   }, []);
 
   /**

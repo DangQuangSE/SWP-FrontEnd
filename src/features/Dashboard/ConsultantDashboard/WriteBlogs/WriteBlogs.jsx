@@ -28,6 +28,11 @@ import {
   deleteTag,
   fetchBlogsByMultipleTags,
 } from "../../../../api/tagAPI";
+import {
+  EyeIcon,
+  HeartIcon,
+  CommentIcon,
+} from "../../../../components/Icons/BlogIcons";
 import "./WriteBlogs.css";
 import axios from "axios";
 
@@ -700,7 +705,7 @@ const WriteBlogs = ({ userId, selectedTab }) => {
       title: "Tiêu đề",
       dataIndex: "title",
       key: "title",
-      width: "40%",
+      width: "25%",
       render: (title, record) => (
         <div>
           <div className="blog-title-cell">{title || "Không có tiêu đề"}</div>
@@ -734,13 +739,15 @@ const WriteBlogs = ({ userId, selectedTab }) => {
       render: (_, record) => (
         <div>
           <div className="blog-stats-cell">
-            👁️ {record.viewCount || 0} lượt xem
+            <EyeIcon size={14} color="#666" /> {record.viewCount || 0} lượt xem
           </div>
           <div className="blog-stats-likes">
-            ❤️ {record.likeCount || 0} lượt thích
+            <HeartIcon size={14} color="#ff4757" /> {record.likeCount || 0} lượt
+            thích
           </div>
           <div className="blog-stats-comments">
-            💬 {commentCounts[record.id] || 0} bình luận
+            <CommentIcon size={14} color="#666" />{" "}
+            {commentCounts[record.id] || 0} bình luận
           </div>
         </div>
       ),

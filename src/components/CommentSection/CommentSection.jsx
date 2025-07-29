@@ -3,6 +3,7 @@ import { toast } from "react-toastify";
 import CommentForm from "./CommentForm";
 import CommentItem from "./CommentItem";
 import { API_BASE_URL } from "../../configs/serverConfig";
+import { CommentIcon } from "../Icons/BlogIcons";
 import "./CommentSection.css";
 
 const CommentSection = ({
@@ -90,7 +91,9 @@ const CommentSection = ({
   return (
     <div className="comment-section">
       <div className="comment-section-header">
-        <h3 className="comment-title">💬 Bình luận ({comments.length})</h3>
+        <h3 className="comment-title">
+          <CommentIcon size={20} color="#333" /> Bình luận ({comments.length})
+        </h3>
         <p className="comment-subtitle">
           Chia sẻ suy nghĩ của bạn về bài viết này
         </p>

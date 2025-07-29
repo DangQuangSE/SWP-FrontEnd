@@ -77,7 +77,7 @@
   text-decoration: none;
   color: #64748b;
   font-weight: 500;
-  transition: all 0.2s ease;
+  transition: all 0.3s ease;
   width: 100%; /* Full width để căn đều */
   max-width: 220px; /* Giới hạn width tối đa */
   justify-content: flex-start; /* Căn trái nội dung trong item */
@@ -89,19 +89,31 @@
   color: #334155;
 }
 
+.up-menu-item:hover svg {
+  transform: scale(1.1);
+  transition: transform 0.3s ease;
+}
+
 .up-menu-item-selected {
-  background-color: #3b82f6;
-  color: white;
+  background-color: #3b82f620;
+  color: #334155;
 }
 
 .up-menu-item-selected:hover {
-  background-color: #2563eb;
+  background-color: #3b82f620;
+}
+
+.up-menu-item-selected svg {
+  color: white !important;
 }
 
 .up-menu-icon {
   font-size: 18px;
   width: 20px;
   text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .up-menu-label {

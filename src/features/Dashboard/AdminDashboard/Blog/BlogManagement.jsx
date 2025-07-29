@@ -35,6 +35,11 @@ import {
   deleteTag,
   fetchBlogsByMultipleTags,
 } from "../../../../api/tagAPI";
+import {
+  EyeIcon,
+  HeartIcon,
+  CommentIcon,
+} from "../../../../components/Icons/BlogIcons";
 import "./BlogManagement.css";
 import axios from "axios";
 
@@ -750,11 +755,11 @@ const BlogManagement = ({ userId, selectedTab }) => {
       title: "Tiêu đề",
       dataIndex: "title",
       key: "title",
-      width: "40%",
+      width: "20%",
       render: (title, record) => (
         <div>
           <div className="blog-title-cell">{title || "Không có tiêu đề"}</div>
-          <div className="blog-id-cell">ID: {record.id}</div>
+          {/* <div className="blog-id-cell">ID: {record.id}</div> */}
         </div>
       ),
     },
@@ -784,13 +789,15 @@ const BlogManagement = ({ userId, selectedTab }) => {
       render: (_, record) => (
         <div>
           <div className="blog-stats-cell">
-            👁️ {record.viewCount || 0} lượt xem
+            <EyeIcon size={14} color="#666" /> {record.viewCount || 0} lượt xem
           </div>
           <div className="blog-stats-likes">
-            ❤️ {record.likeCount || 0} lượt thích
+            <HeartIcon size={14} color="#ff4757" /> {record.likeCount || 0} lượt
+            thích
           </div>
           <div className="blog-stats-comments">
-            💬 {commentCounts[record.id] || 0} bình luận
+            <CommentIcon size={14} color="#666" />{" "}
+            {commentCounts[record.id] || 0} bình luận
           </div>
         </div>
       ),
@@ -1022,33 +1029,33 @@ const BlogManagement = ({ userId, selectedTab }) => {
         {/* Statistics Cards */}
         <div className="stats-grid">
           <div className="stats-card total">
-            <div className="stats-number total">{totalBlogs}</div>
             <div className="stats-label">Tổng số bài viết</div>
+            <div className="stats-number total">{totalBlogs}</div>
           </div>
 
           <div className="stats-card published">
-            <div className="stats-number published">{publishedBlogs}</div>
             <div className="stats-label">Đã xuất bản</div>
+            <div className="stats-number published">{publishedBlogs}</div>
           </div>
 
           <div className="stats-card draft">
-            <div className="stats-number draft">{rejectBlogs}</div>
             <div className="stats-label">Từ chối</div>
+            <div className="stats-number draft">{rejectBlogs}</div>
           </div>
 
           <div className="stats-card views">
-            <div className="stats-number views">{totalViews}</div>
             <div className="stats-label">Tổng lượt xem</div>
+            <div className="stats-number views">{totalViews}</div>
           </div>
 
           <div className="stats-card likes">
-            <div className="stats-number likes">{totalLikes}</div>
             <div className="stats-label">Tổng lượt thích</div>
+            <div className="stats-number likes">{totalLikes}</div>
           </div>
 
           <div className="stats-card comments">
-            <div className="stats-number comments">{totalComments}</div>
             <div className="stats-label">Tổng bình luận</div>
+            <div className="stats-number comments">{totalComments}</div>
           </div>
         </div>
 
