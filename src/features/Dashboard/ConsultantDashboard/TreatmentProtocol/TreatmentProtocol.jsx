@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Button, Table, Modal, Form, Input, message } from "antd";
+import { Button, Table, Modal, Form, Input, message, Popconfirm } from "antd";
 import { PlusOutlined, EditOutlined, DeleteOutlined } from "@ant-design/icons";
 import TreatmentProtocolViewModal from "./TreatmentProtocolViewModal";
 import api from "../../../../configs/api";
@@ -42,6 +42,19 @@ const TreatmentProtocol = ({ userId }) => {
     setIsModalVisible(true);
   };
 
+  // Xử lý xóa phác đồ
+  const handleDelete = async (id) => {
+    try {
+      await api.delete(`/treatment/${id}`);
+      message.success("Xóa phác đồ thành công!");
+      // Tải lại danh sách từ server
+      await fetchTreatmentProtocols();
+    } catch (error) {
+      console.error("Error deleting treatment protocol:", error);
+      message.error("Không thể xóa phác đồ. Vui lòng thử lại!");
+    }
+  };
+
   // Xử lý submit form
   const handleSubmit = async () => {
     try {
@@ -56,10 +69,11 @@ const TreatmentProtocol = ({ userId }) => {
       };
 
       if (editingProtocol) {
-        // TODO: Implement update API call
-        const updatedProtocol = { ...editingProtocol, ...protocolData };
-        setProtocols(protocols.map(p => p.id === editingProtocol.id ? updatedProtocol : p));
+        // Gọi API cập nhật phác đồ
+        await api.put(`/treatment/${editingProtocol.id}`, protocolData);
         message.success("Cập nhật phác đồ thành công!");
+        // Tải lại danh sách từ server
+        await fetchTreatmentProtocols();
       } else {
         // Gọi API tạo phác đồ mới
         await api.post('/treatment', protocolData);
@@ -111,7 +125,8 @@ const TreatmentProtocol = ({ userId }) => {
           <Button
             type="link"
             icon={<EditOutlined />}
-            onClick={() => {
+            onClick={(e) => {
+              e.stopPropagation(); // Ngăn chặn sự kiện click của row
               setEditingProtocol(record);
               form.setFieldsValue(record);
               setIsModalVisible(true);
@@ -119,6 +134,26 @@ const TreatmentProtocol = ({ userId }) => {
           >
             Sửa
           </Button>
+          <Popconfirm
+            title="Xác nhận xóa"
+            description="Bạn có chắc chắn muốn xóa phác đồ này?"
+            onConfirm={(e) => {
+              e.stopPropagation(); // Ngăn chặn sự kiện click của row
+              handleDelete(record.id);
+            }}
+            onCancel={(e) => e.stopPropagation()}
+            okText="Xóa"
+            cancelText="Hủy"
+          >
+            <Button
+              type="link"
+              icon={<DeleteOutlined />}
+              danger
+              onClick={(e) => e.stopPropagation()}
+            >
+              Xóa
+            </Button>
+          </Popconfirm>
         </div>
       ),
     },
