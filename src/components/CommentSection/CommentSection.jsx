@@ -111,7 +111,7 @@ const CommentSection = ({
         <div className="login-prompt">
           <p>🔐 Bạn cần đăng nhập để có thể bình luận</p>
           <button
-            className="login-btn"
+            className="login-btn-comment"
             onClick={() => (window.location.href = "/login")}
           >
             Đăng nhập ngay

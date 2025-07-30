@@ -282,8 +282,7 @@ const BookingForm = ({ serviceIdProp, serviceDetail: detailProp }) => {
               key={consultantUpdateTrigger} // Force re-render when consultant changes
               className="consultant-selected-notification"
             >
-              ✓ Đã chọn: {localStorage.getItem("selectedConsultantName")} -{" "}
-              {localStorage.getItem("selectedConsultantSpecialization")}
+              ✓ Đã chọn: {localStorage.getItem("selectedConsultantName")}
             </div>
           )}
         <Select

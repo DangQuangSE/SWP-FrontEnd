@@ -35,8 +35,8 @@
 /* Hover */
 .gradient-button:hover {
   transform: translateY(-1px);
-  /* box-shadow: 0 6px 8px rgba(0, 181, 241, 0.3); */
-  background: linear-gradient(to top, #0283f5, #086ce4);
+  box-shadow: 0 6px 8px rgba(0, 181, 241, 0.3);
+  background: linear-gradient(to top, #0283f5, #086ce4) !important;
 }
 
 .login-btn {
@@ -80,7 +80,7 @@
 .gradient-button-container .ant-btn-variant-outlined:hover,
 .auth-buttons .ant-btn-variant-outlined:hover {
   color: white !important;
-  background: #ff4d4f !important;
+  background: #0283f5 !important;
   box-shadow: rgba(50, 50, 93, 0.25) 0px 30px 60px -12px inset,
     rgba(243, 160, 160, 0.3) 0px 18px 36px -18px inset !important;
 }
