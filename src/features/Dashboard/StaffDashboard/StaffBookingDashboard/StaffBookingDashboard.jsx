@@ -366,18 +366,19 @@ const StaffBookingDashboard = () => {
           >
             Chi tiết
           </Button>
-          {record.status === "CONFIRMED" && (
-            <Button
-              type="primary"
-              size="small"
-              icon={<CheckOutlined />}
-              onClick={() => handleChecked(record)}
-              title="Đánh dấu đã khám"
-              className="booking-dashboard__checkin-btn"
-            >
-              Check in
-            </Button>
-          )}
+          {record.status === "CONFIRMED" &&
+            record.serviceType !== "CONSULTING_ON" && (
+              <Button
+                type="primary"
+                size="small"
+                icon={<CheckOutlined />}
+                onClick={() => handleChecked(record)}
+                title="Đánh dấu đã khám"
+                className="booking-dashboard__checkin-btn"
+              >
+                Check in
+              </Button>
+            )}
           <Button
             size="small"
             icon={<EditOutlined />}

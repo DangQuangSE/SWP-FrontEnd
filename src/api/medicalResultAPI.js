@@ -11,22 +11,7 @@ import api from "../configs/api";
  * @returns {Promise} API response
  */
 export const submitMedicalResult = async (resultData) => {
-  try {
-    console.log("[API] Submitting medical result:", resultData);
-
-    const response = await api.post("/result/consultation", resultData);
-
-    console.log(" [API] Medical result submitted successfully:", response.data);
-    return response;
-  } catch (error) {
-    console.error(" [API] Error submitting medical result:", error);
-    console.error(" [API] Error details:", {
-      message: error.message,
-      status: error.response?.status,
-      data: error.response?.data,
-    });
-    throw error;
-  }
+  return await api.post("/result/consultation", resultData);
 };
 
 /**
@@ -35,17 +20,7 @@ export const submitMedicalResult = async (resultData) => {
  * @returns {Promise} API response
  */
 export const getMedicalResult = async (resultId) => {
-  try {
-    console.log(`[API] Fetching medical result ID: ${resultId}`);
-
-    const response = await api.get(`/result/${resultId}`);
-
-    console.log(" [API] Medical result fetched successfully:", response.data);
-    return response;
-  } catch (error) {
-    console.error(" [API] Error fetching medical result:", error);
-    throw error;
-  }
+  return await api.get(`/result/${resultId}`);
 };
 
 /**
@@ -55,17 +30,7 @@ export const getMedicalResult = async (resultId) => {
  * @returns {Promise} API response
  */
 export const updateMedicalResult = async (resultId, updateData) => {
-  try {
-    console.log(`[API] Updating medical result ID: ${resultId}`, updateData);
-
-    const response = await api.put(`/result/${resultId}`, updateData);
-
-    console.log(" [API] Medical result updated successfully:", response.data);
-    return response;
-  } catch (error) {
-    console.error(" [API] Error updating medical result:", error);
-    throw error;
-  }
+  return await api.put(`/result/${resultId}`, updateData);
 };
 
 /**
@@ -74,17 +39,7 @@ export const updateMedicalResult = async (resultId, updateData) => {
  * @returns {Promise} API response
  */
 export const deleteMedicalResult = async (resultId) => {
-  try {
-    console.log(`[API] Deleting medical result ID: ${resultId}`);
-
-    const response = await api.delete(`/result/${resultId}`);
-
-    console.log(" [API] Medical result deleted successfully");
-    return response;
-  } catch (error) {
-    console.error(" [API] Error deleting medical result:", error);
-    throw error;
-  }
+  return await api.delete(`/result/${resultId}`);
 };
 
 /**
@@ -93,22 +48,7 @@ export const deleteMedicalResult = async (resultId) => {
  * @returns {Promise} API response
  */
 export const submitLabTestResult = async (labTestData) => {
-  try {
-    console.log("[API] Submitting lab test result:", labTestData);
-
-    const response = await api.post("/result/lab-test", labTestData);
-
-    console.log("[API] Lab test result submitted successfully:", response.data);
-    return response;
-  } catch (error) {
-    console.error(" [API] Error submitting lab test result:", error);
-    console.error(" [API] Error details:", {
-      message: error.message,
-      status: error.response?.status,
-      data: error.response?.data,
-    });
-    throw error;
-  }
+  return await api.post("/result/lab-test", labTestData);
 };
 
 /**
@@ -117,25 +57,7 @@ export const submitLabTestResult = async (labTestData) => {
  * @returns {Promise} API response
  */
 export const submitConsultationResult = async (consultationData) => {
-  try {
-    console.log("[API] Submitting consultation result:", consultationData);
-
-    const response = await api.post("/result/consultation", consultationData);
-
-    console.log(
-      "[API] Consultation result submitted successfully:",
-      response.data
-    );
-    return response;
-  } catch (error) {
-    console.error(" [API] Error submitting consultation result:", error);
-    console.error(" [API] Error details:", {
-      message: error.message,
-      status: error.response?.status,
-      data: error.response?.data,
-    });
-    throw error;
-  }
+  return await api.post("/result/consultation", consultationData);
 };
 
 /**
@@ -146,21 +68,7 @@ export const submitConsultationResult = async (consultationData) => {
 export const getMedicalResultsByAppointmentDetail = async (
   appointmentDetailId
 ) => {
-  try {
-    console.log(
-      `[API] Fetching medical results for appointment detail: ${appointmentDetailId}`
-    );
-
-    const response = await api.get(
-      `/result/appointment-detail/${appointmentDetailId}`
-    );
-
-    console.log("[API] Medical results fetched successfully:", response.data);
-    return response;
-  } catch (error) {
-    console.error(" [API] Error fetching medical results:", error);
-    throw error;
-  }
+  return await api.get(`/result/appointment-detail/${appointmentDetailId}`);
 };
 
 /**

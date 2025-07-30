@@ -923,7 +923,7 @@ const PersonalSchedule = ({ userId }) => {
           <span className="date-picker-info">
             Hiển thị lịch hẹn ngày {selectedDate.toLocaleDateString("vi-VN")}
           </span>
-          {!showDebugPanel && (
+          {/* {!showDebugPanel && (
             <Button
               size="small"
               onClick={() => setShowDebugPanel(true)}
@@ -931,7 +931,7 @@ const PersonalSchedule = ({ userId }) => {
             >
               Debug
             </Button>
-          )}
+          )} */}
         </div>
       </Card>
 

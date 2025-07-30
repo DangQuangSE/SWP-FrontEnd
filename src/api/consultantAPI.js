@@ -94,21 +94,12 @@ export const createBlog = (blogData) => {
 const LIKE_API_SIMULATION_MODE = false;
 
 export const likeBlog = async (id) => {
-  console.log(` likeBlog API call for blog ID: ${id}`);
   const token = localStorage.getItem("token");
-  console.log(` Token available:`, !!token);
-  console.log(` API endpoint: POST /blog/${id}/like`);
 
   if (LIKE_API_SIMULATION_MODE) {
     // Simulation mode for testing UI
-    console.log(` SIMULATION MODE: Simulating successful like for testing`);
-    console.log(
-      ` To use real API, set LIKE_API_SIMULATION_MODE = false in consultantAPI.js`
-    );
-
     return new Promise((resolve) => {
       setTimeout(() => {
-        console.log(` Simulated like success for blog ${id}`);
         resolve({
           data: {
             success: true,
@@ -122,16 +113,11 @@ export const likeBlog = async (id) => {
 
   // Check if user is logged in
   if (!token) {
-    console.warn(
-      ` No authentication token found. User needs to login to like blogs.`
-    );
     throw new Error(`Bạn cần đăng nhập để thích bài viết`);
   }
 
   // REAL API CALL with authentication
   try {
-    console.log(` Attempting authenticated API call...`);
-
     const response = await api.post(
       `/blog/${id}/like`,
       {},
@@ -143,14 +129,8 @@ export const likeBlog = async (id) => {
       }
     );
 
-    console.log(` Like API call success:`, response);
     return response;
   } catch (error) {
-    console.error(` likeBlog API error:`, error);
-    console.error(` Error response:`, error.response?.data);
-    console.error(` Error status:`, error.response?.status);
-    console.error(` Error message:`, error.message);
-
     // Handle specific error cases
     if (error.response?.status === 401) {
       throw new Error(`Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.`);
@@ -183,36 +163,22 @@ export const getConsultantSchedules = (consultantId, from, to) => {
 };
 
 export const deleteBlog = async (blogId) => {
-  console.log(` deleteBlog API call for blog ID: ${blogId}`);
   const token = localStorage.getItem("token");
-  console.log(` Token available:`, !!token);
-  console.log(` API endpoint: DELETE /blog/${blogId}`);
 
   // Check if user is logged in
   if (!token) {
-    console.warn(
-      ` No authentication token found. User needs to login to delete blogs.`
-    );
     throw new Error(`Bạn cần đăng nhập để xóa bài viết`);
   }
 
   try {
-    console.log(` Attempting to delete blog ${blogId}...`);
-
     const response = await api.delete(`/blog/${blogId}`, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
     });
 
-    console.log(` Delete blog API success:`, response);
     return response;
   } catch (error) {
-    console.error(` deleteBlog API error:`, error);
-    console.error(` Error response:`, error.response?.data);
-    console.error(` Error status:`, error.response?.status);
-    console.error(` Error message:`, error.message);
-
     // Handle specific error cases
     if (error.response?.status === 401) {
       throw new Error(`Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.`);

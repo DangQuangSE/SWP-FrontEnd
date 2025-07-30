@@ -18,21 +18,21 @@ const menuItems = [
     icon: <UserIcon size={18} color="#3b82f6" />,
   },
   // { path: "health", label: "Sức khỏe", icon: <HealthIcon size={18} color="#3b82f6" /> },
-  {
-    path: "saved",
-    label: "Đã lưu",
-    icon: <BookIcon size={18} color="#3b82f6" />,
-  },
+  // {
+  //   path: "saved",
+  //   label: "Đã lưu",
+  //   icon: <BookIcon size={18} color="#3b82f6" />,
+  // },
   {
     path: "booking",
     label: "Lịch sử đặt chỗ",
     icon: <CalendarIcon size={18} color="#3b82f6" />,
   },
-  {
-    path: "attended",
-    label: "Đã tham gia",
-    icon: <UsersIcon size={18} color="#3b82f6" />,
-  },
+  // {
+  //   path: "attended",
+  //   label: "Đã tham gia",
+  //   icon: <UsersIcon size={18} color="#3b82f6" />,
+  // },
   // { path: "settings", label: "Thiết lập tài khoản", icon: <SettingsIcon size={18} color="#3b82f6" /> },
 ];
 

@@ -10,12 +10,7 @@ const AppointmentForm = () => {
   const [expandedFaq, setExpandedFaq] = useState(null);
 
   const workingHours = [
-    { day: "Thứ Hai", hours: "07:30 - 11:30, 12:30 - 16:30" },
-    { day: "Thứ Ba", hours: "07:30 - 11:30, 12:30 - 16:30" },
-    { day: "Thứ Tư", hours: "07:30 - 11:30, 12:30 - 16:30" },
-    { day: "Thứ Năm", hours: "07:30 - 11:30, 12:30 - 16:30" },
-    { day: "Thứ Sáu", hours: "07:30 - 11:30, 12:30 - 16:30" },
-    { day: "Thứ Bảy", hours: "07:30 - 11:30, 12:30 - 16:30" },
+    { day: "Thứ Hai - Thứ 7", hours: "07:30 - 11:30, 12:30 - 16:30" },
     { day: "Chủ Nhật", hours: "Đóng cửa" },
   ];
 
