@@ -6,8 +6,8 @@
 
 // VPS Server Configuration
 export const SERVER_CONFIG = {
-  IP: "localhost",
-  PORT: "8080",
+  IP: "14.225.192.15",
+  PORT: "8085",
   PROTOCOL: "http",
 };
 

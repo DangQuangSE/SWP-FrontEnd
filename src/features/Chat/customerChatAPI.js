@@ -8,7 +8,7 @@ class CustomerChatAPIService {
   constructor() {
     // Create axios instance without auth interceptors
     this.api = axios.create({
-      baseURL: "http://localhost:8080/api",
+      baseURL: "http://14.225.192.15:8085/api",
       timeout: 10000,
       headers: {
         "Content-Type": "application/json",
