@@ -223,10 +223,11 @@ const AllBlog = () => {
                       className="service-blog-image"
                     />
                     <div className="service-blog-content">
-                      <span className="service-blog-tag">
-                        • {blog.tags?.[0]?.name || "Tin tức"}
-                      </span>
                       <h3 className="service-blog-title">{blog.title}</h3>
+                      <span className="service-blog-tag">
+                        #{blog.tags?.[0]?.name || "Tin tức"}
+                      </span>
+
                       <p className="service-blog-desc">
                         {blog.content?.substring(0, 150) + "..." ||
                           "Nội dung bài viết..."}

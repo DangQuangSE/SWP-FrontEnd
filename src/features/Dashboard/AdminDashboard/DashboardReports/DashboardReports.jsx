@@ -26,6 +26,7 @@ import {
 } from "@ant-design/icons";
 import dayjs from "dayjs";
 import api from "../../../../configs/api";
+import { exportDashboardToExcel } from "../../../../utils/excelExport";
 import "./DashboardReports.css";
 
 const { RangePicker } = DatePicker;
@@ -33,6 +34,7 @@ const { Option } = Select;
 
 const DashboardReports = () => {
   const [loading, setLoading] = useState(false);
+  const [exporting, setExporting] = useState(false);
   const [dateRange, setDateRange] = useState([
     dayjs().subtract(30, "day"),
     dayjs(),
@@ -55,6 +57,25 @@ const DashboardReports = () => {
   });
 
   // Load dashboard data
+  // Function to export data to Excel
+  const exportToExcel = async () => {
+    setExporting(true);
+    try {
+      await exportDashboardToExcel({
+        dashboardData,
+        filteredAppointments: getFilteredAppointments(),
+        dateRange,
+        reportType,
+        statusFilter,
+      });
+    } catch (error) {
+      // Error handling is already done in the utility function
+      console.error("Export failed:", error);
+    } finally {
+      setExporting(false);
+    }
+  };
+
   const loadDashboardData = async () => {
     setLoading(true);
     try {
@@ -153,20 +174,6 @@ const DashboardReports = () => {
           : {};
 
       // Log API errors for debugging
-      if (bookingSummaryRes.status === "rejected") {
-        console.error(
-          " [DASHBOARD] Booking summary API error:",
-          bookingSummaryRes.reason
-        );
-        message.warning("Không thể tải dữ liệu tổng kết booking");
-      }
-      if (bookingStatsRes.status === "rejected") {
-        console.error(
-          " [DASHBOARD] Booking stats API error:",
-          bookingStatsRes.reason
-        );
-        message.warning("Không thể tải thống kê booking");
-      }
 
       // Check for appointment API errors
       const appointmentErrors = [];
@@ -514,8 +521,13 @@ const DashboardReports = () => {
             >
               Làm mới
             </Button>
-            <Button icon={<DownloadOutlined />} type="primary">
-              Xuất báo cáo
+            <Button
+              icon={<DownloadOutlined />}
+              type="primary"
+              onClick={exportToExcel}
+              loading={exporting}
+            >
+              {exporting ? "Đang xuất..." : "Xuất báo cáo"}
             </Button>
           </Space>
         }

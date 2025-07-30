@@ -336,7 +336,7 @@
 
 .article-category {
   font-size: 0.85rem;
-  color: #ff9800;
+  color: #3b82f6;
   font-weight: 500;
   margin-bottom: 0.5rem;
   display: flex;
@@ -345,8 +345,7 @@
 }
 
 .article-category::before {
-  content: "•";
-  color: #ff9800;
+  color: #3b82f6;
   font-size: 1.2em;
   margin-right: 0.4em;
   line-height: 1;
@@ -411,7 +410,6 @@
 }
 
 .view-all-button {
-  display: inline-flex;
   align-items: center;
   padding: 0.8rem 2rem;
   background-color: #007bff;

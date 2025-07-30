@@ -142,12 +142,12 @@ const BlogDetail = () => {
     return (
       <div className="blog-detail-page-wrapper">
         <div className="slogan-section">
-          <h1 className="slogan-title">
+          {/* <h1 className="slogan-title">
             CHĂM SÓC SỨC KHỎE GIỚI TÍNH SHEALTHCARE
           </h1>
           <p className="slogan-text">
             "Vì sức khỏe của bạn là ưu tiên hàng đầu của chúng tôi"
-          </p>
+          </p> */}
         </div>
         <div className="blog-detail-container">
           <div className="text-center">
@@ -191,12 +191,12 @@ const BlogDetail = () => {
   return (
     <div className="blog-detail-page-wrapper">
       <div className="slogan-section">
-        <h1 className="slogan-title">
+        {/* <h1 className="slogan-title">
           CHĂM SÓC SỨC KHỎE GIỚI TÍNH SHEALTHCARE
         </h1>
         <p className="slogan-text">
           "Vì sức khỏe của bạn là ưu tiên hàng đầu của chúng tôi"
-        </p>
+        </p> */}
       </div>
       <div className="blog-detail-container">
         <article>

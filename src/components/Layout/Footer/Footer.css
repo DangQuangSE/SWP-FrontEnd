@@ -67,7 +67,7 @@
 
 .footer-column h3::after {
   content: "";
-  position: absolute;
+
   bottom: -8px;
   left: 0;
   width: 40px;

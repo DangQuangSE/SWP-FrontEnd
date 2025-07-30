@@ -175,7 +175,7 @@ function Admin() {
   };
 
   return (
-    <Layout>
+    <Layout className="admin-dashboard-layout">
       <Header style={{ display: "flex", alignItems: "center" }}>
         <div className="demo-logo" />
         <Title level={3} style={{ color: "white", margin: 0 }}>

@@ -43,6 +43,7 @@ import Payment from "./features/Services/Payment/Payment";
 import ProtectedRoute from "./components/ProtectedRoute";
 import CustomerChatWidget from "./features/Chat/CustomerChatWidget";
 import RatingNotification from "./components/RatingNotification/RatingNotification";
+import ContactPage from "./features/Services/Contact/ContactPage";
 
 function App() {
   const [rehydrated, setRehydrated] = useState(false);
@@ -85,6 +86,7 @@ function App() {
               />
               <Route path="/services" element={<AppointmentForm />} />
               <Route path="/CycleTracker" element={<CycleTracker />} />
+              <Route path="/contact" element={<ContactPage />} />
               <Route
                 path="/services/DoctorList"
                 element={

@@ -102,7 +102,11 @@
 }
 
 .booking-button:hover {
-  box-shadow: 0 6px 8px rgba(0, 181, 241, 0.3);
+  box-shadow: 0 6px 8px rgba(0, 181, 241, 0.3) !important;
+  transform: none !important;
+  border-color: transparent !important;
+  background: linear-gradient(135deg, #0283f5, #086ce4) !important;
+  color: white !important;
 }
 
 .price-and-button {

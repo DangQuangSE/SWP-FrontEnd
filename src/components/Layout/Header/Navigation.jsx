@@ -21,12 +21,19 @@ const Navigation = () => {
     }
   }
 
+  // Scroll to top function
+  const handleScrollToTop = () => {
+    window.scrollTo({
+      top: 0,
+    });
+  };
+
   // Base navigation items
   const baseNavigationItems = [
     { label: "Trang chủ", href: "/" },
     { label: "Tin tức", href: "/blog" },
     { label: "Dịch vụ", href: "/services", dropdown: true },
-    { label: "Liên hệ", href: "/contact" },
+    { label: "Giới thiệu", href: "/contact" },
   ];
 
   // Role-specific navigation items
@@ -75,6 +82,7 @@ const Navigation = () => {
                 className={`nav-link${
                   location.pathname === item.href ? " active" : ""
                 }${isRoleItem ? " admin-nav" : ""}`}
+                onClick={handleScrollToTop}
               >
                 {item.label}
               </Link>
