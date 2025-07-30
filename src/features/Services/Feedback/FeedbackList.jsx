@@ -1,62 +1,100 @@
 // src/.../AppointmentForm/FeedbackList/FeedbackList.jsx
 
-import React from 'react';
-import './FeedbackList.css'; // Sẽ tạo ở bước 2
-
-// Dữ liệu mẫu, sau này bạn có thể lấy từ API
-const sampleFeedback = [
-  {
-    id: 1,
-    author: 'Nguyễn Thu Trang',
-    rating: 5,
-    date: '20/05/2024',
-    comment: 'Dịch vụ rất chuyên nghiệp, bác sĩ tư vấn tận tình. Mình rất hài lòng và sẽ quay lại.',
-  },
-  {
-    id: 2,
-    author: 'Trần Minh Hoàng',
-    rating: 4,
-    date: '18/05/2024',
-    comment: 'Phòng khám sạch sẽ, trang thiết bị hiện đại. Thời gian chờ hơi lâu một chút nhưng chấp nhận được.',
-  },
-  {
-    id: 3,
-    author: 'Lê Thị Bích',
-    rating: 5,
-    date: '15/05/2024',
-    comment: 'Nhân viên thân thiện, hướng dẫn chu đáo. Bác sĩ giỏi, giải thích cặn kẽ. Cảm ơn phòng khám!',
-  },
-  {
-    id: 4,
-    author: 'Phạm Văn Nam',
-    rating: 4,
-    date: '12/05/2024',
-    comment: 'Quy trình đặt lịch online tiện lợi, tiết kiệm thời gian. Sẽ giới thiệu cho bạn bè.',
-  },
-];
+import React, { useState, useEffect } from "react";
+import { message, Spin } from "antd";
+import "./FeedbackList.css";
 
 // Component nhỏ để hiển thị ngôi sao
 const StarRating = ({ rating }) => {
   const stars = [];
   for (let i = 1; i <= 5; i++) {
     stars.push(
-      <span key={i} className={i <= rating ? 'star filled' : 'star'}>★</span>
+      <span key={i} className={i <= rating ? "star filled" : "star"}>
+        ★
+      </span>
     );
   }
   return <div className="star-rating">{stars}</div>;
 };
 
 const FeedbackList = () => {
+  const [feedbacks, setFeedbacks] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  // Function to format date
+  const formatDate = (dateString) => {
+    const date = new Date(dateString);
+    return date.toLocaleDateString("vi-VN", {
+      day: "2-digit",
+      month: "2-digit",
+      year: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+  };
+
+  // Fetch feedback data from API
+  useEffect(() => {
+    const fetchFeedbacks = async () => {
+      try {
+        setLoading(true);
+        const response = await fetch("/api/feedback");
+
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const data = await response.json();
+        setFeedbacks(data);
+      } catch (error) {
+        console.error("Error fetching feedbacks:", error);
+        message.error("Không thể tải danh sách đánh giá. Vui lòng thử lại!");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchFeedbacks();
+  }, []);
+
+  if (loading) {
+    return (
+      <div className="feedback-list-container">
+        <div style={{ textAlign: "center", padding: "2rem" }}>
+          <Spin size="large" />
+          <p style={{ marginTop: "1rem" }}>Đang tải đánh giá...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (feedbacks.length === 0) {
+    return (
+      <div className="feedback-list-container">
+        <div style={{ textAlign: "center", padding: "2rem" }}>
+          <p>Chưa có đánh giá nào.</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="feedback-list-container">
-      {sampleFeedback.map(feedback => (
+      {feedbacks.map((feedback) => (
         <div key={feedback.id} className="feedback-card">
           <div className="feedback-header">
-            <h4 className="feedback-author">{feedback.author}</h4>
+            <h4 className="feedback-author">{feedback.customerName}</h4>
             <StarRating rating={feedback.rating} />
           </div>
-          <p className="feedback-date">{feedback.date}</p>
+          <p className="feedback-date">{formatDate(feedback.createdAt)}</p>
           <p className="feedback-comment">{feedback.comment}</p>
+          <div className="feedback-meta">
+            {feedback.serviceFeedbackName && (
+              <span className="feedback-service">
+                Dịch vụ: {feedback.serviceFeedbackName}
+              </span>
+            )}
+          </div>
         </div>
       ))}
     </div>

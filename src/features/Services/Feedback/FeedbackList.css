@@ -46,5 +46,26 @@
   font-size: 0.95rem;
   color: #374151;
   line-height: 1.6;
-  margin: 0;
+  margin: 0 0 12px 0;
+}
+
+.feedback-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px solid #e5e7eb;
+}
+
+.feedback-id {
+  font-size: 0.75rem;
+  color: #9ca3af;
+  font-weight: 500;
+}
+
+.feedback-service {
+  font-size: 0.8rem;
+  color: #6b7280;
+  font-style: italic;
 }
