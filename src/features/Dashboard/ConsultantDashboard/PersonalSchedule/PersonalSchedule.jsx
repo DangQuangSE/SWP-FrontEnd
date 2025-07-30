@@ -139,33 +139,68 @@ const PersonalSchedule = ({ userId }) => {
 
       try {
         console.log(` [API] Loading ${status} appointments for ${targetDate}`);
-        const response = await getMySchedule(targetDate, status);
-        const appointments = response.data || [];
 
-        console.log(
-          `[API] Loaded ${appointments.length} ${status} appointments`
-        );
+        let allAppointments = [];
+
+        if (status === "CHECKED") {
+          // Special handling for CHECKED status - also fetch CONFIRMED for CONSULTING_ON services
+          console.log(
+            ` [API] Fetching both CHECKED and CONFIRMED appointments for CONSULTING_ON services`
+          );
+
+          const [checkedResponse, confirmedResponse] = await Promise.all([
+            getMySchedule(targetDate, "CHECKED"),
+            getMySchedule(targetDate, "CONFIRMED"),
+          ]);
+
+          const checkedAppointments = checkedResponse.data || [];
+          const confirmedAppointments = confirmedResponse.data || [];
+
+          // Filter CONFIRMED appointments to only include CONSULTING_ON services
+          const confirmedConsultingOnAppointments =
+            confirmedAppointments.filter(
+              (appointment) => appointment.serviceType === "CONSULTING_ON"
+            );
+
+          // Combine the data
+          allAppointments = [
+            ...checkedAppointments,
+            ...confirmedConsultingOnAppointments,
+          ];
+
+          console.log(
+            `[API] Loaded ${checkedAppointments.length} CHECKED + ${confirmedConsultingOnAppointments.length} CONFIRMED CONSULTING_ON appointments`
+          );
+        } else {
+          // Normal API call for other statuses
+          const response = await getMySchedule(targetDate, status);
+          allAppointments = response.data || [];
+
+          console.log(
+            `[API] Loaded ${allAppointments.length} ${status} appointments`
+          );
+        }
 
         // Update cache
-        saveToCache(targetDate, status, appointments);
+        saveToCache(targetDate, status, allAppointments);
 
         // Update state
         setTabsData((prev) => ({
           ...prev,
-          [status]: appointments,
+          [status]: allAppointments,
         }));
 
         // Save response for debug panel
         setLastApiResponse({
           timestamp: new Date().toLocaleString(),
-          status: response.status,
-          dataType: typeof response.data,
-          isArray: Array.isArray(response.data),
-          data: response.data,
+          status: 200,
+          dataType: typeof allAppointments,
+          isArray: Array.isArray(allAppointments),
+          data: allAppointments,
           params: { date: targetDate, status, userId },
         });
 
-        return appointments;
+        return allAppointments;
       } catch (error) {
         console.error(` [API] Error loading ${status} appointments:`, error);
         showToast.error(
@@ -600,42 +635,41 @@ const PersonalSchedule = ({ userId }) => {
 
           return (
             <Space direction="vertical" size="small">
-              {status === "CHECKED" && (
-                <Button
-                  type="primary"
-                  size="small"
-                  icon={
-                    detail.serviceType === "CONSULTING_ON" &&
-                    detail.startUrl ? (
-                      <SolutionOutlined />
-                    ) : (
-                      <ClockCircleOutlined />
-                    )
-                  }
-                  onClick={() => {
-                    if (
-                      detail.serviceType === "CONSULTING_ON" &&
-                      detail.startUrl
-                    ) {
+              {/* Button for CONFIRMED status - CONSULTING_ON services */}
+              {status === "CONFIRMED" &&
+                detail.serviceType === "CONSULTING_ON" &&
+                detail.startUrl && (
+                  <Button
+                    type="primary"
+                    size="small"
+                    icon={<SolutionOutlined />}
+                    onClick={() => {
                       // Chuyển trạng thái trước, sau đó mở link tư vấn online
                       handleStartExamination(id, detail.startUrl);
-                    } else {
+                    }}
+                    loading={statusUpdateLoading}
+                    className="action-button-consulting"
+                  >
+                    Tham gia phòng tư vấn
+                  </Button>
+                )}
+
+              {/* Button for CHECKED status - Regular services only */}
+              {status === "CHECKED" &&
+                detail.serviceType !== "CONSULTING_ON" && (
+                  <Button
+                    type="primary"
+                    size="small"
+                    icon={<ClockCircleOutlined />}
+                    onClick={() => {
                       // Chỉ chuyển trạng thái cho dịch vụ thông thường
                       handleStartExamination(id);
-                    }
-                  }}
-                  loading={statusUpdateLoading}
-                  className={
-                    detail.serviceType === "CONSULTING_ON" && detail.startUrl
-                      ? "action-button-consulting"
-                      : ""
-                  }
-                >
-                  {detail.serviceType === "CONSULTING_ON" && detail.startUrl
-                    ? "Tham gia phòng tư vấn"
-                    : "Bắt đầu khám"}
-                </Button>
-              )}
+                    }}
+                    loading={statusUpdateLoading}
+                  >
+                    Bắt đầu khám
+                  </Button>
+                )}
 
               {status === "IN_PROGRESS" && (
                 <Button

@@ -23,7 +23,7 @@ import {
 import dayjs from "dayjs";
 import "dayjs/locale/vi";
 import customParseFormat from "dayjs/plugin/customParseFormat";
-import locale from "antd/es/date-picker/locale/vi_VN";
+// import locale from "antd/es/date-picker/locale/vi_VN";
 import { submitLabTestResult } from "../../api/medicalResultAPI";
 import "./MedicalResultFormTesting.css";
 import api from "../../configs/api";
@@ -239,7 +239,7 @@ const MedicalResultFormTesting = ({
                 </Select>
               </Form.Item>
 
-              <Form.Item
+              {/* <Form.Item
                 name="sampleCollectedAt"
                 label="Thời gian lấy mẫu"
                 rules={[
@@ -274,7 +274,7 @@ const MedicalResultFormTesting = ({
                     allowClear
                   />
                 </ConfigProvider>
-              </Form.Item>
+              </Form.Item> */}
             </Card>
           </Col>
 
