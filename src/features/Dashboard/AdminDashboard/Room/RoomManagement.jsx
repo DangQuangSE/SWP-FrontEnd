@@ -195,7 +195,7 @@ const RoomManagement = () => {
             title="Bạn có chắc muốn xóa phòng này?"
             onConfirm={() => handleDeleteRoom(record.id)}
           >
-            <Button icon={<DeleteOutlined />} size="small" danger>
+            <Button size="small" danger icon={<DeleteOutlined />}>
               Xóa
             </Button>
           </Popconfirm>

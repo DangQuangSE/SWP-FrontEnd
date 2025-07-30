@@ -173,28 +173,28 @@ const DashboardReports = () => {
       if (pendingAppointmentsRes.status === "rejected") {
         appointmentErrors.push("PENDING");
         console.error(
-          "❌ [DASHBOARD] Pending appointments API error:",
+          " [DASHBOARD] Pending appointments API error:",
           pendingAppointmentsRes.reason
         );
       }
       if (confirmedAppointmentsRes.status === "rejected") {
         appointmentErrors.push("CONFIRMED");
         console.error(
-          "❌ [DASHBOARD] Confirmed appointments API error:",
+          " [DASHBOARD] Confirmed appointments API error:",
           confirmedAppointmentsRes.reason
         );
       }
       if (checkedAppointmentsRes.status === "rejected") {
         appointmentErrors.push("CHECKED");
         console.error(
-          "❌ [DASHBOARD] Checked appointments API error:",
+          " [DASHBOARD] Checked appointments API error:",
           checkedAppointmentsRes.reason
         );
       }
       if (completedAppointmentsRes.status === "rejected") {
         appointmentErrors.push("COMPLETED");
         console.error(
-          "❌ [DASHBOARD] Completed appointments API error:",
+          " [DASHBOARD] Completed appointments API error:",
           completedAppointmentsRes.reason
         );
       }
@@ -255,10 +255,7 @@ const DashboardReports = () => {
         ...completedAppointments,
       ].sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
 
-      console.log(
-        "📅 [DASHBOARD] Combined appointments data:",
-        appointmentsData
-      );
+      console.log(" [DASHBOARD] Combined appointments data:", appointmentsData);
 
       // Process services data
       const servicesData =

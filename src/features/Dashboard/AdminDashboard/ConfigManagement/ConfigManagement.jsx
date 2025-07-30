@@ -149,7 +149,7 @@ const ConfigManagement = () => {
       key: "action",
       width: 150,
       render: (_, record) => (
-        <Space size="small" className="config-actions">
+        <Space size="small">
           <Button
             type="primary"
             size="small"
@@ -166,7 +166,7 @@ const ConfigManagement = () => {
             cancelText="Hủy"
             okButtonProps={{ danger: true }}
           >
-            <Button danger size="small" icon={<DeleteOutlined />}>
+            <Button size="small" danger icon={<DeleteOutlined />}>
               Xóa
             </Button>
           </Popconfirm>

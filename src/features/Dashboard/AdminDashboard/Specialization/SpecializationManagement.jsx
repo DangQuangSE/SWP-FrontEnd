@@ -72,12 +72,7 @@ const SpecializationManagement = ({ form }) => {
             title="Bạn có chắc muốn xóa?"
             onConfirm={() => handleDeleteSpecialization(record.id)}
           >
-            <Button
-              icon={<DeleteOutlined />}
-              size="small"
-              danger
-              style={{ marginLeft: "-4px" }}
-            >
+            <Button size="small" danger icon={<DeleteOutlined />}>
               Xóa
             </Button>
           </Popconfirm>

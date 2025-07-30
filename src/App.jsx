@@ -31,7 +31,6 @@ import Loading from "./components/Loading/Loading";
 import Staff from "./features/Dashboard/StaffDashboard/Staff";
 import Consultant from "./features/Dashboard/ConsultantDashboard/ConsultantMain";
 import Admin from "./features/Dashboard/AdminDashboard/Admin";
-import Settings from "./pages/Settings";
 import UserProfile from "./pages/UserProfile/userprofile";
 import BookingForm from "./features/Services/Booking/BookingForm";
 import ServiceDetail from "./features/Services/ServiceList/ServiceDetail/ServiceDetail";
@@ -102,7 +101,7 @@ function App() {
               <Route path="/blog/:id" element={<BlogDetail />} />
 
               {/* Protected routes */}
-              {/* <Route
+              <Route
                 path="/consultant"
                 element={
                   <ProtectedRoute
@@ -127,11 +126,10 @@ function App() {
                     <Admin />
                   </ProtectedRoute>
                 }
-              /> */}
-              <Route path="/admin" element={<Admin />} />
+              />
+              {/* <Route path="/admin" element={<Admin />} />
               <Route path="/staff" element={<Staff />} />
-              <Route path="/consultant" element={<Consultant />} />
-              <Route path="/settings" element={<Settings />} />
+              <Route path="/consultant" element={<Consultant />} /> */}
               <Route path="/user" element={<UserProfile />}>
                 <Route index element={<Profile />} />
                 <Route path="profile" element={<Profile />} />

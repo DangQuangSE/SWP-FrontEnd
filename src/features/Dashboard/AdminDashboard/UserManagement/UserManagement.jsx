@@ -313,13 +313,6 @@ const UserManagement = ({ form }) => {
       width: 150,
       render: (text, record) => (
         <Space size="small">
-          {/* <Button
-            size="small"
-            icon={<EditOutlined />}
-            onClick={() => handleEditUser(record, form)}
-          >
-            Sửa
-          </Button> */}
           <Popconfirm
             title="Bạn có chắc chắn muốn xóa người dùng này?"
             onConfirm={() => handleDeleteUser(record.id)}

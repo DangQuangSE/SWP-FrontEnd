@@ -49,36 +49,7 @@
   text-align: center;
 }
 
-/* Action Buttons */
-.config-actions .ant-btn {
-  border-radius: 6px;
-  font-weight: 500;
-  transition: all 0.3s ease;
-}
-
-.config-actions .ant-btn-primary {
-  background: linear-gradient(135deg, #1890ff, #096dd9);
-  border: none;
-  box-shadow: 0 2px 4px rgba(24, 144, 255, 0.2);
-}
-
-.config-actions .ant-btn-primary:hover {
-  background: linear-gradient(135deg, #096dd9, #0050b3);
-  transform: translateY(-1px);
-  box-shadow: 0 4px 8px rgba(24, 144, 255, 0.3);
-}
-
-.config-actions .ant-btn-dangerous {
-  background: linear-gradient(135deg, #ff4d4f, #cf1322);
-  border: none;
-  box-shadow: 0 2px 4px rgba(255, 77, 79, 0.2);
-}
-
-.config-actions .ant-btn-dangerous:hover {
-  background: linear-gradient(135deg, #cf1322, #a8071a);
-  transform: translateY(-1px);
-  box-shadow: 0 4px 8px rgba(255, 77, 79, 0.3);
-}
+/* Action Buttons - Use default Ant Design styles */
 
 /* Modal Styles */
 .config-modal .ant-modal-header {
@@ -156,22 +127,22 @@
     flex-direction: column;
     gap: 4px;
   }
-  
+
   .config-header-actions {
     flex-direction: column;
     width: 100%;
   }
-  
+
   .config-header-actions .ant-btn {
     width: 100%;
   }
-  
+
   .config-actions {
     display: flex;
     flex-direction: column;
     gap: 4px;
   }
-  
+
   .config-actions .ant-btn {
     width: 100%;
     margin: 0;

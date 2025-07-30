@@ -17,6 +17,7 @@ import {
   CloseOutlined,
   SendOutlined,
   ReloadOutlined,
+  DeleteOutlined,
 } from "@ant-design/icons";
 import { toast } from "react-toastify";
 import { API_BASE_URL } from "../../../../configs/serverConfig";
@@ -930,7 +931,7 @@ const BlogManagement = ({ userId, selectedTab }) => {
             cancelText="Hủy"
             okButtonProps={{ danger: true }}
           >
-            <Button danger size="small" block>
+            <Button size="small" danger icon={<DeleteOutlined />} block>
               Xóa
             </Button>
           </Popconfirm>
@@ -996,7 +997,9 @@ const BlogManagement = ({ userId, selectedTab }) => {
             cancelText="Hủy"
             okType="danger"
           >
-            <Button danger>Xóa</Button>
+            <Button size="small" danger icon={<DeleteOutlined />}>
+              Xóa
+            </Button>
           </Popconfirm>
         </Space>
       ),

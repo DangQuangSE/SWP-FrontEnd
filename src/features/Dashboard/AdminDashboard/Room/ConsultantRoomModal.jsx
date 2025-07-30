@@ -243,9 +243,9 @@ const ConsultantRoomModal = ({ visible, onCancel, room }) => {
           okType="danger"
         >
           <Button
-            icon={<DeleteOutlined />}
             size="small"
             danger
+            icon={<DeleteOutlined />}
             title="Xóa khỏi phòng"
           />
         </Popconfirm>
