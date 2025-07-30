@@ -17,7 +17,14 @@ export const fetchUsers = async () => {
         const users = Array.isArray(response.data)
           ? response.data
           : [response.data];
-        allUsers.push(...users);
+
+        // Thêm field role vào mỗi user nếu chưa có
+        const usersWithRole = users.map((user) => ({
+          ...user,
+          role: user.role || role,
+        }));
+
+        allUsers.push(...usersWithRole);
         console.log(` Fetched ${users.length} users with role ${role}`);
       } catch (roleError) {
         console.warn(
@@ -28,6 +35,7 @@ export const fetchUsers = async () => {
     }
 
     console.log(` Total fetched users: ${allUsers.length}`);
+    console.log("Sample user data:", allUsers[0]); // Debug log
     return allUsers;
   } catch (error) {
     console.error(" Lỗi lấy danh sách users:", error);

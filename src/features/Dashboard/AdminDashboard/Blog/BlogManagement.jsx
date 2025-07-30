@@ -28,8 +28,21 @@ import {
   uploadImage,
 } from "../../../../api/consultantAPI";
 import { fetchBlogSummary } from "../../../../api/commentAPI";
+import {
+  fetchTags,
+  createTag,
+  updateTag,
+  deleteTag,
+  fetchBlogsByMultipleTags,
+} from "../../../../api/tagAPI";
+import {
+  EyeIcon,
+  HeartIcon,
+  CommentIcon,
+} from "../../../../components/Icons/BlogIcons";
 import "./BlogManagement.css";
 import axios from "axios";
+import api from "../../../../configs/api";
 
 const BlogManagement = ({ userId, selectedTab }) => {
   // Form instances
@@ -54,7 +67,7 @@ const BlogManagement = ({ userId, selectedTab }) => {
   const [tags, setTags] = useState([]);
   const [isTagModalVisible, setIsTagModalVisible] = useState(false);
   const [editingTag, setEditingTag] = useState(null);
-  const [selectedTag, setSelectedTag] = useState(null);
+  const [selectedTags, setSelectedTags] = useState([]);
 
   // Status filter state
   const [selectedStatus, setSelectedStatus] = useState("ALL");
@@ -206,12 +219,9 @@ const BlogManagement = ({ userId, selectedTab }) => {
 
   const loadTags = async (forceRefresh = false) => {
     try {
-      const apiUrl = forceRefresh
-        ? `${API_BASE_URL}/tags?_t=${Date.now()}`
-        : `${API_BASE_URL}/tags`;
-      console.log("🏷️ Loading tags from:", apiUrl);
+      console.log("🏷️ Loading tags using tagAPI");
 
-      const res = await axios.get(apiUrl);
+      const res = await fetchTags();
       const activeTags = (res.data || []).filter(
         (tag) => !tag.deleted && !tag.deleted_at && tag.status !== "DELETED"
       );
@@ -230,15 +240,22 @@ const BlogManagement = ({ userId, selectedTab }) => {
     }
   };
 
-  // Filter blogs by tag
-  const handleFilterByTag = async (tagId) => {
-    setSelectedTag(tagId);
-    if (!tagId) {
+  // Filter blogs by multiple tags
+  const handleFilterByTags = async (tagIds) => {
+    setSelectedTags(tagIds || []);
+    if (!tagIds || tagIds.length === 0) {
       loadBlogs();
       return;
     }
     try {
-      const res = await api.get(`/blog/by-tag/${tagId}`);
+      let res;
+      if (tagIds.length === 1) {
+        // Single tag - use existing API
+        res = await api.get(`/blog/by-tag/${tagIds[0]}`);
+      } else {
+        // Multiple tags - use new API
+        res = await fetchBlogsByMultipleTags(tagIds);
+      }
 
       const blogData = res.data?.content || res.data || [];
       const processedBlogs = blogData.map((blog) => ({
@@ -255,6 +272,7 @@ const BlogManagement = ({ userId, selectedTab }) => {
       }));
       setBlogs(processedBlogs);
     } catch (error) {
+      console.error("Error filtering blogs by tags:", error);
       toast.error("Không thể lọc blog theo chủ đề");
       setBlogs([]);
     }
@@ -738,11 +756,11 @@ const BlogManagement = ({ userId, selectedTab }) => {
       title: "Tiêu đề",
       dataIndex: "title",
       key: "title",
-      width: "40%",
+      width: "20%",
       render: (title, record) => (
         <div>
           <div className="blog-title-cell">{title || "Không có tiêu đề"}</div>
-          <div className="blog-id-cell">ID: {record.id}</div>
+          {/* <div className="blog-id-cell">ID: {record.id}</div> */}
         </div>
       ),
     },
@@ -772,13 +790,15 @@ const BlogManagement = ({ userId, selectedTab }) => {
       render: (_, record) => (
         <div>
           <div className="blog-stats-cell">
-            👁️ {record.viewCount || 0} lượt xem
+            <EyeIcon size={14} color="#666" /> {record.viewCount || 0} lượt xem
           </div>
           <div className="blog-stats-likes">
-            ❤️ {record.likeCount || 0} lượt thích
+            <HeartIcon size={14} color="#ff4757" /> {record.likeCount || 0} lượt
+            thích
           </div>
           <div className="blog-stats-comments">
-            💬 {commentCounts[record.id] || 0} bình luận
+            <CommentIcon size={14} color="#666" />{" "}
+            {commentCounts[record.id] || 0} bình luận
           </div>
         </div>
       ),
@@ -950,26 +970,18 @@ const BlogManagement = ({ userId, selectedTab }) => {
             description="Hành động này không thể hoàn tác!"
             onConfirm={async () => {
               try {
-                const apiUrl = `${API_BASE_URL}/tags/${record.id}`;
-                console.log("🗑️ Delete tag API:", apiUrl);
-                const response = await axios.delete(apiUrl);
+                console.log("🗑️ Delete tag ID:", record.id);
+                await deleteTag(record.id);
 
-                if (response.status === 204) {
-                  const updatedTags = tags.filter(
-                    (tag) => tag.id !== record.id
-                  );
-                  setTags(updatedTags);
-                  setTagOptions(
-                    updatedTags.map((tag) => ({
-                      label: tag.name,
-                      value: tag.id,
-                    }))
-                  );
-                  toast.success("Xóa chủ đề thành công!");
-                } else {
-                  await loadTags();
-                  toast.success("Xóa chủ đề thành công!");
-                }
+                const updatedTags = tags.filter((tag) => tag.id !== record.id);
+                setTags(updatedTags);
+                setTagOptions(
+                  updatedTags.map((tag) => ({
+                    label: tag.name,
+                    value: tag.id,
+                  }))
+                );
+                toast.success("Xóa chủ đề thành công!");
               } catch (error) {
                 toast.error(
                   `Xóa chủ đề thất bại: ${
@@ -1018,33 +1030,33 @@ const BlogManagement = ({ userId, selectedTab }) => {
         {/* Statistics Cards */}
         <div className="stats-grid">
           <div className="stats-card total">
-            <div className="stats-number total">{totalBlogs}</div>
             <div className="stats-label">Tổng số bài viết</div>
+            <div className="stats-number total">{totalBlogs}</div>
           </div>
 
           <div className="stats-card published">
-            <div className="stats-number published">{publishedBlogs}</div>
             <div className="stats-label">Đã xuất bản</div>
+            <div className="stats-number published">{publishedBlogs}</div>
           </div>
 
           <div className="stats-card draft">
-            <div className="stats-number draft">{rejectBlogs}</div>
             <div className="stats-label">Từ chối</div>
+            <div className="stats-number draft">{rejectBlogs}</div>
           </div>
 
           <div className="stats-card views">
-            <div className="stats-number views">{totalViews}</div>
             <div className="stats-label">Tổng lượt xem</div>
+            <div className="stats-number views">{totalViews}</div>
           </div>
 
           <div className="stats-card likes">
-            <div className="stats-number likes">{totalLikes}</div>
             <div className="stats-label">Tổng lượt thích</div>
+            <div className="stats-number likes">{totalLikes}</div>
           </div>
 
           <div className="stats-card comments">
-            <div className="stats-number comments">{totalComments}</div>
             <div className="stats-label">Tổng bình luận</div>
+            <div className="stats-number comments">{totalComments}</div>
           </div>
         </div>
 
@@ -1064,12 +1076,15 @@ const BlogManagement = ({ userId, selectedTab }) => {
               ]}
             />
             <Select
+              mode="multiple"
               allowClear
               placeholder="Lọc theo chủ đề"
               className="filter-select"
               options={tagOptions}
-              value={selectedTag}
-              onChange={handleFilterByTag}
+              value={selectedTags}
+              onChange={handleFilterByTags}
+              style={{ minWidth: 200 }}
+              maxTagCount="responsive"
             />
           </div>
           <Button
@@ -1266,9 +1281,6 @@ const BlogManagement = ({ userId, selectedTab }) => {
           {selectedBlog && Object.keys(selectedBlog).length > 0 ? (
             <div>
               <div className="blog-detail-item">
-                <b>ID:</b> {selectedBlog.id}
-              </div>
-              <div className="blog-detail-item">
                 <b>Tiêu đề:</b> {selectedBlog.title}
               </div>
               <div className="blog-detail-item">
@@ -1349,9 +1361,8 @@ const BlogManagement = ({ userId, selectedTab }) => {
               const values = await tagForm.validateFields();
 
               if (editingTag) {
-                const apiUrl = `${API_BASE_URL}/tags/${editingTag.id}`;
-                console.log("✏️ Update tag API:", apiUrl);
-                await axios.put(apiUrl, values);
+                console.log("✏️ Update tag ID:", editingTag.id);
+                await updateTag(editingTag.id, values);
 
                 const updatedTags = tags.map((tag) =>
                   tag.id === editingTag.id ? { ...tag, ...values } : tag
@@ -1364,9 +1375,8 @@ const BlogManagement = ({ userId, selectedTab }) => {
                   }))
                 );
               } else {
-                const apiUrl = `${SERVER_CONFIG.API_URL}/tags`;
-                console.log("➕ Create tag API:", apiUrl);
-                const response = await axios.post(apiUrl, values);
+                console.log("➕ Create tag:", values);
+                const response = await createTag(values);
 
                 const newTag = response.data || { ...values, id: Date.now() };
                 const updatedTags = [...tags, newTag];

@@ -1,4 +1,4 @@
-# 🏥 Patient History Components
+# Patient History Components
 
 Hệ thống components để hiển thị hồ sơ bệnh án và lịch sử khám bệnh của bệnh nhân.
 
@@ -171,4 +171,4 @@ import { PatientHistoryDemo } from "./features/Dashboard/ConsultantDashboard/Pat
    - Kết quả xét nghiệm gần đây
 3. **Click "Đóng"** → Đóng modal, quay về màn hình chính
 
-**Không ảnh hưởng đến workflow hiện có!** ✅
+**Không ảnh hưởng đến workflow hiện có!**

@@ -8,6 +8,7 @@ import {
   BarChartOutlined,
   TeamOutlined,
   CalendarOutlined,
+  SettingOutlined,
 } from "@ant-design/icons";
 
 // Import modals
@@ -27,6 +28,15 @@ import BlogManagement from "./Blog/BlogManagement";
 import { UserManagement } from "./UserManagement";
 
 import BookingDashboard from "./BookingDashboard/BookingDashboard";
+
+// Import Config Management component
+import ConfigManagement from "./ConfigManagement/ConfigManagement";
+
+// Import Doctor Working Hours component
+import { DoctorWorkingHours } from "./DoctorWorkingHours";
+
+// Import Dashboard Reports component
+import DashboardReports from "./DashboardReports/DashboardReports";
 
 const { Header, Content, Sider } = Layout;
 const { Title } = Typography;
@@ -50,8 +60,10 @@ function Admin() {
       dashboard_reports: "Xem Dashboard & Báo cáo",
       // handle_feedback: "Xử lý Phản hồi Dịch vụ/Tư vấn",
       // manage_payments: "Quản lý Thanh toán & Giao dịch",
+      manage_configvalue: "Quản lý Cấu hình chung",
       manage_rooms: "Quản lý Phòng khám",
       manage_specializations: "Quản lý Chuyên khoa",
+      manage_doctorworkinghours: "Quản lý Ca làm việc bác sĩ",
     };
     return titleMap[menuKey] || menuKey;
   };
@@ -61,10 +73,10 @@ function Admin() {
   } = theme.useToken();
 
   // Menu items for the top navigation
-  const items1 = ["Dashboard", "Reports"].map((label, key) => ({
-    key: String(key + 1),
-    label,
-  }));
+  // const items1 = ["Dashboard", "Reports"].map((label, key) => ({
+  //   key: String(key + 1),
+  //   label,
+  // }));
 
   // Menu items for the side navigation
   const items2 = [
@@ -113,6 +125,16 @@ function Admin() {
       icon: React.createElement(SolutionOutlined),
       label: "Quản lý Chuyên khoa",
     },
+    {
+      key: "manage_configvalue",
+      icon: React.createElement(SettingOutlined),
+      label: "Quản lý Cấu hình chung",
+    },
+    {
+      key: "manage_doctorworkinghours",
+      icon: React.createElement(CalendarOutlined),
+      label: "Quản lý Ca làm việc bác sĩ",
+    },
   ];
 
   const renderContent = () => {
@@ -126,13 +148,7 @@ function Admin() {
       case "manage_articles":
         return <BlogManagement userId={null} selectedTab="write_blogs" />;
       case "dashboard_reports":
-        return (
-          <Card title="Dashboard & Reports">
-            <p>
-              Admin dashboard with analytics and reports will be displayed here.
-            </p>
-          </Card>
-        );
+        return <DashboardReports />;
       case "handle_feedback":
         return (
           <Card title="Handle Service/Consultant Feedback">
@@ -149,6 +165,10 @@ function Admin() {
         return <RoomManagement />;
       case "manage_specializations":
         return <SpecializationManagement form={form} />;
+      case "manage_configvalue":
+        return <ConfigManagement />;
+      case "manage_doctorworkinghours":
+        return <DoctorWorkingHours />;
       default:
         return null;
     }
@@ -161,7 +181,7 @@ function Admin() {
         <Title level={3} style={{ color: "white", margin: 0 }}>
           Admin Dashboard
         </Title>
-        <Menu
+        {/* <Menu
           theme="dark"
           mode="horizontal"
           defaultSelectedKeys={["1"]}
@@ -171,7 +191,7 @@ function Admin() {
             minWidth: 0,
             justifyContent: "flex-end",
           }}
-        />
+        /> */}
       </Header>
       <Layout>
         <Sider width={280} style={{ background: colorBgContainer }}>

@@ -163,7 +163,7 @@ class CustomerChatAPIService {
    */
   async getUnreadCount(sessionId, customerName) {
     try {
-      console.log("📊 [CUSTOMER CHAT API] Getting unread count:", {
+      console.log(" [CUSTOMER CHAT API] Getting unread count:", {
         sessionId,
         customerName,
       });

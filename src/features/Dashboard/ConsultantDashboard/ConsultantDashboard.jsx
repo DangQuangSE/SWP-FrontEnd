@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { Layout, Menu, Typography, theme, Breadcrumb } from "antd";
 import {
   CalendarOutlined,
@@ -54,11 +54,6 @@ function ConsultantDashboard() {
       key: "personal_schedule",
       icon: <CalendarOutlined />,
       label: "Lịch tư vấn cá nhân",
-    },
-    {
-      key: "online_consultation",
-      icon: <SolutionOutlined />,
-      label: "Tư vấn trực tuyến",
     },
     {
       key: "manage_schedule",

@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react";
+import React, { useState } from "react";
 import {
   Card,
   Badge,
@@ -307,6 +307,7 @@ const handleDefaultModalClose = () => {
 const MedicalResultViewer = ({ result, compact = false, onClose }) => {
   const [detailModalVisible, setDetailModalVisible] = useState(false);
 
+  // const printRef = useRef();
 
   if (!result) {
     return (

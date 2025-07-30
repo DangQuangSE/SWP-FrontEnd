@@ -162,7 +162,7 @@ const StaffChatInterface = ({ defaultTab = "waiting", hideTabs = false }) => {
   const fetchUnreadCountsForSessions = async (sessions, readerType) => {
     try {
       console.log(
-        `📊 [STAFF CHAT] Fetching unread counts for ${sessions.length} sessions, readerType: ${readerType}`
+        ` [STAFF CHAT] Fetching unread counts for ${sessions.length} sessions, readerType: ${readerType}`
       );
 
       // Fetch unread counts for all sessions in parallel
@@ -174,7 +174,7 @@ const StaffChatInterface = ({ defaultTab = "waiting", hideTabs = false }) => {
             readerType === "STAFF" ? "Nhân viên hỗ trợ" : session.customerName;
 
           console.log(
-            `📊 [STAFF CHAT] Getting unread count for session ${session.sessionId}, reader: ${readerName}`
+            ` [STAFF CHAT] Getting unread count for session ${session.sessionId}, reader: ${readerName}`
           );
 
           const unreadCount = await chatAPIService.getUnreadCount(
@@ -530,7 +530,7 @@ const StaffChatInterface = ({ defaultTab = "waiting", hideTabs = false }) => {
     // Cleanup function to prevent multiple subscriptions
     return () => {
       if (subscriptionRef.current) {
-        console.log("🧹 [STAFF CHAT] Cleaning up WebSocket subscriptions...");
+        console.log("[STAFF CHAT] Cleaning up WebSocket subscriptions...");
 
         // Unsubscribe from all subscriptions
         if (subscriptionRef.current.newSession) {
@@ -1306,7 +1306,7 @@ const StaffChatInterface = ({ defaultTab = "waiting", hideTabs = false }) => {
                           }}
                         />
                         {/* Debug log */}
-                        {console.log(`🎨 [STAFF CHAT] Message colors:`, {
+                        {console.log(`[STAFF CHAT] Message colors:`, {
                           senderType: msg.senderType,
                           avatarColor: getAvatarColor(msg.senderType),
                           bubbleStyle: getMessageBubbleStyle(msg.senderType),

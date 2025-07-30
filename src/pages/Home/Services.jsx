@@ -13,6 +13,7 @@ const Services = () => {
   };
   const handleServiceClick = () => {
     navigate("/services");
+    window.scrollTo(0, 0);
   };
 
   return (

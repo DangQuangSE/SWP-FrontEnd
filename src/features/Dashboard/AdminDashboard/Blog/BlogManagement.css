@@ -82,8 +82,11 @@
 
 .stats-card {
   border-radius: 8px;
-  padding: 16px;
-  text-align: center;
+  padding: 8px 12px;
+  text-align: left;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
 
 .stats-card.total {
@@ -111,9 +114,15 @@
   border: 1px solid #ffadd2;
 }
 
+.stats-card.comments {
+  background: #e8e8e8;
+  border: 1px solid #b7b7b7;
+}
+
 .stats-number {
-  font-size: 24px;
+  font-size: 18px;
   font-weight: bold;
+  margin: 0;
 }
 
 .stats-number.total {
@@ -136,9 +145,15 @@
   color: #eb2f96;
 }
 
+.stats-number.comments {
+  color: #666;
+}
+
 .stats-label {
   color: #666;
-  font-size: 14px;
+  font-size: 13px;
+  margin: 0;
+  flex: 1;
 }
 
 /* Filter and Actions */

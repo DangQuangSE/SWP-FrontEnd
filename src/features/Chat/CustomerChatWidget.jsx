@@ -314,16 +314,14 @@ const CustomerChatWidget = () => {
   // Connect WebSocket when sessionId is available
   useEffect(() => {
     if (sessionId && !wsConnectedRef.current) {
-      console.log(
-        "🔌 [CUSTOMER WS] SessionId available, connecting WebSocket..."
-      );
+      console.log("[CUSTOMER WS] SessionId available, connecting WebSocket...");
       connectWebSocket();
     }
 
     // Cleanup on unmount or sessionId change
     return () => {
       if (wsConnectedRef.current) {
-        console.log("🧹 [CUSTOMER WS] Cleaning up WebSocket connection...");
+        console.log("[CUSTOMER WS] Cleaning up WebSocket connection...");
         disconnectWebSocket();
       }
     };
@@ -338,7 +336,7 @@ const CustomerChatWidget = () => {
   const updateUnreadCount = useCallback(
     (newCount) => {
       console.log(
-        `📊 [CUSTOMER CHAT] Updating unread count: ${unreadCount} → ${newCount}`
+        ` [CUSTOMER CHAT] Updating unread count: ${unreadCount} → ${newCount}`
       );
       setUnreadCount(newCount);
       saveUnreadCount(newCount);
@@ -351,7 +349,7 @@ const CustomerChatWidget = () => {
     if (!sessionId || !customerName) return;
 
     try {
-      console.log("📊 [CUSTOMER CHAT] Fetching unread count from server...");
+      console.log(" [CUSTOMER CHAT] Fetching unread count from server...");
       const count = await customerChatAPI.getUnreadCount(
         sessionId,
         customerName
@@ -387,7 +385,7 @@ const CustomerChatWidget = () => {
       if (currentStaffCount > previousStaffCount) {
         const newMessagesCount = currentStaffCount - previousStaffCount;
         console.log(
-          `📊 [CUSTOMER CHAT] Found ${newMessagesCount} new staff messages (${previousStaffCount} → ${currentStaffCount})`
+          ` [CUSTOMER CHAT] Found ${newMessagesCount} new staff messages (${previousStaffCount} → ${currentStaffCount})`
         );
 
         // Increment unread count by the number of new messages
@@ -562,7 +560,7 @@ const CustomerChatWidget = () => {
       setIsConnected(true);
       // Don't add welcome message optimistically
       // Let the real chat flow handle initial messages
-      console.log("💬 [CUSTOMER CHAT] Widget opened, ready for chat");
+      console.log("[CUSTOMER CHAT] Widget opened, ready for chat");
     }
   }, [isOpen]);
 

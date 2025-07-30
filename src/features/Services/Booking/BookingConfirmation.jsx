@@ -13,6 +13,7 @@ const BookingConfirmation = () => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [showDepositModal, setShowDepositModal] = useState(false);
+
   const fullBooking = {
     ...booking,
     price: booking.price,
@@ -64,6 +65,7 @@ const BookingConfirmation = () => {
 
     fetchUserData();
   }, [token]);
+
   if (!token) {
     return (
       <div className="booking-confirmation-container">

@@ -84,12 +84,12 @@ const AppointmentForm = () => {
               >
                 Dịch vụ
               </span>
-              <span
+              {/* <span
                 className={`nav-tab ${activeTab === "doctors" ? "active" : ""}`}
                 onClick={() => setActiveTab("doctors")}
               >
                 Bác sĩ
-              </span>
+              </span> */}
               <span
                 className={`nav-tab ${activeTab === "reviews" ? "active" : ""}`}
                 onClick={() => setActiveTab("reviews")}
@@ -280,14 +280,14 @@ const AppointmentForm = () => {
                   <ServiceList />
                 </div>
               )}
-              {activeTab === "doctors" && (
+              {/* {activeTab === "doctors" && (
                 <div className="content-section">
                   <h2 className="section-title-appointment">
                     <span>Danh sách bác sĩ</span>
                   </h2>
                   <DoctorList />
                 </div>
-              )}
+              )} */}
               {activeTab === "reviews" && (
                 <div className="content-section">
                   <h2 className="section-title-appointment">

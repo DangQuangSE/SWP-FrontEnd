@@ -1,0 +1,89 @@
+/* Medical Result Form Testing Styles */
+
+.medical-result-form-testing {
+  /* Main container styles */
+}
+
+.medical-result-form-testing .patient-info-alert {
+  margin-bottom: 24px;
+}
+
+.medical-result-form-testing .form-section-card {
+  margin-bottom: 16px;
+}
+
+.medical-result-form-testing .clinical-assessment-card {
+  margin-bottom: 24px;
+}
+
+.medical-result-form-testing .submit-buttons-container {
+  text-align: right;
+}
+
+.medical-result-form-testing .form-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.medical-result-form-testing .form-extra-buttons {
+  display: flex;
+  gap: 8px;
+}
+
+/* Form field styles */
+.medical-result-form-testing .form-field-textarea {
+  resize: vertical;
+}
+
+.medical-result-form-testing .date-picker-full-width {
+  width: 100%;
+}
+
+/* Card section styles */
+.medical-result-form-testing .test-info-section {
+  /* Styles for test information section */
+}
+
+.medical-result-form-testing .test-result-section {
+  /* Styles for test result section */
+}
+
+.medical-result-form-testing .clinical-assessment-section {
+  /* Styles for clinical assessment section */
+}
+
+/* Responsive styles */
+@media (max-width: 768px) {
+  .medical-result-form-testing .submit-buttons-container {
+    text-align: center;
+  }
+  
+  .medical-result-form-testing .form-extra-buttons {
+    flex-direction: column;
+    width: 100%;
+  }
+}
+
+/* Custom button styles */
+.medical-result-form-testing .reset-button {
+  /* Custom reset button styles if needed */
+}
+
+.medical-result-form-testing .cancel-button {
+  /* Custom cancel button styles if needed */
+}
+
+.medical-result-form-testing .submit-button {
+  /* Custom submit button styles if needed */
+}
+
+/* Form validation styles */
+.medical-result-form-testing .ant-form-item-has-error .ant-input,
+.medical-result-form-testing .ant-form-item-has-error .ant-select-selector {
+  border-color: #ff4d4f;
+}
+
+.medical-result-form-testing .ant-form-item-has-error .ant-form-item-explain-error {
+  color: #ff4d4f;
+}

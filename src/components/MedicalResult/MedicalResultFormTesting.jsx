@@ -24,6 +24,7 @@ import dayjs from "dayjs";
 import "dayjs/locale/vi";
 import locale from "antd/es/date-picker/locale/vi_VN";
 import { submitLabTestResult } from "../../api/medicalResultAPI";
+import "./MedicalResultFormTesting.css";
 import api from "../../configs/api";
 
 dayjs.locale("vi");
@@ -36,6 +37,7 @@ const { Text } = Typography;
  * Medical Result Form for Testing Services
  * Form chuyên dụng cho dịch vụ xét nghiệm
  */
+
 const MedicalResultFormTesting = ({
   appointmentDetail,
   onSuccess,
@@ -51,7 +53,7 @@ const MedicalResultFormTesting = ({
   const fetchTreatmentProtocols = async () => {
     try {
       setLoadingProtocols(true);
-      const response = await api.get('/treatment');
+      const response = await api.get("/treatment");
       setTreatmentProtocols(response.data || []);
     } catch (error) {
       console.error("Error fetching treatment protocols:", error);
@@ -66,37 +68,19 @@ const MedicalResultFormTesting = ({
     fetchTreatmentProtocols();
   }, []);
 
-  // Dữ liệu mẫu cho form xét nghiệm
-  const defaultFormData = {
-    appointmentDetailId: appointmentDetail?.id || 123,
-    description: "Kiểm tra định kỳ HIV theo yêu cầu của bệnh nhân",
-    diagnosis: "Âm tính với HIV, không phát hiện kháng thể",
-    treatmentPlan: "Không cần điều trị, kiểm tra lại sau 6 tháng",
-    testName: "HIV Ag/Ab Combo Test",
-    testResult: "Non-reactive",
-    normalRange: "Non-reactive",
-    testMethod: "ELISA",
-    specimenType: "Blood",
-    testStatus: "NORMAL",
-    sampleCollectedAt: "2025-01-15T10:30:00",
-    labNotes: "Mẫu đạt chất lượng, kết quả tin cậy",
-    treatmentProtocolId: null,
-  };
-
-  // Handle field changes
+  // Set initial form values
+  React.useEffect(() => {
+    if (initialData && Object.keys(initialData).length > 0) {
+      const formValues = { ...initialData };
+      if (formValues.sampleCollectedAt) {
+        formValues.sampleCollectedAt = dayjs(formValues.sampleCollectedAt);
+      }
+      form.setFieldsValue(formValues);
+    }
+  }, [form, initialData]);
   const handleFieldChange = (field, value) => {
     form.setFieldValue(field, value);
   };
-
-  // Set initial form values
-  React.useEffect(() => {
-    const formValues = { ...defaultFormData, ...initialData };
-    if (formValues.sampleCollectedAt) {
-      formValues.sampleCollectedAt = dayjs(formValues.sampleCollectedAt);
-    }
-    form.setFieldsValue(formValues);
-  }, [form, initialData]);
-
   const handleSubmit = async (values) => {
     try {
       setLoading(true);
@@ -138,35 +122,38 @@ const MedicalResultFormTesting = ({
 
   const handleReset = () => {
     form.resetFields();
-    const formValues = { ...defaultFormData };
-    if (formValues.sampleCollectedAt) {
-      formValues.sampleCollectedAt = dayjs(formValues.sampleCollectedAt);
-    }
-    form.setFieldsValue(formValues);
-    message.info("Đã reset form về dữ liệu mẫu");
+    message.info("Đã reset form");
   };
 
   return (
     <Card
+      className="medical-result-form-testing"
       title={
-        <Space>
+        <div className="form-title">
           <ExperimentOutlined />
           <span>Kết quả xét nghiệm</span>
           {appointmentDetail && <Tag color="blue">#{appointmentDetail.id}</Tag>}
-        </Space>
+        </div>
       }
       extra={
-        <Space>
-          <Button icon={<ReloadOutlined />} onClick={handleReset}>
+        <div className="form-extra-buttons">
+          <Button
+            className="reset-button"
+            icon={<ReloadOutlined />}
+            onClick={handleReset}
+          >
             Reset
           </Button>
-          <Button onClick={onCancel}>Hủy</Button>
-        </Space>
+          <Button className="cancel-button" onClick={onCancel}>
+            Hủy
+          </Button>
+        </div>
       }
     >
       {/* Patient Info */}
       {appointmentDetail && (
         <Alert
+          className="patient-info-alert"
           message="Thông tin bệnh nhân"
           description={
             <div>
@@ -185,23 +172,17 @@ const MedicalResultFormTesting = ({
           }
           type="info"
           showIcon
-          style={{ marginBottom: 24 }}
         />
       )}
 
-      <Form
-        form={form}
-        layout="vertical"
-        onFinish={handleSubmit}
-        initialValues={defaultFormData}
-      >
+      <Form form={form} layout="vertical" onFinish={handleSubmit}>
         <Row gutter={24}>
           {/* Left Column - Thông tin xét nghiệm */}
           <Col span={12}>
             <Card
+              className="form-section-card test-info-section"
               size="small"
               title="Thông tin xét nghiệm"
-              style={{ marginBottom: 16 }}
             >
               <Form.Item
                 name="testName"
@@ -255,10 +236,10 @@ const MedicalResultFormTesting = ({
               >
                 <ConfigProvider locale={locale}>
                   <DatePicker
+                    className="date-picker-full-width"
                     showTime
                     format="DD/MM/YYYY HH:mm"
                     placeholder="Chọn thời gian lấy mẫu"
-                    style={{ width: "100%" }}
                   />
                 </ConfigProvider>
               </Form.Item>
@@ -268,9 +249,9 @@ const MedicalResultFormTesting = ({
           {/* Right Column - Kết quả */}
           <Col span={12}>
             <Card
+              className="form-section-card test-result-section"
               size="small"
               title="Kết quả xét nghiệm"
-              style={{ marginBottom: 16 }}
             >
               <Form.Item
                 name="testResult"
@@ -311,6 +292,7 @@ const MedicalResultFormTesting = ({
 
               <Form.Item name="labNotes" label="Ghi chú phòng lab">
                 <TextArea
+                  className="form-field-textarea"
                   rows={3}
                   placeholder="Ví dụ: Mẫu đạt chất lượng, kết quả tin cậy"
                 />
@@ -321,9 +303,9 @@ const MedicalResultFormTesting = ({
 
         {/* Clinical Assessment */}
         <Card
+          className="clinical-assessment-card clinical-assessment-section"
           size="small"
           title="Đánh giá lâm sàng"
-          style={{ marginBottom: 24 }}
         >
           <Row gutter={16}>
             <Col span={8}>
@@ -336,6 +318,7 @@ const MedicalResultFormTesting = ({
                 ]}
               >
                 <TextArea
+                  className="form-field-textarea"
                   rows={4}
                   placeholder="Ví dụ: Kiểm tra định kỳ HIV theo yêu cầu của bệnh nhân"
                 />
@@ -351,6 +334,7 @@ const MedicalResultFormTesting = ({
                 ]}
               >
                 <TextArea
+                  className="form-field-textarea"
                   rows={4}
                   placeholder="Ví dụ: Âm tính với HIV, không phát hiện kháng thể"
                 />
@@ -372,6 +356,7 @@ const MedicalResultFormTesting = ({
                 ]}
               >
                 <TextArea
+                  className="form-field-textarea"
                   rows={4}
                   placeholder="Ví dụ: Không cần điều trị, kiểm tra lại sau 6 tháng"
                 />
@@ -392,9 +377,13 @@ const MedicalResultFormTesting = ({
                   showSearch
                   optionFilterProp="children"
                   filterOption={(input, option) =>
-                    option?.children?.toLowerCase().includes(input.toLowerCase())
+                    option?.children
+                      ?.toLowerCase()
+                      .includes(input.toLowerCase())
                   }
-                  onChange={(value) => handleFieldChange("treatmentProtocolId", value)}
+                  onChange={(value) =>
+                    handleFieldChange("treatmentProtocolId", value)
+                  }
                 >
                   {treatmentProtocols.map((protocol) => (
                     <Option key={protocol.id} value={protocol.id}>
@@ -408,10 +397,13 @@ const MedicalResultFormTesting = ({
         </Card>
 
         {/* Submit Buttons */}
-        <div style={{ textAlign: "right" }}>
+        <div className="submit-buttons-container">
           <Space>
-            <Button onClick={onCancel}>Hủy</Button>
+            <Button className="cancel-button" onClick={onCancel}>
+              Hủy
+            </Button>
             <Button
+              className="submit-button"
               type="primary"
               htmlType="submit"
               icon={<SaveOutlined />}

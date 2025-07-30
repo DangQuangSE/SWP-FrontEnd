@@ -3,9 +3,14 @@ import { toast } from "react-toastify";
 import CommentForm from "./CommentForm";
 import CommentItem from "./CommentItem";
 import { API_BASE_URL } from "../../configs/serverConfig";
+import { CommentIcon } from "../Icons/BlogIcons";
 import "./CommentSection.css";
 
-const CommentSection = ({ blogId }) => {
+const CommentSection = ({
+  blogId,
+  onCommentAdded: onCommentAddedFromParent,
+  onCommentDeleted: onCommentDeletedFromParent,
+}) => {
   const [comments, setComments] = useState([]);
   const [loading, setLoading] = useState(true);
   const [user, setUser] = useState(null);
@@ -66,17 +71,29 @@ const CommentSection = ({ blogId }) => {
   const handleCommentAdded = (newComment) => {
     console.log("New comment added:", newComment);
     setComments((prev) => [newComment, ...prev]);
+
+    // Notify parent component to update comment count
+    if (typeof onCommentAddedFromParent === "function") {
+      onCommentAddedFromParent();
+    }
   };
 
   const handleCommentDeleted = (commentId) => {
     console.log(`🗑️ Comment ${commentId} deleted`);
     setComments((prev) => prev.filter((comment) => comment.id !== commentId));
+
+    // Notify parent component to update comment count
+    if (typeof onCommentDeletedFromParent === "function") {
+      onCommentDeletedFromParent();
+    }
   };
 
   return (
     <div className="comment-section">
       <div className="comment-section-header">
-        <h3 className="comment-title">💬 Bình luận ({comments.length})</h3>
+        <h3 className="comment-title">
+          <CommentIcon size={20} color="#333" /> Bình luận ({comments.length})
+        </h3>
         <p className="comment-subtitle">
           Chia sẻ suy nghĩ của bạn về bài viết này
         </p>
