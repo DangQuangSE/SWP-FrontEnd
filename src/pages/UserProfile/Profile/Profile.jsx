@@ -203,7 +203,7 @@ const Profile = () => {
   useEffect(() => {
     const fetchCertificates = async () => {
       // Chỉ fetch certificates nếu user là CONSULTANT hoặc STAFF
-      if (!user || (user.role !== "CONSULTANT" && user.role !== "STAFF")) {
+      if (!user || user.role !== "CONSULTANT") {
         return;
       }
 
@@ -443,7 +443,7 @@ const Profile = () => {
       </Card>
 
       {/* Card chứng chỉ - chỉ hiển thị cho CONSULTANT và STAFF */}
-      {(user?.role === "CONSULTANT" || user?.role === "STAFF") && (
+      {user?.role === "CONSULTANT" && (
         <Card
           title={
             <div className="profile-header">
