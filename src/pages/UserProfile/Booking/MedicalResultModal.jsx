@@ -1,10 +1,34 @@
-import React from "react";
-import { Modal, Button } from "antd";
+import React, { useState } from "react";
+import { Modal, Button, Card } from "antd";
 import "./MedicalResultModal.css";
+import TreatmentProtocolViewModal from "../../../features/Dashboard/ConsultantDashboard/TreatmentProtocol/TreatmentProtocolViewModal";
+import api from "../../../configs/api";
 
 const MedicalResultModal = ({ visible, onClose, selectedResult }) => {
+  const [loadingProtocol, setLoadingProtocol] = useState(false);
+  const [treatmentProtocolModalVisible, setTreatmentProtocolModalVisible] = useState(false);
+  const [selectedProtocol, setSelectedProtocol] = useState(null);
+
   if (!selectedResult) return null;
 
+  const fetchTreatmentProtocolDetail = async (protocolId) => {
+    try {
+      setLoadingProtocol(true);
+      const response = await api.get(`/treatment/${protocolId}`);
+      setSelectedProtocol(response.data);
+      setTreatmentProtocolModalVisible(true);
+    } catch (error) {
+      console.error("Error fetching treatment protocol detail:", error);
+      message.error("Không thể tải thông tin phác đồ điều trị!");
+    } finally {
+      setLoadingProtocol(false);
+    }
+  };
+  const handleTreatmentProtocolClick = (result) => {
+    if (result?.treatmentProtocolId) {
+      fetchTreatmentProtocolDetail(result.treatmentProtocolId);
+    }
+  };
   return (
     <Modal
       title="Kết quả khám bệnh"
@@ -157,6 +181,69 @@ const MedicalResultModal = ({ visible, onClose, selectedResult }) => {
                         </div>
                       )}
                     </div>
+                    {/* Treatment Protocol */}
+                    {detail.medicalResult?.treatmentProtocolId && (
+                      <Card
+                        style={{
+                          borderRadius: "12px",
+                          boxShadow: "0 2px 8px rgba(0,0,0,0.06)",
+                          cursor: "pointer",
+                          transition: "all 0.3s ease",
+                          border: "2px solid #e6f7ff",
+                          background: "linear-gradient(135deg, #f6ffed 0%, #f0f9ff 100%)",
+                        }}
+                        styles={{
+                          body: { padding: "20px" },
+                        }}
+                        hoverable
+                        onClick={() => handleTreatmentProtocolClick(detail.medicalResult)}
+                        loading={loadingProtocol}
+                        onMouseEnter={(e) => {
+                          e.currentTarget.style.transform = "translateY(-2px)";
+                          e.currentTarget.style.boxShadow = "0 4px 16px rgba(24, 144, 255, 0.15)";
+                          e.currentTarget.style.borderColor = "#1890ff";
+                        }}
+                        onMouseLeave={(e) => {
+                          e.currentTarget.style.transform = "translateY(0)";
+                          e.currentTarget.style.boxShadow = "0 2px 8px rgba(0,0,0,0.06)";
+                          e.currentTarget.style.borderColor = "#e6f7ff";
+                        }}
+                      >
+                        <div
+                          style={{
+                            fontSize: "16px",
+                            fontWeight: "600",
+                            marginBottom: "16px",
+                            color: "#1890ff",
+                            display: "flex",
+                            alignItems: "center",
+                            gap: "8px",
+                          }}
+                        >
+                          {/* <FileTextOutlined style={{ color: "#1890ff" }} /> */}
+                          📋 Phác đồ điều trị
+                        </div>
+                        <div
+                          style={{
+                            marginTop: "12px",
+                            fontSize: "12px",
+                            color: "#1890ff",
+                            fontWeight: "500",
+                            textAlign: "center",
+                          }}
+                        >
+                          👆 Nhấn để xem chi tiết phác đồ điều trị
+                        </div>
+                      </Card>
+                    )}
+                    <TreatmentProtocolViewModal
+                      visible={treatmentProtocolModalVisible}
+                      onClose={() => {
+                        setTreatmentProtocolModalVisible(false);
+                        setSelectedProtocol(null);
+                      }}
+                      protocol={selectedProtocol}
+                    />
                   </div>
                 ))}
               </div>
