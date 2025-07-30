@@ -101,6 +101,19 @@ const StaffBookingDashboard = () => {
         ` Loaded ${sortedData.length} appointments for status: ${status}`
       );
       console.log(" Sample appointment data:", sortedData[0]);
+
+      // Debug: Check if all appointments have the same customerMedicalProfile
+      if (sortedData.length > 1) {
+        console.log(" Debugging medical profiles:");
+        sortedData.slice(0, 3).forEach((appointment, index) => {
+          console.log(`  Appointment ${index + 1}:`, {
+            id: appointment.id,
+            customerId: appointment.customerId,
+            customerName: appointment.customerName,
+            medicalProfile: appointment.customerMedicalProfile,
+          });
+        });
+      }
     } catch (error) {
       console.error("Error fetching appointments:", error);
       message.error("Không thể tải danh sách lịch hẹn");
@@ -147,6 +160,44 @@ const StaffBookingDashboard = () => {
   // Handle view detail
   const handleViewDetail = (record) => {
     console.log(" Showing appointment detail for:", record.id);
+    console.log(" Full record data:", record);
+    console.log(" Customer ID:", record.customerId);
+    console.log(" Customer Medical Profile:", record.customerMedicalProfile);
+
+    // Format date and time safely
+    const formatDateTime = () => {
+      try {
+        const slotTime = record.appointmentDetails?.[0]?.slotTime;
+        if (slotTime) {
+          const dateTime = new Date(slotTime);
+          if (!isNaN(dateTime.getTime())) {
+            return `${dateTime.toLocaleDateString(
+              "vi-VN"
+            )} - ${dateTime.toLocaleTimeString("vi-VN", {
+              hour: "2-digit",
+              minute: "2-digit",
+            })}`;
+          }
+        }
+        if (record.preferredDate) {
+          const preferredDateTime = new Date(record.preferredDate);
+          if (!isNaN(preferredDateTime.getTime())) {
+            return preferredDateTime.toLocaleDateString("vi-VN");
+          }
+        }
+        return "N/A";
+      } catch (error) {
+        console.error("Error formatting date:", error);
+        return "N/A";
+      }
+    };
+
+    // Safe string conversion function
+    const safeString = (value) => {
+      if (value === null || value === undefined) return "";
+      if (typeof value === "object") return JSON.stringify(value);
+      return String(value);
+    };
 
     Modal.info({
       title: "Chi tiết lịch hẹn",
@@ -154,44 +205,41 @@ const StaffBookingDashboard = () => {
       content: (
         <div>
           <p>
-            <strong>Tên khách hàng:</strong> {record.customerName || "N/A"}
+            <strong>Tên khách hàng:</strong>{" "}
+            {safeString(record.customerName) || "N/A"}
           </p>
           <p>
-            <strong>Dịch vụ:</strong> {record.serviceName || "N/A"}
+            <strong>Dịch vụ:</strong> {safeString(record.serviceName) || "N/A"}
           </p>
           <p>
             <strong>Giá dịch vụ:</strong>{" "}
             {record.price?.toLocaleString() || "0"} VNĐ
           </p>
           <p>
-            <strong>Ngày & Giờ hẹn:</strong>{" "}
-            {(() => {
-              const slotTime = record.appointmentDetails?.[0]?.slotTime;
-              if (slotTime) {
-                const dateTime = new Date(slotTime);
-                return `${dateTime.toLocaleDateString(
-                  "vi-VN"
-                )} - ${dateTime.toLocaleTimeString("vi-VN", {
-                  hour: "2-digit",
-                  minute: "2-digit",
-                })}`;
-              }
-              return record.preferredDate
-                ? new Date(record.preferredDate).toLocaleDateString("vi-VN")
-                : "N/A";
-            })()}
+            <strong>Ngày & Giờ hẹn:</strong> {formatDateTime()}
           </p>
           <p>
             <strong>Trạng thái:</strong> {getStatusLabel(record.status)}
           </p>
           <p>
             <strong>Ngày tạo:</strong>{" "}
-            {record.created_at
-              ? new Date(record.created_at).toLocaleDateString("vi-VN")
-              : "N/A"}
+            {(() => {
+              try {
+                if (record.created_at) {
+                  const createdDate = new Date(record.created_at);
+                  if (!isNaN(createdDate.getTime())) {
+                    return createdDate.toLocaleDateString("vi-VN");
+                  }
+                }
+                return "N/A";
+              } catch (error) {
+                console.error("Error formatting created date:", error);
+                return "N/A";
+              }
+            })()}
           </p>
           <p>
-            <strong>Ghi chú:</strong> {record.note || "Không có"}
+            <strong>Ghi chú:</strong> {safeString(record.note) || "Không có"}
           </p>
 
           {/* Thông tin y tế cơ bản của bệnh nhân */}
@@ -211,25 +259,25 @@ const StaffBookingDashboard = () => {
               {record.customerMedicalProfile.allergies && (
                 <p>
                   • <strong>Dị ứng:</strong>{" "}
-                  {record.customerMedicalProfile.allergies}
+                  {safeString(record.customerMedicalProfile.allergies)}
                 </p>
               )}
               {record.customerMedicalProfile.chronicConditions && (
                 <p>
                   • <strong>Bệnh mãn tính:</strong>{" "}
-                  {record.customerMedicalProfile.chronicConditions}
+                  {safeString(record.customerMedicalProfile.chronicConditions)}
                 </p>
               )}
               {record.customerMedicalProfile.familyHistory && (
                 <p>
                   • <strong>Tiền sử gia đình:</strong>{" "}
-                  {record.customerMedicalProfile.familyHistory}
+                  {safeString(record.customerMedicalProfile.familyHistory)}
                 </p>
               )}
               {record.customerMedicalProfile.specialNotes && (
                 <p>
                   • <strong>Ghi chú đặc biệt:</strong>{" "}
-                  {record.customerMedicalProfile.specialNotes}
+                  {safeString(record.customerMedicalProfile.specialNotes)}
                 </p>
               )}
               {!record.customerMedicalProfile.allergies &&
@@ -257,7 +305,7 @@ const StaffBookingDashboard = () => {
               </p>
               <p>
                 • <strong>Tư vấn viên:</strong>{" "}
-                {record.appointmentDetails[0].consultantName ||
+                {safeString(record.appointmentDetails[0].consultantName) ||
                   "Chưa phân công"}
               </p>
               <p>
@@ -267,7 +315,8 @@ const StaffBookingDashboard = () => {
               {record.appointmentDetails[0].room && (
                 <p>
                   • <strong>Phòng khám:</strong>{" "}
-                  {record.appointmentDetails[0].room}
+                  {safeString(record.appointmentDetails[0].room.name) ||
+                    safeString(record.appointmentDetails[0].room)}
                 </p>
               )}
               {record.appointmentDetails[0].medicalResult && (
@@ -277,13 +326,15 @@ const StaffBookingDashboard = () => {
                   </p>
                   <p style={{ marginLeft: 16 }}>
                     - Chẩn đoán:{" "}
-                    {record.appointmentDetails[0].medicalResult.diagnosis ||
-                      "Chưa có"}
+                    {safeString(
+                      record.appointmentDetails[0].medicalResult.diagnosis
+                    ) || "Chưa có"}
                   </p>
                   <p style={{ marginLeft: 16 }}>
                     - Kế hoạch điều trị:{" "}
-                    {record.appointmentDetails[0].medicalResult.treatmentPlan ||
-                      "Chưa có"}
+                    {safeString(
+                      record.appointmentDetails[0].medicalResult.treatmentPlan
+                    ) || "Chưa có"}
                   </p>
                 </div>
               )}
@@ -412,33 +463,49 @@ const StaffBookingDashboard = () => {
         // Lấy slotTime từ appointmentDetails array
         const slotTime = record.appointmentDetails?.[0]?.slotTime;
 
-        if (slotTime) {
-          const dateTime = new Date(slotTime);
-          const date = dateTime.toLocaleDateString("vi-VN");
-          const time = dateTime.toLocaleTimeString("vi-VN", {
-            hour: "2-digit",
-            minute: "2-digit",
-          });
+        try {
+          if (slotTime) {
+            const dateTime = new Date(slotTime);
+            if (!isNaN(dateTime.getTime())) {
+              const date = dateTime.toLocaleDateString("vi-VN");
+              const time = dateTime.toLocaleTimeString("vi-VN", {
+                hour: "2-digit",
+                minute: "2-digit",
+              });
+
+              return (
+                <div className="booking-dashboard__datetime">
+                  <div className="booking-dashboard__date">{date}</div>
+                  <div className="booking-dashboard__time">{time}</div>
+                </div>
+              );
+            }
+          }
+
+          // Fallback to preferredDate if no slotTime
+          let preferredDateStr = "N/A";
+          if (record.preferredDate) {
+            const preferredDateTime = new Date(record.preferredDate);
+            if (!isNaN(preferredDateTime.getTime())) {
+              preferredDateStr = preferredDateTime.toLocaleDateString("vi-VN");
+            }
+          }
 
           return (
             <div className="booking-dashboard__datetime">
-              <div className="booking-dashboard__date">{date}</div>
-              <div className="booking-dashboard__time">{time}</div>
+              <div className="booking-dashboard__date">{preferredDateStr}</div>
+              <div className="booking-dashboard__time">Chưa có giờ</div>
+            </div>
+          );
+        } catch (error) {
+          console.error("Error formatting datetime in table:", error);
+          return (
+            <div className="booking-dashboard__datetime">
+              <div className="booking-dashboard__date">N/A</div>
+              <div className="booking-dashboard__time">Lỗi hiển thị</div>
             </div>
           );
         }
-
-        // Fallback to preferredDate if no slotTime
-        return (
-          <div className="booking-dashboard__datetime">
-            <div className="booking-dashboard__date">
-              {record.preferredDate
-                ? new Date(record.preferredDate).toLocaleDateString("vi-VN")
-                : "N/A"}
-            </div>
-            <div className="booking-dashboard__time">Chưa có giờ</div>
-          </div>
-        );
       },
     },
     {
@@ -455,8 +522,20 @@ const StaffBookingDashboard = () => {
       dataIndex: "created_at",
       key: "created_at",
       width: 45,
-      render: (date) =>
-        date ? new Date(date).toLocaleDateString("vi-VN") : "N/A",
+      render: (date) => {
+        try {
+          if (date) {
+            const createdDate = new Date(date);
+            if (!isNaN(createdDate.getTime())) {
+              return createdDate.toLocaleDateString("vi-VN");
+            }
+          }
+          return "N/A";
+        } catch (error) {
+          console.error("Error formatting created date in table:", error);
+          return "N/A";
+        }
+      },
     },
     {
       title: "Ghi chú",
