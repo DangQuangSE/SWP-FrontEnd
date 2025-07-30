@@ -646,7 +646,7 @@ const getTestTypeDisplay = (type) => {
 
 // Professional Medical Result Display Component
 const ProfessionalResultDisplay = ({ result }) => {
-  const printRef = useRef();
+  // const printRef = useRef();
   const [treatmentProtocolModalVisible, setTreatmentProtocolModalVisible] = useState(false);
   const [selectedProtocol, setSelectedProtocol] = useState(null);
   const [loadingProtocol, setLoadingProtocol] = useState(false);
