@@ -1155,39 +1155,52 @@ const ProfessionalResultDisplay = ({ result }) => {
               style={{
                 borderRadius: "12px",
                 boxShadow: "0 2px 8px rgba(0,0,0,0.06)",
+                cursor: "pointer",
+                transition: "all 0.3s ease",
+                border: "2px solid #e6f7ff",
+                background: "linear-gradient(135deg, #f6ffed 0%, #f0f9ff 100%)",
               }}
-              styles={{ body: { padding: "20px" } }}
+              styles={{
+                body: { padding: "20px" },
+              }}
               hoverable
               onClick={handleTreatmentProtocolClick}
               loading={loadingProtocol}
-
+              onMouseEnter={(e) => {
+                e.currentTarget.style.transform = "translateY(-2px)";
+                e.currentTarget.style.boxShadow = "0 4px 16px rgba(24, 144, 255, 0.15)";
+                e.currentTarget.style.borderColor = "#1890ff";
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.transform = "translateY(0)";
+                e.currentTarget.style.boxShadow = "0 2px 8px rgba(0,0,0,0.06)";
+                e.currentTarget.style.borderColor = "#e6f7ff";
+              }}
             >
               <div
                 style={{
                   fontSize: "16px",
                   fontWeight: "600",
                   marginBottom: "16px",
-                  color: "#1a1a1a",
+                  color: "#1890ff",
                   display: "flex",
                   alignItems: "center",
                   gap: "8px",
                 }}
               >
                 {/* <FileTextOutlined style={{ color: "#1890ff" }} /> */}
-                Phác đồ điều trị
+                📋 Phác đồ điều trị
               </div>
               <div
                 style={{
-                  background: "#fafafa",
-                  border: "1px solid #f0f0f0",
-                  borderRadius: "8px",
-                  padding: "16px",
-                  fontSize: "14px",
-                  lineHeight: 1.6,
-                  color: "#666",
+                  marginTop: "12px",
+                  fontSize: "12px",
+                  color: "#1890ff",
+                  fontWeight: "500",
+                  textAlign: "center",
                 }}
               >
-                {result.labNotes}
+                👆 Nhấn để xem chi tiết phác đồ điều trị
               </div>
             </Card>
           )}
