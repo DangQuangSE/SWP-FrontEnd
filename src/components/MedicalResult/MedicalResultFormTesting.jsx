@@ -22,11 +22,13 @@ import {
 } from "@ant-design/icons";
 import dayjs from "dayjs";
 import "dayjs/locale/vi";
+import customParseFormat from "dayjs/plugin/customParseFormat";
 import locale from "antd/es/date-picker/locale/vi_VN";
 import { submitLabTestResult } from "../../api/medicalResultAPI";
 import "./MedicalResultFormTesting.css";
 import api from "../../configs/api";
 
+dayjs.extend(customParseFormat);
 dayjs.locale("vi");
 
 const { TextArea } = Input;
@@ -91,7 +93,9 @@ const MedicalResultFormTesting = ({
         ...values,
         appointmentDetailId: appointmentDetail?.id || 123,
         resultType: "LAB_TEST",
-        sampleCollectedAt: values.sampleCollectedAt?.toISOString(),
+        sampleCollectedAt: values.sampleCollectedAt
+          ? dayjs(values.sampleCollectedAt).toISOString()
+          : null,
         treatmentProtocolId: values.treatmentProtocolId || null,
       };
 
@@ -175,7 +179,15 @@ const MedicalResultFormTesting = ({
         />
       )}
 
-      <Form form={form} layout="vertical" onFinish={handleSubmit}>
+      <Form
+        form={form}
+        layout="vertical"
+        onFinish={handleSubmit}
+        onFinishFailed={(errorInfo) => {
+          console.log("[DEBUG] Form validation failed:", errorInfo);
+          message.error("Vui lòng kiểm tra lại thông tin đã nhập!");
+        }}
+      >
         <Row gutter={24}>
           {/* Left Column - Thông tin xét nghiệm */}
           <Col span={12}>
@@ -188,7 +200,10 @@ const MedicalResultFormTesting = ({
                 name="testName"
                 label="Tên xét nghiệm"
                 rules={[
-                  { required: true, message: "Vui lòng nhập tên xét nghiệm!" },
+                  {
+                    required: true,
+                    message: "Vui lòng nhập tên xét nghiệm!",
+                  },
                 ]}
               >
                 <Input placeholder="Ví dụ: HIV Ag/Ab Combo Test" />
@@ -232,6 +247,21 @@ const MedicalResultFormTesting = ({
                     required: true,
                     message: "Vui lòng chọn thời gian lấy mẫu!",
                   },
+                  {
+                    validator: (_, value) => {
+                      if (!value) {
+                        return Promise.reject(
+                          new Error("Vui lòng chọn thời gian lấy mẫu!")
+                        );
+                      }
+                      if (!dayjs.isDayjs(value) && !dayjs(value).isValid()) {
+                        return Promise.reject(
+                          new Error("Thời gian lấy mẫu không hợp lệ!")
+                        );
+                      }
+                      return Promise.resolve();
+                    },
+                  },
                 ]}
               >
                 <ConfigProvider locale={locale}>
@@ -240,6 +270,8 @@ const MedicalResultFormTesting = ({
                     showTime
                     format="DD/MM/YYYY HH:mm"
                     placeholder="Chọn thời gian lấy mẫu"
+                    style={{ width: "100%" }}
+                    allowClear
                   />
                 </ConfigProvider>
               </Form.Item>
