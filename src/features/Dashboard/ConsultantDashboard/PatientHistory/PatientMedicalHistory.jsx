@@ -33,11 +33,11 @@ const PatientMedicalHistory = ({ patientId }) => {
     setLoading(true);
     try {
       console.log(
-        `📋 [PATIENT_HISTORY] Loading history for patient ${patientId}, page ${page}, size ${size}`
+        ` [PATIENT_HISTORY] Loading history for patient ${patientId}, page ${page}, size ${size}`
       );
       const response = await getPatientMedicalHistory(patientId, page, size);
       setPatientData(response.data);
-      console.log(" [PATIENT_HISTORY] Loaded successfully:", response.data);
+      console.log("[PATIENT_HISTORY] Loaded successfully:", response.data);
     } catch (error) {
       console.error(" [PATIENT_HISTORY] Error loading patient history:", error);
       toast.error("Không thể tải lịch sử khám bệnh");

@@ -13,11 +13,35 @@ const BookingConfirmation = () => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [showDepositModal, setShowDepositModal] = useState(false);
+
   const fullBooking = {
     ...booking,
     price: booking.price,
     serviceName: booking.serviceName,
   };
+
+  // Debug log để kiểm tra dữ liệu
+  console.log("[DEBUG] BookingConfirmation - booking data:", booking);
+  console.log(
+    "[DEBUG] BookingConfirmation - consultantId:",
+    booking?.consultantId
+  );
+  console.log(
+    "[DEBUG] BookingConfirmation - booking object keys:",
+    Object.keys(booking || {})
+  );
+  console.log(
+    "[DEBUG] BookingConfirmation - selectedConsultantName:",
+    localStorage.getItem("selectedConsultantName")
+  );
+  console.log(
+    "[DEBUG] BookingConfirmation - selectedConsultantSpecialization:",
+    localStorage.getItem("selectedConsultantSpecialization")
+  );
+  console.log(
+    "[DEBUG] BookingConfirmation - localStorage selectedConsultantId:",
+    localStorage.getItem("selectedConsultantId")
+  );
 
   // Fetch user data from API /api/me
   useEffect(() => {
@@ -41,18 +65,11 @@ const BookingConfirmation = () => {
 
     fetchUserData();
   }, [token]);
+
   if (!token) {
     return (
       <div className="booking-confirmation-container">
-        <p
-          style={{
-            padding: 40,
-            color: "#2753d0",
-            fontWeight: "bold",
-            fontSize: "30px",
-            textAlign: "center",
-          }}
-        >
+        <p className="booking-no-token-message">
           Bạn chưa đăng nhập. Vui lòng đăng nhập để tiếp tục đặt lịch.
         </p>
       </div>
@@ -62,15 +79,7 @@ const BookingConfirmation = () => {
   if (loading) {
     return (
       <div className="booking-confirmation-container">
-        <p
-          style={{
-            padding: 40,
-            color: "#2753d0",
-            fontWeight: "bold",
-            fontSize: "18px",
-            textAlign: "center",
-          }}
-        >
+        <p className="booking-loading-message">
           Đang tải thông tin người dùng...
         </p>
       </div>
@@ -97,6 +106,9 @@ const BookingConfirmation = () => {
   };
 
   const processBooking = async () => {
+    const consultantId =
+      booking.consultantId || localStorage.getItem("selectedConsultantId");
+
     const payload = {
       // userId: user.id,
       service_id: Number(booking.serviceId),
@@ -105,9 +117,19 @@ const BookingConfirmation = () => {
       slot_id: booking.slotId,
       note: booking.note,
       paymentMethod,
+      consultantId: consultantId ? Number(consultantId) : null, // Thêm consultantId với fallback
     };
 
-    console.log(" Payload gửi:", payload);
+    console.log("[DEBUG] Payload gửi trong processBooking:", payload);
+    console.log("[DEBUG] Payload details:", {
+      service_id: payload.service_id,
+      preferredDate: payload.preferredDate,
+      slot: payload.slot,
+      slot_id: payload.slot_id,
+      note: payload.note,
+      paymentMethod: payload.paymentMethod,
+      consultantId: payload.consultantId,
+    });
 
     try {
       const res = await api.post("/booking/medicalService", payload);
@@ -169,15 +191,18 @@ const BookingConfirmation = () => {
   };
 
   const handleDepositConfirm = async () => {
-    console.log("🚀 [DEBUG] handleDepositConfirm started");
-    console.log("🚀 [DEBUG] Current booking data:", booking);
-    console.log("🚀 [DEBUG] Full booking data:", fullBooking);
-    console.log("🚀 [DEBUG] Deposit amount:", depositAmount);
+    console.log("[DEBUG] handleDepositConfirm started");
+    console.log("[DEBUG] Current booking data:", booking);
+    console.log("[DEBUG] Full booking data:", fullBooking);
+    console.log("[DEBUG] Deposit amount:", depositAmount);
 
     setShowDepositModal(false);
 
     // Tạo appointment trước, sau đó lưu thông tin và chuyển đến Payment giống hệt VNPay
     try {
+      const consultantId =
+        booking.consultantId || localStorage.getItem("selectedConsultantId");
+
       const bookingPayload = {
         service_id: Number(booking.serviceId),
         preferredDate: booking.preferredDate,
@@ -185,9 +210,22 @@ const BookingConfirmation = () => {
         slot_id: booking.slotId,
         note: booking.note,
         paymentMethod: "direct",
+        consultantId: consultantId ? Number(consultantId) : null, // Thêm consultantId với fallback
       };
 
-      console.log("📤 [DEBUG] Sending booking payload:", bookingPayload);
+      console.log(
+        "[DEBUG] Sending booking payload trong handleDepositConfirm:",
+        bookingPayload
+      );
+      console.log("[DEBUG] Booking payload details:", {
+        service_id: bookingPayload.service_id,
+        preferredDate: bookingPayload.preferredDate,
+        slot: bookingPayload.slot,
+        slot_id: bookingPayload.slot_id,
+        note: bookingPayload.note,
+        paymentMethod: bookingPayload.paymentMethod,
+        consultantId: bookingPayload.consultantId,
+      });
 
       const res = await api.post("/booking/medicalService", bookingPayload);
 
@@ -235,7 +273,7 @@ const BookingConfirmation = () => {
         JSON.stringify(pendingBookingData)
       );
 
-      console.log(" [DEBUG] Navigating to /payment");
+      console.log("[DEBUG] Navigating to /payment");
       // Chuyển đến trang Payment để xử lý create-off
       navigate("/payment");
     } catch (error) {
@@ -314,6 +352,27 @@ const BookingConfirmation = () => {
           </div>
         </div>
 
+        {booking.consultantId &&
+          localStorage.getItem("selectedConsultantName") && (
+            <div className="booking-card">
+              <h2 className="booking-card-title">Bác sĩ đã chọn</h2>
+              <div className="booking-consultant-profile">
+                <Avatar size={48} className="booking-consultant-avatar">
+                  {localStorage.getItem("selectedConsultantName")?.charAt(0) ||
+                    "BS"}
+                </Avatar>
+                <div className="booking-consultant-info">
+                  <h3 className="booking-consultant-name">
+                    {localStorage.getItem("selectedConsultantName")}
+                  </h3>
+                  <p className="booking-consultant-specialization">
+                    {localStorage.getItem("selectedConsultantSpecialization")}
+                  </p>
+                </div>
+              </div>
+            </div>
+          )}
+
         <div className="booking-card">
           <h2 className="booking-card-title">Lịch hẹn của bạn</h2>
           <div className="booking-info-item">
@@ -326,12 +385,7 @@ const BookingConfirmation = () => {
             <span className="booking-info-label">Thời lượng:</span>
             <span className="booking-info-value">{booking.duration} phút</span>
           </div>
-          <div className="booking-info-item">
-            <span className="booking-info-label">Giá:</span>
-            <span className="booking-info-value booking-price">
-              {booking.price?.toLocaleString()} đ
-            </span>
-          </div>
+
           <div className="booking-info-item">
             <span className="booking-info-label">Ngày hẹn:</span>
             <span className="booking-info-value">{booking.preferredDate}</span>
@@ -341,9 +395,29 @@ const BookingConfirmation = () => {
             <span className="booking-info-value">{booking.slot}</span>
           </div>
           <div className="booking-info-item">
+            <span className="booking-info-label">Bác sĩ:</span>
+            <span className="booking-info-value booking-consultant-name">
+              {(booking.consultantId ||
+                localStorage.getItem("selectedConsultantId")) &&
+              localStorage.getItem("selectedConsultantName")
+                ? `${localStorage.getItem(
+                    "selectedConsultantName"
+                  )} - ${localStorage.getItem(
+                    "selectedConsultantSpecialization"
+                  )}`
+                : "Chưa chọn bác sĩ"}
+            </span>
+          </div>
+          <div className="booking-info-item">
             <span className="booking-info-label">Ghi chú:</span>
             <span className="booking-info-value">
               {booking.note || "(Không có)"}
+            </span>
+          </div>
+          <div className="booking-info-item">
+            <span className="booking-info-label">Giá:</span>
+            <span className="booking-info-value price-highlight ">
+              {booking.price?.toLocaleString()} đ
             </span>
           </div>
         </div>
@@ -422,55 +496,35 @@ const BookingConfirmation = () => {
         width={500}
         centered
       >
-        <div style={{ padding: "16px 0" }}>
-          <div
-            style={{
-              backgroundColor: "#fff7e6",
-              border: "1px solid #ffd591",
-              borderRadius: "6px",
-              padding: "16px",
-              marginBottom: "16px",
-            }}
-          >
-            <div
-              style={{
-                display: "flex",
-                alignItems: "center",
-                marginBottom: "12px",
-              }}
-            >
-              <span
-                style={{
-                  fontSize: "18px",
-                  marginRight: "8px",
-                  color: "#fa8c16",
-                }}
-              >
-                ⚠️
-              </span>
-              <strong style={{ color: "#fa8c16" }}>Lưu ý quan trọng</strong>
+        <div className="deposit-modal-content">
+          <div className="deposit-warning-box">
+            <div className="deposit-warning-header">
+              <span className="deposit-warning-icon">⚠️</span>
+              <strong className="deposit-warning-title">
+                Lưu ý quan trọng
+              </strong>
             </div>
-            <p style={{ margin: 0, lineHeight: "1.6" }}>
+            <p className="deposit-warning-text">
               Để giữ chỗ cho lịch hẹn của bạn, bạn cần thanh toán{" "}
-              <strong style={{ color: "#2753d0" }}>
+              <strong className="deposit-price-highlight">
                 20% giá trị dịch vụ ({depositAmount.toLocaleString()} đ)
               </strong>{" "}
               khi đến khám tại phòng khám.
             </p>
           </div>
 
-          <div style={{ fontSize: "14px", color: "#666" }}>
+          <div className="deposit-details">
             <p>
               <strong>Chi tiết:</strong>
             </p>
-            <ul style={{ paddingLeft: "20px", margin: 0 }}>
+            <ul className="deposit-details-list">
               <li>
                 Tổng giá trị dịch vụ:{" "}
                 <strong>{booking.price?.toLocaleString()} đ</strong>
               </li>
               <li>
                 Số tiền cần thanh toán để giữ chỗ:{" "}
-                <strong style={{ color: "#2753d0" }}>
+                <strong className="deposit-amount-highlight">
                   {depositAmount.toLocaleString()} đ
                 </strong>
               </li>

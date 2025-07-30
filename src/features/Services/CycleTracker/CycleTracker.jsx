@@ -616,9 +616,9 @@ const CycleTracker = () => {
 
             <ol style={{ marginLeft: 20, paddingLeft: 0, marginBottom: 0 }}>
               <li style={{ marginBottom: 12 }}>
-                <b>📅 Chọn ngày trên lịch:</b> Nhấn vào bất kỳ ngày nào trên
-                lịch để mở form ghi chú. Bạn có thể sử dụng lịch để ghi nhận
-                thông tin theo từng ngày một cách trực quan.
+                <b> Chọn ngày trên lịch:</b> Nhấn vào bất kỳ ngày nào trên lịch
+                để mở form ghi chú. Bạn có thể sử dụng lịch để ghi nhận thông
+                tin theo từng ngày một cách trực quan.
               </li>
               <li style={{ marginBottom: 12 }}>
                 <b>🔴 Đánh dấu ngày bắt đầu kỳ kinh:</b> Nếu ngày đó là ngày đầu

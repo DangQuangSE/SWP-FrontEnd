@@ -19,12 +19,12 @@ const Payment = () => {
     if (vnpResponseCode) {
       // User quay lại từ VNPay
       if (vnpResponseCode === "00") {
-        console.log(" [DEBUG] VNPay payment successful");
-        console.log(" [DEBUG] VNPay booking data:", booking);
+        console.log("[DEBUG] VNPay payment successful");
+        console.log("[DEBUG] VNPay booking data:", booking);
 
         // Thanh toán thành công
         const appointmentId = booking?.appointmentId;
-        console.log("🆔 [DEBUG] VNPay appointmentId:", appointmentId);
+        console.log(" [DEBUG] VNPay appointmentId:", appointmentId);
 
         localStorage.removeItem("pendingBooking");
         message.success("Thanh toán thành công!");
@@ -32,7 +32,7 @@ const Payment = () => {
         setLoading(false);
 
         setTimeout(() => {
-          console.log(" [DEBUG] VNPay - Navigating to /user/booking");
+          console.log("[DEBUG] VNPay - Navigating to /user/booking");
           navigate("/user/booking");
         }, 2000);
       } else {
@@ -58,7 +58,7 @@ const Payment = () => {
 
     const createPayment = async () => {
       if (!booking || !booking.amount || !booking.serviceName) {
-        message.error("Thiếu thông tin thanh toán hoặc lịch hẹn.");
+        // message.error("Thiếu thông tin thanh toán hoặc lịch hẹn.");
         setLoading(false);
         return;
       }
@@ -76,7 +76,7 @@ const Payment = () => {
           };
 
           console.log(
-            "📤 [DEBUG] Sending to /api/payment/vnpay/create-off:",
+            " [DEBUG] Sending to /api/payment/vnpay/create-off:",
             payload
           );
 
@@ -94,7 +94,7 @@ const Payment = () => {
 
           // Kiểm tra responseCode để xử lý kết quả tạo payment giống VNPay
           if (res.data.responseCode === 0 && res.data.url) {
-            console.log(" [DEBUG] Payment URL created successfully");
+            console.log("[DEBUG] Payment URL created successfully");
             // Tạo payment URL thành công, chuyển hướng đến VNPay
             const payUrl = res.data.url;
             console.log("🔗 [DEBUG] Payment URL:", payUrl);
@@ -107,14 +107,14 @@ const Payment = () => {
             );
             // Chuyển hướng sau 5 giây
             setTimeout(() => {
-              console.log(" [DEBUG] Redirecting now to:", payUrl);
+              console.log("[DEBUG] Redirecting now to:", payUrl);
               window.location.href = payUrl;
             }, 5000);
           } else if (res.data.responseCode === 0 && !res.data.url) {
-            console.log(" [DEBUG] Direct payment successful without URL");
+            console.log("[DEBUG] Direct payment successful without URL");
             // Trường hợp đặc biệt: responseCode = 0 nhưng không có URL
             const appointmentId = booking.appointmentId;
-            console.log("🆔 [DEBUG] AppointmentId for Zoom:", appointmentId);
+            console.log(" [DEBUG] AppointmentId for Zoom:", appointmentId);
 
             localStorage.removeItem("pendingBooking");
             message.success(res.data.message || "Đặt chỗ thành công!");
@@ -122,7 +122,7 @@ const Payment = () => {
             setLoading(false);
 
             setTimeout(() => {
-              console.log(" [DEBUG] Navigating to /user/booking");
+              console.log("[DEBUG] Navigating to /user/booking");
               navigate("/user/booking");
             }, 2000);
           } else {
@@ -161,7 +161,7 @@ const Payment = () => {
 
       // Xử lý VNPay (logic cũ)
       if (!booking.appointmentId || !booking.paymentMethod) {
-        message.error("Thiếu thông tin thanh toán hoặc lịch hẹn.");
+        // message.error("Thiếu thông tin thanh toán hoặc lịch hẹn.");
         setLoading(false);
         return;
       }
@@ -194,7 +194,7 @@ const Payment = () => {
           // Chuyển hướng sau 5 giây
           setTimeout(() => {
             window.location.href = payUrl;
-          }, 5000);
+          }, 1500);
         } else if (res.data.responseCode === 0 && !res.data.url) {
           // Trường hợp đặc biệt: responseCode = 0 nhưng không có URL (có thể là thanh toán trực tiếp)
           localStorage.removeItem("pendingBooking");

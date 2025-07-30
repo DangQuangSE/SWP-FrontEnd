@@ -78,7 +78,7 @@ const StaffChatInterface = ({ defaultTab = "waiting", hideTabs = false }) => {
       const readerName = "Nhân viên hỗ trợ"; // Staff reader name
       await chatAPIService.markMessagesAsRead(sessionId, readerName);
       console.log(
-        `✅ [MARK READ] Messages marked as read for session: ${sessionId}`
+        `[MARK READ] Messages marked as read for session: ${sessionId}`
       );
 
       // Refresh unread counts after marking as read
@@ -86,7 +86,7 @@ const StaffChatInterface = ({ defaultTab = "waiting", hideTabs = false }) => {
         refreshUnreadCounts();
       }, 500);
     } catch (error) {
-      console.error("❌ [MARK READ] Failed to mark messages as read:", error);
+      console.error(" [MARK READ] Failed to mark messages as read:", error);
     }
   };
   const subscriptionRef = useRef(null); // Track subscription to prevent duplicates
@@ -162,7 +162,7 @@ const StaffChatInterface = ({ defaultTab = "waiting", hideTabs = false }) => {
   const fetchUnreadCountsForSessions = async (sessions, readerType) => {
     try {
       console.log(
-        `📊 [STAFF CHAT] Fetching unread counts for ${sessions.length} sessions, readerType: ${readerType}`
+        ` [STAFF CHAT] Fetching unread counts for ${sessions.length} sessions, readerType: ${readerType}`
       );
 
       // Fetch unread counts for all sessions in parallel
@@ -174,7 +174,7 @@ const StaffChatInterface = ({ defaultTab = "waiting", hideTabs = false }) => {
             readerType === "STAFF" ? "Nhân viên hỗ trợ" : session.customerName;
 
           console.log(
-            `📊 [STAFF CHAT] Getting unread count for session ${session.sessionId}, reader: ${readerName}`
+            ` [STAFF CHAT] Getting unread count for session ${session.sessionId}, reader: ${readerName}`
           );
 
           const unreadCount = await chatAPIService.getUnreadCount(
@@ -183,7 +183,7 @@ const StaffChatInterface = ({ defaultTab = "waiting", hideTabs = false }) => {
           );
 
           console.log(
-            `✅ [STAFF CHAT] Unread count for session ${session.sessionId}: ${unreadCount}`
+            `[STAFF CHAT] Unread count for session ${session.sessionId}: ${unreadCount}`
           );
 
           return {
@@ -192,7 +192,7 @@ const StaffChatInterface = ({ defaultTab = "waiting", hideTabs = false }) => {
           };
         } catch (error) {
           console.error(
-            `❌ [STAFF CHAT] Error getting unread count for session ${session.sessionId}:`,
+            ` [STAFF CHAT] Error getting unread count for session ${session.sessionId}:`,
             error
           );
           return {
@@ -216,12 +216,12 @@ const StaffChatInterface = ({ defaultTab = "waiting", hideTabs = false }) => {
       });
 
       console.log(
-        `✅ [STAFF CHAT] Successfully fetched unread counts for ${sessionsWithUnreadCount.length} sessions`
+        `[STAFF CHAT] Successfully fetched unread counts for ${sessionsWithUnreadCount.length} sessions`
       );
 
       return sessionsWithUnreadCount;
     } catch (error) {
-      console.error("❌ [STAFF CHAT] Error fetching unread counts:", error);
+      console.error(" [STAFF CHAT] Error fetching unread counts:", error);
       // Return sessions without unread count if error
       const fallbackSessions = sessions.map((session) => ({
         ...session,
@@ -384,7 +384,7 @@ const StaffChatInterface = ({ defaultTab = "waiting", hideTabs = false }) => {
 
   // Auto-load all sessions when component mounts (when clicking Q&A)
   useEffect(() => {
-    console.log("🚀 [STAFF CHAT] Component mounted, loading sessions...");
+    console.log("[STAFF CHAT] Component mounted, loading sessions...");
     loadAllSessions();
 
     // Cleanup on unmount
@@ -522,7 +522,7 @@ const StaffChatInterface = ({ defaultTab = "waiting", hideTabs = false }) => {
           staffMessages: staffMessagesSubscription,
         };
         console.log(
-          "✅ [STAFF CHAT] Successfully subscribed to WebSocket notifications"
+          "[STAFF CHAT] Successfully subscribed to WebSocket notifications"
         );
       }
     }
@@ -530,7 +530,7 @@ const StaffChatInterface = ({ defaultTab = "waiting", hideTabs = false }) => {
     // Cleanup function to prevent multiple subscriptions
     return () => {
       if (subscriptionRef.current) {
-        console.log("🧹 [STAFF CHAT] Cleaning up WebSocket subscriptions...");
+        console.log("[STAFF CHAT] Cleaning up WebSocket subscriptions...");
 
         // Unsubscribe from all subscriptions
         if (subscriptionRef.current.newSession) {
@@ -541,7 +541,7 @@ const StaffChatInterface = ({ defaultTab = "waiting", hideTabs = false }) => {
         }
 
         subscriptionRef.current = null;
-        console.log("✅ [STAFF CHAT] WebSocket subscriptions cleaned up");
+        console.log("[STAFF CHAT] WebSocket subscriptions cleaned up");
       }
     };
   }, [wsConnected, chatWebSocketService]);
@@ -549,7 +549,7 @@ const StaffChatInterface = ({ defaultTab = "waiting", hideTabs = false }) => {
   // Reset unread count when user selects a session
   const resetUnreadCountForSession = (sessionId) => {
     console.log(
-      `🔄 [STAFF CHAT] Resetting unread count for session: ${sessionId}`
+      `[STAFF CHAT] Resetting unread count for session: ${sessionId}`
     );
 
     // Update waiting sessions
@@ -611,14 +611,11 @@ const StaffChatInterface = ({ defaultTab = "waiting", hideTabs = false }) => {
     try {
       // If this is a WAITING session in the waiting tab, join it first
       if (session.status === "WAITING" && activeTab === "waiting") {
-        console.log("🚀 [STAFF CHAT] Joining WAITING session...");
+        console.log("[STAFF CHAT] Joining WAITING session...");
         const joinedSession = await chatAPIService.joinSession(
           session.sessionId
         );
-        console.log(
-          " [STAFF CHAT] Session joined successfully:",
-          joinedSession
-        );
+        console.log("[STAFF CHAT] Session joined successfully:", joinedSession);
 
         // Send automatic greeting message when staff joins
         try {
@@ -657,7 +654,7 @@ const StaffChatInterface = ({ defaultTab = "waiting", hideTabs = false }) => {
         }, 500);
       } else {
         // Normal session selection - clear messages first
-        console.log(" [STAFF CHAT] Switching to session:", session.sessionId);
+        console.log("[STAFF CHAT] Switching to session:", session.sessionId);
 
         // Clear previous messages immediately
         clearMessages();
@@ -770,7 +767,7 @@ const StaffChatInterface = ({ defaultTab = "waiting", hideTabs = false }) => {
             await chatAPIService.endSession(sessionId);
 
             console.log(
-              `✅ [STAFF CHAT] Successfully ended session: ${sessionId}`
+              `[STAFF CHAT] Successfully ended session: ${sessionId}`
             );
 
             // Show success message
@@ -792,7 +789,7 @@ const StaffChatInterface = ({ defaultTab = "waiting", hideTabs = false }) => {
               loadSessionsForTab("active");
             }, 500);
           } catch (error) {
-            console.error("❌ [STAFF CHAT] Error ending session:", error);
+            console.error(" [STAFF CHAT] Error ending session:", error);
             message.error(
               "Không thể kết thúc cuộc trò chuyện. Vui lòng thử lại."
             );
@@ -800,7 +797,7 @@ const StaffChatInterface = ({ defaultTab = "waiting", hideTabs = false }) => {
         },
       });
     } catch (error) {
-      console.error("❌ [STAFF CHAT] Error in handleEndSession:", error);
+      console.error(" [STAFF CHAT] Error in handleEndSession:", error);
       message.error("Có lỗi xảy ra. Vui lòng thử lại.");
     }
   };
@@ -910,7 +907,7 @@ const StaffChatInterface = ({ defaultTab = "waiting", hideTabs = false }) => {
                 type="text"
                 icon={<ReloadOutlined />}
                 onClick={() => {
-                  console.log(" [STAFF CHAT] Refresh button clicked");
+                  console.log("[STAFF CHAT] Refresh button clicked");
                   // Clear cache and reload all sessions
                   setWaitingSessions([]);
                   setActiveSessions([]);
@@ -1309,7 +1306,7 @@ const StaffChatInterface = ({ defaultTab = "waiting", hideTabs = false }) => {
                           }}
                         />
                         {/* Debug log */}
-                        {console.log(`🎨 [STAFF CHAT] Message colors:`, {
+                        {console.log(`[STAFF CHAT] Message colors:`, {
                           senderType: msg.senderType,
                           avatarColor: getAvatarColor(msg.senderType),
                           bubbleStyle: getMessageBubbleStyle(msg.senderType),

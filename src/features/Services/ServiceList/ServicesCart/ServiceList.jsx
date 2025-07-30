@@ -9,7 +9,9 @@ const StarRating = ({ rating }) => {
   const stars = [];
   for (let i = 1; i <= 5; i++) {
     stars.push(
-      <span key={i} className={i <= rating ? 'star filled' : 'star'}>★</span>
+      <span key={i} className={i <= rating ? "star filled" : "star"}>
+        ★
+      </span>
     );
   }
   return <div className="star-rating">{stars}</div>;
@@ -36,7 +38,7 @@ const ServiceList = () => {
       .then((res) => {
         setServices(res.data);
         // Sau khi lấy danh sách dịch vụ, lấy đánh giá cho từng dịch vụ
-        res.data.forEach(service => {
+        res.data.forEach((service) => {
           fetchServiceRating(service.id);
         });
       })
@@ -51,12 +53,12 @@ const ServiceList = () => {
     axios
       .get(`/api/feedback/average-rating/${serviceId}`)
       .then((res) => {
-        setServiceRatings(prev => ({
+        setServiceRatings((prev) => ({
           ...prev,
           [serviceId]: {
             averageRating: res.data.averageRating || 0,
-            totalRatings: res.data.totalAppointment || 0
-          }
+            totalRatings: res.data.totalAppointment || 0,
+          },
         }));
       })
       .catch((err) => {
@@ -72,7 +74,9 @@ const ServiceList = () => {
     switch (activeTab) {
       case "CONSULTING":
         return filteredServices.filter(
-          (s) => s.type === "CONSULTING" && !s.isCombo
+          (s) =>
+            (s.type === "CONSULTING" || s.type === "CONSULTING_ON") &&
+            !s.isCombo
         );
       case "TESTING":
         return filteredServices.filter(
@@ -91,7 +95,10 @@ const ServiceList = () => {
         const isCombo = service.isCombo === true;
         const discount = service.discountPercent || 0;
         const basePrice = service.price || 0;
-        const rating = serviceRatings[service.id] || { averageRating: 0, totalRatings: 0 };
+        const rating = serviceRatings[service.id] || {
+          averageRating: 0,
+          totalRatings: 0,
+        };
 
         let originalPrice = basePrice;
         let finalPrice = basePrice;
@@ -113,7 +120,12 @@ const ServiceList = () => {
           >
             <div className="service-card-content">
               <div className="left-info">
-                <h3 className="service-name">{service.name}</h3>
+                <div className="service-name-container">
+                  <h3 className="service-name">{service.name}</h3>
+                  {service.type === "CONSULTING_ON" && (
+                    <h2 className="online-tag">trực tuyến</h2>
+                  )}
+                </div>
                 <p className="desc">{service.description}</p>
                 <div className="price-block">
                   {discount > 0 ? (
@@ -152,7 +164,8 @@ const ServiceList = () => {
                 <div className="service-rating">
                   <StarRating rating={rating.averageRating} />
                   <span className="rating-text">
-                    {rating.averageRating.toFixed(1)} ({rating.totalRatings} đánh giá)
+                    {rating.averageRating.toFixed(1)} ({rating.totalRatings}{" "}
+                    đánh giá)
                   </span>
                 </div>
               </div>
@@ -178,8 +191,9 @@ const ServiceList = () => {
         {Object.entries(TABS).map(([key, label]) => (
           <button
             key={key}
-            className={`service-tab-button ${activeTab === key ? "active" : ""
-              }`}
+            className={`service-tab-button ${
+              activeTab === key ? "active" : ""
+            }`}
             onClick={() => setActiveTab(key)}
           >
             {label}

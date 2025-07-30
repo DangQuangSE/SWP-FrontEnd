@@ -33,7 +33,7 @@ export const useMedicalResult = (options = {}) => {
         setErrors({});
         setWarnings({});
 
-        console.log(" [HOOK] Starting medical result submission:", formData);
+        console.log("[HOOK] Starting medical result submission:", formData);
 
         // Validate data
         const validation = validateMedicalResultData(formData);
@@ -62,7 +62,7 @@ export const useMedicalResult = (options = {}) => {
         // Format data for API
         const apiData = formatMedicalResultForAPI(formData);
 
-        console.log("📤 [HOOK] Formatted data for API:", apiData);
+        console.log(" [HOOK] Formatted data for API:", apiData);
 
         // Submit to API
         const response = await submitMedicalResult(apiData);

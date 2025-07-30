@@ -5,6 +5,7 @@ import { useSelector } from "react-redux";
 import { message, Modal } from "antd";
 import api from "../../../configs/api";
 import RatingModal from "../../../components/RatingModal/RatingModal";
+import MedicalResultModal from "./MedicalResultModal";
 import "./Booking.css";
 
 const TABS = [
@@ -30,6 +31,22 @@ const STATUS_DISPLAY = {
   CANCELED: "Đã hủy",
 };
 
+// Function to create appointment notification
+const createAppointmentNotification = async (appointmentId) => {
+  try {
+    const notificationData = {
+      title: "Cuộc hẹn sắp tới",
+      content: "Bạn có lịch hẹn",
+      type: "APPOINTMENT",
+      appointmentId: appointmentId,
+    };
+
+    await api.post("/notifications", notificationData);
+  } catch {
+    // Don't show error to user as this is not critical for booking flow
+  }
+};
+
 const Booking = () => {
   const [appointments, setAppointments] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -53,11 +70,11 @@ const Booking = () => {
   const [resultModalVisible, setResultModalVisible] = useState(false);
   const [selectedResult, setSelectedResult] = useState(null);
 
-  // Thêm hàm xử lý hiển thị modal đánh giá
-  const handleRateService = (appointment) => {
-    setAppointmentToRate(appointment);
-    setRatingModalVisible(true);
-  };
+  // // Thêm hàm xử lý hiển thị modal đánh giá
+  // const handleRateService = (appointment) => {
+  //   setAppointmentToRate(appointment);
+  //   setRatingModalVisible(true);
+  // };
 
   // Thêm hàm callback khi đánh giá thành công
   const handleRatingSuccess = async () => {
@@ -79,27 +96,24 @@ const Booking = () => {
 
   // Hàm xử lý hiển thị kết quả khám
   const handleViewResult = (appointment) => {
-    console.log(
-      "📋 [BOOKING] Viewing medical result for appointment:",
-      appointment.id
+    // Kiểm tra kết quả khám từ appointmentDetails
+    const hasAppointmentResult = appointment.appointmentDetails?.some(
+      (detail) =>
+        detail.medicalResult && Object.keys(detail.medicalResult).length > 0
     );
-    console.log("📋 [BOOKING] Full appointment data:", appointment);
 
     // Lấy customerMedicalProfile trực tiếp từ appointment (theo API response)
     const medicalProfile = appointment.customerMedicalProfile;
+    const hasMedicalProfile =
+      medicalProfile && Object.keys(medicalProfile).length > 0;
 
-    console.log("📋 [BOOKING] customerMedicalProfile:", medicalProfile);
-
-    if (medicalProfile && Object.keys(medicalProfile).length > 0) {
+    if (hasAppointmentResult || hasMedicalProfile) {
       setSelectedResult({
         appointment: appointment,
-        medicalProfile: medicalProfile,
+        medicalProfile: medicalProfile || {},
       });
       setResultModalVisible(true);
     } else {
-      console.log(
-        "❌ [BOOKING] No medicalProfile found in appointment structure"
-      );
       message.warning("Chưa có kết quả khám cho lịch hẹn này!");
     }
   };
@@ -107,13 +121,10 @@ const Booking = () => {
   // Function to verify VNPay payment with backend
   const verifyVNPayPayment = useCallback(async (urlParams) => {
     try {
-      console.log(" Verifying VNPay payment with backend...");
-      const response = await api.get("/payment/vnpay/vnpay-return", {
+      await api.get("/payment/vnpay/vnpay-return", {
         params: Object.fromEntries(urlParams.entries()),
       });
-      console.log(" VNPay verification response:", response.data);
-    } catch (error) {
-      console.error(" Error verifying VNPay payment:", error);
+    } catch {
       message.error("Có lỗi khi xác thực thanh toán với server.");
     }
   }, []);
@@ -121,7 +132,6 @@ const Booking = () => {
   // Fetch appointments based on active tab
   const fetchAppointments = useCallback(async () => {
     if (!token) {
-      console.warn("Không có token để gọi API!");
       return;
     }
 
@@ -145,8 +155,7 @@ const Booking = () => {
 
       data.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
       setAppointments(data);
-    } catch (err) {
-      console.error("Lỗi khi lấy lịch hẹn:", err.response?.data || err.message);
+    } catch {
       setAppointments([]);
     } finally {
       setLoading(false);
@@ -161,60 +170,24 @@ const Booking = () => {
   const createZoomMeeting = useCallback(
     async (appointmentId) => {
       try {
-        console.log(" Creating Zoom meeting for appointmentId:", appointmentId);
-
-        const zoomResponse = await api.get(
+        await api.get(
           `/zoom/test-create-meeting?appointmentId=${appointmentId}`
         );
 
-        console.log(" Zoom meeting created successfully:", zoomResponse.data);
         message.success("Phòng tư vấn online đã được tạo!");
 
         // Refresh appointments để lấy joinUrl mới
         setTimeout(() => {
           fetchAppointments();
         }, 1000);
-      } catch (error) {
-        console.error(" Error creating Zoom meeting:", error);
+      } catch {
+        // Handle error silently
       }
     },
     [fetchAppointments]
   );
 
   const handleCancelAppointment = async (appointmentId) => {
-    // Tìm appointment để lấy thông tin thời gian
-    const appointment = appointments.find((apt) => apt.id === appointmentId);
-
-    if (
-      appointment &&
-      appointment.appointmentDetails &&
-      appointment.appointmentDetails.length > 0
-    ) {
-      const slotTime = appointment.appointmentDetails[0].slotTime;
-
-      if (slotTime) {
-        const appointmentTime = new Date(slotTime);
-        const currentTime = new Date();
-        const timeDifference =
-          appointmentTime.getTime() - currentTime.getTime();
-        const hoursUntilAppointment = timeDifference / (1000 * 60 * 60); // Convert to hours
-
-        // Kiểm tra nếu còn ít hơn 24 giờ
-        if (hoursUntilAppointment < 24 && hoursUntilAppointment > 0) {
-          message.error(
-            "Không thể hủy lịch hẹn trong vòng 24 giờ trước cuộc hẹn. Vui lòng liên hệ trực tiếp để được hỗ trợ."
-          );
-          return;
-        }
-
-        // Kiểm tra nếu cuộc hẹn đã qua
-        if (hoursUntilAppointment <= 0) {
-          message.error("Không thể hủy lịch hẹn đã diễn ra.");
-          return;
-        }
-      }
-    }
-
     if (!window.confirm("Bạn chắc chắn muốn hủy lịch hẹn này?")) return;
 
     try {
@@ -226,8 +199,6 @@ const Booking = () => {
         prev.filter((appointment) => appointment.id !== appointmentId)
       );
     } catch (err) {
-      console.error("Lỗi khi hủy lịch hẹn:", err.response?.data || err.message);
-
       // Handle specific error cases
       if (err.response?.status === 500) {
         message.error(
@@ -249,37 +220,20 @@ const Booking = () => {
   };
 
   const handleViewDetail = (appointment) => {
+    // Luôn hiển thị modal chi tiết appointment
+    // Nút "Kết quả" riêng biệt sẽ xử lý việc hiển thị kết quả khám
     setSelectedAppointment(appointment);
     setModalVisible(true);
   };
 
   // Handle VNPay payment result from URL params
   useEffect(() => {
-    console.log(" useEffect for VNPay return is running...");
-    console.log(" Current search params:", search);
-
     const query = new URLSearchParams(search);
     const vnpResponseCode = query.get("vnp_ResponseCode");
     const vnpTransactionStatus = query.get("vnp_TransactionStatus");
-    const vnpTxnRef = query.get("vnp_TxnRef");
-
-    console.log(" Extracted parameters:", {
-      vnpResponseCode,
-      vnpTransactionStatus,
-      vnpTxnRef,
-      paymentMessageShown: paymentMessageShown.current,
-    });
 
     // Check for VNPay return parameters
     if (vnpResponseCode && !paymentMessageShown.current) {
-      console.log(" VNPay Return detected in Booking page!");
-      console.log(" VNPay Return parameters:", {
-        vnpResponseCode,
-        vnpTransactionStatus,
-        vnpTxnRef,
-        fullURL: search,
-      });
-
       localStorage.removeItem("pendingBooking");
       paymentMessageShown.current = true;
 
@@ -291,8 +245,6 @@ const Booking = () => {
         verifyVNPayPayment(query);
 
         // Tạo Zoom meeting cho appointment vừa thanh toán
-        console.log("🎯 Payment successful! Creating Zoom meeting...");
-
         // Delay một chút để backend cập nhật status, sau đó lấy appointments CONFIRMED
         setTimeout(async () => {
           try {
@@ -301,25 +253,19 @@ const Booking = () => {
             );
             const confirmedAppointments = response.data;
 
-            console.log(
-              "📋 Found CONFIRMED appointments:",
-              confirmedAppointments.length
-            );
-
             // Tạo Zoom meeting cho appointment mới nhất (vừa được confirm)
             if (confirmedAppointments.length > 0) {
               const latestAppointment =
                 confirmedAppointments[confirmedAppointments.length - 1];
               const appointmentId = latestAppointment.id;
 
-              console.log(
-                "🆔 Creating Zoom for latest appointmentId:",
-                appointmentId
-              );
+              // Tạo notification cho appointment
+              createAppointmentNotification(appointmentId);
+
               createZoomMeeting(appointmentId);
             }
-          } catch (error) {
-            console.error(" Error fetching confirmed appointments:", error);
+          } catch {
+            // Handle error silently
           }
         }, 2000); // Delay 2 giây để backend cập nhật
       } else if (vnpResponseCode === "24") {
@@ -366,93 +312,121 @@ const Booking = () => {
       );
     }
 
-    return appointments.map((appointment) => (
-      <div className="booking-card-profile" key={appointment.id}>
-        <h2>Thông tin lịch hẹn</h2>
-        <div className="booking-info-profile">
-          <p>
-            <strong>Ngày hẹn:</strong> {appointment.preferredDate}
-          </p>
-          <p>
-            <strong>Dịch vụ:</strong> {appointment.serviceName}
-          </p>
-          <p>
-            <strong>Phòng khám:</strong>{" "}
-            {appointment.appointmentDetails?.[0]?.room?.name || "Không có"}
-          </p>
-          <p>
-            <strong>Trạng thái:</strong>{" "}
-            <span className={`status ${appointment.status.toLowerCase()}`}>
-              {STATUS_DISPLAY[appointment.status] || appointment.status}
-            </span>
-          </p>
-          <p>
-            <strong>Ghi chú:</strong> {appointment.note || "Không có"}
-          </p>
-          <p>
-            <strong>Giá:</strong> {appointment.price?.toLocaleString()} VND
-          </p>
-          <p>
-            <strong>Thời gian tạo:</strong>{" "}
-            {new Date(appointment.created_at).toLocaleString()}
-          </p>
-          <div className="appointment-actions">
-            <button
-              className="detail-button-profile"
-              onClick={() => handleViewDetail(appointment)}
-            >
-              Xem chi tiết
-            </button>
+    return appointments.map((appointment) => {
+      return (
+        <div className="booking-card-profile" key={appointment.id}>
+          <h2>Thông tin lịch hẹn</h2>
+          <div className="booking-info-profile">
+            <p>
+              <strong>Ngày hẹn:</strong> {appointment.preferredDate}
+            </p>
+            <p>
+              <strong>Dịch vụ:</strong> {appointment.serviceName}
+            </p>
+            <p>
+              <strong>Phòng khám:</strong>{" "}
+              {appointment.appointmentDetails?.[0]?.room?.name || "Không có"}
+            </p>
+            <p>
+              <strong>Trạng thái:</strong>{" "}
+              <span className={`status ${appointment.status.toLowerCase()}`}>
+                {STATUS_DISPLAY[appointment.status] || appointment.status}
+              </span>
+            </p>
+            <p>
+              <strong>Ghi chú:</strong> {appointment.note || "Không có"}
+            </p>
+            <p>
+              <strong>Giá:</strong> {appointment.price?.toLocaleString()} VND
+            </p>
 
-            {["CONFIRMED", "PENDING", "CHECKED"].includes(
-              appointment.status
-            ) && (
+            <div className="appointment-actions">
               <button
-                className="cancel-button-profile"
-                onClick={() => handleCancelAppointment(appointment.id)}
+                className="detail-button-profile"
+                onClick={() => handleViewDetail(appointment)}
+                style={{ display: "inline-block" }} // Force display
               >
-                Hủy lịch hẹn
+                Xem chi tiết
               </button>
-            )}
 
-            {/* Nút Tư vấn Online cho CONSULTING_ON services với CONFIRMED status */}
-            {appointment.serviceType === "CONSULTING_ON" &&
-              appointment.status === "CONFIRMED" &&
-              (() => {
-                // Lấy joinUrl từ appointmentDetails
-                const joinUrl = appointment.appointmentDetails?.find(
-                  (detail) => detail.joinUrl
-                )?.joinUrl;
+              {["CONFIRMED", "PENDING", "CHECKED"].includes(
+                appointment.status
+              ) && (
+                <button
+                  className="cancel-button-profile"
+                  onClick={() => handleCancelAppointment(appointment.id)}
+                >
+                  Hủy lịch hẹn
+                </button>
+              )}
 
-                if (joinUrl) {
-                  return (
-                    <a
-                      href={joinUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="online-consultation-button-profile"
-                      title="Click để tham gia tư vấn online"
-                    >
-                      Tư vấn Online
-                    </a>
+              {/* Nút Tư vấn Online cho CONSULTING_ON services với CONFIRMED status */}
+              {appointment.serviceType === "CONSULTING_ON" &&
+                appointment.status === "CONFIRMED" &&
+                (() => {
+                  // Lấy joinUrl từ appointmentDetails
+                  const joinUrl = appointment.appointmentDetails?.find(
+                    (detail) => detail.joinUrl
+                  )?.joinUrl;
+
+                  if (joinUrl) {
+                    return (
+                      <a
+                        href={joinUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="online-consultation-button-profile"
+                        title="Click để tham gia tư vấn online"
+                      >
+                        Tư vấn Online
+                      </a>
+                    );
+                  }
+                })()}
+
+              {/* Nút Kết quả cho appointments đã hoàn thành trong tab completed và history */}
+              {(() => {
+                // Kiểm tra kết quả khám từ appointmentDetails
+                const hasAppointmentResult =
+                  appointment.appointmentDetails?.some(
+                    (detail) =>
+                      detail.medicalResult &&
+                      Object.keys(detail.medicalResult).length > 0
                   );
-                }
-              })()}
 
-            {/* Nút Kết quả cho appointments đã hoàn thành */}
-            {appointment.status === "COMPLETED" && (
-              <button
-                className="result-button-profile"
-                onClick={() => handleViewResult(appointment)}
-                title="Xem kết quả khám bệnh"
-              >
-                Kết quả
-              </button>
-            )}
+                return (
+                  appointment.status === "COMPLETED" &&
+                  (activeTab === "completed" || activeTab === "history") &&
+                  hasAppointmentResult && (
+                    <button
+                      className="result-button-profile"
+                      onClick={() => handleViewResult(appointment)}
+                      title="Xem kết quả khám bệnh"
+                    >
+                      Kết quả
+                    </button>
+                  )
+                );
+              })()}
+              {/* Thêm nút đánh giá nếu lịch hẹn đã hoàn thành */}
+              {appointment.status === "COMPLETED" && (
+                <button
+                  className={`rate-service-btn${
+                    appointment.isRated ? " rated" : ""
+                  }`}
+                  onClick={() => {
+                    setAppointmentToRate(appointment);
+                    setRatingModalVisible(true);
+                  }}
+                >
+                  {appointment.isRated ? "Sửa đánh giá" : "Đánh giá"}
+                </button>
+              )}
+            </div>
           </div>
         </div>
-      </div>
-    ));
+      );
+    });
   };
 
   return (
@@ -483,6 +457,7 @@ const Booking = () => {
         footer={null}
         width={600}
         className="appointment-detail-modal"
+        centered
       >
         {selectedAppointment && (
           <div className="appointment-detail-content">
@@ -508,12 +483,7 @@ const Booking = () => {
                     "Chưa phân công"}
                 </span>
               </div>
-              {/* <div className="detail-item">
-                <span className="detail-label">Loại dịch vụ:</span>
-                <span className="detail-value">
-                  {selectedAppointment.serviceType}
-                </span>
-              </div> */}
+
               <div className="detail-item">
                 <span className="detail-label">Trạng thái:</span>
                 <span
@@ -535,12 +505,7 @@ const Booking = () => {
                   {selectedAppointment.note || "Không có"}
                 </span>
               </div>
-              <div className="detail-item">
-                <span className="detail-label">Thời gian tạo:</span>
-                <span className="detail-value">
-                  {new Date(selectedAppointment.created_at).toLocaleString()}
-                </span>
-              </div>
+              <div className="detail-item"></div>
             </div>
 
             {selectedAppointment.appointmentDetails &&
@@ -553,12 +518,6 @@ const Booking = () => {
                         key={detail.id || index}
                         className="service-detail-item"
                       >
-                        {/* <div className="detail-item">
-                          <span className="detail-label">Tên dịch vụ:</span>
-                          <span className="detail-value">
-                            {detail.serviceName}
-                          </span>
-                        </div> */}
                         <div className="detail-item">
                           <span className="detail-label">Bác sĩ tư vấn:</span>
                           <span className="detail-value">
@@ -619,8 +578,20 @@ const Booking = () => {
                         {detail.medicalResult && (
                           <div className="detail-item">
                             <span className="detail-label">Kết quả khám:</span>
-                            <span className="detail-value">
-                              {detail.medicalResult}
+                            <span
+                              className="detail-value result-link"
+                              onClick={() => {
+                                setSelectedResult({
+                                  appointment: selectedAppointment,
+                                  medicalProfile:
+                                    selectedAppointment.customerMedicalProfile ||
+                                    {},
+                                  selectedDetail: detail,
+                                });
+                                setResultModalVisible(true);
+                              }}
+                            >
+                              Kết quả
                             </span>
                           </div>
                         )}
@@ -638,158 +609,14 @@ const Booking = () => {
       </Modal>
 
       {/* Modal hiển thị kết quả khám */}
-      <Modal
-        title="Kết quả khám bệnh"
-        open={resultModalVisible}
-        onCancel={() => setResultModalVisible(false)}
-        footer={null}
-        width={800}
-        className="medical-result-modal"
-      >
-        {selectedResult && (
-          <div className="medical-result-content">
-            <div className="result-header">
-              <h3>Thông tin lịch hẹn</h3>
-              <div className="appointment-info">
-                <p>
-                  <strong>Ngày khám:</strong>{" "}
-                  {selectedResult.appointment.preferredDate}
-                </p>
-                <p>
-                  <strong>Dịch vụ:</strong>{" "}
-                  {selectedResult.appointment.serviceName}
-                </p>
-                <p>
-                  <strong>Bác sĩ:</strong>{" "}
-                  {selectedResult.appointment.appointmentDetails?.[0]
-                    ?.consultantName || "Không có"}
-                </p>
-              </div>
-            </div>
-
-            {/* Hiển thị kết quả khám nếu có */}
-            {selectedResult.appointment.appointmentDetails?.[0]
-              ?.medicalResult && (
-              <div className="result-body">
-                <h3>Kết quả khám bệnh</h3>
-                <div className="medical-profile-details">
-                  {(() => {
-                    const medicalResult =
-                      selectedResult.appointment.appointmentDetails[0]
-                        .medicalResult;
-                    return (
-                      <>
-                        {medicalResult.description && (
-                          <div className="result-item">
-                            <span className="result-label">Mô tả:</span>
-                            <span className="result-value">
-                              {medicalResult.description}
-                            </span>
-                          </div>
-                        )}
-
-                        {medicalResult.diagnosis && (
-                          <div className="result-item">
-                            <span className="result-label">Chẩn đoán:</span>
-                            <span className="result-value">
-                              {medicalResult.diagnosis}
-                            </span>
-                          </div>
-                        )}
-
-                        {medicalResult.treatmentPlan && (
-                          <div className="result-item">
-                            <span className="result-label">
-                              Kế hoạch điều trị:
-                            </span>
-                            <span className="result-value">
-                              {medicalResult.treatmentPlan}
-                            </span>
-                          </div>
-                        )}
-
-                        {medicalResult.testResult && (
-                          <div className="result-item">
-                            <span className="result-label">
-                              Kết quả xét nghiệm:
-                            </span>
-                            <span className="result-value">
-                              {medicalResult.testResult}
-                            </span>
-                          </div>
-                        )}
-
-                        {medicalResult.normalRange && (
-                          <div className="result-item">
-                            <span className="result-label">
-                              Giá trị bình thường:
-                            </span>
-                            <span className="result-value">
-                              {medicalResult.normalRange}
-                            </span>
-                          </div>
-                        )}
-
-                        {medicalResult.labNotes && (
-                          <div className="result-item">
-                            <span className="result-label">
-                              Ghi chú phòng lab:
-                            </span>
-                            <span className="result-value">
-                              {medicalResult.labNotes}
-                            </span>
-                          </div>
-                        )}
-                      </>
-                    );
-                  })()}
-                </div>
-              </div>
-            )}
-
-            <div className="result-body">
-              <h3>Thông tin y tế cá nhân</h3>
-              <div className="medical-profile-details">
-                {selectedResult.medicalProfile.allergies && (
-                  <div className="result-item">
-                    <span className="result-label">Dị ứng:</span>
-                    <span className="result-value">
-                      {selectedResult.medicalProfile.allergies}
-                    </span>
-                  </div>
-                )}
-
-                {selectedResult.medicalProfile.chronicConditions && (
-                  <div className="result-item">
-                    <span className="result-label">Bệnh mãn tính:</span>
-                    <span className="result-value">
-                      {selectedResult.medicalProfile.chronicConditions}
-                    </span>
-                  </div>
-                )}
-
-                {selectedResult.medicalProfile.familyHistory && (
-                  <div className="result-item">
-                    <span className="result-label">Tiền sử gia đình:</span>
-                    <span className="result-value">
-                      {selectedResult.medicalProfile.familyHistory}
-                    </span>
-                  </div>
-                )}
-
-                {selectedResult.medicalProfile.specialNotes && (
-                  <div className="result-item">
-                    <span className="result-label">Ghi chú đặc biệt:</span>
-                    <span className="result-value">
-                      {selectedResult.medicalProfile.specialNotes}
-                    </span>
-                  </div>
-                )}
-              </div>
-            </div>
-          </div>
-        )}
-      </Modal>
+      <MedicalResultModal
+        visible={resultModalVisible}
+        onClose={() => {
+          setResultModalVisible(false);
+          setSelectedResult(null);
+        }}
+        selectedResult={selectedResult}
+      />
 
       {/* Thêm modal đánh giá */}
       <RatingModal

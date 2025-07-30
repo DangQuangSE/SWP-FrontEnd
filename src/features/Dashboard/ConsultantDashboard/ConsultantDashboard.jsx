@@ -22,6 +22,7 @@ import ConsultationResults from "./ConsultationResults/ConsultationResults";
 import ManageSchedule from "./ManageSchedule/ManageSchedule";
 import WriteBlogs from "./WriteBlogs/WriteBlogs";
 import ViewFeedback from "./ViewFeedback/ViewFeedback";
+import TreatmentProtocol from "./TreatmentProtocol/TreatmentProtocol";
 
 import "./Consultant.css";
 
@@ -42,6 +43,7 @@ function ConsultantDashboard() {
     }
   }
 
+  const user = useSelector((state) => state.user);
   const {
     token: { colorBgContainer, borderRadiusLG },
   } = theme.useToken();
@@ -54,14 +56,14 @@ function ConsultantDashboard() {
       label: "Lịch tư vấn cá nhân",
     },
     {
-      key: "online_consultation",
-      icon: <SolutionOutlined />,
-      label: "Tư vấn trực tuyến",
-    },
-    {
       key: "manage_schedule",
       icon: <ScheduleOutlined />,
       label: "Quản lý lịch làm việc",
+    },
+    {
+      key: "manage_TreatmentProtocol",
+      icon: <CommentOutlined />,
+      label: "Quản lí phác đồ",
     },
     {
       key: "content_management",
@@ -100,6 +102,8 @@ function ConsultantDashboard() {
         return <ConsultationResults userId={userId} />;
       case "manage_schedule":
         return <ManageSchedule userId={userId} />;
+      case "manage_TreatmentProtocol":
+        return <TreatmentProtocol userId={userId} />;
       case "write_blogs":
       case "manage_tags":
         return <WriteBlogs userId={userId} selectedTab={selectedMenuItem} />;

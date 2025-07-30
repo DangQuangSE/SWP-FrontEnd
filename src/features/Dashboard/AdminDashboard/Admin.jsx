@@ -6,7 +6,6 @@ import {
   SolutionOutlined,
   FileTextOutlined,
   BarChartOutlined,
-  TeamOutlined,
   CalendarOutlined,
 } from "@ant-design/icons";
 
@@ -25,9 +24,17 @@ import { RoomManagement } from "./Room";
 import BlogManagement from "./Blog/BlogManagement";
 
 import { UserManagement } from "./UserManagement";
-import { DashboardReports } from "./DashboardReports";
 
 import BookingDashboard from "./BookingDashboard/BookingDashboard";
+
+// Import Config Management component
+import ConfigManagement from "./ConfigManagement/ConfigManagement";
+
+// Import Doctor Working Hours component
+import { DoctorWorkingHours } from "./DoctorWorkingHours";
+
+// Import Dashboard Reports component
+import DashboardReports from "./DashboardReports/DashboardReports";
 
 const { Header, Content, Sider } = Layout;
 const { Title } = Typography;
@@ -50,9 +57,11 @@ function Admin() {
       manage_bookings: "Quản lý Lịch hẹn",
       dashboard_reports: "Xem Dashboard & Báo cáo",
       // handle_feedback: "Xử lý Phản hồi Dịch vụ/Tư vấn",
-      manage_payments: "Quản lý Thanh toán & Giao dịch",
+      // manage_payments: "Quản lý Thanh toán & Giao dịch",
+      manage_configvalue: "Quản lý Cấu hình chung",
       manage_rooms: "Quản lý Phòng khám",
       manage_specializations: "Quản lý Chuyên khoa",
+      manage_doctorworkinghours: "Quản lý Ca làm việc bác sĩ",
     };
     return titleMap[menuKey] || menuKey;
   };
@@ -62,57 +71,83 @@ function Admin() {
   } = theme.useToken();
 
   // Menu items for the top navigation
-  const items1 = ["Dashboard", "Reports"].map((label, key) => ({
-    key: String(key + 1),
-    label,
-  }));
+  // const items1 = ["Dashboard", "Reports"].map((label, key) => ({
+  //   key: String(key + 1),
+  //   label,
+  // }));
 
-  // Menu items for the side navigation
+  // Menu items for the side navigation - Grouped format
   const items2 = [
     {
-      key: "manage_users",
+      key: "users_permissions",
       icon: React.createElement(UserOutlined),
-      label: "Quản lý Tài khoản & Vai trò",
+      label: "Người dùng & Quyền hạn",
+      children: [
+        {
+          key: "manage_users",
+          label: "Quản lý Tài khoản & Vai trò",
+        },
+      ],
     },
     {
-      key: "manage_services",
+      key: "medical_services",
       icon: React.createElement(SolutionOutlined),
-      label: "Quản lý Dịch vụ Xét nghiệm & Giá cả",
+      label: "Cơ sở y tế & Dịch vụ",
+      children: [
+        {
+          key: "manage_rooms",
+          label: "Quản lý Phòng khám",
+        },
+        {
+          key: "manage_specializations",
+          label: "Quản lý Chuyên khoa",
+        },
+        {
+          key: "manage_services",
+          label: "Quản lý Dịch vụ Xét nghiệm & Giá cả",
+        },
+      ],
     },
     {
-      key: "manage_bookings",
+      key: "schedule_work",
       icon: React.createElement(CalendarOutlined),
-      label: "Quản lý Lịch hẹn",
+      label: "Lịch trình & Công việc",
+      children: [
+        {
+          key: "manage_bookings",
+          label: "Quản lý Lịch hẹn",
+        },
+        {
+          key: "manage_doctorworkinghours",
+          label: "Quản lý Ca làm việc bác sĩ",
+        },
+      ],
     },
     {
-      key: "manage_articles",
+      key: "content_config",
       icon: React.createElement(FileTextOutlined),
-      label: "Quản lý Bài viết Blog",
+      label: "Nội dung & Cấu hình",
+      children: [
+        {
+          key: "manage_articles",
+          label: "Quản lý Bài viết Blog",
+        },
+        {
+          key: "manage_configvalue",
+          label: "Quản lý Cấu hình chung",
+        },
+      ],
     },
     {
-      key: "dashboard_reports",
+      key: "reports_analytics",
       icon: React.createElement(BarChartOutlined),
-      label: "Xem Dashboard & Báo cáo",
-    },
-    // {
-    //   key: "handle_feedback",
-    //   icon: React.createElement(EyeOutlined),
-    //   label: "Xử lý Phản hồi Dịch vụ/Tư vấn",
-    // },
-    {
-      key: "manage_payments",
-      icon: React.createElement(SolutionOutlined),
-      label: "Quản lý Thanh toán & Giao dịch",
-    },
-    {
-      key: "manage_rooms",
-      icon: React.createElement(TeamOutlined),
-      label: "Quản lý Phòng khám",
-    },
-    {
-      key: "manage_specializations",
-      icon: React.createElement(SolutionOutlined),
-      label: "Quản lý Chuyên khoa",
+      label: "Báo cáo & Phân tích",
+      children: [
+        {
+          key: "dashboard_reports",
+          label: "Xem Dashboard & Báo cáo",
+        },
+      ],
     },
   ];
 
@@ -144,19 +179,23 @@ function Admin() {
         return <RoomManagement />;
       case "manage_specializations":
         return <SpecializationManagement form={form} />;
+      case "manage_configvalue":
+        return <ConfigManagement />;
+      case "manage_doctorworkinghours":
+        return <DoctorWorkingHours />;
       default:
         return null;
     }
   };
 
   return (
-    <Layout>
+    <Layout className="admin-dashboard-layout">
       <Header style={{ display: "flex", alignItems: "center" }}>
         <div className="demo-logo" />
         <Title level={3} style={{ color: "white", margin: 0 }}>
           Admin Dashboard
         </Title>
-        <Menu
+        {/* <Menu
           theme="dark"
           mode="horizontal"
           defaultSelectedKeys={["1"]}
@@ -166,14 +205,14 @@ function Admin() {
             minWidth: 0,
             justifyContent: "flex-end",
           }}
-        />
+        /> */}
       </Header>
       <Layout>
         <Sider width={280} style={{ background: colorBgContainer }}>
           <Menu
             mode="inline"
             defaultSelectedKeys={["manage_users"]}
-            defaultOpenKeys={["manage_users"]}
+            defaultOpenKeys={["users_permissions"]}
             style={{ height: "100%", borderRight: 0 }}
             items={items2}
             onSelect={({ key }) => setSelectedMenuItem(key)}

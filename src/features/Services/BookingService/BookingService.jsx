@@ -10,12 +10,7 @@ const AppointmentForm = () => {
   const [expandedFaq, setExpandedFaq] = useState(null);
 
   const workingHours = [
-    { day: "Thứ Hai", hours: "07:30 - 11:30, 12:30 - 16:30" },
-    { day: "Thứ Ba", hours: "07:30 - 11:30, 12:30 - 16:30" },
-    { day: "Thứ Tư", hours: "07:30 - 11:30, 12:30 - 16:30" },
-    { day: "Thứ Năm", hours: "07:30 - 11:30, 12:30 - 16:30" },
-    { day: "Thứ Sáu", hours: "07:30 - 11:30, 12:30 - 16:30" },
-    { day: "Thứ Bảy", hours: "07:30 - 11:30, 12:30 - 16:30" },
+    { day: "Thứ Hai - Thứ 7", hours: "07:30 - 11:30, 12:30 - 16:30" },
     { day: "Chủ Nhật", hours: "Đóng cửa" },
   ];
 
@@ -84,12 +79,12 @@ const AppointmentForm = () => {
               >
                 Dịch vụ
               </span>
-              <span
+              {/* <span
                 className={`nav-tab ${activeTab === "doctors" ? "active" : ""}`}
                 onClick={() => setActiveTab("doctors")}
               >
                 Bác sĩ
-              </span>
+              </span> */}
               <span
                 className={`nav-tab ${activeTab === "reviews" ? "active" : ""}`}
                 onClick={() => setActiveTab("reviews")}
@@ -280,14 +275,14 @@ const AppointmentForm = () => {
                   <ServiceList />
                 </div>
               )}
-              {activeTab === "doctors" && (
+              {/* {activeTab === "doctors" && (
                 <div className="content-section">
                   <h2 className="section-title-appointment">
                     <span>Danh sách bác sĩ</span>
                   </h2>
                   <DoctorList />
                 </div>
-              )}
+              )} */}
               {activeTab === "reviews" && (
                 <div className="content-section">
                   <h2 className="section-title-appointment">

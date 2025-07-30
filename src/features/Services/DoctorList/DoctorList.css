@@ -4,8 +4,8 @@
   gap: 20px;
 }
 .doctor-card {
-  display: flex; 
-  align-items: center; 
+  display: flex;
+  align-items: center;
   background-color: #ffffff;
   border-radius: 12px;
   border: 1px solid #e9e9e9;
@@ -19,15 +19,15 @@
 .doctor-image {
   width: 120px;
   height: 120px;
-  border-radius: 50%; 
-  object-fit: cover; 
+  border-radius: 50%;
+  object-fit: cover;
   margin-right: 24px;
-  flex-shrink: 0; 
+  flex-shrink: 0;
 }
 .doctor-info {
   flex: 1;
   display: flex;
-  flex-direction: column; 
+  flex-direction: column;
   height: 100%;
 }
 
@@ -45,7 +45,8 @@
   margin-bottom: 12px;
 }
 
-.doctor-experience, .doctor-workplace {
+.doctor-experience,
+.doctor-workplace {
   font-size: 0.9rem;
   color: #666;
   margin: 2px 0;
@@ -59,8 +60,8 @@
   border-radius: 8px;
   cursor: pointer;
   font-weight: 500;
-  margin-top: 16px; 
-  align-self: flex-start; 
+  margin-top: 16px;
+  align-self: flex-start;
   transition: background-color 0.2s;
 }
 .book-appointment-btn:hover {
@@ -79,7 +80,7 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 42px;  /* Đặt kích thước cố định để các nút vuông vắn */
+  width: 42px; /* Đặt kích thước cố định để các nút vuông vắn */
   height: 42px;
   border: 1px solid #e0e7ff; /* Viền xanh nhạt, mỏng */
   background-color: #ffffff;
@@ -112,4 +113,36 @@
   color: #ced4da;
   border-color: #e9ecef;
   cursor: not-allowed;
+}
+
+/* CSS cho API consultants list */
+.api-consultants-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 16px;
+  margin-top: 16px;
+}
+
+.api-consultant-card {
+  background: #f9f9f9;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  padding: 16px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.api-consultant-card h4 {
+  margin: 0 0 8px 0;
+  color: #2753d0;
+  font-size: 16px;
+}
+
+.api-consultant-card p {
+  margin: 4px 0;
+  font-size: 14px;
+  color: #666;
+}
+
+.api-consultant-card strong {
+  color: #333;
 }

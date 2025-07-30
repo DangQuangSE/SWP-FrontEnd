@@ -50,3 +50,20 @@ export const adminUpdateTag = (id, tag) => {
 export const adminDeleteTag = (id) => {
   return api.delete(`/tags/${id}`);
 };
+
+// Public Tag Management (no role restriction)
+export const fetchTags = () => {
+  return api.get("/tags");
+};
+
+export const addTag = (tag) => {
+  return api.post("/tags", tag);
+};
+
+export const updateTag = (id, tag) => {
+  return api.put(`/tags/${id}`, tag);
+};
+
+export const deleteTag = (id) => {
+  return api.delete(`/tags/${id}`);
+};

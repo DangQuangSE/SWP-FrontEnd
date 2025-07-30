@@ -114,7 +114,6 @@
 }
 
 .booking-info-value {
-  color: #212529;
   flex: 1;
 }
 
@@ -127,6 +126,111 @@
 .booking-service-name {
   color: #007bff;
   font-weight: 600;
+}
+
+.booking-consultant-name {
+  color: #2753d0;
+  font-weight: 600;
+}
+
+/* CSS cho consultant profile section */
+.booking-consultant-profile {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.booking-consultant-avatar {
+  background-color: #2753d0;
+  color: white;
+  font-weight: 600;
+}
+
+.booking-consultant-info h3 {
+  margin: 0 0 4px 0;
+  font-size: 16px;
+  font-weight: 600;
+  color: #2753d0;
+}
+
+.booking-consultant-info p {
+  margin: 0;
+  color: #666;
+  font-size: 14px;
+}
+
+.booking-consultant-specialization {
+  color: #666 !important;
+}
+
+/* CSS cho loading và no-token states */
+.booking-no-token-message {
+  padding: 40px;
+  color: #2753d0;
+  font-weight: bold;
+  font-size: 30px;
+  text-align: center;
+}
+
+.booking-loading-message {
+  padding: 40px;
+  color: #2753d0;
+  font-weight: bold;
+  font-size: 18px;
+  text-align: center;
+}
+
+/* CSS cho deposit modal */
+.deposit-modal-content {
+  padding: 16px 0;
+}
+
+.deposit-warning-box {
+  background-color: #fff7e6;
+  border: 1px solid #ffd591;
+  border-radius: 6px;
+  padding: 16px;
+  margin-bottom: 16px;
+}
+
+.deposit-warning-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.deposit-warning-icon {
+  font-size: 18px;
+  margin-right: 8px;
+  color: #fa8c16;
+}
+
+.deposit-warning-title {
+  color: #fa8c16;
+}
+
+.deposit-warning-text {
+  margin: 0;
+  line-height: 1.6;
+}
+
+.deposit-price-highlight {
+  color: #2753d0;
+}
+
+.deposit-details {
+  font-size: 14px;
+  color: #666;
+}
+
+.deposit-details-list {
+  padding-left: 20px;
+  margin: 0;
+}
+
+.deposit-amount-highlight {
+  color: #2753d0;
 }
 
 .booking-confirm-section {

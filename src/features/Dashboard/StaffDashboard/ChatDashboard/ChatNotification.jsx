@@ -173,7 +173,7 @@ class ChatNotificationService {
    * Xử lý khi staff click "Trả lời"
    */
   handleAcceptChat(sessionId) {
-    console.log(" [NOTIFICATION] Staff accepted chat:", sessionId);
+    console.log("[NOTIFICATION] Staff accepted chat:", sessionId);
 
     // Có thể thêm logic:
     // 1. Navigate to chat interface

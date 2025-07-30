@@ -65,7 +65,7 @@ const LoginForm = ({ onClose }) => {
         throw new Error("User object missing required fields (role, email)");
       }
 
-      console.log(" About to dispatch login with:", { user, jwt });
+      console.log("About to dispatch login with:", { user, jwt });
 
       // Lưu role trước khi dispatch để tránh bị mất
       const userRole = user?.role;
@@ -86,7 +86,7 @@ const LoginForm = ({ onClose }) => {
       // Lưu cả user và jwt vào Redux với cấu trúc đúng
       try {
         dispatch(login({ user, jwt }));
-        console.log(" Redux dispatch successful");
+        console.log("Redux dispatch successful");
       } catch (dispatchError) {
         console.error(" Redux dispatch failed:", dispatchError);
         // Vẫn tiếp tục với localStorage data

@@ -1,15 +1,39 @@
 // pages/UserProfile/index.jsx
 import { NavLink, Outlet } from "react-router-dom";
 import { useSelector } from "react-redux";
+import {
+  UserIcon,
+  HealthIcon,
+  BookIcon,
+  CalendarIcon,
+  UsersIcon,
+  SettingsIcon,
+} from "../../components/Icons/UserProfileIcons";
 import "./userprofile.css";
 
 const menuItems = [
-  { path: "profile", label: "Hồ sơ", icon: "👤" },
-  { path: "health", label: "Sức khỏe", icon: "❤️" },
-  { path: "saved", label: "Đã lưu", icon: "📚" },
-  { path: "booking", label: "Lịch sử đặt chỗ", icon: "📅" },
-  { path: "attended", label: "Đã tham gia", icon: "👥" },
-  { path: "settings", label: "Thiết lập tài khoản", icon: "⚙️" },
+  {
+    path: "profile",
+    label: "Hồ sơ",
+    icon: <UserIcon size={18} color="#3b82f6" />,
+  },
+  // { path: "health", label: "Sức khỏe", icon: <HealthIcon size={18} color="#3b82f6" /> },
+  // {
+  //   path: "saved",
+  //   label: "Đã lưu",
+  //   icon: <BookIcon size={18} color="#3b82f6" />,
+  // },
+  {
+    path: "booking",
+    label: "Lịch sử đặt chỗ",
+    icon: <CalendarIcon size={18} color="#3b82f6" />,
+  },
+  // {
+  //   path: "attended",
+  //   label: "Đã tham gia",
+  //   icon: <UsersIcon size={18} color="#3b82f6" />,
+  // },
+  // { path: "settings", label: "Thiết lập tài khoản", icon: <SettingsIcon size={18} color="#3b82f6" /> },
 ];
 
 export default function UserProfileLayout() {

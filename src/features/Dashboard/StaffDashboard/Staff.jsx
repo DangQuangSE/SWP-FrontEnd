@@ -52,7 +52,7 @@ function Staff() {
       savedMenuItem
     );
     if (savedMenuItem) {
-      console.log(" [STAFF] Found saved menu item:", savedMenuItem);
+      console.log("[STAFF] Found saved menu item:", savedMenuItem);
       localStorage.removeItem("staffSelectedMenuItem"); // Clear after use
       return savedMenuItem;
     }
@@ -65,36 +65,27 @@ function Staff() {
   } = theme.useToken();
 
   // Menu items for the top navigation
-  const items1 = ["Dashboard", "Appointments", "Settings"].map(
-    (label, key) => ({
-      key: String(key + 1),
-      label,
-    })
-  );
+  const items1 = ["Staff Dashboard"].map((label, key) => ({
+    key: String(key + 1),
+    label,
+  }));
 
   // Menu items for the side navigation
   const items2 = [
     {
-      key: "appointments",
+      key: "appointments_view_all",
       icon: React.createElement(CalendarOutlined),
       label: "Lịch hẹn",
-      children: [
-        { key: "appointments_view_all", label: "Xem tất cả" },
-        {
-          key: "appointments_consultant_schedule",
-          label: "Lịch tư vấn viên",
-        },
-      ],
     },
-    {
-      key: "customers",
-      icon: React.createElement(UserOutlined),
-      label: "Khách hàng",
-      children: [
-        { key: "customers_profiles", label: "Hồ sơ" },
-        { key: "customers_history", label: "Lịch sử" },
-      ],
-    },
+    // {
+    //   key: "customers",
+    //   icon: React.createElement(UserOutlined),
+    //   label: "Khách hàng",
+    //   children: [
+    //     { key: "customers_profiles", label: "Hồ sơ" },
+    //     { key: "customers_history", label: "Lịch sử" },
+    //   ],
+    // },
     {
       key: "qa",
       icon: React.createElement(QuestionCircleOutlined),

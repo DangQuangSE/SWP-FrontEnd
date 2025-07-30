@@ -25,7 +25,7 @@ const ServiceDetailModal = ({ visible, onCancel, serviceDetail }) => {
           <p>
             <strong>Thời gian:</strong>{" "}
             {serviceDetail.duration
-              ? Math.floor(serviceDetail.duration / 60)
+              ? Math.floor(serviceDetail.duration)
               : "N/A"}{" "}
             phút
           </p>
@@ -71,13 +71,6 @@ const ServiceDetailModal = ({ visible, onCancel, serviceDetail }) => {
             <strong>Ngày tạo:</strong>{" "}
             {new Date(serviceDetail.createdAt).toLocaleString("vi-VN")}
           </p>
-          {serviceDetail.subServiceIds &&
-            serviceDetail.subServiceIds.length > 0 && (
-              <p>
-                <strong>ID Dịch vụ Con:</strong>{" "}
-                {serviceDetail.subServiceIds.join(", ")}
-              </p>
-            )}
           {serviceDetail.subServices &&
             serviceDetail.subServices.length > 0 && (
               <div>

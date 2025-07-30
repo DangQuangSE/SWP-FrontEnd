@@ -2,7 +2,14 @@ import React, { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import ReactMarkdown from "react-markdown";
 import RelatedArticlesSection from "./RelatedArticlesSection";
-import { fetchBlogDetail, likeBlog } from "../../api/consultantAPI";
+import CommentSection from "../../components/CommentSection/CommentSection";
+import { likeBlog, viewBlogAndIncreaseCount } from "../../api/consultantAPI";
+import { fetchBlogSummary } from "../../api/commentAPI";
+import {
+  EyeIcon,
+  HeartIcon,
+  CommentIcon,
+} from "../../components/Icons/BlogIcons";
 import "./BlogDetail.css";
 
 const BlogDetail = () => {
@@ -11,6 +18,34 @@ const BlogDetail = () => {
   const [loading, setLoading] = useState(true);
   const [liking, setLiking] = useState(false);
   const [relatedArticles, setRelatedArticles] = useState([]);
+  const [commentCount, setCommentCount] = useState(0);
+
+  // Load comment count for this blog
+  const loadCommentCount = async () => {
+    try {
+      const response = await fetchBlogSummary();
+      const commentData = response.data || [];
+
+      // Find comment count for current blog
+      const currentBlog = commentData.find(
+        (blog) => blog.blog_id === parseInt(id)
+      );
+      setCommentCount(currentBlog?.commentCount || 0);
+    } catch (error) {
+      console.error("Error loading comment count:", error);
+      setCommentCount(0);
+    }
+  };
+
+  // Handle comment count update when new comment is added
+  const handleCommentCountUpdate = () => {
+    setCommentCount((prev) => prev + 1);
+  };
+
+  // Handle comment count update when comment is deleted
+  const handleCommentDeleted = () => {
+    setCommentCount((prev) => Math.max(0, prev - 1));
+  };
 
   useEffect(() => {
     const loadBlogDetail = async () => {
@@ -18,8 +53,8 @@ const BlogDetail = () => {
         setLoading(true);
         console.log(` Loading blog detail for ID: ${id}`);
 
-        // Call API to get blog detail (this will auto-increment view count)
-        const response = await fetchBlogDetail(id);
+        // Call API to view blog and auto-increment view count
+        const response = await viewBlogAndIncreaseCount(id);
         const blogData = response.data;
 
         console.log(" Blog detail loaded:", blogData);
@@ -77,6 +112,7 @@ const BlogDetail = () => {
 
     if (id) {
       loadBlogDetail();
+      loadCommentCount();
     }
   }, [id]);
 
@@ -96,7 +132,7 @@ const BlogDetail = () => {
 
       console.log(` Liked blog ${article.id}`);
     } catch (error) {
-      console.error(` Error liking blog ${article.id}:`, error);
+      alert(error.message || "Không thể thích bài viết. Vui lòng thử lại sau.");
     } finally {
       setLiking(false);
     }
@@ -106,12 +142,12 @@ const BlogDetail = () => {
     return (
       <div className="blog-detail-page-wrapper">
         <div className="slogan-section">
-          <h1 className="slogan-title">
+          {/* <h1 className="slogan-title">
             CHĂM SÓC SỨC KHỎE GIỚI TÍNH SHEALTHCARE
           </h1>
           <p className="slogan-text">
             "Vì sức khỏe của bạn là ưu tiên hàng đầu của chúng tôi"
-          </p>
+          </p> */}
         </div>
         <div className="blog-detail-container">
           <div className="text-center">
@@ -155,12 +191,12 @@ const BlogDetail = () => {
   return (
     <div className="blog-detail-page-wrapper">
       <div className="slogan-section">
-        <h1 className="slogan-title">
+        {/* <h1 className="slogan-title">
           CHĂM SÓC SỨC KHỎE GIỚI TÍNH SHEALTHCARE
         </h1>
         <p className="slogan-text">
           "Vì sức khỏe của bạn là ưu tiên hàng đầu của chúng tôi"
-        </p>
+        </p> */}
       </div>
       <div className="blog-detail-container">
         <article>
@@ -187,7 +223,7 @@ const BlogDetail = () => {
             {/* Blog Stats */}
             <div className="blog-stats">
               <div className="stat-item">
-                <span className="stat-icon">👁️</span>
+                <EyeIcon size={18} color="#666" />
                 <span className="stat-count">
                   {article.viewCount || 0} lượt xem
                 </span>
@@ -197,14 +233,14 @@ const BlogDetail = () => {
                 onClick={handleLikeBlog}
                 disabled={liking}
               >
-                <span className="stat-icon">❤️</span>
+                <HeartIcon size={18} color="#ff4757" />
                 <span className="stat-count">
                   {article.likeCount || 0} lượt thích
                 </span>
               </button>
               <div className="stat-item">
-                <span className="stat-icon">💬</span>
-                <span className="stat-count">0 bình luận</span>
+                <CommentIcon size={18} color="#666" />
+                <span className="stat-count">{commentCount} bình luận</span>
               </div>
             </div>
           </header>
@@ -213,6 +249,13 @@ const BlogDetail = () => {
             <ReactMarkdown>{article.content}</ReactMarkdown>
           </div>
         </article>
+
+        {/* Comment Section */}
+        <CommentSection
+          blogId={article.id}
+          onCommentAdded={handleCommentCountUpdate}
+          onCommentDeleted={handleCommentDeleted}
+        />
       </div>
       <RelatedArticlesSection articles={relatedArticles} />
     </div>

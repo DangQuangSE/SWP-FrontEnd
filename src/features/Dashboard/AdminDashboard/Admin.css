@@ -43,6 +43,33 @@
   margin-right: 8px;
 }
 
+/* Custom hover effects for Edit and View buttons - ONLY in AdminDashboard */
+.admin-dashboard-layout
+  .ant-layout-content
+  .ant-btn-primary:hover:not(.booking-button) {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(24, 144, 255, 0.3);
+  transition: all 0.3s ease;
+}
+
+.admin-dashboard-layout
+  .ant-layout-content
+  .ant-btn-default:hover:not(.booking-button) {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  border-color: #40a9ff;
+  color: #40a9ff;
+  transition: all 0.3s ease;
+}
+
+/* Ensure danger buttons and booking buttons keep default behavior */
+.admin-dashboard-layout .ant-btn-dangerous:hover,
+.admin-dashboard-layout .ant-btn[danger]:hover,
+.admin-dashboard-layout .booking-button:hover {
+  transform: none;
+  box-shadow: none;
+}
+
 /* Form styles */
 .ant-form-item {
   margin-bottom: 16px;

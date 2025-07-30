@@ -30,6 +30,7 @@ import {
   getAvatarColor,
   getMessageBubbleStyle,
 } from "./chatColors";
+import { WEBSOCKET_URL } from "../../configs/serverConfig";
 import "./CustomerChatWidget.css";
 
 const { Text } = Typography;
@@ -80,7 +81,7 @@ const CustomerChatWidget = () => {
       const readerName = customerName; // Customer reader name
       await customerChatAPI.markMessagesAsRead(sessionId, readerName);
       console.log(
-        `✅ [CUSTOMER MARK READ] Messages marked as read for session: ${sessionId}`
+        `[CUSTOMER MARK READ] Messages marked as read for session: ${sessionId}`
       );
 
       // Reset unread count after marking as read
@@ -88,7 +89,7 @@ const CustomerChatWidget = () => {
       localStorage.setItem("chat_unread_count", "0");
     } catch (error) {
       console.error(
-        "❌ [CUSTOMER MARK READ] Failed to mark messages as read:",
+        " [CUSTOMER MARK READ] Failed to mark messages as read:",
         error
       );
     }
@@ -121,7 +122,7 @@ const CustomerChatWidget = () => {
     if (wsConnectedRef.current || !sessionId) return;
 
     try {
-      const socket = new SockJS("http://localhost:8080/ws/chat");
+      const socket = new SockJS(WEBSOCKET_URL);
       const stompClient = Stomp.over(socket);
 
       // Disable debug logging
@@ -238,7 +239,7 @@ const CustomerChatWidget = () => {
       // Call chat API (no auth required)
       const response = await chatApi.post("/chat/start", requestBody);
 
-      console.log(" [CHAT API] Response received:");
+      console.log("[CHAT API] Response received:");
       console.log(" [CHAT API] Full response:", response);
       console.log(" [CHAT API] Response data:", response.data);
       console.log(" [CHAT API] Response status:", response.status);
@@ -246,7 +247,7 @@ const CustomerChatWidget = () => {
 
       if (response.data && response.data.sessionId) {
         setSessionId(response.data.sessionId);
-        console.log(" [CHAT API] Session ID set:", response.data.sessionId);
+        console.log("[CHAT API] Session ID set:", response.data.sessionId);
         setIsConnected(true);
         setShowNameForm(false);
 
@@ -284,10 +285,10 @@ const CustomerChatWidget = () => {
       return;
     }
 
-    console.log("🚀 [NAME FORM] Submitting name:", customerName);
+    console.log("[NAME FORM] Submitting name:", customerName);
     try {
       await startChatSession(customerName);
-      console.log(" [NAME FORM] Chat session started successfully");
+      console.log("[NAME FORM] Chat session started successfully");
     } catch (error) {
       console.error(" [NAME FORM] Failed to start chat session:", error);
     }
@@ -313,16 +314,14 @@ const CustomerChatWidget = () => {
   // Connect WebSocket when sessionId is available
   useEffect(() => {
     if (sessionId && !wsConnectedRef.current) {
-      console.log(
-        "🔌 [CUSTOMER WS] SessionId available, connecting WebSocket..."
-      );
+      console.log("[CUSTOMER WS] SessionId available, connecting WebSocket...");
       connectWebSocket();
     }
 
     // Cleanup on unmount or sessionId change
     return () => {
       if (wsConnectedRef.current) {
-        console.log("🧹 [CUSTOMER WS] Cleaning up WebSocket connection...");
+        console.log("[CUSTOMER WS] Cleaning up WebSocket connection...");
         disconnectWebSocket();
       }
     };
@@ -337,7 +336,7 @@ const CustomerChatWidget = () => {
   const updateUnreadCount = useCallback(
     (newCount) => {
       console.log(
-        `📊 [CUSTOMER CHAT] Updating unread count: ${unreadCount} → ${newCount}`
+        ` [CUSTOMER CHAT] Updating unread count: ${unreadCount} → ${newCount}`
       );
       setUnreadCount(newCount);
       saveUnreadCount(newCount);
@@ -350,15 +349,15 @@ const CustomerChatWidget = () => {
     if (!sessionId || !customerName) return;
 
     try {
-      console.log("📊 [CUSTOMER CHAT] Fetching unread count from server...");
+      console.log(" [CUSTOMER CHAT] Fetching unread count from server...");
       const count = await customerChatAPI.getUnreadCount(
         sessionId,
         customerName
       );
-      console.log("✅ [CUSTOMER CHAT] Server unread count:", count);
+      console.log("[CUSTOMER CHAT] Server unread count:", count);
       updateUnreadCount(count);
     } catch (error) {
-      console.error("❌ [CUSTOMER CHAT] Error fetching unread count:", error);
+      console.error(" [CUSTOMER CHAT] Error fetching unread count:", error);
     }
   };
 
@@ -386,7 +385,7 @@ const CustomerChatWidget = () => {
       if (currentStaffCount > previousStaffCount) {
         const newMessagesCount = currentStaffCount - previousStaffCount;
         console.log(
-          `📊 [CUSTOMER CHAT] Found ${newMessagesCount} new staff messages (${previousStaffCount} → ${currentStaffCount})`
+          ` [CUSTOMER CHAT] Found ${newMessagesCount} new staff messages (${previousStaffCount} → ${currentStaffCount})`
         );
 
         // Increment unread count by the number of new messages
@@ -405,7 +404,7 @@ const CustomerChatWidget = () => {
   // Reset unread count when widget opens
   useEffect(() => {
     if (isOpen) {
-      console.log("🔄 [CUSTOMER CHAT] Widget opened - resetting unread count");
+      console.log("[CUSTOMER CHAT] Widget opened - resetting unread count");
       updateUnreadCount(0);
 
       // Reset the message count reference when opening
@@ -440,7 +439,7 @@ const CustomerChatWidget = () => {
 
     // Send message via REST API (more reliable)
     try {
-      console.log("📤 [CUSTOMER CHAT] Sending message via REST API...");
+      console.log(" [CUSTOMER CHAT] Sending message via REST API...");
 
       const sentMessage = await unifiedChatAPI.sendMessage(
         sessionId,
@@ -449,7 +448,7 @@ const CustomerChatWidget = () => {
         false // isStaff = false for customer
       );
 
-      console.log(" [CUSTOMER CHAT] Message sent successfully:", sentMessage);
+      console.log("[CUSTOMER CHAT] Message sent successfully:", sentMessage);
 
       // Trigger immediate refetch to get the sent message
       if (refetchMessages) {
@@ -461,7 +460,7 @@ const CustomerChatWidget = () => {
       // Don't send via WebSocket - REST API is sufficient
       // WebSocket will receive the message from server after API processes it
       console.log(
-        " [CUSTOMER CHAT] Message sent via REST API only, WebSocket will receive from server"
+        "[CUSTOMER CHAT] Message sent via REST API only, WebSocket will receive from server"
       );
     } catch (error) {
       console.error(" [CUSTOMER CHAT] Failed to send message:", error);
@@ -482,7 +481,7 @@ const CustomerChatWidget = () => {
 
   // Toggle widget or navigate to staff dashboard
   const toggleWidget = () => {
-    console.log("🚀 [WIDGET] Chat button clicked!");
+    console.log("[WIDGET] Chat button clicked!");
     console.log(" [WIDGET] Redux user:", reduxUser);
     console.log(" [WIDGET] LocalStorage user:", localStorageUser);
     console.log(" [WIDGET] Final user:", currentUser);
@@ -506,7 +505,7 @@ const CustomerChatWidget = () => {
 
     // If user is staff, navigate to Q&A Waiting page
     if (isStaff) {
-      console.log(" [WIDGET] Staff detected! Navigating to staff dashboard...");
+      console.log("[WIDGET] Staff detected! Navigating to staff dashboard...");
       console.log(" [WIDGET] Current location:", window.location.pathname);
 
       // Set selected menu item BEFORE navigation
@@ -561,7 +560,7 @@ const CustomerChatWidget = () => {
       setIsConnected(true);
       // Don't add welcome message optimistically
       // Let the real chat flow handle initial messages
-      console.log("💬 [CUSTOMER CHAT] Widget opened, ready for chat");
+      console.log("[CUSTOMER CHAT] Widget opened, ready for chat");
     }
   }, [isOpen]);
 

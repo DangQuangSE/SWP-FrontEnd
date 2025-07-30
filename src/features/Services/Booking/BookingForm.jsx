@@ -7,6 +7,7 @@ import {
   DatePicker,
   ConfigProvider,
   Input,
+  Select,
   message,
 } from "antd";
 import {
@@ -47,6 +48,9 @@ const BookingForm = ({ serviceIdProp, serviceDetail: detailProp }) => {
   const [selectedSlotId, setSelectedSlotId] = useState(null);
   const [activeTab, setActiveTab] = useState("morning");
   const [note, setNote] = useState("");
+  const [selectedConsultantId, setSelectedConsultantId] = useState(null);
+  const [consultants, setConsultants] = useState([]);
+  const [consultantUpdateTrigger, setConsultantUpdateTrigger] = useState(0);
 
   // Function to fetch schedule data
   const fetchScheduleData = useCallback(() => {
@@ -109,6 +113,65 @@ const BookingForm = ({ serviceIdProp, serviceDetail: detailProp }) => {
     };
   }, [defaultServiceId, fetchScheduleData]);
 
+  // Fetch consultants list
+  useEffect(() => {
+    api
+      .get("/admin/users?role=CONSULTANT")
+      .then((res) => {
+        console.log("Danh sách bác sĩ:", res.data);
+        setConsultants(res.data || []);
+
+        // Kiểm tra xem có bác sĩ đã được chọn từ ServiceDetail không
+        const selectedConsultantId = localStorage.getItem(
+          "selectedConsultantId"
+        );
+        if (selectedConsultantId) {
+          setSelectedConsultantId(Number(selectedConsultantId));
+          console.log(
+            "Đã tự động chọn bác sĩ từ ServiceDetail:",
+            selectedConsultantId
+          );
+        }
+      })
+      .catch((err) => {
+        console.error("Lỗi khi lấy danh sách bác sĩ:", err);
+      });
+  }, []);
+
+  // Listen for consultant selection from ServiceDetail
+  useEffect(() => {
+    const handleConsultantSelected = () => {
+      const selectedConsultantId = localStorage.getItem("selectedConsultantId");
+      if (selectedConsultantId) {
+        setSelectedConsultantId(Number(selectedConsultantId));
+        setConsultantUpdateTrigger((prev) => prev + 1); // Force re-render
+        console.log(
+          "BookingForm updated with selected consultant:",
+          selectedConsultantId
+        );
+      }
+    };
+
+    // Listen for the custom event
+    window.addEventListener("consultantSelected", handleConsultantSelected);
+
+    return () => {
+      window.removeEventListener(
+        "consultantSelected",
+        handleConsultantSelected
+      );
+    };
+  }, []);
+
+  // Clear selected consultant when component unmounts
+  useEffect(() => {
+    return () => {
+      localStorage.removeItem("selectedConsultantId");
+      localStorage.removeItem("selectedConsultantName");
+      localStorage.removeItem("selectedConsultantSpecialization");
+    };
+  }, []);
+
   const displayDays = useMemo(() => {
     if (!Array.isArray(scheduleData)) return [];
     return scheduleData.map((s) => {
@@ -162,11 +225,24 @@ const BookingForm = ({ serviceIdProp, serviceDetail: detailProp }) => {
       slot: selectedTime.split(" - ")[0],
       slotId: selectedSlotId,
       note,
+      consultantId: selectedConsultantId, // Thêm consultantId
     };
 
     console.log(
-      "🚀 [DEBUG] Booking preview data with service type:",
+      "[DEBUG] Booking preview data with service type:",
       bookingPreviewData
+    );
+    console.log(
+      "[DEBUG] selectedConsultantId trong BookingForm:",
+      selectedConsultantId
+    );
+    console.log(
+      "[DEBUG] localStorage selectedConsultantId:",
+      localStorage.getItem("selectedConsultantId")
+    );
+    console.log(
+      "[DEBUG] localStorage selectedConsultantName:",
+      localStorage.getItem("selectedConsultantName")
     );
 
     navigate("/booking-confirmation", { state: bookingPreviewData });
@@ -187,17 +263,45 @@ const BookingForm = ({ serviceIdProp, serviceDetail: detailProp }) => {
 
       {serviceDetail && (
         <div className="service-info-section">
-          <Title level={4}>{serviceDetail.name}</Title>
-          <Text>{serviceDetail.description}</Text>
-          <p>
+          <Title level={5}>{serviceDetail.name}</Title>
+          {/* <Text>{serviceDetail.description}</Text> */}
+          {/* <p>
             Giá: {serviceDetail.price?.toLocaleString()} đ – Thời lượng:{" "}
             {serviceDetail.duration} phút
-          </p>
+          </p> */}
         </div>
       )}
 
       <div className="form-section">
-        <Text strong style={{ marginTop: 16, display: "block" }}>
+        <Text strong className="form-label">
+          Chọn bác sĩ (tùy chọn)
+        </Text>
+        {selectedConsultantId &&
+          localStorage.getItem("selectedConsultantName") && (
+            <div
+              key={consultantUpdateTrigger} // Force re-render when consultant changes
+              className="consultant-selected-notification"
+            >
+              ✓ Đã chọn: {localStorage.getItem("selectedConsultantName")} -{" "}
+              {localStorage.getItem("selectedConsultantSpecialization")}
+            </div>
+          )}
+        <Select
+          placeholder="Chọn bác sĩ mong muốn"
+          value={selectedConsultantId}
+          onChange={setSelectedConsultantId}
+          allowClear
+          className="consultant-select"
+        >
+          {consultants.map((consultant) => (
+            <Select.Option key={consultant.id} value={consultant.id}>
+              {consultant.fullname || "Chưa có tên"} -{" "}
+              {consultant.specialization || "Chưa có chuyên khoa"}
+            </Select.Option>
+          ))}
+        </Select>
+
+        <Text strong className="form-label">
           Ghi chú (nếu có)
         </Text>
         <TextArea
@@ -207,7 +311,7 @@ const BookingForm = ({ serviceIdProp, serviceDetail: detailProp }) => {
           onChange={(e) => setNote(e.target.value)}
         />
 
-        <Text strong style={{ marginTop: 16, display: "block" }}>
+        <Text strong className="form-label">
           Khoảng thời gian (tối đa 1 tháng)
         </Text>
         <ConfigProvider locale={locale}>

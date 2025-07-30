@@ -23,7 +23,7 @@ class UnifiedChatAPIService {
     clientId = null
   ) {
     try {
-      console.log(`📤 [UNIFIED CHAT] Sending message:`, {
+      console.log(` [UNIFIED CHAT] Sending message:`, {
         sessionId,
         message: message.substring(0, 50),
         senderName,
@@ -51,7 +51,7 @@ class UnifiedChatAPIService {
         );
       }
 
-      console.log(` [UNIFIED CHAT] Message sent successfully:`, response);
+      console.log(`[UNIFIED CHAT] Message sent successfully:`, response);
       return response;
     } catch (error) {
       console.error(` [UNIFIED CHAT] Failed to send message:`, error);
@@ -82,7 +82,7 @@ class UnifiedChatAPIService {
         messages = await customerChatAPI.getSessionMessages(sessionId);
       }
 
-      console.log(` [UNIFIED CHAT] Messages fetched:`, {
+      console.log(`[UNIFIED CHAT] Messages fetched:`, {
         count: messages?.length || 0,
         isStaff,
       });

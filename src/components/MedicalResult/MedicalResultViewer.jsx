@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react";
+import React, { useState } from "react";
 import {
   Card,
   Badge,
@@ -39,6 +39,8 @@ import {
 } from "@ant-design/icons";
 import { toast } from "react-toastify";
 import "./MedicalResultViewer.css";
+import TreatmentProtocolViewModal from "../../features/Dashboard/ConsultantDashboard/TreatmentProtocol/TreatmentProtocolViewModal";
+import api from "../../configs/api";
 
 const { Text, Title, Paragraph } = Typography;
 
@@ -124,9 +126,20 @@ const generatePDF = async (result) => {
             : ""
         }
 
+        ${
+          treatmentProtocolName
+            ? `
+        <div class="result-section">
+          <div class="result-title">Phác đồ điều trị</div>
+          <p>${treatmentProtocolName}</p>
+        </div>
+        `
+            : ""
+        }
+
         <div class="footer">
           <p><strong>Bác sĩ thực hiện:</strong> ${
-            result.doctorName || "N/A"
+            result.consultantName || "N/A"
           }</p>
           <p><strong>Ngày tạo báo cáo:</strong> ${new Date().toLocaleDateString(
             "vi-VN"
@@ -159,7 +172,7 @@ const generatePDF = async (result) => {
   }
 };
 
-const handlePrint = (result) => {
+const handlePrint = (result, treatmentProtocolName = null) => {
   try {
     const printContent = `
       <html>
@@ -239,9 +252,20 @@ const handlePrint = (result) => {
             : ""
         }
 
+        ${
+          treatmentProtocolName
+            ? `
+        <div class="result-section">
+          <div class="result-title">Phác đồ điều trị</div>
+          <p>${treatmentProtocolName}</p>
+        </div>
+        `
+            : ""
+        }
+
         <div class="footer">
           <p><strong>Bác sĩ thực hiện:</strong> ${
-            result.doctorName || "N/A"
+            result.consultantName || "N/A"
           }</p>
           <p><strong>Ngày in:</strong> ${new Date().toLocaleDateString(
             "vi-VN"
@@ -290,9 +314,16 @@ const handleCloseTab = () => {
   }
 };
 
+// Default close handler for modals
+const handleDefaultModalClose = () => {
+  console.log("Modal close requested");
+  toast.info("Đã đóng modal");
+};
+
 const MedicalResultViewer = ({ result, compact = false, onClose }) => {
   const [detailModalVisible, setDetailModalVisible] = useState(false);
-  const printRef = useRef();
+
+  // const printRef = useRef();
 
   if (!result) {
     return (
@@ -444,7 +475,6 @@ const MedicalResultViewer = ({ result, compact = false, onClose }) => {
           onClose={() => setDetailModalVisible(false)}
           result={result}
           severity={severity}
-          labData={labData}
         />
       </Card>
     );
@@ -468,7 +498,12 @@ const MedicalResultViewer = ({ result, compact = false, onClose }) => {
               <Button
                 icon={<DownloadOutlined />}
                 size="small"
-                onClick={() => generatePDF(result)}
+                onClick={() =>
+                  generatePDF(
+                    result,
+                    getTreatmentProtocolName(result.treatmentProtocolId)
+                  )
+                }
                 type="primary"
                 ghost
               >
@@ -477,20 +512,23 @@ const MedicalResultViewer = ({ result, compact = false, onClose }) => {
               <Button
                 icon={<PrinterOutlined />}
                 size="small"
-                onClick={() => handlePrint(result)}
+                onClick={() =>
+                  handlePrint(
+                    result,
+                    getTreatmentProtocolName(result.treatmentProtocolId)
+                  )
+                }
               >
                 In
               </Button>
-              {onClose && (
-                <Button
-                  icon={<CloseOutlined />}
-                  size="small"
-                  onClick={onClose}
-                  danger
-                >
-                  Đóng
-                </Button>
-              )}
+              <Button
+                icon={<CloseOutlined />}
+                size="small"
+                onClick={onClose || handleCloseTab}
+                danger
+              >
+                Đóng
+              </Button>
             </Space>
           </Col>
         </Row>
@@ -584,7 +622,7 @@ const MedicalResultViewer = ({ result, compact = false, onClose }) => {
                   : "N/A"}
               </Descriptions.Item>
               <Descriptions.Item label="Bác sĩ thực hiện">
-                {result.doctorName || "N/A"}
+                {result.consultantName || "N/A"}
               </Descriptions.Item>
             </Descriptions>
 
@@ -634,6 +672,31 @@ const getTestTypeDisplay = (type) => {
 
 // Professional Medical Result Display Component
 const ProfessionalResultDisplay = ({ result }) => {
+  // const printRef = useRef();
+  const [treatmentProtocolModalVisible, setTreatmentProtocolModalVisible] =
+    useState(false);
+  const [selectedProtocol, setSelectedProtocol] = useState(null);
+  const [loadingProtocol, setLoadingProtocol] = useState(false);
+
+  const handleTreatmentProtocolClick = () => {
+    if (result?.treatmentProtocolId) {
+      fetchTreatmentProtocolDetail(result.treatmentProtocolId);
+    }
+  };
+
+  const fetchTreatmentProtocolDetail = async (protocolId) => {
+    try {
+      setLoadingProtocol(true);
+      const response = await api.get(`/treatment/${protocolId}`);
+      setSelectedProtocol(response.data);
+      setTreatmentProtocolModalVisible(true);
+    } catch (error) {
+      console.error("Error fetching treatment protocol detail:", error);
+      message.error("Không thể tải thông tin phác đồ điều trị!");
+    } finally {
+      setLoadingProtocol(false);
+    }
+  };
   const getSeverityInfo = (testStatus) => {
     switch (testStatus) {
       case "NORMAL":
@@ -1113,13 +1176,78 @@ const ProfessionalResultDisplay = ({ result }) => {
               </div>
             </Card>
           )}
+
+          {/* Treatment Protocol */}
+          {result.treatmentProtocolId && (
+            <Card
+              style={{
+                borderRadius: "12px",
+                boxShadow: "0 2px 8px rgba(0,0,0,0.06)",
+                cursor: "pointer",
+                transition: "all 0.3s ease",
+                border: "2px solid #e6f7ff",
+                background: "linear-gradient(135deg, #f6ffed 0%, #f0f9ff 100%)",
+              }}
+              styles={{
+                body: { padding: "20px" },
+              }}
+              hoverable
+              onClick={handleTreatmentProtocolClick}
+              loading={loadingProtocol}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.transform = "translateY(-2px)";
+                e.currentTarget.style.boxShadow =
+                  "0 4px 16px rgba(24, 144, 255, 0.15)";
+                e.currentTarget.style.borderColor = "#1890ff";
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.transform = "translateY(0)";
+                e.currentTarget.style.boxShadow = "0 2px 8px rgba(0,0,0,0.06)";
+                e.currentTarget.style.borderColor = "#e6f7ff";
+              }}
+            >
+              <div
+                style={{
+                  fontSize: "16px",
+                  fontWeight: "600",
+                  marginBottom: "16px",
+                  color: "#1890ff",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "8px",
+                }}
+              >
+                {/* <FileTextOutlined style={{ color: "#1890ff" }} /> */}
+                📋 Phác đồ điều trị
+              </div>
+              <div
+                style={{
+                  marginTop: "12px",
+                  fontSize: "12px",
+                  color: "#1890ff",
+                  fontWeight: "500",
+                  textAlign: "center",
+                }}
+              >
+                👆 Nhấn để xem chi tiết phác đồ điều trị
+              </div>
+            </Card>
+          )}
         </Col>
       </Row>
+      <TreatmentProtocolViewModal
+        visible={treatmentProtocolModalVisible}
+        onClose={() => {
+          setTreatmentProtocolModalVisible(false);
+          setSelectedProtocol(null);
+        }}
+        protocol={selectedProtocol}
+      />
     </div>
   );
 };
 
-const DetailModal = ({ visible, onClose, result, severity, labData }) => (
+const DetailModal = ({ visible, onClose, result, severity }) => (
   <Modal
     title={
       <div
@@ -1172,13 +1300,18 @@ const DetailModal = ({ visible, onClose, result, severity, labData }) => (
       </div>
     }
     open={visible}
-    onCancel={onClose}
+    onCancel={onClose || handleDefaultModalClose}
     footer={[
       <Button
         key="download"
         icon={<DownloadOutlined />}
         type="primary"
-        onClick={() => generatePDF(result)}
+        onClick={() =>
+          generatePDF(
+            result,
+            getTreatmentProtocolName(result.treatmentProtocolId)
+          )
+        }
         style={{ borderRadius: "6px" }}
       >
         Tải xuống PDF
@@ -1186,14 +1319,19 @@ const DetailModal = ({ visible, onClose, result, severity, labData }) => (
       <Button
         key="print"
         icon={<PrinterOutlined />}
-        onClick={() => handlePrint(result)}
+        onClick={() =>
+          handlePrint(
+            result,
+            getTreatmentProtocolName(result.treatmentProtocolId)
+          )
+        }
         style={{ borderRadius: "6px" }}
       >
         In
       </Button>,
       <Button
         key="close"
-        onClick={onClose}
+        onClick={onClose || handleDefaultModalClose}
         icon={<CloseOutlined />}
         style={{ borderRadius: "6px" }}
       >

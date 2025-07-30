@@ -3,8 +3,10 @@ import { Provider } from "react-redux";
 import { PersistGate } from "redux-persist/integration/react";
 import { Routes, Route } from "react-router-dom";
 import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 import { store, persistor } from "./redux/store";
+import { defaultToastConfig } from "./utils/toast";
 import "./App.css";
 
 // Layout & Sections
@@ -29,7 +31,6 @@ import Loading from "./components/Loading/Loading";
 import Staff from "./features/Dashboard/StaffDashboard/Staff";
 import Consultant from "./features/Dashboard/ConsultantDashboard/ConsultantMain";
 import Admin from "./features/Dashboard/AdminDashboard/Admin";
-import Settings from "./pages/Settings";
 import UserProfile from "./pages/UserProfile/userprofile";
 import BookingForm from "./features/Services/Booking/BookingForm";
 import ServiceDetail from "./features/Services/ServiceList/ServiceDetail/ServiceDetail";
@@ -41,6 +42,8 @@ import BookingConfirmation from "./features/Services/Booking/BookingConfirmation
 import Payment from "./features/Services/Payment/Payment";
 import ProtectedRoute from "./components/ProtectedRoute";
 import CustomerChatWidget from "./features/Chat/CustomerChatWidget";
+import RatingNotification from "./components/RatingNotification/RatingNotification";
+import ContactPage from "./features/Services/Contact/ContactPage";
 
 function App() {
   const [rehydrated, setRehydrated] = useState(false);
@@ -55,7 +58,18 @@ function App() {
     <Provider store={store}>
       <PersistGate loading={<Loading />} persistor={persistor}>
         <div className="app">
-          <ToastContainer />
+          <ToastContainer
+            position={defaultToastConfig.position}
+            autoClose={defaultToastConfig.autoClose}
+            hideProgressBar={defaultToastConfig.hideProgressBar}
+            newestOnTop={defaultToastConfig.newestOnTop}
+            closeOnClick={defaultToastConfig.closeOnClick}
+            rtl={defaultToastConfig.rtl}
+            pauseOnFocusLoss
+            draggable={defaultToastConfig.draggable}
+            pauseOnHover={defaultToastConfig.pauseOnHover}
+            theme="light"
+          />
           <Header />
           <main className="main-content-app">
             <Routes>
@@ -72,6 +86,7 @@ function App() {
               />
               <Route path="/services" element={<AppointmentForm />} />
               <Route path="/CycleTracker" element={<CycleTracker />} />
+              <Route path="/contact" element={<ContactPage />} />
               <Route
                 path="/services/DoctorList"
                 element={
@@ -88,7 +103,7 @@ function App() {
               <Route path="/blog/:id" element={<BlogDetail />} />
 
               {/* Protected routes */}
-              {/* <Route
+              <Route
                 path="/consultant"
                 element={
                   <ProtectedRoute
@@ -113,11 +128,10 @@ function App() {
                     <Admin />
                   </ProtectedRoute>
                 }
-              /> */}
-              <Route path="/admin" element={<Admin />} />
+              />
+              {/* <Route path="/admin" element={<Admin />} />
               <Route path="/staff" element={<Staff />} />
-              <Route path="/consultant" element={<Consultant />} />
-              <Route path="/settings" element={<Settings />} />
+              <Route path="/consultant" element={<Consultant />} /> */}
               <Route path="/user" element={<UserProfile />}>
                 <Route index element={<Profile />} />
                 <Route path="profile" element={<Profile />} />
@@ -138,8 +152,11 @@ function App() {
           </main>
           <Footer />
 
-          {/* Customer Chat Widget - Always visible */}
+          {/* Customer Chat Widget */}
           <CustomerChatWidget />
+
+          {/* Rating Notification */}
+          <RatingNotification />
         </div>
       </PersistGate>
     </Provider>

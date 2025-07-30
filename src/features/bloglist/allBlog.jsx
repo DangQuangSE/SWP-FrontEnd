@@ -2,19 +2,27 @@
 
 import { Link } from "react-router-dom";
 import { useState, useEffect } from "react";
+import { Select, Input } from "antd";
+import { SearchOutlined } from "@ant-design/icons";
 import "./allBlog.css";
 import Breadcrumb from "../../components/Breadcrumb/Breadcrumb";
+import { API_BASE_URL } from "../../configs/serverConfig";
+import { fetchBlogsByMultipleTags } from "../../api/tagAPI";
+
+const { Search } = Input;
 
 const AllBlog = () => {
   const [loading, setLoading] = useState(true);
   const [allBlogs, setAllBlogs] = useState([]);
+  const [filteredBlogs, setFilteredBlogs] = useState([]);
   const [serviceArticles, setServiceArticles] = useState([]);
   const [tags, setTags] = useState([]);
-  const [selectedTag, setSelectedTag] = useState("all");
+  const [selectedTags, setSelectedTags] = useState([]);
+  const [searchText, setSearchText] = useState("");
 
   // Lấy tất cả tag
   useEffect(() => {
-    fetch("http://localhost:8080/api/tags")
+    fetch(`${API_BASE_URL}/tags`)
       .then((res) => res.json())
       .then((data) => setTags(data || []))
       .catch(() => setTags([]));
@@ -26,24 +34,41 @@ const AllBlog = () => {
       setLoading(true);
       try {
         let blogs = [];
-        if (selectedTag === "all") {
-          const response = await fetch(
-            "http://localhost:8080/api/blog?page=0&size=50"
-          );
+        if (selectedTags.length === 0) {
+          // Không có tag nào được chọn - lấy tất cả blog
+          const response = await fetch(`${API_BASE_URL}/blog?page=0&size=50`);
           const data = await response.json();
           blogs = (data?.content || []).filter(
             (blog) => blog.status === "PUBLISHED"
           );
         } else {
-          const response = await fetch(
-            `http://localhost:8080/api/blog/by-tag/${selectedTag}?page=0&size=50`
-          );
-          const data = await response.json();
-          blogs = (data?.content || []).filter(
-            (blog) => blog.status === "PUBLISHED"
-          );
+          // Có tag được chọn - tìm theo multiple tags
+          try {
+            const response = await fetchBlogsByMultipleTags(
+              selectedTags,
+              0,
+              50
+            );
+            const data = response.data;
+            blogs = (data?.content || data || []).filter(
+              (blog) => blog.status === "PUBLISHED"
+            );
+          } catch (error) {
+            console.error("Error fetching blogs by multiple tags:", error);
+            // Fallback: nếu API multiple tags không hoạt động, dùng API single tag cho tag đầu tiên
+            if (selectedTags.length > 0) {
+              const response = await fetch(
+                `${API_BASE_URL}/blog/by-tag/${selectedTags[0]}?page=0&size=50`
+              );
+              const data = await response.json();
+              blogs = (data?.content || []).filter(
+                (blog) => blog.status === "PUBLISHED"
+              );
+            }
+          }
         }
         setAllBlogs(blogs);
+        setFilteredBlogs(blogs); // Initialize filtered blogs
 
         // Lọc các blog có tag "tin dịch vụ" (id = 2)
         const serviceBlogs = blogs.filter(
@@ -54,16 +79,31 @@ const AllBlog = () => {
         setServiceArticles(serviceBlogs);
       } catch (error) {
         setAllBlogs([]);
+        setFilteredBlogs([]);
         setServiceArticles([]);
       }
       setLoading(false);
     };
     fetchBlogs();
-  }, [selectedTag]);
+  }, [selectedTags]);
 
-  // Xử lý chọn tag filter
-  const handleFilterTag = (tagId) => {
-    setSelectedTag(tagId);
+  // Filter blogs by search text
+  useEffect(() => {
+    if (!searchText.trim()) {
+      setFilteredBlogs(allBlogs);
+    } else {
+      const filtered = allBlogs.filter(
+        (blog) =>
+          blog.title?.toLowerCase().includes(searchText.toLowerCase()) ||
+          blog.content?.toLowerCase().includes(searchText.toLowerCase())
+      );
+      setFilteredBlogs(filtered);
+    }
+  }, [searchText, allBlogs]);
+
+  // Xử lý chọn multiple tags
+  const handleTagsChange = (tagIds) => {
+    setSelectedTags(tagIds || []);
   };
 
   if (loading) {
@@ -82,7 +122,7 @@ const AllBlog = () => {
         </header>
         <div style={{ textAlign: "center", padding: "100px 20px" }}>
           <div style={{ fontSize: "18px", marginBottom: "10px" }}>
-             Đang tải dữ liệu blog...
+            Đang tải dữ liệu blog...
           </div>
           <div style={{ color: "#666" }}>Vui lòng chờ trong giây lát</div>
         </div>
@@ -92,7 +132,7 @@ const AllBlog = () => {
 
   return (
     <div className="medpro-all-blog-wrapper">
-      <header className="medpro-all-blog-header">
+      {/* <header className="medpro-all-blog-header">
         <div className="medpro-all-blog-container">
           <div className="medpro-all-blog-header-content">
             <Link to="/blog" className="medpro-all-blog-logo">
@@ -100,28 +140,9 @@ const AllBlog = () => {
             </Link>
           </div>
         </div>
-      </header>
+      </header> */}
 
-      {/* Filter tag group - căn giữa, đặt ngay dưới header */}
-      <div className="medpro-all-blog-container" style={{ marginTop: 32, marginBottom: 18 }}>
-        <div className="blog-tag-filter-group" style={{ justifyContent: "center" }}>
-          <button
-            className={`blog-tag-filter-btn${selectedTag === "all" ? " active" : ""}`}
-            onClick={() => handleFilterTag("all")}
-          >
-            Tất cả
-          </button>
-          {tags.map((tag) => (
-            <button
-              key={tag.id}
-              className={`blog-tag-filter-btn${selectedTag === tag.id ? " active" : ""}`}
-              onClick={() => handleFilterTag(tag.id)}
-            >
-              {tag.name}
-            </button>
-          ))}
-        </div>
-      </div>
+      {/* Search and Filter section */}
 
       <Breadcrumb
         items={[
@@ -134,15 +155,64 @@ const AllBlog = () => {
         <div className="medpro-all-blog-container">
           {/* All Blogs Section */}
           <section className="medpro-all-blog-all-section">
-            <div className="medpro-all-blog-section-header" style={{marginTop: 8}}>
-              <h2 className="medpro-all-blog-section-title">Tất cả tin tức</h2>
+            <div
+              className="medpro-all-blog-section-header"
+              style={{ marginTop: 8 }}
+            >
+              <h2 className="medpro-all-blog-section-title">Blog Sức Khỏe</h2>
+
               <p className="medpro-all-blog-section-description">
-                Khám phá các bài viết, tin tức và kiến thức y khoa nổi bật mỗi ngày!
+                Khám phá kiến thức mới nhất về sức khỏe giới tính và chủ đề liên
+                quan từ các chuyên gia hàng đầu
               </p>
+              <div
+                className="medpro-all-blog-container"
+                style={{ marginTop: 32, marginBottom: 24 }}
+              >
+                {/* Search Bar */}
+                <div className="search-filter-container">
+                  <div className="blog-search-container">
+                    <Search
+                      placeholder="Tìm kiếm bài viết theo tiêu đề hoặc nội dung..."
+                      allowClear
+                      enterButton="Tìm kiếm"
+                      size="large"
+                      value={searchText}
+                      onChange={(e) => setSearchText(e.target.value)}
+                      onSearch={(value) => setSearchText(value)}
+                    />
+                  </div>
+
+                  <div className="blog-tag-filter-group">
+                    <Select
+                      mode="multiple"
+                      allowClear
+                      placeholder="Lọc theo chủ đề"
+                      value={selectedTags}
+                      onChange={handleTagsChange}
+                      options={tags.map((tag) => ({
+                        label: tag.name,
+                        value: tag.id,
+                      }))}
+                      maxTagCount="responsive"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {searchText && (
+                <div
+                  style={{ marginTop: "16px", color: "#666", fontSize: "14px" }}
+                >
+                  {filteredBlogs.length > 0
+                    ? `Tìm thấy ${filteredBlogs.length} bài viết cho "${searchText}"`
+                    : `Không tìm thấy bài viết nào cho "${searchText}"`}
+                </div>
+              )}
             </div>
-            {allBlogs.length > 0 ? (
+            {filteredBlogs.length > 0 ? (
               <div className="medpro-all-blog-service-grid">
-                {allBlogs.map((blog) => (
+                {filteredBlogs.map((blog) => (
                   <div className="service-blog-card" key={blog.id}>
                     <img
                       src={
@@ -153,10 +223,11 @@ const AllBlog = () => {
                       className="service-blog-image"
                     />
                     <div className="service-blog-content">
-                      <span className="service-blog-tag">
-                        • {blog.tags?.[0]?.name || "Tin tức"}
-                      </span>
                       <h3 className="service-blog-title">{blog.title}</h3>
+                      <span className="service-blog-tag">
+                        #{blog.tags?.[0]?.name || "Tin tức"}
+                      </span>
+
                       <p className="service-blog-desc">
                         {blog.content?.substring(0, 150) + "..." ||
                           "Nội dung bài viết..."}
@@ -228,4 +299,3 @@ const AllBlog = () => {
 };
 
 export default AllBlog;
-

@@ -16,6 +16,8 @@ import {
   EyeOutlined,
   CheckOutlined,
   StopOutlined,
+  DeleteColumnOutlined,
+  DeleteOutlined,
 } from "@ant-design/icons";
 import api from "../../../../configs/api";
 import ServiceModal from "./ServiceModal";
@@ -478,7 +480,7 @@ const ServiceManagement = () => {
       key: "duration",
       render: (duration) => {
         try {
-          return duration ? Math.floor(duration / 60) : "N/A";
+          return duration ? Math.floor(duration) : "N/A";
         } catch (error) {
           console.error(" Error rendering duration:", error, duration);
           return "Error";
@@ -582,12 +584,14 @@ const ServiceManagement = () => {
                 onConfirm={() => handleToggleServiceStatus(record)}
               >
                 <Button
-                  icon={record.isActive ? <StopOutlined /> : <CheckOutlined />}
                   size="small"
                   danger={record.isActive}
+                  icon={
+                    record.isActive ? <DeleteOutlined /> : <CheckOutlined />
+                  }
                   type={record.isActive ? "default" : "primary"}
                 >
-                  {record.isActive ? "Vô hiệu hóa" : "Kích hoạt"}
+                  {record.isActive ? "Xóa" : "Kích hoạt"}
                 </Button>
               </Popconfirm>
             </Space>

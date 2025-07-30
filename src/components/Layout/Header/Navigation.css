@@ -108,3 +108,12 @@
   background: #0283f580; /* Xanh đậm 2 với opacity */
   color: #000000; /* Xanh đậm 2 */
 }
+
+/* Admin navigation items spacing */
+.nav-item.admin-item {
+  margin-left: 4px;
+}
+
+.nav-item.admin-item:first-of-type {
+  margin-left: 16px;
+}

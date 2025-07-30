@@ -1,0 +1,174 @@
+/* Doctor Working Hours Component Styles */
+
+.doctor-working-hours-container {
+  padding: 20px;
+}
+
+.doctor-panel-header {
+  width: 100%;
+  padding: 8px 0;
+}
+
+.doctor-info-section {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.doctor-avatar {
+  flex-shrink: 0;
+}
+
+.doctor-details {
+  flex: 1;
+}
+
+.doctor-name {
+  margin: 0 !important;
+  font-weight: 600;
+  color: #334155;
+}
+
+.doctor-contact-info {
+  margin-top: 4px;
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.doctor-contact-item {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  color: #666;
+  font-size: 13px;
+}
+
+.doctor-stats {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.slot-table {
+  margin-top: 16px;
+}
+
+.slot-time-cell {
+  font-weight: 600;
+  color: #1890ff;
+}
+
+.booking-tag {
+  font-weight: 500;
+}
+
+.empty-state {
+  text-align: center;
+  padding: 60px 20px;
+}
+
+.empty-state-icon {
+  font-size: 48px;
+  color: #d9d9d9;
+  margin-bottom: 16px;
+}
+
+.empty-state-title {
+  color: #999;
+  margin-bottom: 8px !important;
+}
+
+.empty-state-description {
+  color: #ccc;
+}
+
+.date-selector {
+  margin-bottom: 16px;
+}
+
+.info-text {
+  margin-bottom: 20px;
+  padding: 12px;
+  background: #f6f8fa;
+  border-radius: 6px;
+  border-left: 4px solid #1890ff;
+}
+
+/* Responsive styles */
+@media (max-width: 768px) {
+  .doctor-contact-info {
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .doctor-stats {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+  }
+
+  .doctor-panel-header .ant-row {
+    flex-direction: column;
+    align-items: flex-start !important;
+    gap: 12px;
+  }
+
+  .doctor-info-section {
+    gap: 12px;
+  }
+}
+
+@media (max-width: 480px) {
+  .doctor-working-hours-container {
+    padding: 12px;
+  }
+
+  .doctor-info-section {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  .doctor-avatar {
+    align-self: center;
+  }
+}
+
+/* Ant Design customizations */
+.ant-collapse-header {
+  padding: 16px !important;
+}
+
+.ant-collapse-content-box {
+  padding: 16px !important;
+}
+
+.ant-table-thead > tr > th {
+  background: #fafafa;
+  font-weight: 600;
+}
+
+.ant-tag {
+  border-radius: 4px;
+  font-weight: 500;
+}
+
+/* Loading state */
+.loading-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 200px;
+}
+
+/* Card hover effects */
+.ant-card:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  transition: box-shadow 0.3s ease;
+}
+
+.ant-collapse-item:hover {
+  background: #fafafa;
+  transition: background 0.2s ease;
+}

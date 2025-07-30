@@ -18,6 +18,13 @@ const RelatedArticlesSection = ({ articles }) => {
 
   const paginate = (pageNumber) => setCurrentPage(pageNumber);
 
+  const handleScrollToTop = () => {
+    // Scroll to top of page
+    window.scrollTo({
+      top: 0,
+    });
+  };
+
   if (!articles || articles.length === 0) {
     return null; // Don't render if no articles are provided
   }
@@ -34,6 +41,7 @@ const RelatedArticlesSection = ({ articles }) => {
             to={`/blog/${article.id}`}
             key={article.id}
             className="article-card"
+            onClick={handleScrollToTop}
           >
             <div className="article-card-image-wrapper">
               <img
@@ -76,8 +84,12 @@ const RelatedArticlesSection = ({ articles }) => {
         ))}
       </div>
       <div className="view-all-button-container">
-        <Link to="/blog" className="view-all-button">
-          Xem tất cả »
+        <Link
+          to="/blog"
+          className="view-all-button"
+          onClick={handleScrollToTop}
+        >
+          Xem tất cả
         </Link>
       </div>
     </div>

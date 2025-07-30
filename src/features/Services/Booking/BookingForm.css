@@ -47,7 +47,7 @@
 }
 
 .form-section {
-  margin-bottom: 20px;
+  margin-bottom: 5px;
 }
 
 .full-width-select,
@@ -70,7 +70,7 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  margin-bottom: 16px;
+  /* margin-bottom: 16px; */
 }
 
 .days-container {
@@ -221,4 +221,26 @@
   color: #38a169; /* màu xanh như ảnh */
   font-size: 22px;
   margin-left: 4px;
+}
+
+/* CSS cho form labels */
+.form-label {
+  margin-top: 16px;
+  display: block;
+}
+
+/* CSS cho consultant selection notification */
+.consultant-selected-notification {
+  background-color: #e6f7ff;
+  border: 1px solid #91d5ff;
+  border-radius: 6px;
+  padding: 8px 12px;
+  margin-bottom: 8px;
+  font-size: 14px;
+  color: #0050b3;
+}
+
+/* CSS cho consultant select dropdown */
+.consultant-select {
+  width: 100%;
 }

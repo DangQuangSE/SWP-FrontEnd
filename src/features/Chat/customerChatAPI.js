@@ -18,7 +18,7 @@ class CustomerChatAPIService {
     // Request interceptor - NO AUTH for customer API
     this.api.interceptors.request.use(
       (config) => {
-        console.log("🚀 [CUSTOMER CHAT API] Request:", {
+        console.log("[CUSTOMER CHAT API] Request:", {
           method: config.method?.toUpperCase(),
           url: config.url,
           fullURL: `${config.baseURL}${config.url}`,
@@ -40,7 +40,7 @@ class CustomerChatAPIService {
     // Response interceptor for error handling
     this.api.interceptors.response.use(
       (response) => {
-        console.log(" [CUSTOMER CHAT API] Response:", {
+        console.log("[CUSTOMER CHAT API] Response:", {
           status: response.status,
           url: response.config.url,
           data: response.data,
@@ -72,9 +72,9 @@ class CustomerChatAPIService {
         topic,
       };
 
-      console.log("📤 [CUSTOMER CHAT API] Creating session:", payload);
+      console.log(" [CUSTOMER CHAT API] Creating session:", payload);
       const response = await this.api.post("/chat/start", payload);
-      console.log(" [CUSTOMER CHAT API] Session created:", response.data);
+      console.log("[CUSTOMER CHAT API] Session created:", response.data);
       return response.data;
     } catch (error) {
       console.error(" [CUSTOMER CHAT API] Error creating session:", error);
@@ -93,9 +93,9 @@ class CustomerChatAPIService {
         senderName,
       };
 
-      console.log("📤 [CUSTOMER CHAT API] Sending message:", payload);
+      console.log(" [CUSTOMER CHAT API] Sending message:", payload);
       const response = await this.api.post("/chat/send", payload);
-      console.log(" [CUSTOMER CHAT API] Message sent:", response.data);
+      console.log("[CUSTOMER CHAT API] Message sent:", response.data);
       return response.data;
     } catch (error) {
       console.error(" [CUSTOMER CHAT API] Error sending message:", error);
@@ -114,10 +114,10 @@ class CustomerChatAPIService {
       const response = await this.api.get(
         `/chat/sessions/${sessionId}/messages`
       );
-      console.log("✅ [CUSTOMER CHAT API] Messages fetched:", response.data);
+      console.log("[CUSTOMER CHAT API] Messages fetched:", response.data);
       return response.data;
     } catch (error) {
-      console.error("❌ [CUSTOMER CHAT API] Error fetching messages:", error);
+      console.error(" [CUSTOMER CHAT API] Error fetching messages:", error);
       throw error;
     }
   }
@@ -127,9 +127,9 @@ class CustomerChatAPIService {
    */
   async endChatSession(sessionId) {
     try {
-      console.log("📤 [CUSTOMER CHAT API] Ending session:", sessionId);
+      console.log(" [CUSTOMER CHAT API] Ending session:", sessionId);
       const response = await this.api.post(`/chat/sessions/${sessionId}/end`);
-      console.log(" [CUSTOMER CHAT API] Session ended:", response.data);
+      console.log("[CUSTOMER CHAT API] Session ended:", response.data);
       return response.data;
     } catch (error) {
       console.error(" [CUSTOMER CHAT API] Error ending session:", error);
@@ -144,7 +144,7 @@ class CustomerChatAPIService {
     try {
       console.log("📥 [CUSTOMER CHAT API] Getting session status:", sessionId);
       const response = await this.api.get(`/chat/sessions/${sessionId}/status`);
-      console.log(" [CUSTOMER CHAT API] Session status:", response.data);
+      console.log("[CUSTOMER CHAT API] Session status:", response.data);
       return response.data;
     } catch (error) {
       console.error(
@@ -163,7 +163,7 @@ class CustomerChatAPIService {
    */
   async getUnreadCount(sessionId, customerName) {
     try {
-      console.log("📊 [CUSTOMER CHAT API] Getting unread count:", {
+      console.log(" [CUSTOMER CHAT API] Getting unread count:", {
         sessionId,
         customerName,
       });
@@ -175,13 +175,10 @@ class CustomerChatAPIService {
         }
       );
 
-      console.log("✅ [CUSTOMER CHAT API] Unread count:", response.data);
+      console.log("[CUSTOMER CHAT API] Unread count:", response.data);
       return response.data || 0;
     } catch (error) {
-      console.error(
-        "❌ [CUSTOMER CHAT API] Error getting unread count:",
-        error
-      );
+      console.error(" [CUSTOMER CHAT API] Error getting unread count:", error);
       // Return 0 if error to prevent UI issues
       return 0;
     }
@@ -195,7 +192,7 @@ class CustomerChatAPIService {
    */
   async markMessagesAsRead(sessionId, customerName) {
     try {
-      console.log("✅ [CUSTOMER CHAT API] Marking messages as read:", {
+      console.log("[CUSTOMER CHAT API] Marking messages as read:", {
         sessionId,
         customerName,
       });
@@ -211,13 +208,13 @@ class CustomerChatAPIService {
       );
 
       console.log(
-        "✅ [CUSTOMER CHAT API] Messages marked as read:",
+        "[CUSTOMER CHAT API] Messages marked as read:",
         response.data
       );
       return response.data;
     } catch (error) {
       console.error(
-        "❌ [CUSTOMER CHAT API] Error marking messages as read:",
+        " [CUSTOMER CHAT API] Error marking messages as read:",
         error
       );
       throw error;

@@ -1,7 +1,11 @@
 /* ===== FOOTER STYLES ===== */
+/*xanh đậm 1 #2753d0
+xanh đậm 2 #086ce4
+xanh đậm 3 #0283f5  */
+
 .footer {
   background: #fff;
-  background-color: #0283f530;
+  background-color: #0283f560;
   color: #fff; /* Màu chữ xanh đậm */
   padding: var(--spacing-3xl) 0 var(--spacing-lg);
   font-family: "Roboto", Arial, sans-serif;
@@ -61,7 +65,7 @@
   font-size: 18px;
   margin-bottom: var(--spacing-lg);
   color: #008fd3; /* Màu xanh tiêu đề */
-  position: relative;
+  /* position: relative; */
   font-weight: bold;
 }
 
@@ -113,7 +117,7 @@
 .contact-info .icon {
   margin-right: var(--spacing-sm);
   opacity: 0.8;
-  color: #00b9f2;
+  color: #184d63;
   font-size: 1.1em;
 }
 

@@ -1,6 +1,7 @@
 import SockJS from "sockjs-client";
 import { Stomp } from "@stomp/stompjs";
 import { chatNotificationService } from "./ChatNotification";
+import { WEBSOCKET_URL } from "../../../../configs/serverConfig";
 
 /**
  * WebSocket Service for Chat Dashboard
@@ -34,11 +35,11 @@ class ChatWebSocketService {
 
       try {
         console.log(
-          "🔌 [WEBSOCKET] Creating SockJS connection to: http://localhost:8080/ws/chat"
+          `🔌 [WEBSOCKET] Creating SockJS connection to: ${WEBSOCKET_URL}`
         );
 
         // Tạo SockJS connection đến endpoint /ws/chat
-        const socket = new SockJS("http://localhost:8080/ws/chat");
+        const socket = new SockJS(WEBSOCKET_URL);
 
         // Log SockJS events
         socket.onopen = () => {
@@ -68,9 +69,9 @@ class ChatWebSocketService {
             // Có thể thêm auth headers nếu cần
           },
           (frame) => {
-            console.log(" [WEBSOCKET] Connected successfully!");
-            console.log(" [WEBSOCKET] Frame:", frame);
-            console.log(" [WEBSOCKET] Session ID:", frame.headers["session"]);
+            console.log("[WEBSOCKET] Connected successfully!");
+            console.log("[WEBSOCKET] Frame:", frame);
+            console.log("[WEBSOCKET] Session ID:", frame.headers["session"]);
             this.connected = true;
             this.connecting = false;
             this.reconnectAttempts = 0;
@@ -169,10 +170,10 @@ class ChatWebSocketService {
       );
 
       this.subscriptions.set(destination, subscription);
-      console.log(` [SUBSCRIPTION] Successfully subscribed to: ${destination}`);
-      console.log(` [SUBSCRIPTION] Subscription object:`, subscription);
+      console.log(`[SUBSCRIPTION] Successfully subscribed to: ${destination}`);
+      console.log(`[SUBSCRIPTION] Subscription object:`, subscription);
       console.log(
-        ` [SUBSCRIPTION] Total subscriptions:`,
+        `[SUBSCRIPTION] Total subscriptions:`,
         this.subscriptions.size
       );
       return subscription;

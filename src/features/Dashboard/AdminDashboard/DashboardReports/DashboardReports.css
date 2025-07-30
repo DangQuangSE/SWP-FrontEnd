@@ -46,11 +46,11 @@
   color: white;
 }
 
-.dashboard-reports .ant-card-extra .ant-select .ant-select-selector {
+/* .dashboard-reports .ant-card-extra .ant-select .ant-select-selector {
   background: rgba(255, 255, 255, 0.1);
   border-color: rgba(255, 255, 255, 0.3);
   color: white;
-}
+} */
 
 .dashboard-reports .ant-card-extra .ant-select .ant-select-arrow {
   color: white;
@@ -257,4 +257,77 @@
 .dashboard-reports .ant-space-item {
   display: flex;
   align-items: center;
+}
+
+/* Status Filter Dropdown Styling */
+.dashboard-reports .ant-card .ant-card-extra .ant-select {
+  background: #ffffff;
+  border: 1px solid #d9d9d9;
+  border-radius: 6px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+}
+
+.dashboard-reports .ant-card .ant-card-extra .ant-select .ant-select-selector {
+  background: #ffffff;
+  border: none;
+  color: #333;
+  font-weight: 500;
+  padding: 4px 11px;
+  height: 24px;
+}
+
+.dashboard-reports
+  .ant-card
+  .ant-card-extra
+  .ant-select
+  .ant-select-selection-item {
+  color: #333;
+  font-size: 13px;
+  line-height: 22px;
+}
+
+.dashboard-reports .ant-card .ant-card-extra .ant-select .ant-select-arrow {
+  color: #666;
+  font-size: 12px;
+  transition: transform 0.3s ease;
+}
+
+.dashboard-reports
+  .ant-card
+  .ant-card-extra
+  .ant-select.ant-select-open
+  .ant-select-arrow {
+  transform: rotate(180deg);
+}
+
+/* Dropdown Menu Styling */
+.dashboard-reports .ant-select-dropdown {
+  border-radius: 6px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  border: 1px solid #e8e8e8;
+  padding: 4px 0;
+}
+
+.dashboard-reports .ant-select-item {
+  padding: 8px 12px;
+  font-size: 13px;
+  font-weight: 500;
+  color: #333;
+  transition: all 0.2s ease;
+}
+
+.dashboard-reports .ant-select-item:hover {
+  background: #f0f9ff;
+  color: #1890ff;
+}
+
+.dashboard-reports .ant-select-item-option-selected {
+  background: #e6f7ff;
+  color: #1890ff;
+  font-weight: 600;
+}
+
+.dashboard-reports .ant-select-item-option-selected:hover {
+  background: #bae7ff;
 }

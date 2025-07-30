@@ -2,13 +2,40 @@ import React, { useState, useEffect } from "react";
 import "./Articles.css";
 import { Link } from "react-router-dom";
 import { likeBlog } from "../../api/consultantAPI";
+import { fetchBlogSummary } from "../../api/commentAPI";
+import {
+  EyeIcon,
+  HeartIcon,
+  CommentIcon,
+} from "../../components/Icons/BlogIcons";
+import { API_BASE_URL } from "../../configs/serverConfig";
 
 const Articles = () => {
   const [articles, setArticles] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [loading, setLoading] = useState(true);
   const [likingBlogs, setLikingBlogs] = useState(new Set());
+  const [commentCounts, setCommentCounts] = useState({});
   const articlesPerPage = 4;
+
+  // Load comment counts
+  const loadCommentCounts = async () => {
+    try {
+      const response = await fetchBlogSummary();
+      const commentData = response.data || [];
+
+      // Convert array to object for easy lookup
+      const commentMap = {};
+      commentData.forEach((blog) => {
+        commentMap[blog.blog_id] = blog.commentCount || 0;
+      });
+
+      setCommentCounts(commentMap);
+    } catch (error) {
+      console.error("Error loading comment counts:", error);
+      setCommentCounts({});
+    }
+  };
 
   // Handle like blog
   const handleLikeBlog = async (e, blogId) => {
@@ -35,15 +62,12 @@ const Articles = () => {
       setTimeout(async () => {
         try {
           // Reload the articles data from API
-          const response = await fetch(
-            "http://localhost:8080/api/blog?page=0&size=20",
-            {
-              method: "GET",
-              headers: {
-                "Content-Type": "application/json",
-              },
-            }
-          );
+          const response = await fetch(`${API_BASE_URL}/blog?page=0&size=20`, {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+            },
+          });
 
           if (response.ok) {
             const data = await response.json();
@@ -88,24 +112,9 @@ const Articles = () => {
           console.error(`Error reloading articles:`, reloadError);
         }
       }, 2000);
-
     } catch (error) {
-      // Show user-friendly error message with login prompt
-      const errorMessage =
-        error.message || "Không thể thích bài viết. Vui lòng thử lại sau.";
-
-      if (errorMessage.includes("đăng nhập")) {
-        const shouldLogin = confirm(
-          ` ${errorMessage}\n\n Bạn có muốn đăng nhập ngay không?`
-        );
-        if (shouldLogin) {
-          // Redirect to login page
-          window.location.href = "/login";
-        }
-      } else {
-        alert(` ${errorMessage}`);
-      }
-
+      // Show user-friendly error message
+      alert(error.message || "Không thể thích bài viết. Vui lòng thử lại sau.");
       // Revert optimistic update on error
       setArticles((prevArticles) =>
         prevArticles.map((article) =>
@@ -132,16 +141,13 @@ const Articles = () => {
         setLoading(true);
         // Lấy nhiều blogs để có thể sort theo viewCount
         // Gọi API trực tiếp không qua api instance để tránh CORS
-        const response = await fetch(
-          "http://localhost:8080/api/blog?page=0&size=20",
-          {
-            method: "GET",
-            headers: {
-              "Content-Type": "application/json",
-              // Không gửi Authorization header để tránh CORS preflight
-            },
-          }
-        );
+        const response = await fetch(`${API_BASE_URL}/blog?page=0&size=20`, {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            // Không gửi Authorization header để tránh CORS preflight
+          },
+        });
 
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
@@ -200,6 +206,7 @@ const Articles = () => {
     };
 
     loadTopBlogs();
+    loadCommentCounts();
   }, []);
 
   const featuredArticle = articles.find((article) => article.featured);
@@ -261,7 +268,7 @@ const Articles = () => {
                 {/* Article Stats */}
                 <div className="article-stats">
                   <div className="stat-item">
-                    <span className="stat-icon">👁️</span>
+                    <EyeIcon size={16} color="#666" />
                     <span className="stat-count">
                       {featuredArticle.viewCount || 0}
                     </span>
@@ -273,14 +280,16 @@ const Articles = () => {
                     onClick={(e) => handleLikeBlog(e, featuredArticle.id)}
                     disabled={likingBlogs.has(featuredArticle.id)}
                   >
-                    <span className="stat-icon">❤️</span>
+                    <HeartIcon size={16} color="#ff4757" />
                     <span className="stat-count">
                       {featuredArticle.likeCount || 0}
                     </span>
                   </button>
                   <div className="stat-item">
-                    <span className="stat-icon">💬</span>
-                    <span className="stat-count">0</span>
+                    <CommentIcon size={16} color="#666" />
+                    <span className="stat-count">
+                      {commentCounts[featuredArticle.id] || 0}
+                    </span>
                   </div>
                 </div>
               </div>
@@ -314,7 +323,7 @@ const Articles = () => {
                   {/* Sidebar Article Stats */}
                   <div className="sidebar-article-stats">
                     <div className="stat-item">
-                      <span className="stat-icon">👁️</span>
+                      <EyeIcon size={14} color="#666" />
                       <span className="stat-count">
                         {article.viewCount || 0}
                       </span>
@@ -326,14 +335,16 @@ const Articles = () => {
                       onClick={(e) => handleLikeBlog(e, article.id)}
                       disabled={likingBlogs.has(article.id)}
                     >
-                      <span className="stat-icon">❤️</span>
+                      <HeartIcon size={14} color="#ff4757" />
                       <span className="stat-count">
                         {article.likeCount || 0}
                       </span>
                     </button>
                     <div className="stat-item">
-                      <span className="stat-icon">💬</span>
-                      <span className="stat-count">0</span>
+                      <CommentIcon size={14} color="#666" />
+                      <span className="stat-count">
+                        {commentCounts[article.id] || 0}
+                      </span>
                     </div>
                   </div>
                 </div>

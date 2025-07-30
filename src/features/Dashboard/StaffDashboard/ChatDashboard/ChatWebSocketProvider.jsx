@@ -34,9 +34,7 @@ export const ChatWebSocketProvider = ({ children }) => {
     const initializeWebSocket = async () => {
       if (initialized) return;
 
-      console.log(
-        "🚀 [WEBSOCKET PROVIDER] Initializing WebSocket connection..."
-      );
+      console.log("[WEBSOCKET PROVIDER] Initializing WebSocket connection...");
       setInitialized(true);
 
       try {
@@ -45,7 +43,7 @@ export const ChatWebSocketProvider = ({ children }) => {
         setConnected(true);
         setConnecting(false);
 
-        console.log(" [WEBSOCKET PROVIDER] WebSocket connected successfully");
+        console.log("[WEBSOCKET PROVIDER] WebSocket connected successfully");
       } catch (error) {
         console.error(" [WEBSOCKET PROVIDER] Failed to connect:", error);
         console.error(" [WEBSOCKET PROVIDER] Error details:", {
@@ -59,10 +57,10 @@ export const ChatWebSocketProvider = ({ children }) => {
 
         // Retry connection sau 10 giây (tăng thời gian để tránh spam)
         console.log(
-          " [WEBSOCKET PROVIDER] Will retry connection in 10 seconds..."
+          "[WEBSOCKET PROVIDER] Will retry connection in 10 seconds..."
         );
         setTimeout(() => {
-          console.log(" [WEBSOCKET PROVIDER] Retrying connection...");
+          console.log("[WEBSOCKET PROVIDER] Retrying connection...");
           setInitialized(false);
         }, 10000);
       }

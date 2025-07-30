@@ -1,7 +1,8 @@
 import axios from "axios";
+import { API_BASE_URL } from "./serverConfig";
 
 const api = axios.create({
-  baseURL: "http://localhost:8080/api", // Sử dụng proxy thay vì gọi trực tiếp
+  baseURL: API_BASE_URL, // Sử dụng config chung từ serverConfig
 });
 
 const upload = axios.create({

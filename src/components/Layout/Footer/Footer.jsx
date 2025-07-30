@@ -2,6 +2,11 @@ import React from "react";
 import "./Footer.css";
 import Logo from "../../../assets/Logo";
 import { Link } from "react-router-dom";
+import {
+  EnvironmentOutlined,
+  PhoneOutlined,
+  MailOutlined,
+} from "@ant-design/icons";
 
 const Footer = () => {
   return (
@@ -45,17 +50,24 @@ const Footer = () => {
               <h3>Liên hệ</h3>
               <ul className="contact-info">
                 <li>
-                  <span className="icon">📍</span>
+                  <span className="icon">
+                    <EnvironmentOutlined />
+                  </span>
                   <span>
                     Lô E2a-7, Đường D1 Khu Công nghệ cao, P. Long Thạnh Mỹ, TP.
                     Thủ Đức, TP. Hồ Chí Minh
                   </span>
                 </li>
                 <li>
-                  <span className="icon">📞</span>s<span>+84 123 456 789</span>
+                  <span className="icon">
+                    <PhoneOutlined />
+                  </span>
+                  <span>+84 123 456 789</span>
                 </li>
                 <li>
-                  <span className="icon">✉️</span>
+                  <span className="icon">
+                    <MailOutlined />
+                  </span>
                   <span>info@genderhealthcare.com</span>
                 </li>
               </ul>
